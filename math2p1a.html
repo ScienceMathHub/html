@@ -1,0 +1,401 @@
+<!--
+------------------------------------------------------------
+ 三角関数のグラフ(a)
+
+ HTML(JavaScript, canvas)
+
+ key 0-9, qw, zxc, カーソル(+shift), Enter, space
+
+ MathⅡ Ohtani 2022.1
+------------------------------------------------------------
+-->
+<!DOctxYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <title>三角関数のグラフ</title>
+</head>
+<body>
+<p id="Trigonometric"></p>
+<script>
+'use strict'
+
+//----------------------------------------------------------
+// 関数1 y = f(th)
+//----------------------------------------------------------
+var t1 = "y = sinθのグラフ";
+function f1(th)
+{
+  var y;
+
+  y = Math.sin(th);
+
+  return y;
+}
+
+//----------------------------------------------------------
+// 関数2 y = f(th)
+//----------------------------------------------------------
+var t2 = "y = sin(θ + π/2)のグラフ";
+function f2(th)
+{
+  var y;
+
+  y = Math.sin(th + Math.PI / 2);
+
+  return y;
+}
+
+//----------------------------------------------------------
+// 関数3 y = f(th)
+//----------------------------------------------------------
+var t3 = "y = sin(θ + π)のグラフ";
+function f3(th)
+{
+  var y;
+
+  y = Math.sin(th + Math.PI);
+
+  return y;
+}
+
+//----------------------------------------------------------
+// 関数4 y = f(th)
+//----------------------------------------------------------
+var t4 = "y = sin(θ + 3/2 π)のグラフ";
+function f4(th)
+{
+  var y;
+
+  y = Math.sin(th + 3/2 * Math.PI);
+
+  return y;
+}
+
+//----------------------------------------------------------
+// 関数5 y = f(th)
+//----------------------------------------------------------
+var t5 = "y = cosθのグラフ";
+function f5(th)
+{
+  var y;
+
+  y = Math.cos(th);
+
+  return y;
+}
+
+//----------------------------------------------------------
+// 関数6 y = f(th)
+//----------------------------------------------------------
+var t6 = "y = tanθのグラフ";
+function f6(th)
+{
+  var y;
+
+  y = Math.tan(th);
+
+  return y;
+}
+
+//----------------------------------------------------------
+// 関数7 y = f(th)
+//----------------------------------------------------------
+var t7 = "y = sinθ / cosθのグラフ";
+function f7(th)
+{
+  var y;
+
+  y = Math.sin(th) / Math.cos(th);
+
+  return y;
+}
+
+//----------------------------------------------------------
+// 関数8 y = f(th)
+//----------------------------------------------------------
+var t8 = "y = sin^2 θ + cos^2 θのグラフ";
+function f8(th)
+{
+  var y;
+
+  y = Math.pow(Math.sin(th), 2) + Math.pow(Math.cos(th), 2);
+
+  return y;
+}
+
+//----------------------------------------------------------
+// 関数9 y = f(th)
+//----------------------------------------------------------
+var t9 = "y = tan^2 θ + 1のグラフ";
+function f9(th)
+{
+  var y;
+
+  y = Math.pow(Math.tan(th), 2) + 1;
+
+  return y;
+}
+
+//----------------------------------------------------------
+// 関数0 y = f(th)
+//----------------------------------------------------------
+var t0 = "y = 1 / cos^2 θのグラフ";
+function f0(th)
+{
+  var y;
+
+  y = 1 / Math.pow(Math.cos(th), 2);
+
+  return y;
+}
+
+//----------------------------------------------------------
+// canvas
+//----------------------------------------------------------
+const canvas = document.createElement('canvas');
+const ctx = canvas.getContext('2d');
+document.body.appendChild(canvas);
+
+//----------------------------------------------------------
+// public variable
+//----------------------------------------------------------
+var CenX, CenY; // 中心座標
+var Zoom;       // 拡大率×(16,9)
+
+var ScaleX = 1; // X方向の大きさ
+var ScaleY = 1; // Y方向の大きさ
+var Select = 1; // 関数番号
+
+//----------------------------------------------------------
+// 描画関数
+//----------------------------------------------------------
+function cls(c)
+{
+  ctx.fillStyle = c;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+}
+function color(c)
+{
+  ctx.fillStyle   = c;
+  ctx.strokeStyle = c;
+}
+function line(x1, y1, x2, y2, c)
+{
+  ctx.strokeStyle = c;
+  ctx.beginPath();
+  ctx.moveTo(CenX + x1, CenY - y1);
+  ctx.lineTo(CenX + x2, CenY - y2);
+  ctx.stroke();
+  ctx.closePath();
+}
+
+//----------------------------------------------------------
+// グラフ
+//----------------------------------------------------------
+function graph(c, w, h, n, func, title)
+{
+  var x, y, x0, y0, s;
+
+  color('#fff');
+  ctx.font = "16px 'ＭＳ ゴシック'";
+  ctx.fillText(title, 8, 16);
+
+  s  = Math.PI / 60;
+  n *= Math.PI;
+  y0 = x0 = 1000;
+  for (x = -n; x <= n; x += s)
+  {
+    y = func(x);
+    if (Math.abs(y0 - y) > 5)
+    {
+      x0 = x;
+      y0 = y;
+    }
+    line(x0 * w, y0 * h, x * w, y * h, c);
+    x0 = x;
+    y0 = y;
+  }
+}
+
+//----------------------------------------------------------
+// 目盛り
+//----------------------------------------------------------
+function scale(c, w, h, n, m, s)
+{
+  var t, x, y, i, j, a;
+
+  cls('#000');
+
+  color(c);
+  ctx.font = "16px 'ＭＳ ゴシック'";
+
+  x = s * 1.0;
+  i = CenX - x - 18;
+  for (t = 1; t <= m; t++)
+  {
+    y = h * t;
+    ctx.fillText(" "+t, i, CenY - y + 7);
+    ctx.fillText("-"+t, i, CenY + y + 7);
+    line(-x,  y, x,  y, c);
+    line(-x, -y, x, -y, c);
+  }
+  line(-1000,  0, 1000, 0, c);
+
+  line( 0, -1000, 0, 1000, c);
+  n *= 2;
+  for (t = 1; t <= n; t++)
+  {
+    x = w * t * (Math.PI / 2);
+    if      ((t % 4) == 0)
+    {
+      y = s * 3.0;
+      i = CenX - 18;
+      j = CenY + 16 + y;
+      a = t / 2 + "π"
+      ctx.fillText(" "+a, i + x, j);
+      ctx.fillText("-"+a, i - x, j);
+    }
+    else if ((t % 2) == 0)
+    {
+      y = s * 3.0;
+      if (t == 2)
+      {
+        i = CenX - 16;
+        j = CenY + 16 + y;
+        ctx.fillText(" π", i + x, j);
+        ctx.fillText("-π", i - x, j);
+      }
+      y = s * 1.5;
+    }
+    else
+    {
+      y = s;
+    }
+    line( x, -y,  x, y, c);
+    line(-x, -y, -x, y, c);
+  }
+}
+
+//----------------------------------------------------------
+// select(0～9)
+//----------------------------------------------------------
+function selectof(k)
+{
+  var func  = [f0, f1, f2, f3, f4, f5, f6, f7, f8, f9];
+  var title = [t0, t1, t2, t3, t4, t5, t6, t7, t8, t9];
+  var x, y, n;
+
+  if (0 <= k && k <= 9)
+  {
+    Select = k;
+    x = ScaleX * Zoom;
+    y = ScaleY * Zoom;
+    n = 13;
+    scale('#ff0', x, y, n, 5, 10);
+    graph('#fff', x, y, n, func[k], title[k]);
+  }
+}
+
+//----------------------------------------------------------
+// Key
+//----------------------------------------------------------
+function keyon(t)
+{
+  if (Key[ 16]) { t = t * t * t * t; } // SHIFT
+  if (Key[ 38]) //↑
+  {
+    ScaleY *= t; if (ScaleY > 2    ) ScaleY = 2    ; 
+    ScaleX *= t; if (ScaleX > 2    ) ScaleX = 2    ;
+  }
+  if (Key[ 40]) //↓
+  {
+    ScaleY /= t; if (ScaleY < 1    ) ScaleY = 1    ;
+    ScaleX /= t; if (ScaleX < 1    ) ScaleX = 1    ;
+  } 
+  if (Key[ 39]) //→
+  {
+    ScaleX *= t; if (ScaleX > 2    ) ScaleX = 2    ;
+  } 
+  if (Key[ 37]) //←
+  {
+    ScaleX /= t; if (ScaleX < 0.197) ScaleX = 0.197;
+  }
+}
+
+//----------------------------------------------------------
+// Line width
+//----------------------------------------------------------
+function lineWidth(times)
+{
+  if (times == 1) { ctx.lineWidth = 1; }
+  else
+  {
+    ctx.lineWidth *= times;
+    if      (ctx.lineWidth <  1) ctx.lineWidth =  1;
+    else if (ctx.lineWidth > 16) ctx.lineWidth = 16;
+  }
+}
+
+//----------------------------------------------------------
+// Zoom
+//----------------------------------------------------------
+function zooming(sign)
+{
+  if (sign == 0) { Zoom = 40; }
+  else
+  {
+    Zoom += sign * 5;
+    if      (Zoom <  20) Zoom =  20;
+    else if (Zoom > 120) Zoom = 120;
+  }
+  canvas.width  = 16 * Zoom;
+  canvas.height =  9 * Zoom;
+  CenX = canvas.width  / 2;
+  CenY = canvas.height / 2;
+}
+
+//----------------------------------------------------------
+// Input key
+//----------------------------------------------------------
+document.body.addEventListener('keydown', event =>
+{
+  switch (event.keyCode)
+  {
+    case 13: ScaleX = ScaleY = 1; break; // Enter
+    case 32:          ScaleY = 1; break; // Space
+    case 81: lineWidth( 0.5)    ; break; // 'Q'
+    case 87: lineWidth( 2  )    ; break; // 'W'
+    case 90: zooming  (-1  )    ; break; // 'Z'
+    case 88: zooming  ( 1  )    ; break; // 'X'
+    case 67: zooming  ( 0  )    ; break; // 'C'
+    default: selectof(event.keyCode - 48);
+  }
+});
+
+//----------------------------------------------------------------------
+// Key status
+//----------------------------------------------------------------------
+var Key = new Array(256);
+for (var i = 0; i < 256; i++) Key[i] = 0;
+window.onkeydown = function(event) { Key[event.keyCode] = 1; }
+window.onkeyup   = function(event) { Key[event.keyCode] = 0; }
+
+//----------------------------------------------------------
+// main
+//----------------------------------------------------------
+function main()
+{
+  selectof(Select);
+  keyon(1.02);
+  window.requestAnimationFrame(main);
+}
+
+lineWidth(1);
+zooming(0);
+main();
+
+//----------------------------------------------------------
+</script>
+</body>
+</html>
