@@ -1,5 +1,5 @@
 # html
-(c) Ohtani 2022/5/7(土)
+Copyright 2021 Ohtani
 
 無断転載、無断使用など一切禁止です
 
