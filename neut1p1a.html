@@ -1,0 +1,973 @@
+<!--
+------------------------------------------------------------------------
+ 滴定曲線(neutralization titration curve)
+
+ HTML(JavaScript, canvas)
+
+ key 0-9, qw, zxc, カーソル(+shift), Enter
+
+ Basic-Chemistry (c)Ohtani 2022.5
+------------------------------------------------------------------------
+-->
+<!DOctxYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <title>滴定曲線</title>
+</head>
+<body>
+<p id="neutralization"></p>
+<script>
+'use strict'
+
+//----------------------------------------------------------------------
+// canvas
+//----------------------------------------------------------------------
+const canvas = document.createElement('canvas');
+const ctx = canvas.getContext('2d');
+document.body.appendChild(canvas);
+
+//----------------------------------------------------------------------
+// public variable
+//----------------------------------------------------------------------
+var WinX, WinY, WinW, WinH; // Window座標
+var PosX, PosY;  // グラフィックカレント
+var LocX, LocY;  // テキストカレント
+var LocW, LocH;  // テキストMサイズ
+var OffW, OffH;  // テキストSサイズ
+var Zoom;        // 拡大率×(16,9)
+var Volume  = 0; // 滴定量
+var Select  = 0; // 種類
+var Selects = 7; // 種類最大
+
+//----------------------------------------------------------------------
+// 初期設定
+//----------------------------------------------------------------------
+//--- Na:酸のmol, Lv:全滴定量, DvグラフStep, Rev:酸塩基逆転, Val:価数
+var Kw, Ka, Kb, Va, Vb, Ma, Mb, Na, Lv, Dv, Rev, Val;
+var Ka1, Ka2;
+//--- Val < 0 塩の滴定
+var Vh, Mh, Mc, Vc, Nh;
+//--- Public temp
+var Ca, Cb;
+//--- CH3COOH(0.08mol/L) + NaOH
+function init0()
+{
+  Ka = 2.69e-5;      //--- 酸  の解離定数(25℃)
+  Kb = 1e+8;         //--- 塩基の解離定数(25℃)
+  Va = 10;           //--- CH3COOH VA mL
+  Ma = 0.08;         //--- [CH3COOH] = MA mol/L
+  Mb = 0.1;          //--- [NaOH]    = MB mol/L
+  Rev = 0;           //--- 0:acid-base, 1:base-asid
+  Val = 1;           //--- 酸の価数
+}
+function neut0()
+{
+  COLOR('#fff'); PRINT("[CH");
+  FONT(0.8, 1); PRINT("3"); FONT(1, 1); PRINT("COOH]");
+  FONT(0.2, 1); PRINT(" "); FONT(1, 1); PRINT(" = ");
+  COLOR('#00f'); PRINT(Ma.toFixed(2));
+  COLOR('#fff'); PRINT(" mol/L, ");
+  COLOR('#0ff'); PRINT(('  '+Va).slice(-2) + " mL");
+  COLOR('#fff'); PRINT(" , ");
+  COLOR('#0f0'); PRINT("pH  0 ～ 14");
+  CR();
+  COLOR('#fff'); PRINT("[NaOH]    = " + Mb.toFixed(2) + " mol/L, ");
+  COLOR('#00f'); PRINT(('  '+Vb).slice(-2));
+  COLOR('#0ff'); PRINT(" mL");
+  COLOR('#fff'); PRINT(" , ");
+  COLOR('#fff'); PRINT("v = 0 ～ " + ('  '+Lv).slice(-2) + " mL");
+  CR();
+}
+//--- CH3COOH + NaOH
+function init1()
+{
+  Ka = 2.69e-5;      //--- 酸  の解離定数(25℃)
+  Kb = 1e+8;         //--- 塩基の解離定数(25℃)
+  Va = 10;           //--- CH3COOH VA mL
+  Ma = 0.1;          //--- [CH3COOH] = MA mol/L
+  Mb = 0.1;          //--- [NaOH]    = MB mol/L
+  Rev = 0;           //--- 0:acid-base, 1:base-asid
+  Val = 1;           //--- 酸の価数
+}
+function neut1()
+{
+  neut0();
+}
+//--- HCl + NH3
+function init2()
+{
+  Ka = 1e+8;         //--- 酸  の解離定数(25℃)
+  Kb = 1.79e-5;      //--- 塩基の解離定数(25℃)
+  Va = 10;           //--- HCl VA mL
+  Ma = 0.1;          //--- [HCl] = MA mol/L
+  Mb = 0.1;          //--- [NH3] = MB mol/L
+  Rev = 0;           //--- 0:acid-base, 1:base-asid
+  Val = 1;           //--- 酸の価数
+}
+function neut2()
+{
+  COLOR('#fff'); PRINT("[HCl] = ");
+  COLOR('#00f'); PRINT(Ma.toFixed(2));
+  COLOR('#fff'); PRINT(" mol/L, ");
+  COLOR('#0ff'); PRINT(('  '+Va).slice(-2) + " mL");
+  COLOR('#fff'); PRINT(" , ");
+  COLOR('#0f0'); PRINT("pH  0 ～ 14");
+  CR();
+  COLOR('#fff'); PRINT("[NH");
+  FONT(0.8, 1); PRINT("3"); FONT(0.2, 1); PRINT(" "); FONT(1, 1);
+  PRINT("] = " + Mb.toFixed(2) + " mol/L, ");
+  COLOR('#00f'); PRINT(('  '+Vb).slice(-2));
+  COLOR('#0ff'); PRINT(" mL");
+  COLOR('#fff'); PRINT(" , ");
+  COLOR('#fff'); PRINT("v = 0 ～ " + ('  '+Lv).slice(-2) + " mL");
+  CR();
+}
+//--- HCl + NaOH
+function init3()
+{
+  Ka = 1e+8;         //--- 酸  の解離定数(25℃)
+  Kb = 1e+8;         //--- 塩基の解離定数(25℃)
+  Va = 10;           //--- HCl VA mL
+  Ma = 0.1;          //--- [HCl]  = MA mol/L
+  Mb = 0.1;          //--- [NaOH] = MB mol/L
+  Rev = 0;           //--- 0:acid-base, 1:base-asid
+  Val = 1;           //--- 酸の価数
+}
+function neut3()
+{
+  COLOR('#fff'); PRINT("[HCl] = ");
+  COLOR('#00f'); PRINT(Ma.toFixed(2));
+  COLOR('#fff'); PRINT(" mol/L, ");
+  COLOR('#0ff'); PRINT(('  '+Va).slice(-2) + " mL");
+  COLOR('#fff'); PRINT(" , ");
+  COLOR('#0f0'); PRINT("pH  0 ～ 14");
+  CR();
+  COLOR('#fff'); PRINT("[NaOH]    = " + Mb.toFixed(2) + " mol/L, ");
+  COLOR('#00f'); PRINT(('  '+Vb).slice(-2));
+  COLOR('#0ff'); PRINT(" mL");
+  COLOR('#fff'); PRINT(" , ");
+  COLOR('#fff'); PRINT("v = 0 ～ " + ('  '+Lv).slice(-2) + " mL");
+  CR();
+}
+//--- CH3COOH + NH3
+function init4()
+{
+  Ka = 2.69e-5;      //--- 酸  の解離定数(25℃)
+  Kb = 1.79e-5;      //--- 塩基の解離定数(25℃)
+  Va = 10;           //--- CH3COOH VA mL
+  Ma = 0.1;          //--- [CH3COOH] = MA mol/L
+  Mb = 0.1;          //--- [NH3]     = MB mol/L
+  Rev = 0;           //--- 0:acid-base, 1:base-asid
+  Val = 1;           //--- 酸の価数
+}
+function neut4()
+{
+  COLOR('#fff'); PRINT("[CH");
+  FONT(0.8, 1); PRINT("3"); FONT(1, 1); PRINT("COOH]");
+  FONT(0.2, 1); PRINT(" "); FONT(1, 1); PRINT(" = ");
+  COLOR('#00f'); PRINT(Ma.toFixed(2));
+  COLOR('#fff'); PRINT(" mol/L, ");
+  COLOR('#0ff'); PRINT(('  '+Va).slice(-2) + " mL");
+  COLOR('#fff'); PRINT(" , ");
+  COLOR('#0f0'); PRINT("pH  0 ～ 14");
+  CR();
+  COLOR('#fff'); PRINT("[NH");
+  FONT(0.8, 1); PRINT("3"); FONT(0.2, 1); PRINT(" "); FONT(1, 1);
+  PRINT("]     = " + Mb.toFixed(2) + " mol/L, ");
+  COLOR('#00f'); PRINT(('  '+Vb).slice(-2));
+  COLOR('#0ff'); PRINT(" mL");
+  COLOR('#fff'); PRINT(" , ");
+  COLOR('#fff'); PRINT("v = 0 ～ " + ('  '+Lv).slice(-2) + " mL");
+  CR();
+}
+//--- NH3 + HCl
+function init5()
+{
+  Ka = 1.79e-5;      //--- 塩基の解離定数(25℃)
+  Kb = 1e+8;         //--- 酸  の解離定数(25℃)
+  Va = 10;           //--- NH3 VA mL
+  Ma = 0.1;          //--- [NH3] = MA mol/L
+  Mb = 0.1;          //--- [HCl] = MB mol/L
+  Rev = 1;           //--- 0:acid-base, 1:base-asid
+  Val = 1;           //--- 酸の価数
+}
+function neut5()
+{
+  COLOR('#fff'); PRINT("[NH");
+  FONT(0.8, 1); PRINT("3"); FONT(1, 1); PRINT("]");
+  FONT(0.2, 1); PRINT(" "); FONT(1, 1); PRINT(" = ");
+  COLOR('#00f'); PRINT(Ma.toFixed(2));
+  COLOR('#fff'); PRINT(" mol/L, ");
+  COLOR('#0ff'); PRINT(('  '+Va).slice(-2) + " mL");
+  COLOR('#fff'); PRINT(" , ");
+  COLOR('#0f0'); PRINT("pH  0 ～ 14");
+  CR();
+  COLOR('#fff'); PRINT("[HCl] = " + Mb.toFixed(2) + " mol/L, ");
+  COLOR('#00f'); PRINT(('  '+Vb).slice(-2));
+  COLOR('#0ff'); PRINT(" mL");
+  COLOR('#fff'); PRINT(" , ");
+  COLOR('#fff'); PRINT("v = 0 ～ " + ('  '+Lv).slice(-2) + " mL");
+  CR();
+}
+//--- (COOH)2 + NaOH
+function init6()
+{
+  Ka1 = 5.4e-2;      //--- 酸の解離定数1(25℃) ?
+  Ka2 = 5.4e-5;      //--- 酸の解離定数2(25℃) ?
+  Va  = 10;          //--- (COOH)2 VA mL
+  Ma  = 0.05;        //--- [COOH)2] = MA mol/L
+  Mb  = 0.1;         //--- [NaOH] = MB mol/L
+  Rev = 0;           //--- 0:acid-base, 1:base-asid
+  Val = 2;           //--- 酸の価数
+}
+function neut6()
+{
+  COLOR('#fff'); PRINT("[(COOH)");
+  FONT(0.8, 1); PRINT("2"); FONT(1, 1); PRINT("]");
+  FONT(0.2, 1); PRINT(" "); FONT(1, 1); PRINT(" = ");
+  COLOR('#00f'); PRINT(Ma.toFixed(2));
+  COLOR('#fff'); PRINT(" mol/L, ");
+  COLOR('#0ff'); PRINT(('  '+Va).slice(-2) + " mL");
+  COLOR('#fff'); PRINT(" , ");
+  COLOR('#0f0'); PRINT("pH  0 ～ 14");
+  CR();
+  COLOR('#fff'); PRINT("[NaOH]    = " + Mb.toFixed(2) + " mol/L, ");
+  COLOR('#00f'); PRINT(('  '+Vb).slice(-2));
+  COLOR('#0ff'); PRINT(" mL");
+  COLOR('#fff'); PRINT(" , ");
+  COLOR('#fff'); PRINT("v = 0 ～ " + ('  '+Lv).slice(-2) + " mL");
+  CR();
+}
+//--- Na2CO3 + HCl
+function init7()
+{
+  Ka1 = 4.5e-7;      //--- 酸の解離定数1(25℃) ?
+  Ka2 = 4.7e-11;     //--- 酸の解離定数2(25℃) ?
+  Vh  = 10;          //--- Na2CO3 VA mL
+  Mh  = 0.05;        //--- [Na2CO3] = MA mol/L
+  Mc  = 0.1;         //--- [HCl] = MB mol/L
+  Rev = 0;           //--- 0:acid-base, 1:base-asid
+  Val = -2;          //--- 酸の価数(塩)
+}
+function neut7()
+{
+  COLOR('#fff'); PRINT("[Na");
+  FONT(0.8, 1); PRINT("2"); FONT(1, 1); PRINT("CO");
+  FONT(0.8, 1); PRINT("3"); FONT(1, 1); PRINT("]");
+  FONT(0.2, 1); PRINT("  "); FONT(1, 1); PRINT(" = ");
+  COLOR('#00f'); PRINT(Mh.toFixed(2));
+  COLOR('#fff'); PRINT(" mol/L, ");
+  COLOR('#0ff'); PRINT(('  '+Vh).slice(-2) + " mL");
+  COLOR('#fff'); PRINT(" , ");
+  COLOR('#0f0'); PRINT("pH  0 ～ 14");
+  CR();
+  COLOR('#fff'); PRINT("[HCl]    = " + Mc.toFixed(2) + " mol/L, ");
+  COLOR('#00f'); PRINT(('  '+Vc).slice(-2));
+  COLOR('#0ff'); PRINT(" mL");
+  COLOR('#fff'); PRINT(" , ");
+  COLOR('#fff'); PRINT("v = 0 ～ " + ('  '+Lv).slice(-2) + " mL");
+  CR();
+}
+
+//----------------------------------------------------------------------
+// help
+//----------------------------------------------------------------------
+function help()
+{
+  COLOR('#0f0');
+  LOCATE(57,  9); PRINT("0～" + Selects + " :選択");
+  LOCATE(57, 10); PRINT("Enter:リセット");
+
+  LOCATE(57, 12); PRINT("→:滴下(↑,+shift:多)");
+  LOCATE(57, 13); PRINT("←:戻す(↓,+shift:多)");
+
+  LOCATE(57, 15); PRINT("z,x,c:縮小,拡大,初期");
+  LOCATE(57, 16); PRINT("q,w  :線幅-細く,太く")
+}
+
+//----------------------------------------------------------------------
+// 描画関数
+//----------------------------------------------------------------------
+function scrX(x)
+{
+  return Math.round((x - WinX) * canvas.width  / WinW);
+}
+
+function scrY(y)
+{
+  return Math.round((y - WinY) * canvas.height / WinH);
+}
+
+function WINDOW(x1, y1, x2, y2)
+{
+  WinX = x1;
+  WinY = y1;
+  WinW = x2 - x1 + 1;
+  WinH = y2 - y1 + 1;
+}
+
+function LOCATE(x, y)
+{
+  LocX = x * LocW;
+  LocY = y * LocH;
+}
+
+function CR()
+{
+  LocX = 0;
+  LocY += LocH;
+}
+
+function CLS(c)
+{
+  ctx.fillStyle = c;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  LOCATE(0, 0);
+}
+
+function COLOR(c)
+{
+  ctx.fillStyle   = c;
+  ctx.strokeStyle = c;
+}
+
+String.prototype.bytes = function ()
+{
+  return(encodeURIComponent(this).replace(/%../g,"x").length);
+}
+
+function FONT(zoom, offs)
+{
+  var h;
+
+  zoom = Math.round(Zoom * zoom / 40 * 8);
+  LocW = zoom;
+  h    = zoom * 2;
+  offs = Math.round(Zoom * offs / 40 * 8);
+  OffH = offs * 2;
+  offs = Math.round(Zoom        / 40 * 8);
+  LocH = offs * 2;
+  ctx.font = h + "px 'ＭＳ ゴシック'";  
+}
+
+function PRINT(text)
+{
+  var len, b;
+
+  text += '';
+  b     = text.bytes();
+  len   = text.length;
+  b    -= len;
+  b     = b / 2;
+  len  += b;
+  ctx.fillText(text, LocX, LocY + OffH  - 1);
+  LocX += len * LocW;
+}
+
+function SYMBOL(x, y, text, c)
+{
+  var x1, y1;
+
+  x1 = scrX(x);
+  y1 = scrY(y);
+  ctx.fillStyle   = c;
+  ctx.strokeStyle = c;
+  ctx.fillText(text, x1, y1);
+}
+
+function POINT(x, y)
+{
+  PosX = scrX(x);
+  PosY = scrY(y);
+}
+
+function LINE(x1, y1, x2, y2, c)
+{
+  ctx.strokeStyle = c;
+  ctx.beginPath();
+  PosX = scrX(x1);
+  PosY = scrY(y1);
+  ctx.moveTo(PosX, PosY);
+  PosX = scrX(x2);
+  PosY = scrY(y2);
+  ctx.lineTo(PosX, PosY);
+  ctx.stroke();
+  ctx.closePath();
+}
+
+function LINE2(x2, y2, c)
+{
+  ctx.strokeStyle = c;
+  ctx.beginPath();
+  ctx.moveTo(PosX, PosY);
+  PosX = scrX(x2);
+  PosY = scrY(y2);
+  ctx.lineTo(PosX, PosY);
+  ctx.stroke();
+  ctx.closePath();
+}
+
+function LINEB(x1, y1, x2, y2, c)
+{
+  LINE(x1, y1, x1, y2, c);
+  LINE(x2, y1, x2, y2, c);
+  LINE(x1, y1, x2, y1, c);
+  LINE(x1, y2, x2, y2, c);
+}
+/*
+function LINEB(x1, y1, x2, y2, c)
+{
+  var x, y, w, h;
+
+  x = scrX(x1);
+  y = scrY(y1);
+  PosX = scrX(x2);
+  PosY = scrY(y2);
+  w = PosX - x + 1;
+  h = PosY - y + 1;
+  ctx.strokeStyle = c;
+  ctx.strokeRect(x, y, w, h);
+}
+*/
+
+function LINEBF(x1, y1, x2, y2, c)
+{
+  var x, y, w, h;
+
+  x = scrX(x1);
+  y = scrY(y1);
+  PosX = scrX(x2);
+  PosY = scrY(y2);
+  w = PosX - x + 1;
+  h = PosY - y + 1;
+  ctx.fillStyle = c;
+  ctx.fillRect(x, y, w, h);
+}
+
+//----------------------------------------------------------------------
+// Plot (vb - pH)
+//----------------------------------------------------------------------
+function plot(vb, ph, c)
+{
+  if (vb <= 0) { POINT(vb, -ph); return; }
+  LINE2(vb, -ph, c);
+}
+
+//----------------------------------------------------------------------
+// x = newton method(a, b, c, d, e)
+//----------------------------------------------------------------------
+function newton(a, b, c, d, e)
+{
+  var x, dx, f, fd;
+
+  x  = 1e+1;                   //--- pH -1 から検索
+  dx = x;
+  while (Math.abs(dx) > 1e-16) //--- 1E-16の誤差
+  {
+    f  = a*x*x*x*x + b*x*x*x + c*x*x + d*x + e; //--- f (x)
+    fd = 4*a*x*x*x + 3*b*x*x + 2*c*x + d;       //--- f'(x)
+    dx = f / fd;
+    x -= dx;
+  }
+  return x;
+}
+
+//----------------------------------------------------------------------
+// [H+] ca=酸の濃度 mol/L, cb=塩基の濃度 mol/L
+//----------------------------------------------------------------------
+//--- 1価の酸
+function equation1(ca, cb)
+{
+  var a, b, c, d, e;
+
+  a = Kb;
+  b = Kw + Kb * (Ka + cb);
+  c = Kw * (Ka - Kb) + Ka * Kb * (cb - ca);
+  d = -Kw * (Kw + Ka * (Kb + ca));
+  e = -Ka * Kw * Kw;
+
+  return newton(a, b, c, d, e);
+}
+//--- 2価の酸
+function equation2(ca, cb)
+{
+  var a, b, c, d, e;
+
+  a = 1;
+  b = Ka1 + cb;
+  c = Ka1 * (Ka2 + cb - ca) - Kw;
+  d = Ka1 * (Ka2 * (cb - 2 * ca) - Kw);
+  e = -Ka1 * Ka2 * Kw;
+
+  return newton(a, b, c, d, e);
+}
+//--- main
+function equation(ca, cb)
+{
+  switch(Math.abs(Val))
+  {
+    case 1: return equation1(ca, cb);
+    case 2: return equation2(ca, cb);
+  }
+}
+
+//----------------------------------------------------------------------
+// Indicator
+//----------------------------------------------------------------------
+function indicator(ph1, ph2, r1, g1, b1, r2, g2, b2, x, w, ph)
+{
+  var x0, x1, r, b, g, c, c1, phw;
+
+  x0 = x;
+  x1 = x0 + w;
+  c1 = -1;
+  r   = r1; g   = g1; b   = b1;
+  r2 -= r1; g2 -= g1; b2 -= b1;
+  phw = ph2 - ph1;
+  for (i = 0; i <= 14; i += 0.02)
+  {
+    if (ph1 <= i && i <= ph2)
+    {
+       r = r1 + Math.round((i - ph1) / phw * r2);
+       g = g1 + Math.round((i - ph1) / phw * g2);
+       b = b1 + Math.round((i - ph1) / phw * b2);
+    }
+    c = '#' + r.toString(16) + g.toString(16) + b.toString(16);
+    LINE(x0, -i, x1, -i, c);
+    if (c1 < 0 && i > ph) c1 = c;
+  }
+  LINEB (x0,   0, x1+w, -14, '#fff');
+
+  LINEBF(x0,   0, x1+w,   2,  c1   );
+  LINEB (x0,   0, x1+w,   2, '#fff');
+  x0 = x1;
+  x1 = x0 + w;
+  LINE  (x0, -ph, x1  , -ph, '#fff');
+}
+
+//----------------------------------------------------------------------
+// phenol phthalein
+//----------------------------------------------------------------------
+function phenol(ph)
+{
+  var x;
+
+  x  = Lv / 20;
+  //        ph1  ph2  r1  g1  b1  r2  g2  b2  pos         w  pH
+  indicator(8.0, 9.8,  0,  0,  0, 15,  0,  8, Lv + x * 3, x, ph);
+}
+
+//----------------------------------------------------------------------
+// methyl orange
+//----------------------------------------------------------------------
+function orange(ph)
+{
+  var x;
+
+  x  = Lv / 20;
+  //        ph1  ph2  r1  g1  b1  r2  g2  b2  pos         w  pH
+  indicator(3.1, 4.4, 15,  5,  0, 15, 14,  0, Lv + x,     x, ph);
+}
+
+//----------------------------------------------------------------------
+// H+,OH-
+//----------------------------------------------------------------------
+function balance1(ca, cb)
+{
+  var p, x, x0, x1, x2, c1, c2;
+
+  ca *= Math.abs(Val);
+
+  COLOR('#fff'); LOCATE(57, 0); PRINT("酸と塩基(H");
+  FONT(0.7, 0.6); PRINT("+"); FONT(1, 1); PRINT(",OH");
+  FONT(0.7, 0.6); PRINT("-"); FONT(1, 1); PRINT("換算)");
+  LOCATE(57, 1);
+  if (!Rev)
+  {
+    PRINT("[H" ); FONT(0.7, 0.6); PRINT("+"); FONT(1, 1);
+    PRINT("]  = " + ca.toFixed(4) + " mol/L");
+  }
+  else
+  {
+    PRINT("[OH" ); FONT(0.7, 0.6); PRINT("-"); FONT(1, 1);
+    PRINT("] = " + ca.toFixed(4) + " mol/L");
+  }
+  LOCATE(57, 2);
+  if (!Rev)
+  {
+    PRINT("[OH" ); FONT(0.7, 0.6); PRINT("-"); FONT(1, 1);
+    PRINT("] = "  + cb.toFixed(4) + " mol/L"); 
+  }
+  else
+  {
+    PRINT("[H" ); FONT(0.7, 0.6); PRINT("+"); FONT(1, 1);
+    PRINT("]  = "  + cb.toFixed(4) + " mol/L"); 
+  }
+
+  LOCATE(57, 4); COLOR('#fff');
+  if (!Rev)
+  {
+    PRINT("H");
+    FONT(0.7, 0.6); PRINT("+"); FONT(1, 1);
+    PRINT("               OH");
+    FONT(0.7, 0.6); PRINT("-"); FONT(1, 1);
+    c1 = '#f00'; c2 = '#0ff';
+  }
+  else
+  {
+    PRINT("OH");
+    FONT(0.7, 0.6); PRINT("-"); FONT(1, 1);
+    PRINT("               H");
+    FONT(0.7, 0.6); PRINT("+"); FONT(1, 1);
+    c1 = '#0ff'; c2 = '#f00';
+  }
+
+  p = ca / (ca + cb);
+  x  = Lv / 2;
+  x0 = Lv + x * 0.6;
+  x1 = x0 + x * p;
+  x2 = x0 + x;
+  LINEBF(x0, -12, x1, -11, c1    );
+  LINEBF(x1, -12, x2, -11, c2    );
+  LINEB (x0, -12, x2, -11, '#fff');
+  LINE  (x1, -12, x1, -11, '#ff0');
+  x1 = (x2 + x0) / 2;
+  LINE  (x1, -12, x1, -11, '#00f');
+}
+function balance2(ca, cb)
+{
+  var p, x, x0, x1, x2, c1, c2;
+
+  ca *= Math.abs(Val);
+
+  COLOR('#fff'); LOCATE(57, 0); PRINT("塩と酸(1価A");
+  FONT(0.7, 0.6); PRINT("-"); FONT(1, 1); PRINT(",H");
+  FONT(0.7, 0.6); PRINT("+"); FONT(1, 1); PRINT("換算)");
+  LOCATE(57, 1);
+  if (!Rev)
+  {
+    PRINT("[A" ); FONT(0.7, 0.6); PRINT("-"); FONT(1, 1);
+    PRINT("] = " + ca.toFixed(4) + " mol/L");
+  }
+  else
+  {
+    PRINT("[H" ); FONT(0.7, 0.6); PRINT("+"); FONT(1, 1);
+    PRINT("] = " + ca.toFixed(4) + " mol/L");
+  }
+  LOCATE(57, 2);
+  if (!Rev)
+  {
+    PRINT("[H" ); FONT(0.7, 0.6); PRINT("+"); FONT(1, 1);
+    PRINT("] = "  + cb.toFixed(4) + " mol/L"); 
+  }
+  else
+  {
+    PRINT("[A" ); FONT(0.7, 0.6); PRINT("-"); FONT(1, 1);
+    PRINT("] = "  + cb.toFixed(4) + " mol/L"); 
+  }
+
+  LOCATE(57, 4); COLOR('#fff');
+  if (!Rev)
+  {
+    PRINT("A");
+    FONT(0.7, 0.6); PRINT("-"); FONT(1, 1);
+    PRINT("                H");
+    FONT(0.7, 0.6); PRINT("+"); FONT(1, 1);
+    c1 = '#0f0'; c2 = '#f00';
+  }
+  else
+  {
+    PRINT("H");
+    FONT(0.7, 0.6); PRINT("+"); FONT(1, 1);
+    PRINT("                A");
+    FONT(0.7, 0.6); PRINT("-"); FONT(1, 1);
+    c1 = '#f00'; c2 = '#0f0';
+  }
+
+  p = ca / (ca + cb);
+  x  = Lv / 2;
+  x0 = Lv + x * 0.6;
+  x1 = x0 + x * p;
+  x2 = x0 + x;
+  LINEBF(x0, -12, x1, -11, c1    );
+  LINEBF(x1, -12, x2, -11, c2    );
+  LINEB (x0, -12, x2, -11, '#fff');
+  LINE  (x1, -12, x1, -11, '#ff0');
+  x1 = (x2 + x0) / 2;
+  LINE  (x1, -12, x1, -11, '#00f');
+}
+function balance(ca, cb)
+{
+  if (Val >= 0) balance1(ca, cb);
+  else          balance2(ca, cb);
+}
+
+//----------------------------------------------------------------------
+// init
+//----------------------------------------------------------------------
+function init()
+{
+  var x;
+
+  switch(Select)
+  {
+    case 0: init0(); break;
+    case 1: init1(); break;
+    case 2: init2(); break;
+    case 3: init3(); break;
+    case 4: init4(); break;
+    case 5: init5(); break;
+    case 6: init6(); break;
+    case 7: init7(); break;
+  }
+
+  Kw = 1e-14;            //--- 水  のイオン積(25℃)
+
+  if (Val >= 0)
+  {
+    Vb = Ma * Va / Mb;   //--- 滴定量(中和点) mL
+    Vb *= Math.abs(Val); //--- 酸の価数
+    Lv = Vb * 2;         //--- 全滴定量 mL
+    Dv = 0.05;           //--- 1滴 0.05 mL
+    Na = Ma * Va;        //--- 酸の物質量 mmol
+  }
+  else
+  {
+    Vc = Mh * Vh / Mc;   //--- 滴定量(中和点) mL
+    Vc *= Math.abs(Val); //--- 塩の価数
+    Lv = Vc * 2;         //--- 全滴定量 mL
+    Dv = 0.05;           //--- 1滴 0.05 mL
+    Nh = Mh * Vh;        //--- 塩の物質量 mmol
+  }
+
+  x = Lv / 3;
+  WINDOW(-Lv / 2 + x, -17, Lv + Lv / 2 + x, 1);
+}
+
+//----------------------------------------------------------------------
+// titration
+//----------------------------------------------------------------------
+function titration1(vb)
+{
+  var v, nb, x, ph;
+
+  v  = Va + vb;          //--- 合計の体積 mL
+  Ca = Na / v;           //--- 酸の濃度 mol/L
+  nb = Mb * vb;          //--- 塩基の物質量 mmol
+  Cb = nb / v;           //--- 塩基の濃度 mol/L
+  x = equation(Ca, Cb);  //--- x = [H+] mol/L
+  ph = -Math.log10(x);   //--- pH
+  if (Rev) ph = 14 - ph;
+
+  return ph;
+}
+function titration2(vc)
+{
+  var v, nc, x, ph, cc;
+
+  v  = Vh + vc;                 //--- 合計の体積 mL
+  Ca = Nh / v;                  //--- 塩の濃度 mol/L
+  nc = Mc * vc;                 //--- 酸の物質量 mmol
+  cc = nc / v;                  //--- 酸の濃度 mol/L
+  Cb = Math.abs(Val) * Ca - cc; //--- 塩基の濃度 mol/L
+  x = equation(Ca, Cb);         //--- x = [H+] mol/L
+  ph = -Math.log10(x);          //--- pH
+  if (Rev) ph = 14 - ph;
+
+  Cb = cc;
+
+  return ph;
+}
+function titration(vb)
+{
+  if (Val >= 0) return titration1(vb);
+  else          return titration2(vb);
+}
+
+//----------------------------------------------------------------------
+// neutralization titration
+//----------------------------------------------------------------------
+function neut(lv)
+{
+  var i, vb, ph1, ca1, cb1, dv, ph;
+
+  init();
+  CLS('#000');
+
+  switch(Select)
+  {
+    case 0: neut0(); break;
+    case 1: neut1(); break;
+    case 2: neut2(); break;
+    case 3: neut3(); break;
+    case 4: neut4(); break;
+    case 5: neut5(); break;
+    case 6: neut6(); break;
+    case 7: neut7(); break;
+  }
+
+  for (i = 0; i <= 14; i++)
+  {
+    var t;
+
+    if (i > 0)
+    {
+      LINE(0, -i, Lv, -i, '#00f');
+    }
+    t = (i < 10)? ' ' + i : i;
+    SYMBOL(-Lv/15, -i+0.4, t, '#fff');
+  }
+  LINE( 0, -14,  0,  0, '#0f0');
+  if (Val >= 0) LINE(Vb, -14, Vb,  0, '#0ff');
+  else          LINE(Vc, -14, Vc,  0, '#0ff');
+  LINE( 0,   0, Lv,  0, '#fff');
+  LINE( 0,  -7, Lv, -7, '#0ff');
+  if (Val >= 0)
+  {
+    SYMBOL(Vb-Lv/40 , +1, Vb + " mL", '#fff');
+    SYMBOL(Vb+Lv*0.8, +1, "滴下量 " + lv.toFixed(2) + " mL", '#fff');
+  }
+  else
+  {
+    SYMBOL(Vc-Lv/40 , +1, Vc + " mL", '#fff');
+    SYMBOL(Vc+Lv*0.8, +1, "滴下量 " + lv.toFixed(2) + " mL", '#fff');
+  }
+
+  dv = Dv / 2;
+  for (vb = 0; vb < lv; vb += dv)
+  {
+    ph = titration(vb)
+    plot(vb, ph, '#ff0');
+  }
+
+  vb = lv;
+  ph = titration(vb);
+  plot(vb, ph, '#ff0');
+  ph1 = ph; ca1 = Ca; cb1 = Cb;
+
+  for (vb += dv; vb <= Lv; vb += dv)
+  {
+    ph = titration(vb)
+    plot(vb, ph, '#00f');
+  }
+
+  orange(ph1);
+  phenol(ph1);
+  balance(ca1, cb1);
+  help();
+}
+
+//----------------------------------------------------------------------
+// Key
+//----------------------------------------------------------------------
+function keyon(t)
+{
+  if (Key[ 16]) { t = t * 10; } // SHIFT
+  if (Key[ 38]) //↑
+  {
+    Volume += t * 4; if (Volume > Lv) Volume = Lv; 
+  }
+  if (Key[ 40]) //↓
+  {
+    Volume -= t * 4; if (Volume <  0) Volume =  0; 
+  } 
+  if (Key[ 39]) //→
+  {
+    Volume += t    ; if (Volume > Lv) Volume = Lv; 
+  } 
+  if (Key[ 37]) //←
+  {
+    Volume -= t    ; if (Volume <  0) Volume =  0; 
+  }
+}
+
+//----------------------------------------------------------------------
+// Line width
+//----------------------------------------------------------------------
+function lineWidth(times)
+{
+  if (times == 1) { ctx.lineWidth = 1; }
+  else
+  {
+    ctx.lineWidth *= times;
+    if      (ctx.lineWidth <  1) ctx.lineWidth =  1;
+    else if (ctx.lineWidth > 16) ctx.lineWidth = 16;
+  }
+}
+
+//----------------------------------------------------------------------
+// Zoom
+//----------------------------------------------------------------------
+function zooming(sign)
+{
+  if (sign == 0) { Zoom = 40; }
+  else
+  {
+    Zoom += sign * 5;
+    if      (Zoom <  20) Zoom =  20;
+    else if (Zoom > 120) Zoom = 120;
+  }
+  canvas.width  = 16 * Zoom;
+  canvas.height =  9 * Zoom;
+
+  FONT(1, 1);
+}
+
+//----------------------------------------------------------
+// select(0～9)
+//----------------------------------------------------------
+function selectof(k)
+{
+  if (0 <= k && k <= Selects)
+  {
+    Select = k;
+    Volume = 0;
+  }
+}
+
+//----------------------------------------------------------------------
+// Input key
+//----------------------------------------------------------------------
+document.body.addEventListener('keydown', event =>
+{
+  switch (event.keyCode)
+  {
+    case 13: Volume = 0     ; break; // Enter
+    case 81: lineWidth( 0.5); break; // 'Q'
+    case 87: lineWidth( 2  ); break; // 'W'
+    case 90: zooming  (-1  ); break; // 'Z'
+    case 88: zooming  ( 1  ); break; // 'X'
+    case 67: zooming  ( 0  ); break; // 'C'
+    default: selectof(event.keyCode - 48);
+  }
+  window.requestAnimationFrame(main);
+});
+
+//----------------------------------------------------------------------------------
+// Key status
+//----------------------------------------------------------------------------------
+var Key = new Array(256);
+for (var i = 0; i < 256; i++) Key[i] = 0;
+window.onkeydown = function(event) { Key[event.keyCode] = 1; }
+window.onkeyup   = function(event) { Key[event.keyCode] = 0; }
+
+//----------------------------------------------------------------------
+// main
+//----------------------------------------------------------------------
+function main()
+{
+  keyon(Dv);  //--- 1滴 0.05 mL
+  neut(Volume);
+//  window.requestAnimationFrame(main);
+}
+
+lineWidth(1);
+zooming(0);
+WINDOW(-320, -200, 319, 199);
+main();
+
+//----------------------------------------------------------------------
+</script>
+</body>
+</html>
