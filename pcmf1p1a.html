@@ -423,7 +423,7 @@ document.body.addEventListener('keydown', event =>
   if (keyboard(key)) return;
   switch (key)
   {
-    case 13: Freq = 440; Time = 1; Volume = 1;
+    case 13: Freq = 440; Time = 1; Volume = 1; Octa = 4;
       keyon(0, 0); break; // Enter
     case 32: audio(Freq)        ; break; // Space
     case 81: lineWidth( 0.5)    ; break; // 'Q'
