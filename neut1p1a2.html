@@ -1,6 +1,6 @@
 <!--
 ------------------------------------------------------------------------
- 滴定曲線(neutralization titration curve) (Touch)
+ 滴定曲線(neutralization titration curve) (Click)
 
  HTML(JavaScript, canvas)
 
@@ -18,24 +18,28 @@
 <body>
 <p id="neutralization"></p>
 <div style='float:left;'>
-<div id="hit0">Select 0</div>
-<h5>
-<div id="hit1">Select 1</div><pre></pre>
-<div id="hit2">Select 2</div><pre></pre>
-<div id="hit3">Select 3</div><pre></pre>
-<div id="hit4">Select 4</div><pre></pre>
-<div id="hit5">Select 5</div><pre></pre>
-<div id="hit6">Select 6</div><pre></pre>
-<div id="hit7">Select 7</div>
-</h5>
-<h2>
+<input type="button" value="Select0" onclick="push0()">
 <pre></pre>
-<div id="hitd2">多量滴下</div>
+<input type="button" value="Select1" onclick="push1()">
 <pre></pre>
-<div id="hitd1">少量滴下</div>
-</h2>
-<pre><br></pre>
-</div>
+<input type="button" value="Select2" onclick="push2()">
+<pre></pre>
+<input type="button" value="Select3" onclick="push3()">
+<pre></pre>
+<input type="button" value="Select4" onclick="push4()">
+<pre></pre>
+<input type="button" value="Select5" onclick="push5()">
+<pre></pre>
+<input type="button" value="Select6" onclick="push6()">
+<pre></pre>
+<input type="button" value="Select7" onclick="push7()">
+<pre> </pre>
+<pre></pre>
+<input type="button" value="多量滴下" onclick="pushu()">
+<pre> </pre>
+<pre></pre>
+<input type="button" value="少量滴下" onclick="pushl()">
+<pre></pre>
 <script>
 'use strict'
 
@@ -71,56 +75,34 @@ var Ca, Cb;
 //----------------------------------------------------------------------
 // touch
 //----------------------------------------------------------------------
-var Hit0 = document.getElementById('hit0');
-Hit0.addEventListener('touchstart', function(event)
-  {  Select = 0; Volume = 0; window.requestAnimationFrame(main); }
-, false);
-var Hit1 = document.getElementById('hit1');
-Hit1.addEventListener('touchstart', function(event)
-  {  Select = 1; Volume = 0; window.requestAnimationFrame(main); }
-, false);
-var Hit2 = document.getElementById('hit2');
-Hit2.addEventListener('touchstart', function(event)
-  {  Select = 2; Volume = 0; window.requestAnimationFrame(main); }
-, false);
-var Hit3 = document.getElementById('hit3');
-Hit3.addEventListener('touchstart', function(event)
-  {  Select = 3; Volume = 0; window.requestAnimationFrame(main); }
-, false);
-var Hit4 = document.getElementById('hit4');
-Hit4.addEventListener('touchstart', function(event)
-  {  Select = 4; Volume = 0; window.requestAnimationFrame(main); }
-, false);
-var Hit5 = document.getElementById('hit5');
-Hit5.addEventListener('touchstart', function(event)
-  {  Select = 5; Volume = 0; window.requestAnimationFrame(main); }
-, false);
-var Hit6 = document.getElementById('hit6');
-Hit6.addEventListener('touchstart', function(event)
-  {  Select = 6; Volume = 0; window.requestAnimationFrame(main); }
-, false);
-var Hit7 = document.getElementById('hit7');
-Hit7.addEventListener('touchstart', function(event)
-  {  Select = 7; Volume = 0; window.requestAnimationFrame(main); }
-, false);
-
-var Hitd1 = document.getElementById('hitd1');
-Hitd1.addEventListener('touchstart',
-  function(event)
-  {
-    Volume += 0.05; if (Volume > Lv) Volume = Lv; 
-    window.requestAnimationFrame(main);
-  }
-, false);
-
-var Hitd2 = document.getElementById('hitd2');
-Hitd2.addEventListener('touchstart',
-  function(event)
-  {
-    Volume += 0.50; if (Volume > Lv) Volume = Lv; 
-    window.requestAnimationFrame(main);
-  }
-, false);
+function push0()
+{ Select = 0; Volume = 0; window.requestAnimationFrame(main); }
+function push1()
+{ Select = 1; Volume = 0; window.requestAnimationFrame(main); }
+function push2()
+{ Select = 2; Volume = 0; window.requestAnimationFrame(main); }
+function push3()
+{ Select = 3; Volume = 0; window.requestAnimationFrame(main); }
+function push4()
+{ Select = 4; Volume = 0; window.requestAnimationFrame(main); }
+function push5()
+{ Select = 5; Volume = 0; window.requestAnimationFrame(main); }
+function push6()
+{ Select = 6; Volume = 0; window.requestAnimationFrame(main); }
+function push7()
+{ Select = 7; Volume = 0; window.requestAnimationFrame(main); }
+function pushu()
+{
+  Volume += 0.5;
+  if (Volume > Lv) Volume = Lv;
+  window.requestAnimationFrame(main);
+}
+function pushl()
+{
+  Volume += 0.05;
+  if (Volume > Lv) Volume = Lv;
+  window.requestAnimationFrame(main);
+}
 
 //----------------------------------------------------------------------
 // 初期設定
