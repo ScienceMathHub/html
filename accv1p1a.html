@@ -200,6 +200,12 @@ function LOCATE(x, y)
   LocY = y * LocH;
 }
 
+function TAB(x, y)
+{
+  LocX += x * LocW;
+  LocY += y * LocH;
+}
+
 function CR()
 {
   LocX = 0;
@@ -419,6 +425,29 @@ function Num(x, n, d)
 //----------------------------------------------------------------------
 // 動画
 //----------------------------------------------------------------------
+function funcv(s)
+{
+  PRINT(s);
+  PRINT("( v = v"); FONT(0.5, 0.1); PRINT('0');  FONT(1, 0);
+  PRINT(" + at");
+  TAB(8.5, 0); PRINT(")");
+}
+
+function funca(s)
+{
+  PRINT(s);
+  PRINT("( a = x"); FONT(0.5, 0.1); PRINT('0'); FONT(1, 0);
+  PRINT(" + v");    FONT(0.5, 0.1); PRINT('0'); FONT(1, 0);
+  PRINT("t + ");
+  FONT(0.8, -0.5); PRINT('1' ); TAB(-1.5, 0);
+  FONT(0.8, -0.0); PRINT('－'); TAB(-1.5, 0);
+  FONT(0.8,  0.5); PRINT('2' ); TAB(-1  , 0);
+  FONT(1, 0); TAB(1, 0);
+  PRINT("at");
+  FONT(0.5, -0.35); PRINT("2"); FONT(1, 0);
+  TAB(1.5, 0); PRINT(")");
+}
+
 function Infom(b, z, d, u, p)
 {
   var a, v, x, t;
@@ -460,14 +489,13 @@ function Frame(t)
 
   v = Fv(t);
   x = Fx(t);
-  Infom("速度     v", ' ', v, "m/s", ' '); CR();
-  Infom("位置     x", ' ', x, "m", ' ');   CR();
+  Infom("速度     v", ' ', v, "m/s", ' '); funcv("  ");   CR();
+  Infom("位置     x", ' ', x, "m", ' ');   funca("    "); CR();
   Infom("時間 　  t", ' ', t, "s", ' ');
-  PRINT("    ( ～ " + Pt1 + " s ");
+     TAB(4, 1); PRINT("( ～ " + Pt1 + " s ");
   if (isMotion) { COLOR('#0ff'); PRINT("時間経過中"); }
   else          { COLOR('#fff'); PRINT("時間停止中"); }
   COLOR('#fff'); PRINT(" )"); CR();
-  CR();
   PRINT("1目盛り " + Ds + " m"); CR();
 
   axis();
