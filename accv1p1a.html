@@ -69,7 +69,7 @@ var Width0 = 2;   // 線幅初期値
 var Px = 320;     // 表示位置x
 var Py = 199;     // 表示位置y
 var Fw = 320;     // 幅
-var Fh =  20;     // 高さ
+var Fh =  25;     // 高さ
 var Fp =   5;     // 質点の大きさ/2
 var Co = '#0f0';  // 色(x軸)
 var Cg = '#0f0';  // 色(grid)
@@ -378,12 +378,12 @@ function axis()
   var i, x, s;
 
   LINE(-Fw, 0, Fw,  0, Co);
-  LINE(0, -Fh*1.5, 0, Fh*1.5, Cg);
+  LINE(0, -Fh*1.2, 0, Fh*1.2, Cg);
 
   for (i = 1; i <= Dw; i++)
   {
     x = i * Fw / Dw;
-    s = (i % 10)? Fh/2 : Fh;
+    s = (i % 5)? Fh*0.4 : (i % 2)? Fh*0.6 : Fh;
     LINE( x,  -s,  x, s, Cg);
     LINE(-x,  -s, -x, s, Cg);
   }
@@ -489,7 +489,7 @@ function Frame(t)
 
   v = Fv(t);
   x = Fx(t);
-  Infom("速度     v", ' ', v, "m/s", ' '); funcv(2);   CR();
+  Infom("速度     v", ' ', v, "m/s", ' '); funcv(2); CR();
   Infom("位置     x", ' ', x, "m", ' ');   funcx(4); CR();
   Infom("時間 　  t", ' ', t, "s", ' ');
      TAB(4, 1); PRINT("( ～ " + Pt1 + " s ");
