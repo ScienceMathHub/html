@@ -1,6 +1,6 @@
 <!--
 ------------------------------------------------------------------------
- 滴定曲線(neutralization titration curve)
+ 滴定曲線(neutralization titration curve) (Click)
 
  HTML(JavaScript, canvas)
 
@@ -17,6 +17,29 @@
 </head>
 <body>
 <p id="neutralization"></p>
+<div style='float:left;'>
+<input type="button" value="Select0" onclick="push0()">
+<pre></pre>
+<input type="button" value="Select1" onclick="push1()">
+<pre></pre>
+<input type="button" value="Select2" onclick="push2()">
+<pre></pre>
+<input type="button" value="Select3" onclick="push3()">
+<pre></pre>
+<input type="button" value="Select4" onclick="push4()">
+<pre></pre>
+<input type="button" value="Select5" onclick="push5()">
+<pre></pre>
+<input type="button" value="Select6" onclick="push6()">
+<pre></pre>
+<input type="button" value="Select7" onclick="push7()">
+<pre> </pre>
+<pre></pre>
+<input type="button" value="多量滴下" onclick="pushu()">
+<pre> </pre>
+<pre></pre>
+<input type="button" value="少量滴下" onclick="pushl()">
+<pre></pre>
 <script>
 'use strict'
 
@@ -41,9 +64,6 @@ var Volume  = 0; // 滴定量
 var Select  = 0; // 種類
 var Selects = 7; // 種類最大
 
-//----------------------------------------------------------------------
-// 初期設定
-//----------------------------------------------------------------------
 //--- Na:酸のmol, Lv:全滴定量, DvグラフStep, Rev:酸塩基逆転, Val:価数
 var Kw, Ka, Kb, Va, Vb, Ma, Mb, Na, Lv, Dv, Rev, Val;
 var Ka1, Ka2;
@@ -51,6 +71,42 @@ var Ka1, Ka2;
 var Vh, Mh, Mc, Vc, Nh;
 //--- Public temp
 var Ca, Cb;
+
+//----------------------------------------------------------------------
+// touch
+//----------------------------------------------------------------------
+function push0()
+{ Select = 0; Volume = 0; window.requestAnimationFrame(main); }
+function push1()
+{ Select = 1; Volume = 0; window.requestAnimationFrame(main); }
+function push2()
+{ Select = 2; Volume = 0; window.requestAnimationFrame(main); }
+function push3()
+{ Select = 3; Volume = 0; window.requestAnimationFrame(main); }
+function push4()
+{ Select = 4; Volume = 0; window.requestAnimationFrame(main); }
+function push5()
+{ Select = 5; Volume = 0; window.requestAnimationFrame(main); }
+function push6()
+{ Select = 6; Volume = 0; window.requestAnimationFrame(main); }
+function push7()
+{ Select = 7; Volume = 0; window.requestAnimationFrame(main); }
+function pushu()
+{
+  Volume += 0.5;
+  if (Volume > Lv) Volume = Lv;
+  window.requestAnimationFrame(main);
+}
+function pushl()
+{
+  Volume += 0.05;
+  if (Volume > Lv) Volume = Lv;
+  window.requestAnimationFrame(main);
+}
+
+//----------------------------------------------------------------------
+// 初期設定
+//----------------------------------------------------------------------
 //--- CH3COOH(0.08mol/L) + NaOH
 function init0()
 {
@@ -64,6 +120,12 @@ function init0()
 }
 function neut0()
 {
+  COLOR('#fff'); PRINT("[NaOH]    = " + Mb.toFixed(2) + " mol/L, ");
+  COLOR('#00f'); PRINT(('  '+Vb).slice(-2));
+  COLOR('#0ff'); PRINT(" mL");
+  COLOR('#fff'); PRINT(" , ");
+  COLOR('#fff'); PRINT("v = 0 ～ " + ('  '+Lv).slice(-2) + " mL");
+  CR();
   COLOR('#fff'); PRINT("[CH");
   FONT(0.8, 1); PRINT("3"); FONT(1, 1); PRINT("COOH]");
   FONT(0.2, 1); PRINT(" "); FONT(1, 1); PRINT(" = ");
@@ -72,12 +134,6 @@ function neut0()
   COLOR('#0ff'); PRINT(('  '+Va).slice(-2) + " mL");
   COLOR('#fff'); PRINT(" , ");
   COLOR('#0f0'); PRINT("pH  0 ～ 14");
-  CR();
-  COLOR('#fff'); PRINT("[NaOH]    = " + Mb.toFixed(2) + " mol/L, ");
-  COLOR('#00f'); PRINT(('  '+Vb).slice(-2));
-  COLOR('#0ff'); PRINT(" mL");
-  COLOR('#fff'); PRINT(" , ");
-  COLOR('#fff'); PRINT("v = 0 ～ " + ('  '+Lv).slice(-2) + " mL");
   CR();
 }
 //--- CH3COOH + NaOH
@@ -108,13 +164,6 @@ function init2()
 }
 function neut2()
 {
-  COLOR('#fff'); PRINT("[HCl] = ");
-  COLOR('#00f'); PRINT(Ma.toFixed(2));
-  COLOR('#fff'); PRINT(" mol/L, ");
-  COLOR('#0ff'); PRINT(('  '+Va).slice(-2) + " mL");
-  COLOR('#fff'); PRINT(" , ");
-  COLOR('#0f0'); PRINT("pH  0 ～ 14");
-  CR();
   COLOR('#fff'); PRINT("[NH");
   FONT(0.8, 1); PRINT("3"); FONT(0.2, 1); PRINT(" "); FONT(1, 1);
   PRINT("] = " + Mb.toFixed(2) + " mol/L, ");
@@ -122,6 +171,13 @@ function neut2()
   COLOR('#0ff'); PRINT(" mL");
   COLOR('#fff'); PRINT(" , ");
   COLOR('#fff'); PRINT("v = 0 ～ " + ('  '+Lv).slice(-2) + " mL");
+  CR();
+  COLOR('#fff'); PRINT("[HCl] = ");
+  COLOR('#00f'); PRINT(Ma.toFixed(2));
+  COLOR('#fff'); PRINT(" mol/L, ");
+  COLOR('#0ff'); PRINT(('  '+Va).slice(-2) + " mL");
+  COLOR('#fff'); PRINT(" , ");
+  COLOR('#0f0'); PRINT("pH  0 ～ 14");
   CR();
 }
 //--- HCl + NaOH
@@ -137,18 +193,18 @@ function init3()
 }
 function neut3()
 {
-  COLOR('#fff'); PRINT("[HCl] = ");
+  COLOR('#fff'); PRINT("[NaOH] = " + Mb.toFixed(2) + " mol/L, ");
+  COLOR('#00f'); PRINT(('  '+Vb).slice(-2));
+  COLOR('#0ff'); PRINT(" mL");
+  COLOR('#fff'); PRINT(" , ");
+  COLOR('#fff'); PRINT("v = 0 ～ " + ('  '+Lv).slice(-2) + " mL");
+  CR();
+  COLOR('#fff'); PRINT("[HCl]  = ");
   COLOR('#00f'); PRINT(Ma.toFixed(2));
   COLOR('#fff'); PRINT(" mol/L, ");
   COLOR('#0ff'); PRINT(('  '+Va).slice(-2) + " mL");
   COLOR('#fff'); PRINT(" , ");
   COLOR('#0f0'); PRINT("pH  0 ～ 14");
-  CR();
-  COLOR('#fff'); PRINT("[NaOH]    = " + Mb.toFixed(2) + " mol/L, ");
-  COLOR('#00f'); PRINT(('  '+Vb).slice(-2));
-  COLOR('#0ff'); PRINT(" mL");
-  COLOR('#fff'); PRINT(" , ");
-  COLOR('#fff'); PRINT("v = 0 ～ " + ('  '+Lv).slice(-2) + " mL");
   CR();
 }
 //--- CH3COOH + NH3
@@ -164,6 +220,14 @@ function init4()
 }
 function neut4()
 {
+  COLOR('#fff'); PRINT("[NH");
+  FONT(0.8, 1); PRINT("3"); FONT(0.2, 1); PRINT(" "); FONT(1, 1);
+  PRINT("]     = " + Mb.toFixed(2) + " mol/L, ");
+  COLOR('#00f'); PRINT(('  '+Vb).slice(-2));
+  COLOR('#0ff'); PRINT(" mL");
+  COLOR('#fff'); PRINT(" , ");
+  COLOR('#fff'); PRINT("v = 0 ～ " + ('  '+Lv).slice(-2) + " mL");
+  CR();
   COLOR('#fff'); PRINT("[CH");
   FONT(0.8, 1); PRINT("3"); FONT(1, 1); PRINT("COOH]");
   FONT(0.2, 1); PRINT(" "); FONT(1, 1); PRINT(" = ");
@@ -172,14 +236,6 @@ function neut4()
   COLOR('#0ff'); PRINT(('  '+Va).slice(-2) + " mL");
   COLOR('#fff'); PRINT(" , ");
   COLOR('#0f0'); PRINT("pH  0 ～ 14");
-  CR();
-  COLOR('#fff'); PRINT("[NH");
-  FONT(0.8, 1); PRINT("3"); FONT(0.2, 1); PRINT(" "); FONT(1, 1);
-  PRINT("]     = " + Mb.toFixed(2) + " mol/L, ");
-  COLOR('#00f'); PRINT(('  '+Vb).slice(-2));
-  COLOR('#0ff'); PRINT(" mL");
-  COLOR('#fff'); PRINT(" , ");
-  COLOR('#fff'); PRINT("v = 0 ～ " + ('  '+Lv).slice(-2) + " mL");
   CR();
 }
 //--- NH3 + HCl
@@ -195,6 +251,12 @@ function init5()
 }
 function neut5()
 {
+  COLOR('#fff'); PRINT("[HCl] = " + Mb.toFixed(2) + " mol/L, ");
+  COLOR('#00f'); PRINT(('  '+Vb).slice(-2));
+  COLOR('#0ff'); PRINT(" mL");
+  COLOR('#fff'); PRINT(" , ");
+  COLOR('#fff'); PRINT("v = 0 ～ " + ('  '+Lv).slice(-2) + " mL");
+  CR();
   COLOR('#fff'); PRINT("[NH");
   FONT(0.8, 1); PRINT("3"); FONT(1, 1); PRINT("]");
   FONT(0.2, 1); PRINT(" "); FONT(1, 1); PRINT(" = ");
@@ -203,12 +265,6 @@ function neut5()
   COLOR('#0ff'); PRINT(('  '+Va).slice(-2) + " mL");
   COLOR('#fff'); PRINT(" , ");
   COLOR('#0f0'); PRINT("pH  0 ～ 14");
-  CR();
-  COLOR('#fff'); PRINT("[HCl] = " + Mb.toFixed(2) + " mol/L, ");
-  COLOR('#00f'); PRINT(('  '+Vb).slice(-2));
-  COLOR('#0ff'); PRINT(" mL");
-  COLOR('#fff'); PRINT(" , ");
-  COLOR('#fff'); PRINT("v = 0 ～ " + ('  '+Lv).slice(-2) + " mL");
   CR();
 }
 //--- (COOH)2 + NaOH
@@ -224,6 +280,12 @@ function init6()
 }
 function neut6()
 {
+  COLOR('#fff'); PRINT("[NaOH]    = " + Mb.toFixed(2) + " mol/L, ");
+  COLOR('#00f'); PRINT(('  '+Vb).slice(-2));
+  COLOR('#0ff'); PRINT(" mL");
+  COLOR('#fff'); PRINT(" , ");
+  COLOR('#fff'); PRINT("v = 0 ～ " + ('  '+Lv).slice(-2) + " mL");
+  CR();
   COLOR('#fff'); PRINT("[(COOH)");
   FONT(0.8, 1); PRINT("2"); FONT(1, 1); PRINT("]");
   FONT(0.2, 1); PRINT(" "); FONT(1, 1); PRINT(" = ");
@@ -232,12 +294,6 @@ function neut6()
   COLOR('#0ff'); PRINT(('  '+Va).slice(-2) + " mL");
   COLOR('#fff'); PRINT(" , ");
   COLOR('#0f0'); PRINT("pH  0 ～ 14");
-  CR();
-  COLOR('#fff'); PRINT("[NaOH]    = " + Mb.toFixed(2) + " mol/L, ");
-  COLOR('#00f'); PRINT(('  '+Vb).slice(-2));
-  COLOR('#0ff'); PRINT(" mL");
-  COLOR('#fff'); PRINT(" , ");
-  COLOR('#fff'); PRINT("v = 0 ～ " + ('  '+Lv).slice(-2) + " mL");
   CR();
 }
 //--- Na2CO3 + HCl
@@ -253,6 +309,12 @@ function init7()
 }
 function neut7()
 {
+  COLOR('#fff'); PRINT("[HCl]    = " + Mc.toFixed(2) + " mol/L, ");
+  COLOR('#00f'); PRINT(('  '+Vc).slice(-2));
+  COLOR('#0ff'); PRINT(" mL");
+  COLOR('#fff'); PRINT(" , ");
+  COLOR('#fff'); PRINT("v = 0 ～ " + ('  '+Lv).slice(-2) + " mL");
+  CR();
   COLOR('#fff'); PRINT("[Na");
   FONT(0.8, 1); PRINT("2"); FONT(1, 1); PRINT("CO");
   FONT(0.8, 1); PRINT("3"); FONT(1, 1); PRINT("]");
@@ -262,12 +324,6 @@ function neut7()
   COLOR('#0ff'); PRINT(('  '+Vh).slice(-2) + " mL");
   COLOR('#fff'); PRINT(" , ");
   COLOR('#0f0'); PRINT("pH  0 ～ 14");
-  CR();
-  COLOR('#fff'); PRINT("[HCl]    = " + Mc.toFixed(2) + " mol/L, ");
-  COLOR('#00f'); PRINT(('  '+Vc).slice(-2));
-  COLOR('#0ff'); PRINT(" mL");
-  COLOR('#fff'); PRINT(" , ");
-  COLOR('#fff'); PRINT("v = 0 ～ " + ('  '+Lv).slice(-2) + " mL");
   CR();
 }
 
