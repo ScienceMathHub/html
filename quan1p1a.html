@@ -18,23 +18,23 @@
 <body>
 <p id="quantum"></p>
 <div style='float:left;'>
-<input type="button" value="Obital 1s" onclick="push(1)">
+<input type="button" value="Obital  1s" onclick="push(1)">
 <pre></pre>
-<input type="button" value="Obital 2s" onclick="push(2)">
+<input type="button" value="Obital  2s" onclick="push(2)">
 <pre></pre>
-<input type="button" value="Obital 3s" onclick="push(3)">
+<input type="button" value="Obital  3s" onclick="push(3)">
 <pre></pre>
-<input type="button" value="Obital 4s" onclick="push(4)">
+<input type="button" value="Obital  4s" onclick="push(4)">
 <pre></pre>
-<input type="button" value="Obital 5s" onclick="push(5)">
+<input type="button" value="Obital  5s" onclick="push(5)">
 <pre></pre>
-<input type="button" value="Obital 6s" onclick="push(6)">
+<input type="button" value="Obital  6s" onclick="push(6)">
 <pre></pre>
-<input type="button" value="Obital 7s" onclick="push(7)">
+<input type="button" value="Obital  7s" onclick="push(7)">
 <pre></pre>
-<input type="button" value="Obital 8s" onclick="push(8)">
+<input type="button" value="Obital  8s" onclick="push(8)">
 <pre></pre>
-<input type="button" value="Obital 9s" onclick="push(9)">
+<input type="button" value="Obital  9s" onclick="push(9)">
 <pre></pre>
 <input type="button" value="Obital 10s" onclick="push(10)">
 <pre></pre>
@@ -83,7 +83,7 @@ var Co = '#00f';     // 色(目盛)
 var Cp = '#0ff';     // 色(存在確率軸)
 var Cr = '#f0f';     // 色(動径軸)
 //---
-var Dw = 24;         // 幅等分
+var Dw = 80;         // 幅等分
 var Dp = Dw*2;       // 幅等分(積分用)
 //---
 var Select  =  1; // 量子数n
@@ -343,7 +343,7 @@ function P(n, r, a)
 {
   var p, m, s, ra2, fm, fm1, fnm1;
 
-  ra2 = 2 * r / a;
+  ra2 = 2 * r / (n * a);
   p = 0;
   for (m = 0; m <= n-1; m++)
   {
@@ -391,6 +391,12 @@ function Grap(n, c)
 function Quan(n)
 {
   var E, f, i, c;
+
+  Dh =   6;                   // 高さ分割
+  Zh = 100;                   // 高さ拡大
+  i  = Math.ceil(n / 6) * 5;  // floor
+  Dw = Math.pow(i, 1.5) * 7;  // 幅等分
+  Dp = Dw*2;                  // 幅等分(積分用)
 
   CLS('#000');
   WINDOW(-Px, -Py, 639 - Px, 399 - Py);
