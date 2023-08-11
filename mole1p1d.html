@@ -1,0 +1,777 @@
+<!--
+------------------------------------------------------------------------
+ モル濃度の問題
+
+ HTML(JavaScript, canvas)
+
+ z,x,c, q,w, Enter, space
+
+ (c)Ohtani 2023.8
+------------------------------------------------------------------------
+-->
+<!DOctxYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">	
+  <title>モル濃度</title>
+</head>
+<body>
+<p id="molar concentration"></p>
+<div style='float:left;'>
+
+<!--
+<input type="number" id="num_Am" value="0" min = "0" />
+-->
+<input type="text" id="num_Am" value="" />
+<pre></pre>
+<input type="button" value="答える" onclick="pushAm()" />
+<pre></pre>
+<form id="target">
+  <input type="radio" name="amount" value="4" /> Level4(％⇔mol/L)
+  <pre></pre>
+  <input type="radio" name="amount" value="3" /> Level3(gとmol/L)
+  <pre></pre>
+  <input type="radio" name="amount" value="2" /> Level2(モル濃度)
+  <pre></pre>
+  <input type="radio" name="amount" value="1" /> Level1(質量％濃度)
+</form>
+<pre></pre>
+<input type="button" value="次の問い" onclick="pushNext()" />
+<pre></pre>
+<input type="button" value="リセット" onclick="pushReset()" />
+<pre></pre>
+<script>
+'use strict'
+
+//----------------------------------------------------------------------
+// canvas
+//----------------------------------------------------------------------
+const canvas = document.createElement('canvas');
+const ctx = canvas.getContext('2d');
+document.body.appendChild(canvas);
+
+//----------------------------------------------------------------------
+// radio button
+//----------------------------------------------------------------------
+var Lv1 = 3;  // Lv4～1 = 0～3
+
+//----------------------------------------------------------------------
+// public variable
+//----------------------------------------------------------------------
+var WinX, WinY, WinW, WinH; // Window座標
+var PosX, PosY;   // グラフィックカレント
+var LocX, LocY;   // テキストカレント
+var LocW, LocH;   // テキストMサイズ
+var OffW, OffH;   // テキストSサイズ
+var Zoom;         // 拡大率×(16,9)
+var Width;        // 線幅
+var Width0 = 2;   // 線幅初期値
+//---
+var Px = 320;     // 表示位置x
+var Py = 199;     // 表示位置y
+//--- public variable
+var Tg  = "1";  // Level1
+var Tg0 = Tg ;  // 変更前
+var Am  = "" ;  // 答えの入力
+var Que = "" ;  // 問題
+var Ans = -1 ;  // 答え
+var Zns =  0 ;  // 答えの有効数字
+var Uni = "" ;  // 答えの単位
+//--- counter
+var Qn  = 1 ; // 問題数
+var Qn0 = 0 ; // 変更前
+var Qo  = 0 ; // 正答数
+var Qx  = 0 ; // 誤答数
+var Qa  = 0 ; // 模範解答
+
+//----------------------------------------------------------------------
+// 描画関数
+//----------------------------------------------------------------------
+function scrX(x)
+{
+  return Math.round((x - WinX) * canvas.width  / WinW);
+}
+
+function scrY(y)
+{
+  return Math.round((y - WinY) * canvas.height / WinH);
+}
+
+function WINDOW(x1, y1, x2, y2)
+{
+  WinX = x1;
+  WinY = y1;
+  WinW = x2 - x1 + 1;
+  WinH = y2 - y1 + 1;
+}
+
+function LOCATE(x, y)
+{
+  LocX = x * LocW;
+  LocY = y * LocH;
+}
+
+function TAB(x, y)
+{
+  LocX += x * LocW;
+  LocY += y * LocH;
+}
+
+function CR()
+{
+  LocX = 0;
+  LocY += LocH;
+}
+
+function CLS(c)
+{
+  ctx.fillStyle = c;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  LOCATE(0, 0);
+}
+
+function COLOR(c)
+{
+  ctx.fillStyle   = c;
+  ctx.strokeStyle = c;
+}
+
+String.prototype.bytes = function ()
+{
+  return(encodeURIComponent(this).replace(/%../g,"x").length);
+}
+
+function FONT(zoom, offs)
+{
+  var h;
+
+  zoom = Math.round(Zoom * zoom / 40 * 8);
+  LocW = zoom;
+  h    = zoom * 2;
+  offs = Math.round(Zoom * offs / 40 * 8);
+  OffH = offs * 2;
+  offs = Math.round(Zoom        / 40 * 8);
+  LocH = offs * 2;
+  ctx.font = h + "px 'ＭＳ ゴシック'";  
+}
+
+function PRINT(text)
+{
+  var len, b;
+
+  text += '';
+  b     = text.bytes();
+  len   = text.length;
+  b    -= len;
+  b     = b / 2;
+  len  += b;
+  ctx.fillText(text, LocX, LocY + OffH  - 1);
+  LocX += len * LocW;
+}
+
+function SYMBOL(x, y, text, c)
+{
+  var x1, y1;
+
+  x1 = scrX(x);
+  y1 = scrY(y);
+  ctx.fillStyle   = c;
+  ctx.strokeStyle = c;
+  ctx.fillText(text, x1, y1);
+}
+
+function POINT(x, y)
+{
+  PosX = scrX(x);
+  PosY = scrY(y);
+}
+
+function LINE(x1, y1, x2, y2, c)
+{
+  ctx.strokeStyle = c;
+  ctx.beginPath();
+  PosX = scrX(x1);
+  PosY = scrY(y1);
+  ctx.moveTo(PosX, PosY);
+  PosX = scrX(x2);
+  PosY = scrY(y2);
+  ctx.lineTo(PosX, PosY);
+  ctx.stroke();
+  ctx.closePath();
+}
+
+function LINE2(x2, y2, c)
+{
+  ctx.strokeStyle = c;
+  ctx.beginPath();
+  ctx.moveTo(PosX, PosY);
+  PosX = scrX(x2);
+  PosY = scrY(y2);
+  ctx.lineTo(PosX, PosY);
+  ctx.stroke();
+  ctx.closePath();
+}
+
+function LINEB(x1, y1, x2, y2, c)
+{
+  LINE(x1, y1, x1, y2, c);
+  LINE(x2, y1, x2, y2, c);
+  LINE(x1, y1, x2, y1, c);
+  LINE(x1, y2, x2, y2, c);
+}
+/*
+function LINEB(x1, y1, x2, y2, c)
+{
+  var x, y, w, h;
+
+  x = scrX(x1);
+  y = scrY(y1);
+  PosX = scrX(x2);
+  PosY = scrY(y2);
+  w = PosX - x + 1;
+  h = PosY - y + 1;
+  ctx.strokeStyle = c;
+  ctx.strokeRect(x, y, w, h);
+}
+*/
+
+function LINEBF(x1, y1, x2, y2, c)
+{
+  var x, y, w, h;
+
+  x = scrX(x1);
+  y = scrY(y1);
+  PosX = scrX(x2);
+  PosY = scrY(y2);
+  w = PosX - x + 1;
+  h = PosY - y + 1;
+  ctx.fillStyle = c;
+  ctx.fillRect(x, y, w, h);
+}
+
+//----------------------------------------------------------------------
+// Line width
+//----------------------------------------------------------------------
+function lineWidth(times)
+{
+  if (times == 1) { Width = Width0; }
+  else
+  {
+    Width *= times;
+    if      (Width <  1) Width =  1;
+    else if (Width > 16) Width = 16;
+  }
+}
+
+//----------------------------------------------------------------------
+// Zoom
+//----------------------------------------------------------------------
+function zooming(sign)
+{
+  if (sign == 0) { Zoom = 40; }
+  else
+  {
+    Zoom += sign * 5;
+    if      (Zoom <  20) Zoom =  20;
+    else if (Zoom > 120) Zoom = 120;
+  }
+  canvas.width  = 16 * Zoom;
+  canvas.height =  9 * Zoom;
+
+  FONT(1, 0);
+}
+
+//----------------------------------------------------------------------
+// Key status
+//----------------------------------------------------------------------
+var Key = new Array(256);
+for (var i = 0; i < 256; i++) Key[i] = 0;
+window.onkeydown = function(event) { Key[event.keyCode] = 1; }
+window.onkeyup   = function(event) { Key[event.keyCode] = 0; }
+
+//----------------------------------------------------------------------
+// 指数
+//----------------------------------------------------------------------
+function PRINTe(s)
+{
+  var i, n, pow, num, a, p;
+
+  s = String(s);
+  p = 0;
+  num = pow = 0;
+  n = s.length;
+  for (i = 0; i < n; i++)
+  {
+    a = s.substring(i, i+1);
+    if (a == '^')
+    {
+      i++;
+      a = s.substring(i, i+1);
+      FONT(0.7, -0.3);
+      PRINT(a);
+      FONT(1, 0);
+      continue;
+    }
+    if (a == '_')
+    {
+      i++;
+      a = s.substring(i, i+1);
+      FONT(0.7, 0.0);
+      PRINT(a);
+      FONT(1, 0);
+      continue;
+    }
+    if (num && (a == 'e' || a == 'E'))
+    {
+      pow = 1;
+      PRINT("x10");
+      FONT(0.7, -0.4);
+      continue;
+    }
+    num = ('0' <= a && a <= '9' || a == '-' || a== '+')? 1 : 0;
+    if (pow && !num)
+    {
+      pow = 0;
+      FONT(1, 0);
+    }
+    if (pow)
+    {
+      if (a != '+') { PRINT(a); p++; }
+      continue;
+    }
+    PRINT(a);
+  }
+  FONT(1, 0);
+  return p;
+}
+
+//----------------------------------------------------------------------
+// 有効数字
+//----------------------------------------------------------------------
+function precision(a)
+{
+  var s, i;
+
+  s = a.toPrecision(12);
+  s = s.replace(/[+-]/g, "");
+  if (!(/^\d*\./.test(s)))
+  { // 10の0を消す、1.0の0は消さない
+    s = s.replace(/0+$/g, "");
+  }
+  s = s.replace(/\./g, "");
+  s = s.replace(/^0+/g, "");
+  s = s.replace(/[eE]\d+/g, "");
+
+  return s.length;
+}
+
+function precision0(a)
+{
+  var s, i;
+
+  s = a.toPrecision(12);
+  s = s.replace(/[+-]/g, "");
+  s = s.replace(/[eE]\d+/g, "");
+  if (/^\d*\./.test(s))
+  { // 1.0の0を消す、10の0は消さない
+    s = s.replace(/0+$/g, "");
+  }
+  s = s.replace(/\./g, "");
+  s = s.replace(/^0+/g, "");
+
+  return s.length;
+}
+
+//----------------------------------------------------------------------
+// 問題
+//----------------------------------------------------------------------
+function question4()
+{ // ％ ⇔ mol/L 
+  var c, zc, sc; // mol/L, 有効数字, 文字列
+  var M, zM, sM; // g/mol, 有効数字, 文字列
+  var d, zd, sd; // g/mL , 有効数字, 文字列
+  var p, zp, sp; // ％    , 有効数字, 文字列
+  var k;
+  var ac = [0.1, 0.2, 0.4, 0.5, 1.0, 1.2, 1.5, 1.6, 1.8, 2.0];
+  var ad = [1.0, 1.1, 1.2, 1.25];
+
+  d = ad[Math.floor(Math.random() *  ad.length)];
+  c = ac[Math.floor(Math.random() *  ac.length)];
+  M = (Math.floor(Math.random() * 10) + 1) * 10 * d;
+  p = c * M / (10 * d); 
+
+  zd = precision0(d);
+  zc = precision0(c);
+  zM = precision0(M);
+  zp = precision0(p);
+
+  sd = d.toPrecision((zd < 2)? 2 : zd);
+  sc = c.toPrecision((zc < 2)? 2 : zc);
+  sM = M.toPrecision((zM < 2)? 2 : zM);
+  sp = p.toPrecision((zp < 2)? 2 : zp);
+
+  k  = Math.floor(Math.random() * 2);
+  switch (k)
+  {
+    case  0:
+      Que = sp+" ％ の水溶液は 何 mol/L か"
+      Ans = c;
+      Zns = zc;
+      Uni = "mol/L";
+      break;
+    default:
+      Que = sc+" mol/L の水溶液は 何 ％ か"
+      Ans = p;
+      Zns = zp;
+      Uni = "％";
+  }
+　Que = Que + " ( M = "+sM+" , d = "+sd+" g/cm^3 )";
+}
+
+function question3()
+{ // mol/L g
+  var n, zn, sn; // mol  , 有効数字, 文字列
+  var v, zv, sv; // mL   , 有効数字, 文字列
+  var c, zc, sc; // mol/L, 有効数字, 文字列
+  var m, zm, sm; // g    , 有効数字, 文字列
+  var M, zM, sM; // g/mol, 有効数字, 文字列
+  var k;
+
+  c = (Math.floor(Math.random() *  8) + 1) /   2;
+  v = (Math.floor(Math.random() *  5) + 1) * 100;
+  M = (Math.floor(Math.random() * 10) + 1) *  10;
+  n = c * v / 1000;
+  m = M * n;
+
+  zc = precision0(c);
+  zv = precision0(v);
+  zn = precision0(n);
+  zM = precision0(M);
+  zm = precision0(m);
+
+  sc = c.toPrecision((zc < 2)? 2 : zc);
+  sv = v.toPrecision((zv < 2)? 2 : zv);
+  sn = n.toPrecision((zn < 2)? 2 : zn);
+  sM = M.toPrecision((zM < 2)? 2 : zM);
+  sm = m.toPrecision((zm < 2)? 2 : zm);
+
+  k  = Math.floor(Math.random() * 3);
+  switch (k)
+  {
+    case  0:
+      Que = "溶質 "+sm+" g と水で "+sv+" mL にした水溶液は 何 mol/L か";
+      Ans = c;
+      Zns = zc;
+      Uni = "mol/L";
+      break;
+    case  1:
+      Que = sc+" mol/L の水溶液 "+sv+" mL に溶けている溶質は 何 g か";
+      Ans = m;
+      Zns = zm;
+      Uni = "g";
+      break;
+    default:
+      Que = sm+" g の溶質が溶けている "+sc+" mol/L の水溶液は 何 mL か";
+      Ans = v;
+      Zns = zv;
+      Uni = "mL";
+  }
+　Que = Que + " ( M = "+sM+" )";
+}
+
+function question2()
+{ // mol/L
+  var n, zn, sn; // mol  , 有効数字, 文字列
+  var v, zv, sv; // mL   , 有効数字, 文字列
+  var c, zc, sc; // mol/L, 有効数字, 文字列
+  var k;
+
+  c = (Math.floor(Math.random() * 40) + 1) / 10;
+  v = (Math.floor(Math.random() *  9) + 2) * 50;
+  n = c * v / 1000;
+
+  zc = precision0(c);
+  zv = precision0(v);
+  zn = precision0(n);
+
+  sc = c.toPrecision((zc < 2)? 2 : zc);
+  sv = v.toPrecision((zv < 2)? 2 : zv);
+  sn = n.toPrecision((zn < 2)? 2 : zn);
+
+  k  = Math.floor(Math.random() * 3);
+  switch (k)
+  {
+    case  0:
+      Que = "食塩 "+sn+" mol と水で "+sv+" mL にした食塩水は 何 mol/L か";
+      Ans = c;
+      Zns = zc;
+      Uni = "mol/L";
+      break;
+    case  1:
+      Que = sc+" mol/L の食塩水 "+sv+" mL に溶けている食塩は 何 mol か";
+      Ans = n;
+      Zns = zn;
+      Uni = "mol";
+      break;
+    default:
+      Que = sn+" mol の食塩が溶けている "+sc+" mol/L の食塩水は 何 mL か";
+      Ans = v;
+      Zns = zv;
+      Uni = "mL";
+  }
+}
+
+function question1()
+{ // ％
+  var m, zm, sm; // g, 有効数字, 文字列
+  var w, zw, sw; // g, 有効数字, 文字列
+  var s, zs, ss; // g, 有効数字, 文字列
+  var p, zp, sp; // ％, 有効数字, 文字列
+  var k;
+
+  s = (Math.floor(Math.random() * 30) + 1) * 10;
+  p = (Math.floor(Math.random() *  5) + 1) *  5;
+  m = s * p / 100;
+  w = s - m;
+
+  zm = precision0(m);
+  zw = precision0(w);
+  zs = precision0(s);
+  zp = precision0(p);
+
+  sm = m.toPrecision((zm < 2)? 2 : zm);
+  sw = w.toPrecision((zw < 2)? 2 : zw);
+  ss = s.toPrecision((zs < 2)? 2 : zs);
+  sp = p.toPrecision((zp < 2)? 2 : zp);
+
+  k  = Math.floor(Math.random() * 4);
+  switch (k)
+  {
+    case  0:
+      Que = "食塩 "+sm+" g と水で "+ss+" g にした食塩水は 何 ％ か";
+      Ans = p;
+      Zns = zp;
+      Uni = "％";
+      break;
+    case  1:
+      Que = "食塩 "+sm+" g と水 "+sw+" g を混ぜた食塩水は 何 ％ か";
+      Ans = p;
+      Zns = zp;
+      Uni = "％";
+      break;
+    case  2:
+      Que = sp+" ％ の食塩水 "+ss+" g に溶けている食塩は 何 g か";
+      Ans = m;
+      Zns = zm;
+      Uni = "g";
+      break;
+    default:
+      Que = sm+" g の食塩が溶けている "+sp+" ％ の食塩水は 何 g か";
+      Ans = s;
+      Zns = zs;
+      Uni = "g";
+  }
+}
+
+function question()
+{
+  Am = "";
+
+  switch (Tg)
+  {
+    case '4': question4(); break;
+    case '3': question3(); break;
+    case '2': question2(); break;
+    default : question1();
+  }
+}
+
+//----------------------------------------------------------------------
+// touch
+//----------------------------------------------------------------------
+function getvalue()
+{
+  const a = document.getElementById("num_Am");
+  const m = document.getElementById("target");
+  var i;
+
+  Am = a.value;
+  Tg = '1';
+  for (i = 0; i < m.length; i++)
+  {
+    if (m[i].checked) { Tg = m[i].value; break; }
+  }
+}
+
+function pushAm()
+{
+  getvalue();
+  window.requestAnimationFrame(main);
+}
+
+function pushNext()
+{
+  getvalue();
+  if (Tg == Tg0) { Qn++; } else { Qn = 1; Qo = Qx = 0; }
+  Tg0 = Tg;
+  question();
+  {
+    var a = document.getElementById("num_Am");
+
+    a.value = "";
+    Am = "";
+  }
+  window.requestAnimationFrame(main);
+}
+
+function pushReset()
+{
+  Tg0 = "";
+  pushNext();
+}
+
+function pushAns()
+{
+  var z;
+
+  getvalue();
+  z = (Zns < 2)? 2 : Zns;
+  Am = Ans.toPrecision(z);
+  Qa = 1;
+  window.requestAnimationFrame(main);
+}
+
+//----------------------------------------------------------------------
+// Input key
+//----------------------------------------------------------------------
+document.body.addEventListener('keydown', event =>
+{
+  var key;
+
+  if (event.altKey)
+  {
+    if      (event.code === "KeyQ") { lineWidth( 0.5); }
+    else if (event.code === "KeyW") { lineWidth( 2  ); }
+    else if (event.code === "KeyZ") { zooming  (-1  ); }
+    else if (event.code === "KeyX") { zooming  ( 1  ); }
+    else if (event.code === "KeyC") { zooming  ( 0  ); }
+    else if (event.code === "KeyA") { pushAns()  ; }
+    else if (event.code === "KeyR") { pushReset(); }
+  }
+  else
+  {
+    switch (event.keyCode)
+    {
+      case  13: pushAm()  ; break; // Enter
+      case  32: pushNext(); break; // space
+    }
+  }
+  window.requestAnimationFrame(main);
+});
+
+//----------------------------------------------------------------------
+// 画面
+//----------------------------------------------------------------------
+function Display()
+{
+  var CmU = '#0f0';
+  var CMu = '#fa0';
+  var CNA = '#0ff';
+  var CM  = '#ff0';
+  var CAw = '#fff';
+  var CQn = '#0ff';
+  var CQo = '#ff0';
+  var CQx = '#fa0';
+  var i, a, a0, a2, ox;
+
+  CLS('#032');
+  WINDOW(-Px, -Py, 639 - Px, 399 - Py);
+  FONT(1, 0);
+
+  LOCATE(0, 1);
+  COLOR('#ff0'); PRINT("答えを入力し");
+  COLOR('#0ff'); PRINT("Enter");
+  COLOR('#ff0'); PRINT(" 次の問題は");
+  COLOR('#0ff'); PRINT("space");
+  COLOR('#0f0'); PRINT(" (Alt+a,r,z,x,c:答,リセット,縮小,拡大,初期)"); CR();
+  CR();
+  CR();
+  COLOR(CNA);
+  PRINT("水溶液の密度 d "); PRINTe("(g/cm^3)"); CR();
+  CR();
+  COLOR(CmU);
+  PRINT("モル質量 M (g/mol) ( ≒ 原子量,分子量,式量 )"); CR();
+  CR();
+  CR();
+
+  COLOR(CAw);
+  a0 = Ans.toPrecision(Zns);
+  a2 = Ans.toPrecision(2);
+  a  = Number(Am);
+  if (Am == "" || Ans < 0)
+  {
+    ox = 0;
+  }
+  else if (a == Ans || a == a0 || a == a2)
+  {
+    ox = 1; if (Qn0 != Qn) { Qn0 = Qn; if (Qa) Qa = 0; else Qo++; }
+  }
+  else
+  {
+    ox = 2; if (Qn0 != Qn) { Qn0 = Qn; Qx++; }
+  }
+
+  COLOR(CQn); PRINT("第 "   + Qn + " 問、");
+  COLOR(CQo); PRINT("正答 " + Qo + " 問");
+  COLOR(CQn); PRINT("、");
+  COLOR(CQx); PRINT("誤答 " + Qx + " 問"); CR();
+
+  COLOR(CAw);
+  PRINTe("問題 (答えはそのままか、有効数字2桁とする。)");
+  CR();
+  CR();
+  PRINT(" "); PRINTe(Que); CR();
+  CR();
+
+  if (ox == 0) return;
+
+  PRINT(" "); PRINTe(Am); PRINT(" "+Uni); CR();
+  CR();
+
+  if (ox == 2)
+  {
+    COLOR(CQx);
+    PRINT("答えが合いません。"); CR();
+    return;
+  }
+
+  COLOR(CQo);
+  PRINT("正解です。"); CR();
+  CR();
+  COLOR('#ff0');
+  PRINT("答  "); PRINTe(a0); PRINT(" "+Uni);
+  PRINT(" ( " ); PRINTe(a2); PRINT(" "+Uni+" )"); CR();
+  CR();
+
+  COLOR('#fff');
+}
+
+//----------------------------------------------------------------------
+// main
+//----------------------------------------------------------------------
+function main()
+{
+  ctx.lineWidth = Width;
+  Display();
+}
+
+document.getElementById("target")[Lv1].checked = true;
+lineWidth(1);
+zooming(0);
+question();
+main();
+
+//----------------------------------------------------------------------
+</script>
+</body>
+</html>

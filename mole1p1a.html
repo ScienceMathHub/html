@@ -1,0 +1,636 @@
+<!--
+------------------------------------------------------------------------
+ 原子量
+
+ HTML(JavaScript, canvas)
+
+ z,x,c, q,w, Enter, space
+
+ (c)Ohtani 2023.8
+------------------------------------------------------------------------
+-->
+<!DOctxYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <title>原子量</title>
+</head>
+<body>
+<p id="atomic weght"></p>
+<div style='float:left;'>
+
+<input type="text" id="str_As" value="H"
+  required minlength="1" maxlength="2" size="4">
+<input type="button" value="元素記号" onclick="pushAs()">
+<pre></pre>
+<input type="number" id="num_An" value="1" min = "1" max="118">
+<input type="button" value="原子番号" onclick="pushAn()">
+<pre></pre>
+<script>
+'use strict'
+
+//----------------------------------------------------------------------
+// canvas
+//----------------------------------------------------------------------
+const canvas = document.createElement('canvas');
+const ctx = canvas.getContext('2d');
+document.body.appendChild(canvas);
+
+//----------------------------------------------------------------------
+// public data (原子量×Mu = モル質量)
+//----------------------------------------------------------------------
+var NA = "6.02214076e+23";    // Avogadro constant
+var NR = "6.0e+23";           // 概数
+var mU = "1.66053906660e-24"; // 原子質量定数(g)(Atomic mass constant)
+var Mu = NA * mU;          // モル質量定数(g/mol)(Molar mass constant)
+var MR = NR * mU;          // 概数
+var Vm = 22.4;                // モル体積(L/mol)
+var Me = 9.1093837015e-28;    // 電子質量(g)
+
+//----------------------------------------------------------------------
+// Atomic weght
+//----------------------------------------------------------------------
+const As = 0, Aw = 1, Ar = 2, En = 3;
+var AW =
+[
+  [""  , ""       , ""     , ""                  ], //   0
+  ["H" , "  1.008", "  1.0", "水素"              ], //   1
+  ["He", "  4.003", "  4.0", "ヘリウム"          ], //   2
+  ["Li", "  6.940", "  6.9", "リチウム"          ], //   3
+  ["Be", "  9.012", "  9.0", "ベリリウム"        ], //   4
+  ["B" , " 10.81" , " 11"  , "ホウ素"            ], //   5
+  ["C" , " 12.01" , " 12"  , "炭素"              ], //   6
+  ["N" , " 14.01" , " 14"  , "窒素"              ], //   7
+  ["O" , " 16.00" , " 16"  , "酸素"              ], //   8
+  ["F" , " 19.00" , " 19"  , "フッ素"            ], //   9
+  ["Ne", " 20.18" , " 20"  , "ネオン"            ], //  10
+  ["Na", " 22.99" , " 23"  , "ナトリウム"        ], //  11
+  ["Mg", " 24.31" , " 24"  , "マグネシウム"      ], //  12
+  ["Al", " 26.98" , " 27"  , "アルミニウム"      ], //  13
+  ["Si", " 28.09" , " 28"  , "ケイ素"            ], //  14
+  ["P" , " 30.97" , " 31"  , "リン"              ], //  15
+  ["S" , " 32.07" , " 32"  , "硫黄"              ], //  16
+  ["Cl", " 35.45" , " 35.5", "塩素"              ], //  17
+  ["Ar", " 39.95" , " 40"  , "アルゴン"          ], //  18
+  ["K" , " 39.10" , " 39"  , "カリウム"          ], //  19
+  ["Ca", " 40.08" , " 40"  , "カルシウム"        ], //  20
+  ["Sc", " 44.96" , " 45"  , "スカンジウム"      ], //  21
+  ["Ti", " 47.87" , " 48"  , "チタン"            ], //  22
+  ["V" , " 50.94" , " 51"  , "バナジウム"        ], //  23
+  ["Cr", " 52.00" , " 52"  , "クロム"            ], //  24
+  ["Mn", " 54.94" , " 55"  , "マンガン"          ], //  25
+  ["Fe", " 55.85" , " 56"  , "鉄"                ], //  26
+  ["Co", " 58.93" , " 59"  , "コバルト"          ], //  27
+  ["Ni", " 58.69" , " 59"  , "ニッケル"          ], //  28
+  ["Cu", " 63.55" , " 64"  , "銅"                ], //  29
+  ["Zn", " 65.38" , " 65"  , "亜鉛"              ], //  30
+  ["Ga", " 69.72" , " 70"  , "ガリウム"          ], //  31
+  ["Ge", " 72.63" , " 73"  , "ゲルマニウム"      ], //  32
+  ["As", " 74.92" , " 75"  , "ヒ素"              ], //  33
+  ["Se", " 78.97" , " 79"  , "セレン"            ], //  34
+  ["Br", " 79.90" , " 80"  , "臭素"              ], //  35
+  ["Kr", " 83.80" , " 84"  , "クリプトン"        ], //  36
+  ["Rb", " 85.47" , " 85.5", "ルビジウム"        ], //  37
+  ["Sr", " 87.62" , " 88"  , "ストロンチウム"    ], //  38
+  ["Y" , " 88.91" , " 89"  , "イットリウム"      ], //  39
+  ["Zr", " 91.22" , " 91"  , "ジルコニウム"      ], //  40
+  ["Nb", " 92.91" , " 93"  , "ニオブ"            ], //  41
+  ["Mo", " 95.95" , " 96"  , "モリブデン"        ], //  42
+  ["Tc", " 99"    , " 99"  , "テクネチウム"      ], //  43
+  ["Ru", "101.1"  , "101"  , "ルテニウム"        ], //  44
+  ["Rh", "102.9"  , "103"  , "ロジウム"          ], //  45
+  ["Pd", "106.4"  , "106"  , "パラジウム"        ], //  46
+  ["Ag", "107.9"  , "108"  , "銀"                ], //  47
+  ["Cd", "112.4"  , "112"  , "カドミウム"        ], //  48
+  ["In", "114.8"  , "115"  , "インジウム"        ], //  49
+  ["Sn", "118.7"  , "119"  , "スズ"              ], //  50
+  ["Sb", "121.8"  , "122"  , "アンチモン"        ], //  51
+  ["Te", "127.6"  , "128"  , "テルル"            ], //  52
+  ["I" , "126.9"  , "127"  , "ヨウ素"            ], //  53
+  ["Xe", "131.3"  , "131"  , "キセノン"          ], //  54
+  ["Cs", "132.9"  , "133"  , "セシウム"          ], //  55
+  ["Ba", "137.3"  , "137"  , "バリウム"          ], //  56
+  ["La", "138.9"  , "139"  , "ランタン"          ], //  57
+  ["Ce", "140.1"  , "140"  , "セリウム"          ], //  58
+  ["Pr", "140.9"  , "141"  , "プラセオジム"      ], //  59
+  ["Nd", "144.2"  , "144"  , "ネオジム"          ], //  60
+  ["Pm", "145"    , "145"  , "プロメチウム"      ], //  61
+  ["Sm", "150.4"  , "150"  , "サマリウム"        ], //  62
+  ["Eu", "152.0"  , "152"  , "ユウロピウム"      ], //  63
+  ["Gd", "157.3"  , "157"  , "ガドリニウム"      ], //  64
+  ["Tb", "158.9"  , "159"  , "テルビウム"        ], //  65
+  ["Dy", "162.5"  , "163"  , "ジスプロシウム"    ], //  66
+  ["Ho", "164.9"  , "165"  , "ホルミウム"        ], //  67
+  ["Er", "167.3"  , "167"  , "エルビウム"        ], //  68
+  ["Tm", "168.9"  , "169"  , "ツリウム"          ], //  69
+  ["Yb", "173.0"  , "173"  , "イッテルビウム"    ], //  70
+  ["Lu", "175.0"  , "175"  , "ルテチウム"        ], //  71
+  ["Hf", "178.5"  , "179"  , "ハフニウム"        ], //  72
+  ["Ta", "180.9"  , "181"  , "タンタル"          ], //  73
+  ["W" , "183.8"  , "184"  , "タングステン"      ], //  74
+  ["Re", "186.2"  , "186"  , "レニウム"          ], //  75
+  ["Os", "190.2"  , "190"  , "オスミウム"        ], //  76
+  ["Ir", "192.2"  , "192"  , "イリジウム"        ], //  77
+  ["Pt", "195.1"  , "195"  , "白金"              ], //  78
+  ["Au", "197.0"  , "197"  , "金"                ], //  79
+  ["Hg", "200.6"  , "201"  , "水銀"              ], //  80
+  ["Tl", "204.4"  , "204"  , "タリウム"          ], //  81
+  ["Pb", "207.2"  , "207"  , "鉛"                ], //  82
+  ["Bi", "209.0"  , "209"  , "ビスマス"          ], //  83
+  ["Po", "210"    , "210"  , "ポロニウム"        ], //  84
+  ["At", "210"    , "210"  , "アスタチン"        ], //  85
+  ["Rn", "222"    , "222"  , "ラドン"            ], //  86
+  ["Fr", "223"    , "223"  , "フランシウム"      ], //  87
+  ["Ra", "226"    , "226"  , "ラジウム"          ], //  88
+  ["Ac", "227"    , "227"  , "アクチニウム"      ], //  89
+  ["Th", "232.0"  , "232"  , "トリウム"          ], //  90
+  ["Pa", "231.0"  , "231"  , "プロトアクチニウム"], //  91
+  ["U" , "238.0"  , "238"  , "ウラン"            ], //  92
+  ["Np", "237"    , "237"  , "ネプツニウム"      ], //  93
+  ["Pu", "239"    , "239"  , "プルトニウム"      ], //  94
+  ["Am", "243"    , "243"  , "アメリシウム"      ], //  95
+  ["Cm", "247"    , "247"  , "キュリウム"        ], //  96
+  ["Bk", "247"    , "247"  , "バークリウム"      ], //  97
+  ["Cf", "252"    , "252"  , "カリホルニウム"    ], //  98
+  ["Es", "252"    , "252"  , "アインスタイニウム"], //  99
+  ["Fm", "257"    , "257"  , "フェルミウム"      ], // 100
+  ["Md", "258"    , "258"  , "メンデレビウム"    ], // 101
+  ["No", "259"    , "259"  , "ノーベリウム"      ], // 102
+  ["Lr", "262"    , "262"  , "ローレンシウム"    ], // 103
+  ["Rf", "267"    , "267"  , "ラザホージウム"    ], // 104
+  ["Db", "268"    , "268"  , "ドブニウム"        ], // 105
+  ["Sg", "271"    , "271"  , "シーボーギウム"    ], // 106
+  ["Bh", "272"    , "272"  , "ボーリウム"        ], // 107
+  ["Hs", "277"    , "277"  , "ハッシウム"        ], // 108
+  ["Mt", "276"    , "276"  , "マイトネリウム"    ], // 109
+  ["Ds", "281"    , "281"  , "ダームスタチウム"  ], // 110
+  ["Rg", "280"    , "280"  , "レントゲニウム"    ], // 111
+  ["Cn", "285"    , "285"  , "コペルニシウム"    ], // 112
+  ["Nh", "278"    , "278"  , "ニホニウム"        ], // 113
+  ["Fl", "289"    , "289"  , "フレロビウム"      ], // 114
+  ["Mc", "289"    , "293"  , "モスコビウム"      ], // 115
+  ["Lv", "293"    , "293"  , "リバモリウム"      ], // 116
+  ["Ts", "293"    , "293"  , "テネシン"          ], // 117
+  ["Og", "294"    , "294"  , "オガネソン"        ]  // 118
+];
+const Aelm = AW.length;
+
+//----------------------------------------------------------------------
+// public variable
+//----------------------------------------------------------------------
+var WinX, WinY, WinW, WinH; // Window座標
+var PosX, PosY;   // グラフィックカレント
+var LocX, LocY;   // テキストカレント
+var LocW, LocH;   // テキストMサイズ
+var OffW, OffH;   // テキストSサイズ
+var Zoom;         // 拡大率×(16,9)
+var Width;        // 線幅
+var Width0 = 2;   // 線幅初期値
+//---
+var Px = 320;     // 表示位置x
+var Py = 199;     // 表示位置y
+//--- public variable
+var An = 1;  // 原子番号(Atomic number)
+
+//----------------------------------------------------------------------
+// 描画関数
+//----------------------------------------------------------------------
+function scrX(x)
+{
+  return Math.round((x - WinX) * canvas.width  / WinW);
+}
+
+function scrY(y)
+{
+  return Math.round((y - WinY) * canvas.height / WinH);
+}
+
+function WINDOW(x1, y1, x2, y2)
+{
+  WinX = x1;
+  WinY = y1;
+  WinW = x2 - x1 + 1;
+  WinH = y2 - y1 + 1;
+}
+
+function LOCATE(x, y)
+{
+  LocX = x * LocW;
+  LocY = y * LocH;
+}
+
+function TAB(x, y)
+{
+  LocX += x * LocW;
+  LocY += y * LocH;
+}
+
+function CR()
+{
+  LocX = 0;
+  LocY += LocH;
+}
+
+function CLS(c)
+{
+  ctx.fillStyle = c;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  LOCATE(0, 0);
+}
+
+function COLOR(c)
+{
+  ctx.fillStyle   = c;
+  ctx.strokeStyle = c;
+}
+
+String.prototype.bytes = function ()
+{
+  return(encodeURIComponent(this).replace(/%../g,"x").length);
+}
+
+function FONT(zoom, offs)
+{
+  var h;
+
+  zoom = Math.round(Zoom * zoom / 40 * 8);
+  LocW = zoom;
+  h    = zoom * 2;
+  offs = Math.round(Zoom * offs / 40 * 8);
+  OffH = offs * 2;
+  offs = Math.round(Zoom        / 40 * 8);
+  LocH = offs * 2;
+  ctx.font = h + "px 'ＭＳ ゴシック'";  
+}
+
+function PRINT(text)
+{
+  var len, b;
+
+  text += '';
+  b     = text.bytes();
+  len   = text.length;
+  b    -= len;
+  b     = b / 2;
+  len  += b;
+  ctx.fillText(text, LocX, LocY + OffH  - 1);
+  LocX += len * LocW;
+}
+
+function SYMBOL(x, y, text, c)
+{
+  var x1, y1;
+
+  x1 = scrX(x);
+  y1 = scrY(y);
+  ctx.fillStyle   = c;
+  ctx.strokeStyle = c;
+  ctx.fillText(text, x1, y1);
+}
+
+function POINT(x, y)
+{
+  PosX = scrX(x);
+  PosY = scrY(y);
+}
+
+function LINE(x1, y1, x2, y2, c)
+{
+  ctx.strokeStyle = c;
+  ctx.beginPath();
+  PosX = scrX(x1);
+  PosY = scrY(y1);
+  ctx.moveTo(PosX, PosY);
+  PosX = scrX(x2);
+  PosY = scrY(y2);
+  ctx.lineTo(PosX, PosY);
+  ctx.stroke();
+  ctx.closePath();
+}
+
+function LINE2(x2, y2, c)
+{
+  ctx.strokeStyle = c;
+  ctx.beginPath();
+  ctx.moveTo(PosX, PosY);
+  PosX = scrX(x2);
+  PosY = scrY(y2);
+  ctx.lineTo(PosX, PosY);
+  ctx.stroke();
+  ctx.closePath();
+}
+
+function LINEB(x1, y1, x2, y2, c)
+{
+  LINE(x1, y1, x1, y2, c);
+  LINE(x2, y1, x2, y2, c);
+  LINE(x1, y1, x2, y1, c);
+  LINE(x1, y2, x2, y2, c);
+}
+/*
+function LINEB(x1, y1, x2, y2, c)
+{
+  var x, y, w, h;
+
+  x = scrX(x1);
+  y = scrY(y1);
+  PosX = scrX(x2);
+  PosY = scrY(y2);
+  w = PosX - x + 1;
+  h = PosY - y + 1;
+  ctx.strokeStyle = c;
+  ctx.strokeRect(x, y, w, h);
+}
+*/
+
+function LINEBF(x1, y1, x2, y2, c)
+{
+  var x, y, w, h;
+
+  x = scrX(x1);
+  y = scrY(y1);
+  PosX = scrX(x2);
+  PosY = scrY(y2);
+  w = PosX - x + 1;
+  h = PosY - y + 1;
+  ctx.fillStyle = c;
+  ctx.fillRect(x, y, w, h);
+}
+
+//----------------------------------------------------------------------
+// Line width
+//----------------------------------------------------------------------
+function lineWidth(times)
+{
+  if (times == 1) { Width = Width0; }
+  else
+  {
+    Width *= times;
+    if      (Width <  1) Width =  1;
+    else if (Width > 16) Width = 16;
+  }
+}
+
+//----------------------------------------------------------------------
+// Zoom
+//----------------------------------------------------------------------
+function zooming(sign)
+{
+  if (sign == 0) { Zoom = 40; }
+  else
+  {
+    Zoom += sign * 5;
+    if      (Zoom <  20) Zoom =  20;
+    else if (Zoom > 120) Zoom = 120;
+  }
+  canvas.width  = 16 * Zoom;
+  canvas.height =  9 * Zoom;
+
+  FONT(1, 0);
+}
+
+//----------------------------------------------------------------------
+// Key status
+//----------------------------------------------------------------------
+var Key = new Array(256);
+for (var i = 0; i < 256; i++) Key[i] = 0;
+window.onkeydown = function(event) { Key[event.keyCode] = 1; }
+window.onkeyup   = function(event) { Key[event.keyCode] = 0; }
+
+//----------------------------------------------------------------------
+// search
+//----------------------------------------------------------------------
+function setAn()
+{
+  if (0 < An && An < Aelm)
+  {
+    AW[0][As] = AW[An][As];
+    AW[0][Aw] = AW[An][Aw];
+    AW[0][Ar] = AW[An][Ar];
+    AW[0][En] = AW[An][En];
+    return;
+  }
+  AW[0][As] = AW[0][Aw] = AW[0][Ar] = AW[0][En] = "";
+  An = 0;
+}
+
+function searchAw(as)
+{
+  var i;
+
+  as = as.substring(0, 1).toUpperCase() + as.substring(1).toLowerCase();
+  for (i = 1; i < Aelm; i++)
+  {
+    if (AW[i][As] == as)
+    {
+       return i;
+    }
+  }
+  return 0;
+}
+
+function setAs()
+{
+  An = searchAw(AW[0][As]);
+  setAn();
+}
+
+//----------------------------------------------------------------------
+// touch
+//----------------------------------------------------------------------
+function pushAs()
+{
+  const a = document.getElementById("str_As");
+
+  AW[0][As] = a.value;
+  setAs();
+  window.requestAnimationFrame(main);
+}
+
+function pushAn()
+{
+  const a = document.getElementById("num_An");
+
+  An = Number(a.value);
+  setAn();
+  window.requestAnimationFrame(main);
+}
+
+//----------------------------------------------------------------------
+// Input key
+//----------------------------------------------------------------------
+document.body.addEventListener('keydown', event =>
+{
+  var key;
+
+  if (event.altKey)
+  {
+    if      (event.code === "KeyQ") { lineWidth( 0.5); }
+    else if (event.code === "KeyW") { lineWidth( 2  ); }
+    else if (event.code === "KeyZ") { zooming  (-1  ); }
+    else if (event.code === "KeyX") { zooming  ( 1  ); }
+    else if (event.code === "KeyC") { zooming  ( 0  ); }
+  }
+  else
+  {
+    switch (event.keyCode)
+    {
+      case  13: pushAs(); break; // Enter
+      case  32: pushAn(); break; // space
+    }
+  }
+  window.requestAnimationFrame(main);
+});
+
+//----------------------------------------------------------------------
+// 指数
+//----------------------------------------------------------------------
+function PRINTe(s)
+{
+  var i, n, p, e;
+
+  i = s.indexOf('e', 0);
+  n = s.substring(0, i);
+  p = s.substring(i+1, i+2);
+  e = s.substring(i+2);
+  if (p == '-') { e = p + e; }
+  i = e.length;
+  PRINT(n); PRINT("x10");
+  FONT(0.7, -0.4);
+  PRINT(e);
+  FONT(1, 0);
+  return i;
+}
+
+//----------------------------------------------------------------------
+// 画面
+//----------------------------------------------------------------------
+function Display()
+{
+  var CmU = '#0f0';
+  var CMu = '#fa0';
+  var CNA = '#0ff';
+  var CM  = '#ff0';
+  var CAw = '#fff';
+
+  CLS('#032');
+  WINDOW(-Px, -Py, 639 - Px, 399 - Py);
+  FONT(1, 0);
+
+  LOCATE(0, 1);
+  COLOR('#ff0'); PRINT("元素記号を入力し");
+  COLOR('#0ff'); PRINT("Enter");
+  COLOR('#ff0'); PRINT(" 原子番号を入力し");
+  COLOR('#0ff'); PRINT("space");
+  COLOR('#0f0'); PRINT(" (Alt+z,x,c:縮小,拡大,初期)"); CR();
+  CR();
+
+  COLOR(CmU);
+  PRINT("原子質量定数　 m");
+  FONT(0.5, 0); PRINT("U"); TAB(-1.0, 0);
+  FONT(1, 0); TAB(1, 0);
+  PRINT(" ≒ "); PRINTe(mU);
+  PRINT(" g ( ");
+  FONT(0.7, -0.4); PRINT("12");
+  FONT(1, 0); PRINT("Cの質量 / 12 )"); CR();
+
+  COLOR(CMu);
+  PRINT("モル質量定数　 M");
+  FONT(0.5, 0); PRINT("U"); TAB(-1.0, 0);
+  FONT(1, 0); TAB(1, 0);
+  PRINT(" ≒ "); PRINT(Mu.toFixed(11)); PRINT(" g/mol ( ");
+  COLOR(CmU);
+  PRINT("m"); FONT(0.5, 0); PRINT("U");
+  FONT(1, 0);
+  COLOR(CMu);
+  PRINT(" x ");
+  COLOR(CNA);
+  PRINT("N"); FONT(0.7, 0); PRINT("A"); TAB(-1.0, 0);
+  FONT(1, 0); TAB(1, 0);
+  COLOR(CMu);
+  PRINT(" )"); CR();
+
+  TAB(17, 0);
+  PRINT(" ≒ "); PRINT(MR.toFixed(1)); PRINT(" g/mol"); CR();
+
+  COLOR(CNA);
+  PRINT("アボガドロ定数 N");
+  FONT(0.7, 0); PRINT("A"); TAB(-1.0, 0);
+  FONT(1, 0); TAB(1, 0);
+  PRINT(" ＝ "); PRINTe(NA); PRINT(" /mol"); CR();
+  TAB(17, 0);
+  PRINT(" ≒ "); PRINTe(NR); PRINT(" /mol"); CR();
+  CR();
+
+  if (An == 0)
+  {
+    COLOR(CAw);
+    PRINT("見つかりませんでした"); CR();
+    return;
+  }
+
+  COLOR(CM);
+  PRINT("モル質量 M (g/mol) ( ");
+  COLOR(CAw);
+  PRINT("原子量");
+  COLOR(CM);
+  PRINT(" x ");
+  COLOR(CMu);
+  PRINT("M"); FONT(0.5, 0); PRINT("U"); TAB(-1.0, 0);
+  FONT(1, 0); TAB(1, 0);
+  COLOR(CM);
+  PRINT(" ≒ ");
+  COLOR(CAw);
+  PRINT("原子量");
+  COLOR(CM);
+  PRINT(" )"); CR();
+  CR();
+
+  COLOR(CAw);
+  PRINT("原子量 ( 基準 ");
+  FONT(0.7, -0.4); PRINT("12");
+  FONT(1, 0); PRINT("C = 12 )"); CR();
+  CR();
+
+  FONT(0.8, 0.1); PRINT(An.toString().padStart(3, ' '));
+  FONT(1, 0); TAB(0.3, 0); PRINT(AW[0][As].padEnd(2, ' '));
+  PRINT(" ≒ "); PRINT(AW[0][Aw].padEnd(7, ' '));
+
+  COLOR(CM);
+  PRINT(" (M ≒ ");
+  PRINT((AW[0][Aw] * Mu).toFixed(11)); PRINT(" g/mol)"); CR();
+
+  COLOR(CAw);
+  TAB(2 + 0.8 * 3 + 0.3, 0);
+  PRINT(" ≒ "); PRINT(AW[0][Ar].padEnd(7, ' '));
+
+  COLOR(CM);
+  PRINT(" (M ≒ ");
+  PRINT(AW[0][Ar].toString().trim()); PRINT(" g/mol)"); CR();
+  CR();
+
+  COLOR(CAw);
+  PRINT ("[ ");
+  PRINT(AW[0][En]);
+  PRINT(" ]");
+  CR();
+}
+
+//----------------------------------------------------------------------
+// main
+//----------------------------------------------------------------------
+function main()
+{
+  ctx.lineWidth = Width;
+  Display();
+}
+
+lineWidth(1);
+zooming(0);
+setAn();
+main();
+
+//----------------------------------------------------------------------
+</script>
+</body>
+</html>
