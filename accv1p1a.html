@@ -107,6 +107,12 @@ function getter()
   Pt1 = Number(t.value);
 }
 
+function getterf()
+{
+  getter();
+  window.requestAnimationFrame(main);
+}
+
 function pusha0()
 {
   const a = document.getElementById("num_a0");
@@ -534,13 +540,12 @@ document.body.addEventListener('keydown', event =>
   {
     case  13: pushReset(); break; // Enter
     case  32: pushStart(); break; // space
-    case  81: lineWidth( 0.5); isMotion = 0; getter(); break; // 'Q'
-    case  87: lineWidth( 2  ); isMotion = 0; getter(); break; // 'W'
-    case  90: zooming  (-1  ); isMotion = 0; getter(); break; // 'Z'
-    case  88: zooming  ( 1  ); isMotion = 0; getter(); break; // 'X'
-    case  67: zooming  ( 0  ); isMotion = 0; getter(); break; // 'C'
+    case  81: lineWidth( 0.5); isMotion = 0; getterf(); break; // 'Q'
+    case  87: lineWidth( 2  ); isMotion = 0; getterf(); break; // 'W'
+    case  90: zooming  (-1  ); isMotion = 0; getterf(); break; // 'Z'
+    case  88: zooming  ( 1  ); isMotion = 0; getterf(); break; // 'X'
+    case  67: zooming  ( 0  ); isMotion = 0; getterf(); break; // 'C'
   }
-  window.requestAnimationFrame(main);
 });
 
 //----------------------------------------------------------------------
