@@ -20,25 +20,25 @@
 <div style='float:left;'>
 
 <input type="button" id="but_a0" value="加速度　" onclick="pusha0()">
-<input type="number" id="num_a0" value="-9.8"
-  min = "-100000" max="100000" />
+<input type="number" id="num_a0" value="-9.8" step = "0.1"
+  min = "-100000.0" max="100000.0" />
 </pre>
 <pre></pre>
 <input type="button" id="but_v0" value="初速度　" onclick="pushv0()">
-<input type="number" id="num_v0" value="98"
-  min = "-100000" max="100000" />
+<input type="number" id="num_v0" value="98" step = "0.1"
+  min = "-100000.0" max="100000.0" />
 <pre></pre>
 <input type="button" id="but_x0" value="初期位置" onclick="pushx0()">
-<input type="number" id="num_x0" value="0"
-  min = "-100000" max="100000" />
+<input type="number" id="num_x0" value="0" step = "0.1"
+  min = "-100000.0" max="100000.0" />
 <pre></pre>
 <input type="button" id="but_ds" value="１目盛り" onclick="pushds()">
-<input type="number" id="num_ds" value="10"
-  min = "-100000" max="100000" />
+<input type="number" id="num_ds" value="10" step = "0.1"
+  min = "-100000.0" max="100000.0" />
 <pre></pre>
 <input type="button" id="but_t1" value="最終時間" onclick="pusht1()">
-<input type="number" id="num_t1" value="25"
-  min = "-100000" max="100000" />
+<input type="number" id="num_t1" value="25" step = "0.1"
+  min = "-100000.0" max="100000.0" />
 <pre></pre>
 <input type="button" id="but_re" value="時間のリセット "
   onclick="pushReset()">
@@ -82,7 +82,7 @@ var Pt  =  0;     // 時間
 var Pdt = 1/60;   // 1/60(s)
 var Pt0 =  0;     // 前の時間
 //---
-var isM = 0; // 動画スイッチ
+var isMv = 0; // 動画スイッチ
 var Fr = 0;       // Frame counter
 //--- 上記inputで設定
 var Pa0; // 加速度
@@ -137,7 +137,7 @@ function pusha0()
 
   Pa0 = Number(a.value)
   Pt = 0;
-  isM = 0;
+  isMv = 0;
 //  document.getElementById("Acceralate").textContent = Pa0;
   window.requestAnimationFrame(main);
 }
@@ -146,9 +146,9 @@ function pushv0()
 {
   const v = document.getElementById("num_v0");
 
-  Pv0 = Number(v.value);
-  Pt = 0;
-  isM = 0;
+  Pv0  = Number(v.value);
+  Pt   = 0;
+  isMv = 0;
   window.requestAnimationFrame(main);
 }
 
@@ -156,9 +156,9 @@ function pushx0()
 {
   const x = document.getElementById("num_x0");
 
-  Px0 = Number(x.value);
-  Pt = 0;
-  isM = 0;
+  Px0  = Number(x.value);
+  Pt   = 0;
+  isMv = 0;
   window.requestAnimationFrame(main);
 }
 
@@ -166,9 +166,9 @@ function pushds()
 {
   const s = document.getElementById("num_ds");
 
-  Ds = Number(s.value);
-  Pt = 0;
-  isM = 0;
+  Ds   = Number(s.value);
+  Pt   = 0;
+  isMv = 0;
   window.requestAnimationFrame(main);
 }
 
@@ -176,23 +176,23 @@ function pusht1()
 {
   const t = document.getElementById("num_t1");
 
-  Pt1 = Number(t.value);
-  Pt = 0;
-  isM = 0;
+  Pt1  = Number(t.value);
+  Pt   = 0;
+  isMv = 0;
   window.requestAnimationFrame(main);
 }
 
 function pushReset()
 {
-  Pt = 0;
-  isM = 0;
+  Pt   = 0;
+  isMv = 0;
   getter();
   window.requestAnimationFrame(main);
 }
 
 function pushStart()
 {
-  isM = 1-isM;
+  isMv = 1-isMv;
   getter();
   window.requestAnimationFrame(main);
 }
@@ -517,8 +517,8 @@ function Frame(t)
   Infom("位置     x", ' ', x, "m", ' ');   funcx(4); CR();
   Infom("時間 　  t", ' ', t, "s", ' ');
      TAB(4, 1); PRINT("( ～ " + Pt1 + " s ");
-  if (isM) { COLOR('#0ff'); PRINT("時間経過中"); }
-  else          { COLOR('#fff'); PRINT("時間停止中"); }
+  if (isMv) { COLOR('#0ff'); PRINT("時間経過中"); }
+  else      { COLOR('#fff'); PRINT("時間停止中"); }
   COLOR('#fff'); PRINT(" )"); CR();
   PRINT("1目盛り " + Ds + " m"); CR();
 
@@ -531,17 +531,17 @@ function Display()
 {
   Frame(Pt);
 
-  if (isM)
+  if (isMv)
   {
     if (Pt1 >= 0)
     {
       Pt += Pdt;
-      if (Pt >= Pt1) { Pt = Pt1; isM = 0; }
+      if (Pt >= Pt1) { Pt = Pt1; isMv = 0; }
     }
     else
     {
       Pt -= Pdt;
-      if (Pt <= Pt1) { Pt = Pt1; isM = 0; }
+      if (Pt <= Pt1) { Pt = Pt1; isMv = 0; }
     }
     window.requestAnimationFrame(main);
   }
@@ -558,11 +558,11 @@ document.body.addEventListener('keydown', event =>
   {
     case  13: pushReset(); blur(); break; // Enter
     case  32: pushStart(); blur(); break; // space
-    case  81: lineWidth( 0.5); isM = 0; getterf(); blur(); break; // 'Q'
-    case  87: lineWidth( 2  ); isM = 0; getterf(); blur(); break; // 'W'
-    case  90: zooming  (-1  ); isM = 0; getterf(); blur(); break; // 'Z'
-    case  88: zooming  ( 1  ); isM = 0; getterf(); blur(); break; // 'X'
-    case  67: zooming  ( 0  ); isM = 0; getterf(); blur(); break; // 'C'
+    case  81: lineWidth( 0.5); isMv = 0; getterf(); blur(); break; // 'Q'
+    case  87: lineWidth( 2  ); isMv = 0; getterf(); blur(); break; // 'W'
+    case  90: zooming  (-1  ); isMv = 0; getterf(); blur(); break; // 'Z'
+    case  88: zooming  ( 1  ); isMv = 0; getterf(); blur(); break; // 'X'
+    case  67: zooming  ( 0  ); isMv = 0; getterf(); blur(); break; // 'C'
   }
 });
 

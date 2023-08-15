@@ -21,24 +21,27 @@
 
 <input type="button" id="but_g0" value="重力加速度" onclick="pushget()">
 <input type="number" id="num_g0" value="9.8"
-  min = "-9999" max="9999" />
+  min = "-9999.0" max="9999.0" />
 </pre>
 <pre></pre>
 <input type="button" id="but_v0" value="初速度" onclick="pushget()">
-<input type="number" id="num_v0" value="31.0" min = "0" max="100000" />
+<input type="number" id="num_v0" value="31.0" min = "0.0" max="100000.0"
+  step = "0.1" />
 <pre></pre>
 <input type="button" id="but_d0" value="仰角" onclick="pushget()">
-<input type="number" id="num_d0" min = "0" max="90" />
+<input type="number" id="num_d0" min = "0.0" max="90.0" step = "0.1" />
 <pre></pre>
 <input type="button" id="but_d1" value=" θ1 " onclick="pushd(1)">
 <input type="button" id="but_d2" value=" θ2 " onclick="pushd(2)">
 <input type="button" id="but_d3" value=" θ3 " onclick="pushd(3)">
 <pre></pre>
 <input type="button" id="but_ds" value="１目盛り" onclick="pushget()">
-<input type="number" id="num_ds" min = "0" max="100000" value = "1" />
+<input type="number" id="num_ds" min = "0.0" max="100000.0" value = "1"
+  step = "0.1" />
 <pre></pre>
 <input type="button" id="but_t1" value="最終時間" onclick="pushget()">
-<input type="number" id="num_t1" value="300" min = "0" max="100000" />
+<input type="number" id="num_t1" value="300.0" min = "0" max="100000.0"
+  step = "0.1" />
 <pre></pre>
 <input type="button" id="but_re" value="リセット " onclick="pushReset()">
 <input type="button" id="but_st" value="開始/停止" onclick="pushStart()">
@@ -47,10 +50,12 @@
 <input type="button" id="but_fa" value="落下" onclick="pushFall()">
 <pre></pre>
 <input type="button" id="but_bx" value="的x" onclick="pushget()">
-<input type="number" id="num_bx" value="55.000" min = "0" max="100000" />
+<input type="number" id="num_bx" value="55.000"
+  min = "0.000" max="100000.000" step = "0.001" />
 <pre></pre>
 <input type="button" id="but_by" value="的y" onclick="pushget()">
-<input type="number" id="num_by" value="30.000" min = "0" max="100000" />
+<input type="number" id="num_by" value="30.000"
+  min = "0.000" max="100000.000" step = "0.001" />
 <pre></pre>
 <script>
 'use strict'
@@ -73,9 +78,18 @@ var OffW, OffH;   // テキストSサイズ
 var Zoom;         // 拡大率×(16,9)
 var Width;        // 線幅
 var Width0 = 2;   // 線幅初期値
+//--- color
+var Cg = '#00f';  // graph
+var Ca = '#f00';  // 質点A
+var Cb = '#0f0';  // 質点B
+var Cx = '#0b0';  // x軸
+var Cy = '#0bb';  // y軸
 //---
 var Pd =   9;     // dot/目盛り
 var Pr =   6;     // 質点の大きさ/2
+var Prr =  2.5;   // specularの大きさ
+var Prx =  1.5;   // specularのoffset x
+var Pry =  1.5;   // specularのoffset y
 var Px =  Pr;     // 表示位置x
 var Py = 397-Pr;  // 表示位置y
 var Pw = 630-Pr;  // 幅
@@ -86,12 +100,6 @@ var P0 =   8;     // 10目盛り長さ
 var Pt  =  0;     // 時間
 var Pdt = 1/60;   // 1/60(s)
 var Pf  =  1;     // 落下(fall)
-//--- color
-var Cg = '#00f';  // graph
-var Ca = '#ff0';  // 質点A
-var Cb = '#0ff';  // 質点B
-var Cx = '#0f0';  // x軸
-var Cy = '#00f';  // y軸
 //---
 var isMv = 0; // 動画スイッチ
 var Fr = 0;       // Frame counter
@@ -220,9 +228,6 @@ class Motion
         that.ay = this.ay;
     }
 
-    if (Math.abs(this.vx) < 1e-2) this.vx = 0;
-    if (Math.abs(this.vy) < 1e-2) this.vy = 0;
-
     if (this.px < this.x0)
     { this.vx *= -this.e; this.vy *=  this.u; this.px = this.x0; }
     if (this.px > this.x1)
@@ -234,6 +239,12 @@ class Motion
       u = (Math.abs(this.vy) <= u)? 0.997 : this.u;
 
       this.vx *=  u; this.vy *= -this.e; this.py = this.y0;
+
+      if (u > this.u)
+      {
+        if (Math.abs(this.vx) < 0.2) this.vx = 0;
+        if (Math.abs(this.vy) < 0.2) this.vy = 0;
+      }
     }
     this.dx  = this.px - this.dx;
     this.dy  = this.py - this.dy;
@@ -824,6 +835,18 @@ function Num(a, z)
    return s;
 }
 
+function Ball(a, c)
+{
+  var x, y;
+
+  x = a.px * Pd / Ps;
+  y = a.py * Pd / Ps;
+  CIRCLERF(x, y, Pr ,  c    );
+  x += Prx;
+  y += Pry;
+  CIRCLERF(x, y, Prr, '#fff');
+}
+
 function Frame(t)
 {
   var tb = 2;
@@ -847,9 +870,8 @@ function Frame(t)
   COLOR('#0f0'); PRINT(" (asd角,fg落,矢+Shift/Ctrl/Alt位置,zxc拡,qw線)");
   PRINT(" (");
   if (Fr < 10) PRINT(' ');
-  PRINT(Fr + "f)");
+  PRINT(Fr + "f)"); CR();
   Fr = (Fr + 1) % 60;
-  CR();
 
   COLOR('#fff');
   TAB(tb, 0);
@@ -857,18 +879,13 @@ function Frame(t)
   PRINTe("初速度v_0 = "   + Num(Pv0, Zm) + " m/s , ");
   PRINTe("仰角θ_0 = "    + Num(Pd0, Zd) + " °"); CR();
 
-  TAB(tb, 0);
-  PRINTe("仰角θ_1 = " + Num(Pd1, Zd) + " °");
-  PRINTe(" , θ_2 = "  + Num(Pd2, Zd) + " °");
-  PRINTe(" , θ_3 = "  + Num(Pd3, Zd) + " °"); CR();
-
   COLOR(Cb);
   TAB(tb, 0);
   PRINT("的初期位置( " + Num(Bx, Zb));
-  PRINT(" m , "        + Num(By, Zb) + " m )   ");
+  PRINT(" m , "        + Num(By, Zb) + " m ) ");
   if (Pf == '0') PRINT("( 静止 )");
   else           PRINT("( 落下 )");
-  CR();
+  PRINT(" 中心間距離( " + Num(A.distance(B), Zm) + " m )"); CR();
 
   COLOR('#fff');
   TAB(tb, 0);
@@ -877,22 +894,28 @@ function Frame(t)
   PRINT("位置( "  + Num(A.px, Zm));
   PRINT(" m , "   + Num(A.py, Zm) + " m )"); CR();
 
+  COLOR('#0ff');
+  TAB(tb, 0);
+  PRINTe("仰角θ_1 = " + Num(Pd1, Zd) + " °");
+  PRINTe(" , θ_2 = "  + Num(Pd2, Zd) + " °");
+  PRINTe(" , θ_3 = "  + Num(Pd3, Zd) + " °"); CR();
+
+  COLOR('#ff0');
   TAB(tb, 0);
   PRINT("時間t = " + Num(Pt , Zt));
-  PRINT(" s ( ～ " + Num(Pt1, Zt) + " s )");
-  COLOR('#fff'); PRINT("   ( ");
-  if (isMv) { COLOR('#0ff'); PRINT("時間経過中"); }
-  else          { COLOR('#fa0'); PRINT("時間停止中"); }
-  COLOR('#fff'); PRINT(" )"); CR();
+  PRINT(" s ( ～ " + Num(Pt1, Zt) + " s ) ");
+//  PRINT("   ( ");
+  if (isMv) { COLOR('#0ff'); PRINT("経過中"); }
+  else      { COLOR('#fa0'); PRINT("停止中"); }
+//  COLOR('#ff0'); PRINT(" )"); CR();
+  CR();
 
-  TAB(tb);
-  PRINT("1目盛り  " + Ps + " m , ");
-  COLOR(Cb);
-  PRINT("中心間距離( " + Num(A.distance(B), Zm) + " m )"); CR();
   COLOR('#fff');
+  TAB(tb, 0);
+  PRINT("1目盛り  " + Ps + " m"); CR();
 
-  CIRCLERF(B.px * Pd / Ps, B.py * Pd / Ps, Pr, Cb);
-  CIRCLERF(A.px * Pd / Ps, A.py * Pd / Ps, Pr, Ca);
+  Ball(B, Cb);
+  Ball(A, Ca);
 }
 
 //--------------------------------------------------------------------
