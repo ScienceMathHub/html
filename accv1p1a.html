@@ -19,30 +19,32 @@
 <p id="Acceralate"></p>
 <div style='float:left;'>
 
-<input type="button" value="加速度　" onclick="pusha0()">
+<input type="button" id="but_a0" value="加速度　" onclick="pusha0()">
 <input type="number" id="num_a0" value="-9.8"
   min = "-100000" max="100000" />
 </pre>
 <pre></pre>
-<input type="button" value="初速度　" onclick="pushv0()">
+<input type="button" id="but_v0" value="初速度　" onclick="pushv0()">
 <input type="number" id="num_v0" value="98"
   min = "-100000" max="100000" />
 <pre></pre>
-<input type="button" value="初期位置" onclick="pushx0()">
+<input type="button" id="but_x0" value="初期位置" onclick="pushx0()">
 <input type="number" id="num_x0" value="0"
   min = "-100000" max="100000" />
 <pre></pre>
-<input type="button" value="１目盛り" onclick="pushds()">
+<input type="button" id="but_ds" value="１目盛り" onclick="pushds()">
 <input type="number" id="num_ds" value="10"
   min = "-100000" max="100000" />
 <pre></pre>
-<input type="button" value="最終時間" onclick="pusht1()">
+<input type="button" id="but_t1" value="最終時間" onclick="pusht1()">
 <input type="number" id="num_t1" value="25"
   min = "-100000" max="100000" />
 <pre></pre>
-<input type="button" value="時間のリセット " onclick="pushReset()">
+<input type="button" id="but_re" value="時間のリセット "
+  onclick="pushReset()">
 <pre></pre>
-<input type="button" value="時間の開始/停止" onclick="pushStart()">
+<input type="button" id="but_st" value="時間の開始/停止"
+  onclick="pushStart()">
 <pre></pre>
 <script>
 'use strict'
@@ -80,7 +82,7 @@ var Pt  =  0;     // 時間
 var Pdt = 1/60;   // 1/60(s)
 var Pt0 =  0;     // 前の時間
 //---
-var isMotion = 0; // 動画スイッチ
+var isM = 0; // 動画スイッチ
 var Fr = 0;       // Frame counter
 //--- 上記inputで設定
 var Pa0; // 加速度
@@ -113,13 +115,29 @@ function getterf()
   window.requestAnimationFrame(main);
 }
 
+function blur()
+{
+  document.getElementById("num_a0").blur();
+  document.getElementById("num_v0").blur();
+  document.getElementById("num_x0").blur();
+  document.getElementById("num_ds").blur();
+  document.getElementById("num_t1").blur();
+  document.getElementById("but_a0").blur();
+  document.getElementById("but_v0").blur();
+  document.getElementById("but_x0").blur();
+  document.getElementById("but_ds").blur();
+  document.getElementById("but_t1").blur();
+  document.getElementById("but_re").blur();
+  document.getElementById("but_st").blur();
+}
+
 function pusha0()
 {
   const a = document.getElementById("num_a0");
 
   Pa0 = Number(a.value)
   Pt = 0;
-  isMotion = 0;
+  isM = 0;
 //  document.getElementById("Acceralate").textContent = Pa0;
   window.requestAnimationFrame(main);
 }
@@ -130,7 +148,7 @@ function pushv0()
 
   Pv0 = Number(v.value);
   Pt = 0;
-  isMotion = 0;
+  isM = 0;
   window.requestAnimationFrame(main);
 }
 
@@ -140,7 +158,7 @@ function pushx0()
 
   Px0 = Number(x.value);
   Pt = 0;
-  isMotion = 0;
+  isM = 0;
   window.requestAnimationFrame(main);
 }
 
@@ -150,7 +168,7 @@ function pushds()
 
   Ds = Number(s.value);
   Pt = 0;
-  isMotion = 0;
+  isM = 0;
   window.requestAnimationFrame(main);
 }
 
@@ -160,21 +178,21 @@ function pusht1()
 
   Pt1 = Number(t.value);
   Pt = 0;
-  isMotion = 0;
+  isM = 0;
   window.requestAnimationFrame(main);
 }
 
 function pushReset()
 {
   Pt = 0;
-  isMotion = 0;
+  isM = 0;
   getter();
   window.requestAnimationFrame(main);
 }
 
 function pushStart()
 {
-  isMotion = 1-isMotion;
+  isM = 1-isM;
   getter();
   window.requestAnimationFrame(main);
 }
@@ -499,7 +517,7 @@ function Frame(t)
   Infom("位置     x", ' ', x, "m", ' ');   funcx(4); CR();
   Infom("時間 　  t", ' ', t, "s", ' ');
      TAB(4, 1); PRINT("( ～ " + Pt1 + " s ");
-  if (isMotion) { COLOR('#0ff'); PRINT("時間経過中"); }
+  if (isM) { COLOR('#0ff'); PRINT("時間経過中"); }
   else          { COLOR('#fff'); PRINT("時間停止中"); }
   COLOR('#fff'); PRINT(" )"); CR();
   PRINT("1目盛り " + Ds + " m"); CR();
@@ -513,17 +531,17 @@ function Display()
 {
   Frame(Pt);
 
-  if (isMotion)
+  if (isM)
   {
     if (Pt1 >= 0)
     {
       Pt += Pdt;
-      if (Pt >= Pt1) { Pt = Pt1; isMotion = 0; }
+      if (Pt >= Pt1) { Pt = Pt1; isM = 0; }
     }
     else
     {
       Pt -= Pdt;
-      if (Pt <= Pt1) { Pt = Pt1; isMotion = 0; }
+      if (Pt <= Pt1) { Pt = Pt1; isM = 0; }
     }
     window.requestAnimationFrame(main);
   }
@@ -538,13 +556,13 @@ document.body.addEventListener('keydown', event =>
 
   switch (event.keyCode)
   {
-    case  13: pushReset(); break; // Enter
-    case  32: pushStart(); break; // space
-    case  81: lineWidth( 0.5); isMotion = 0; getterf(); break; // 'Q'
-    case  87: lineWidth( 2  ); isMotion = 0; getterf(); break; // 'W'
-    case  90: zooming  (-1  ); isMotion = 0; getterf(); break; // 'Z'
-    case  88: zooming  ( 1  ); isMotion = 0; getterf(); break; // 'X'
-    case  67: zooming  ( 0  ); isMotion = 0; getterf(); break; // 'C'
+    case  13: pushReset(); blur(); break; // Enter
+    case  32: pushStart(); blur(); break; // space
+    case  81: lineWidth( 0.5); isM = 0; getterf(); blur(); break; // 'Q'
+    case  87: lineWidth( 2  ); isM = 0; getterf(); blur(); break; // 'W'
+    case  90: zooming  (-1  ); isM = 0; getterf(); blur(); break; // 'Z'
+    case  88: zooming  ( 1  ); isM = 0; getterf(); blur(); break; // 'X'
+    case  67: zooming  ( 0  ); isM = 0; getterf(); blur(); break; // 'C'
   }
 });
 

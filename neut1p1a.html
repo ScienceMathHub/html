@@ -18,27 +18,29 @@
 <body>
 <p id="neutralization"></p>
 <div style='float:left;'>
-<input type="button" value="Select0" onclick="push0()">
+<input type="button" id = "but_0" value="Select0" onclick="push0(0)">
 <pre></pre>
-<input type="button" value="Select1" onclick="push1()">
+<input type="button" id = "but_1" value="Select1" onclick="push0(1)">
 <pre></pre>
-<input type="button" value="Select2" onclick="push2()">
+<input type="button" id = "but_2" value="Select2" onclick="push0(2)">
 <pre></pre>
-<input type="button" value="Select3" onclick="push3()">
+<input type="button" id = "but_3" value="Select3" onclick="push0(3)">
 <pre></pre>
-<input type="button" value="Select4" onclick="push4()">
+<input type="button" id = "but_4" value="Select4" onclick="push0(4)">
 <pre></pre>
-<input type="button" value="Select5" onclick="push5()">
+<input type="button" id = "but_5" value="Select5" onclick="push0(5)">
 <pre></pre>
-<input type="button" value="Select6" onclick="push6()">
+<input type="button" id = "but_6" value="Select6" onclick="push0(6)">
 <pre></pre>
-<input type="button" value="Select7" onclick="push7()">
+<input type="button" id = "but_7" value="Select7" onclick="push0(7)">
 <pre> </pre>
 <pre></pre>
-<input type="button" value="多量滴下" onclick="pushu()">
+<input type="button" id = "but_d2" value="多量滴下"
+  onclick="pushd(0.5)">
 <pre> </pre>
 <pre></pre>
-<input type="button" value="少量滴下" onclick="pushl()">
+<input type="button" id = "but_d1" value="少量滴下"
+  onclick="pushd(0.05)">
 <pre></pre>
 <script>
 'use strict'
@@ -75,33 +77,27 @@ var Ca, Cb;
 //----------------------------------------------------------------------
 // touch
 //----------------------------------------------------------------------
-function push0()
-{ Select = 0; Volume = 0; window.requestAnimationFrame(main); }
-function push1()
-{ Select = 1; Volume = 0; window.requestAnimationFrame(main); }
-function push2()
-{ Select = 2; Volume = 0; window.requestAnimationFrame(main); }
-function push3()
-{ Select = 3; Volume = 0; window.requestAnimationFrame(main); }
-function push4()
-{ Select = 4; Volume = 0; window.requestAnimationFrame(main); }
-function push5()
-{ Select = 5; Volume = 0; window.requestAnimationFrame(main); }
-function push6()
-{ Select = 6; Volume = 0; window.requestAnimationFrame(main); }
-function push7()
-{ Select = 7; Volume = 0; window.requestAnimationFrame(main); }
-function pushu()
+function push0(s)
+{ Select = s; Volume = 0; window.requestAnimationFrame(main); }
+function pushd(v)
 {
-  Volume += 0.5;
+  Volume += v;
   if (Volume > Lv) Volume = Lv;
   window.requestAnimationFrame(main);
 }
-function pushl()
+
+function blur()
 {
-  Volume += 0.05;
-  if (Volume > Lv) Volume = Lv;
-  window.requestAnimationFrame(main);
+  document.getElementById("but_0" ).blur();
+  document.getElementById("but_1" ).blur();
+  document.getElementById("but_2" ).blur();
+  document.getElementById("but_3" ).blur();
+  document.getElementById("but_4" ).blur();
+  document.getElementById("but_5" ).blur();
+  document.getElementById("but_6" ).blur();
+  document.getElementById("but_7" ).blur();
+  document.getElementById("but_d2").blur();
+  document.getElementById("but_d1").blur();
 }
 
 //----------------------------------------------------------------------
@@ -927,19 +923,19 @@ function keyon(t)
   if (Key[ 16]) { t = t * 10; } // SHIFT
   if (Key[ 38]) //↑
   {
-    Volume += t * 4; if (Volume > Lv) Volume = Lv; 
+    Volume += t * 4; if (Volume > Lv) Volume = Lv; blur();
   }
   if (Key[ 40]) //↓
   {
-    Volume -= t * 4; if (Volume <  0) Volume =  0; 
+    Volume -= t * 4; if (Volume <  0) Volume =  0; blur();
   } 
   if (Key[ 39]) //→
   {
-    Volume += t    ; if (Volume > Lv) Volume = Lv; 
+    Volume += t    ; if (Volume > Lv) Volume = Lv; blur();
   } 
   if (Key[ 37]) //←
   {
-    Volume -= t    ; if (Volume <  0) Volume =  0; 
+    Volume -= t    ; if (Volume <  0) Volume =  0; blur();
   }
 }
 
@@ -984,6 +980,7 @@ function selectof(k)
   {
     Select = k;
     Volume = 0;
+    blur();
   }
 }
 
@@ -994,12 +991,12 @@ document.body.addEventListener('keydown', event =>
 {
   switch (event.keyCode)
   {
-    case 13: Volume = 0     ; break; // Enter
-    case 81: lineWidth( 0.5); break; // 'Q'
-    case 87: lineWidth( 2  ); break; // 'W'
-    case 90: zooming  (-1  ); break; // 'Z'
-    case 88: zooming  ( 1  ); break; // 'X'
-    case 67: zooming  ( 0  ); break; // 'C'
+    case 13: Volume = 0     ; blur(); break; // Enter
+    case 81: lineWidth( 0.5); blur(); break; // 'Q'
+    case 87: lineWidth( 2  ); blur(); break; // 'W'
+    case 90: zooming  (-1  ); blur(); break; // 'Z'
+    case 88: zooming  ( 1  ); blur(); break; // 'X'
+    case 67: zooming  ( 0  ); blur(); break; // 'C'
     default: selectof(event.keyCode - 48);
   }
   window.requestAnimationFrame(main);

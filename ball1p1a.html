@@ -1,0 +1,1031 @@
+<!--
+------------------------------------------------------------------------
+ ボールハンティング
+
+ HTML(JavaScript, canvas)
+
+ z,x,c, q,w, Enter, space
+
+ (c)Ohtani 2023.8
+------------------------------------------------------------------------
+-->
+<!DOctxYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <title>ボールハンティング</title>
+</head>
+<body>
+<p id="BallHunting"></p>
+<div style='float:left;'>
+
+<input type="button" id="but_g0" value="重力加速度" onclick="pushget()">
+<input type="number" id="num_g0" value="9.8"
+  min = "-9999" max="9999" />
+</pre>
+<pre></pre>
+<input type="button" id="but_v0" value="初速度" onclick="pushget()">
+<input type="number" id="num_v0" value="31.0" min = "0" max="100000" />
+<pre></pre>
+<input type="button" id="but_d0" value="仰角" onclick="pushget()">
+<input type="number" id="num_d0" min = "0" max="90" />
+<pre></pre>
+<input type="button" id="but_d1" value=" θ1 " onclick="pushd(1)">
+<input type="button" id="but_d2" value=" θ2 " onclick="pushd(2)">
+<input type="button" id="but_d3" value=" θ3 " onclick="pushd(3)">
+<pre></pre>
+<input type="button" id="but_ds" value="１目盛り" onclick="pushget()">
+<input type="number" id="num_ds" min = "0" max="100000" value = "1" />
+<pre></pre>
+<input type="button" id="but_t1" value="最終時間" onclick="pushget()">
+<input type="number" id="num_t1" value="300" min = "0" max="100000" />
+<pre></pre>
+<input type="button" id="but_re" value="リセット " onclick="pushReset()">
+<input type="button" id="but_st" value="開始/停止" onclick="pushStart()">
+<pre></pre>
+<input type="button" id="but_sc" value="静止" onclick="pushStat()">
+<input type="button" id="but_fa" value="落下" onclick="pushFall()">
+<pre></pre>
+<input type="button" id="but_bx" value="的x" onclick="pushget()">
+<input type="number" id="num_bx" value="55.000" min = "0" max="100000" />
+<pre></pre>
+<input type="button" id="but_by" value="的y" onclick="pushget()">
+<input type="number" id="num_by" value="30.000" min = "0" max="100000" />
+<pre></pre>
+<script>
+'use strict'
+
+//----------------------------------------------------------------------
+// canvas
+//----------------------------------------------------------------------
+const canvas = document.createElement('canvas');
+const ctx = canvas.getContext('2d');
+document.body.appendChild(canvas);
+
+//----------------------------------------------------------------------
+// public variable
+//----------------------------------------------------------------------
+var WinX, WinY, WinW, WinH; // Window座標
+var PosX, PosY;   // グラフィックカレント
+var LocX, LocY;   // テキストカレント
+var LocW, LocH;   // テキストMサイズ
+var OffW, OffH;   // テキストSサイズ
+var Zoom;         // 拡大率×(16,9)
+var Width;        // 線幅
+var Width0 = 2;   // 線幅初期値
+//---
+var Pd =   9;     // dot/目盛り
+var Pr =   6;     // 質点の大きさ/2
+var Px =  Pr;     // 表示位置x
+var Py = 397-Pr;  // 表示位置y
+var Pw = 630-Pr;  // 幅
+var Ph = 400-Pr;  // 高さ
+var P1 =   4;     //  1目盛り長さ
+var P5 =   6;     //  5目盛り長さ
+var P0 =   8;     // 10目盛り長さ
+var Pt  =  0;     // 時間
+var Pdt = 1/60;   // 1/60(s)
+var Pf  =  1;     // 落下(fall)
+//--- color
+var Cg = '#00f';  // graph
+var Ca = '#ff0';  // 質点A
+var Cb = '#0ff';  // 質点B
+var Cx = '#0f0';  // x軸
+var Cy = '#00f';  // y軸
+//---
+var isMv = 0; // 動画スイッチ
+var Fr = 0;       // Frame counter
+var Zm = 1;       // 小数桁(m)
+var Zb = 3;       // 小数桁(m)B
+var Zt = 1;       // 小数桁(s)
+var Zd = 1;       // 小数桁(ﾟ)
+//--- 上記inputで設定
+var Pg0;      // 重力加速度
+var Pv0;      // 初速度
+var Pd0;      // 仰角
+var Pd3;      // 仰角上
+var Pd2;      // 仰角中
+var Pd1;      // 仰角下
+var Ps = 1;   // 1目盛り(m)
+var Pt1;      // 最終時間
+var Vo;       // 初速度
+var Bx;       // 初期位置(m)
+var By;       // 初期位置(m)
+//--- class
+class Motion
+{
+  constructor()
+  {
+    this.e  = 0.6; // 反発係数(垂直)
+    this.u  = 0.9; // 反発係数(水平)(仮)
+    this.x0 = 0;   // 壁始点
+    this.y0 = 0;   // 壁始点
+    this.x1 = 0;   // 壁終点
+    this.r  = 0;   // 半径
+    this.m  = 1;   // 質量
+    this.ax = 0;
+    this.ay = 0;
+    this.vx = 0;
+    this.vy = 0;
+    this.px = 0;
+    this.py = 0;
+    this.dx = 0;   // 移動量
+    this.dy = 0;   // 移動量
+  }
+  distance(that)
+  {
+    var dx, dy, r;
+
+    dx = that.px - this.px;
+    dy = that.py - this.py;
+    r  = Math.sqrt(dx*dx + dy*dy);
+    r -= this.r + that.r;
+    return r;
+  }
+  #notouch(that)
+  {
+    var dx, dy, d, r;
+
+    dx = that.px - this.px;
+    dy = that.py - this.py;
+    r  = this.r + that.r;
+    r -= Math.sqrt(dx*dx + dy*dy);
+    r *= 1.1;
+    d  = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
+    if (d < 1e-4) return;
+    r /= d;
+    this.px -= this.vx * r;
+    this.py -= this.vy * r;
+  }
+  #rebound(that)
+  {
+    var dx, dy, d, r, v, v1, v2, m1, m2, e, u;
+    var x1, x2, y1, y2, vx, vy, ux, uy, u1, u2;
+
+    dx = that.px - this.px;
+    dy = that.py - this.py;
+    r  = dx*dx + dy*dy;
+    d  = this.r + that.r;
+    this.d = Math.sqrt(r);
+
+    if (r >= d*d) return 0;
+
+    this.#notouch(that);
+
+    r  = Math.sqrt(r);
+    r  = (r > 0)? 1/r : 0;
+    dx *= r;
+    dy *= r;
+    v1 = this.vx * dx + this.vy * dy;
+    v2 = that.vx * dx + that.vy * dy;
+    m1 = this.m;
+    m2 = that.m;
+    e  = this.e;
+    u  = this.u;
+    r  = m1 + m2;
+    d  = m2 * v1 + m2 * v2;
+    v  = e * (v2 - v1);
+    y1 = (d + v * m2) / r;
+    y2 = (d - v * m1) / r;
+    vx = this.vx - v1 * dx;
+    vy = this.vy - v1 * dy;
+    u1 = Math.sqrt(vx*vx + vy*vy);
+    ux = that.vx - v2 * dx;
+    uy = that.vy - v2 * dy;
+    u2 = Math.sqrt(ux*ux + uy*uy);
+    d  = m1 * u1 + m2 * u2;
+    v  = u * (u2 - u1);
+    x1 = (d - v * m2) / r;
+    x2 = (d + v * m1) / r;
+    x1 = (u1 != 0)? x1 / u1 : 0;
+    x2 = (u2 != 0)? x2 / u2 : 0;
+    this.vx = vx * x1 + dx * y1;
+    this.vy = vy * x1 + dy * y1;
+    that.vx = ux * x2 + dx * y2;
+    that.vy = uy * x2 + dy * y2;
+
+    return 1;
+  }
+  motion(dt, that, touch)
+  {
+    this.vx += this.ax * dt;
+    this.vy += this.ay * dt;
+    this.dx  = this.px;
+    this.dy  = this.py;
+    this.px += this.vx * dt + (this.ax / 2) * dt * dt;
+    this.py += this.vy * dt + (this.ay / 2) * dt * dt;
+
+    if (this.#rebound(that))
+    {
+        that.ay = this.ay;
+    }
+
+    if (Math.abs(this.vx) < 1e-2) this.vx = 0;
+    if (Math.abs(this.vy) < 1e-2) this.vy = 0;
+
+    if (this.px < this.x0)
+    { this.vx *= -this.e; this.vy *=  this.u; this.px = this.x0; }
+    if (this.px > this.x1)
+    { this.vx *= -this.e; this.vy *=  this.u; this.px = this.x1; }
+    if (this.py < this.y0)
+    {
+      var u = Math.abs(this.ay * dt);
+
+      u = (Math.abs(this.vy) <= u)? 0.997 : this.u;
+
+      this.vx *=  u; this.vy *= -this.e; this.py = this.y0;
+    }
+    this.dx  = this.px - this.dx;
+    this.dy  = this.py - this.dy;
+    return Math.sqrt(this.dx*this.dx + this.dy*this.dy);
+  }
+  velocity0(v0, d)
+  {
+    var t = d * Math.PI / 180;
+
+    this.vx = v0 * Math.cos(t);
+    this.vy = v0 * Math.sin(t);
+  }
+  degree1(that)
+  {
+    var x, y, d, t;
+
+    x = that.px - this.px;
+    y = that.py - this.py;
+    t = Math.atan2(y, x);
+    d = t * 180 / Math.PI;
+    if (d < 0) d += 360;
+
+    return d;
+  }
+  degree3(that)
+  {
+    var x, y, vx, vy, g, v0, t, d;
+
+    g = -this.ay;
+    v0 = Math.sqrt(this.vx*this.vx + this.vy*this.vy);
+    x = that.px - this.px;
+    y = that.py - this.py;
+    x *= g;
+    vx = v0 * v0;
+    vy = vx * (vx - 2 * g * y) - x*x;
+    if (vy < 0) return 0;
+    y = vx + Math.sqrt(vy);
+    t = Math.atan2(y, x);
+    d = t * 180 / Math.PI;
+    if (d < 0) d += 360;
+
+    return d;    
+  }
+  degree2(that)
+  {
+    var x, y, vx, vy, g, v0, t, d;
+
+    g = -this.ay;
+    v0 = Math.sqrt(this.vx*this.vx + this.vy*this.vy);
+    x = that.px - this.px;
+    y = that.py - this.py;
+    x *= g;
+    vx = v0 * v0;
+    vy = vx * (vx - 2 * g * y) - x*x;
+    if (vy < 0) return 0;
+    y = vx - Math.sqrt(vy);
+    t = Math.atan2(y, x);
+    d = t * 180 / Math.PI;
+    if (d < 0) d += 360;
+
+    return d;
+  }
+}
+var A = new Motion();
+var B = new Motion();
+
+//----------------------------------------------------------------------
+// touch
+//----------------------------------------------------------------------
+
+function reset()
+{  
+  A.velocity0(Pv0, Pd0);
+  A.px = A.py = 0;
+  A.ax = 0;
+  A.ay = -Pg0;
+  B.ax = 0;
+  B.ay = (Pf == '0')? 0 : -Pg0;
+  B.velocity0(0, 0);
+  B.px = Bx;
+  B.py = By;
+  Pd3 = A.degree3(B);
+  Pd2 = A.degree2(B);
+  Pd1 = A.degree1(B);
+}
+
+function blur()
+{
+  document.getElementById("num_g0").blur();
+  document.getElementById("num_v0").blur();
+  document.getElementById("num_d0").blur();
+  document.getElementById("num_ds").blur();
+  document.getElementById("num_t1").blur();
+  document.getElementById("num_bx").blur();
+  document.getElementById("num_by").blur();
+  document.getElementById("but_g0").blur();
+  document.getElementById("but_v0").blur();
+  document.getElementById("but_d0").blur();
+  document.getElementById("but_d1").blur();
+  document.getElementById("but_d2").blur();
+  document.getElementById("but_d3").blur();
+  document.getElementById("but_ds").blur();
+  document.getElementById("but_t1").blur();
+  document.getElementById("but_bx").blur();
+  document.getElementById("but_by").blur();
+  document.getElementById("but_re").blur();
+  document.getElementById("but_st").blur();
+  document.getElementById("but_sc").blur();
+  document.getElementById("but_fa").blur();
+}
+
+function getter()
+{
+  const g = document.getElementById("num_g0");
+  const v = document.getElementById("num_v0");
+  const d = document.getElementById("num_d0");
+  const s = document.getElementById("num_ds");
+  const t = document.getElementById("num_t1");
+  const x = document.getElementById("num_bx");
+  const y = document.getElementById("num_by");
+  var r, ps;
+
+  Pg0 = Number(g.value);
+  Pv0 = Number(v.value);
+  Pd0 = Number(d.value);
+  Pt1 = Number(t.value);
+  Bx  = Number(x.value);
+  By  = Number(y.value);
+  ps  = Number(s.value);
+  if (ps > 0)
+  {
+    if (ps != Ps)
+    {
+      r = ps / Ps;
+      Bx  *= r;
+      By  *= r;
+      Pv0 *= Math.sqrt(r);
+      document.getElementById("num_bx").value = Bx.toFixed(Zb);
+      document.getElementById("num_by").value = By.toFixed(Zb);
+      document.getElementById("num_v0").value = Pv0.toFixed(Zm);
+      Ps = ps;
+    }
+  }
+  B.x1 = A.x1 = Pw * Ps / Pd;
+  B.y1 = A.y1 = Ph * Ps / Pd;
+  B.r  = A.r  = Pr * Ps / Pd;
+  if (Pt <= 0) reset();
+}
+
+function getf()
+{
+  getter();
+  window.requestAnimationFrame(main);
+}
+
+function pushReset()
+{
+  Pt = 0;
+  isMv = 0;
+  getf();
+}
+
+function pushget()
+{
+  isMv = 0;
+  getf();
+}
+
+function pushd(n)
+{
+  const d = document.getElementById("num_d0");
+
+  switch (n)
+  {
+    case  3: Pd0 = Pd3; break;
+    case  2: Pd0 = Pd2; break;
+    default: Pd0 = Pd1;
+  }
+  d.value = Pd0.toFixed(Zd);
+  isMv = 0;
+  getf();
+}
+
+function pushStart()
+{
+  isMv = 1-isMv;
+  getf();
+}
+
+function pushStat()
+{
+  Pf = '0';
+  getf();
+}
+
+function pushFall()
+{
+  Pf = '1';
+  getf();
+}
+
+//----------------------------------------------------------------------
+// 描画関数
+//----------------------------------------------------------------------
+function scrX(x)
+{
+  return Math.round((x - WinX) * canvas.width  / WinW);
+}
+
+function scrY(y)
+{
+  return Math.round((y - WinY) * canvas.height / WinH);
+}
+
+function scrW(w)
+{
+  return Math.round(w * canvas.width  / WinW);
+}
+
+function scrH(h)
+{
+  return Math.round(h * canvas.height / WinH);
+}
+
+function WINDOW(x1, y1, x2, y2)
+{
+  WinX = x1;
+  WinY = y1;
+  WinW = x2 - x1 + 1;
+  WinH = y2 - y1 + 1;
+}
+
+function LOCATE(x, y)
+{
+  LocX = x * LocW;
+  LocY = y * LocH;
+}
+
+function TAB(x, y)
+{
+  LocX += x * LocW;
+  LocY += y * LocH;
+}
+
+function CR()
+{
+  LocX = 0;
+  LocY += LocH;
+}
+
+function CLS(c)
+{
+  ctx.fillStyle = c;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  LOCATE(0, 0);
+}
+
+function COLOR(c)
+{
+  ctx.fillStyle   = c;
+  ctx.strokeStyle = c;
+}
+
+String.prototype.bytes = function ()
+{
+  return(encodeURIComponent(this).replace(/%../g,"x").length);
+}
+
+function FONT(zoom, offs)
+{
+  var h;
+
+  zoom = Math.round(Zoom * zoom / 40 * 8);
+  LocW = zoom;
+  h    = zoom * 2;
+  offs = Math.round(Zoom * offs / 40 * 8);
+  OffH = offs * 2;
+  offs = Math.round(Zoom        / 40 * 8);
+  LocH = offs * 2;
+  ctx.font = h + "px 'ＭＳ ゴシック'";  
+}
+
+function PRINT(text)
+{
+  var len, b;
+
+  text += '';
+  b     = text.bytes();
+  len   = text.length;
+  b    -= len;
+  b     = b / 2;
+  len  += b;
+  ctx.fillText(text, LocX, LocY + OffH  - 1);
+  LocX += len * LocW;
+}
+
+function SYMBOL(x, y, text, c)
+{
+  var x1, y1;
+
+  x1 = scrX(x);
+  y1 = scrY(y);
+  ctx.fillStyle   = c;
+  ctx.strokeStyle = c;
+  ctx.fillText(text, x1, y1);
+}
+
+function POINT(x, y)
+{
+  PosX = scrX(x);
+  PosY = scrY(y);
+}
+
+function LINE(x1, y1, x2, y2, c)
+{
+  ctx.strokeStyle = c;
+  ctx.beginPath();
+  PosX = scrX(x1);
+  PosY = scrY(y1);
+  ctx.moveTo(PosX, PosY);
+  PosX = scrX(x2);
+  PosY = scrY(y2);
+  ctx.lineTo(PosX, PosY);
+  ctx.stroke();
+  ctx.closePath();
+}
+
+function LINE2(x2, y2, c)
+{
+  ctx.strokeStyle = c;
+  ctx.beginPath();
+  ctx.moveTo(PosX, PosY);
+  PosX = scrX(x2);
+  PosY = scrY(y2);
+  ctx.lineTo(PosX, PosY);
+  ctx.stroke();
+  ctx.closePath();
+}
+
+function LINEB(x1, y1, x2, y2, c)
+{
+  LINE(x1, y1, x1, y2, c);
+  LINE(x2, y1, x2, y2, c);
+  LINE(x1, y1, x2, y1, c);
+  LINE(x1, y2, x2, y2, c);
+}
+/*
+function LINEB(x1, y1, x2, y2, c)
+{
+  var x, y, w, h;
+
+  x = scrX(x1);
+  y = scrY(y1);
+  PosX = scrX(x2);
+  PosY = scrY(y2);
+  w = PosX - x + 1;
+  h = PosY - y + 1;
+  ctx.strokeStyle = c;
+  ctx.strokeRect(x, y, w, h);
+}
+*/
+
+function LINEBF(x1, y1, x2, y2, c)
+{
+  var x, y, w, h;
+
+  x = scrX(x1);
+  y = scrY(y1);
+  PosX = scrX(x2);
+  PosY = scrY(y2);
+  w = PosX - x + 1;
+  h = PosY - y + 1;
+  ctx.fillStyle = c;
+  ctx.fillRect(x, y, w, h);
+}
+
+function CIRCLERF(x, y, r0, c)
+{
+  var x0, y0;
+
+  PosX = x0 = scrX(x);
+  PosY = y0 = scrY(y);
+
+  ctx.beginPath();
+  ctx.arc(x0, y0, r0, 0, Math.PI * 2, true);
+  ctx.fillStyle = c; // ctx.strokeStyle = c;
+  ctx.fill();        // ctx.stroke();
+}
+
+//----------------------------------------------------------------------
+// Line width
+//----------------------------------------------------------------------
+function lineWidth(times)
+{
+  if (times == 1) { Width = Width0; }
+  else
+  {
+    Width *= times;
+    if      (Width <  1) Width =  1;
+    else if (Width > 16) Width = 16;
+  }
+}
+
+//----------------------------------------------------------------------
+// Zoom
+//----------------------------------------------------------------------
+function zooming(sign)
+{
+  if (sign == 0) { Zoom = 40; }
+  else
+  {
+    Zoom += sign * 5;
+    if      (Zoom <  20) Zoom =  20;
+    else if (Zoom > 120) Zoom = 120;
+  }
+  canvas.width  = 16 * Zoom;
+  canvas.height =  9 * Zoom;
+
+  FONT(1, 0);
+}
+
+//----------------------------------------------------------------------
+// 指数
+//----------------------------------------------------------------------
+function PRINTe(s)
+{
+  var i, n, pow, num, a, p;
+
+  s = String(s);
+  p = 0;
+  num = pow = 0;
+  n = s.length;
+  for (i = 0; i < n; i++)
+  {
+    a = s.substring(i, i+1);
+    if (a == '^')
+    {
+      i++;
+      a = s.substring(i, i+1);
+      FONT(0.7, -0.3);
+      PRINT(a);
+      FONT(1, 0);
+      continue;
+    }
+    if (a == '_')
+    {
+      i++;
+      a = s.substring(i, i+1);
+      FONT(0.6, 0.2);
+      PRINT(a);
+      FONT(1, 0);
+      continue;
+    }
+    if (num && (a == 'e' || a == 'E'))
+    {
+      pow = 1;
+      PRINT("x10");
+      FONT(0.7, -0.4);
+      continue;
+    }
+    num = ('0' <= a && a <= '9' || a == '-' || a== '+')? 1 : 0;
+    if (pow && !num)
+    {
+      pow = 0;
+      FONT(1, 0);
+    }
+    if (pow)
+    {
+      if (a != '+') { PRINT(a); p++; }
+      continue;
+    }
+    PRINT(a);
+  }
+  FONT(1, 0);
+  return p;
+}
+
+//----------------------------------------------------------------------
+// 有効数字
+//----------------------------------------------------------------------
+function precision(a)
+{
+  var s, i;
+
+  s = a.toPrecision(12);
+  s = s.replace(/[+-]/g, "");
+  if (!(/^\d*\./.test(s)))
+  { // 10の0を消す、1.0の0は消さない
+    s = s.replace(/0+$/g, "");
+  }
+  s = s.replace(/\./g, "");
+  s = s.replace(/^0+/g, "");
+  s = s.replace(/[eE]\d+/g, "");
+
+  return s.length;
+}
+
+function precision0(a)
+{
+  var s, i;
+
+  s = a.toPrecision(12);
+  s = s.replace(/[+-]/g, "");
+  s = s.replace(/[eE]\d+/g, "");
+  if (/^\d*\./.test(s))
+  { // 1.0の0を消す、10の0は消さない
+    s = s.replace(/0+$/g, "");
+  }
+  s = s.replace(/\./g, "");
+  s = s.replace(/^0+/g, "");
+
+  return s.length;
+}
+
+//----------------------------------------------------------------------
+// Axis and grid
+//----------------------------------------------------------------------
+function axis()
+{
+  var i, x, y, s;
+
+  for (i = 1; i <=  Ph / Pd; i++)
+  {
+    y = i * Pd
+    s = (i % 5)? P1 : (i % 2)? P5 : P0;
+    LINE(-s,  y, s,  y, Cy);
+    LINE(-s, -y, s, -y, Cy);
+  }
+  for (i = 1; i <= Pw / Pd; i++)
+  {
+    x = i * Pd;
+    s = (i % 5)? P1 : (i % 2)? P5 : P0;
+    LINE( x,  -s,  x, s, Cx);
+    LINE(-x,  -s, -x, s, Cx);
+  }
+  LINE(0, -Ph, 0, Ph, Cy);
+  LINE(-Pw, 0, Pw, 0, Cx);
+}
+
+//----------------------------------------------------------------------
+// graph
+//----------------------------------------------------------------------
+function graph0(d, c)
+{
+  var r, t, x, y;
+
+  x = Pw;
+  t = d * Math.PI / 180;
+  y = x * Math.tan(t);
+  LINE(0, 0, x, y, c);
+}
+
+function graph1(d, c)
+{
+  var g, t, v0, vx, vy, i, x, y, s;
+
+  g  = Pg0;
+  v0 = Pv0;
+  t  = d  * Math.PI / 180;
+  vx = v0 * Math.cos(t);
+  vy = v0 * Math.sin(t);
+  POINT(0, 0);
+  s = 1;
+  for (i = s; i < Pw; i += s)
+  {
+    x = i * Ps / Pd;
+    t = x / vx;
+    y = vy*t - (g/2)*t*t;
+    LINE2(x * Pd / Ps, y * Pd / Ps, Cg);    
+  }
+  i = Pw;
+  x = i * Ps / Pd;
+  t = x / vx;
+  y = vy*t - (g/2)*t*t;
+  LINE2(x * Pd / Ps, y * Pd / Ps, Cg);    
+}
+
+//----------------------------------------------------------------------
+// 動画
+//----------------------------------------------------------------------
+function Num(a, z)
+{
+   var s;
+
+   s = a.toFixed(z);
+   if (a >= 0) s = ' ' + s;
+
+   return s;
+}
+
+function Frame(t)
+{
+  var tb = 2;
+
+  CLS('#032');
+  WINDOW(-Px, Py, 639 - Px, Py - 399);
+  FONT(1, 0);
+
+  LINE(0, 0, Bx * Pd / Ps, By * Pd / Ps, Cg);
+//  graph0(Pd1, Cg);
+  graph1(Pd1, Cg);
+  graph1(Pd2, Cg);
+  graph1(Pd3, Cg);
+  axis();
+
+  LOCATE(0, 1);
+  TAB(tb, 0);
+  COLOR('#ff0'); PRINT("数値");
+  COLOR('#0f0'); PRINT("(Enterﾘｾｯﾄ)"); TAB(-4, 0);
+  COLOR('#0ff'); PRINT("space開始");
+  COLOR('#0f0'); PRINT(" (asd角,fg落,矢+Shift/Ctrl/Alt位置,zxc拡,qw線)");
+  PRINT(" (");
+  if (Fr < 10) PRINT(' ');
+  PRINT(Fr + "f)");
+  Fr = (Fr + 1) % 60;
+  CR();
+
+  COLOR('#fff');
+  TAB(tb, 0);
+  PRINTe("重力加速度g = " + Num(Pg0, Zm) + " m/s^2 , ");
+  PRINTe("初速度v_0 = "   + Num(Pv0, Zm) + " m/s , ");
+  PRINTe("仰角θ_0 = "    + Num(Pd0, Zd) + " °"); CR();
+
+  TAB(tb, 0);
+  PRINTe("仰角θ_1 = " + Num(Pd1, Zd) + " °");
+  PRINTe(" , θ_2 = "  + Num(Pd2, Zd) + " °");
+  PRINTe(" , θ_3 = "  + Num(Pd3, Zd) + " °"); CR();
+
+  COLOR(Cb);
+  TAB(tb, 0);
+  PRINT("的初期位置( " + Num(Bx, Zb));
+  PRINT(" m , "        + Num(By, Zb) + " m )   ");
+  if (Pf == '0') PRINT("( 静止 )");
+  else           PRINT("( 落下 )");
+  CR();
+
+  COLOR('#fff');
+  TAB(tb, 0);
+  PRINT("速度( "  + Num(A.vx, Zm));
+  PRINT(" m/s , " + Num(A.vy, Zm) + " m/s ) , ");
+  PRINT("位置( "  + Num(A.px, Zm));
+  PRINT(" m , "   + Num(A.py, Zm) + " m )"); CR();
+
+  TAB(tb, 0);
+  PRINT("時間t = " + Num(Pt , Zt));
+  PRINT(" s ( ～ " + Num(Pt1, Zt) + " s )");
+  COLOR('#fff'); PRINT("   ( ");
+  if (isMv) { COLOR('#0ff'); PRINT("時間経過中"); }
+  else          { COLOR('#fa0'); PRINT("時間停止中"); }
+  COLOR('#fff'); PRINT(" )"); CR();
+
+  TAB(tb);
+  PRINT("1目盛り  " + Ps + " m , ");
+  COLOR(Cb);
+  PRINT("中心間距離( " + Num(A.distance(B), Zm) + " m )"); CR();
+  COLOR('#fff');
+
+  CIRCLERF(B.px * Pd / Ps, B.py * Pd / Ps, Pr, Cb);
+  CIRCLERF(A.px * Pd / Ps, A.py * Pd / Ps, Pr, Ca);
+}
+
+//--------------------------------------------------------------------
+// Main
+//--------------------------------------------------------------------
+function Display()
+{
+  var ds, dt, i, k, pdt;
+
+  if (isMv)
+  {
+    pdt = (Pt1 >= 0)? Pdt : -Pdt;
+    Pt += pdt;
+    for (k = 10, dt = pdt / k, ds = 0, i = 0; i < k; i++)
+    {
+      ds += A.motion(dt, B, 1);
+      ds += B.motion(dt, A, 0);
+    }
+    if (Math.abs(Pt) >= Math.abs(Pt1)) { Pt = Pt1; }
+  }
+
+  Frame(Pt);
+
+  if (isMv)
+  {
+    if (Pt == Pt1 || ds <= 0) isMv = 0;
+    window.requestAnimationFrame(main);
+  }
+}
+
+//----------------------------------------------------------------------
+// Key status
+//----------------------------------------------------------------------
+var Key = new Array(256);
+for (var i = 0; i < 256; i++) Key[i] = 0;
+window.onkeydown = function(event) { Key[event.keyCode] = 1; }
+window.onkeyup   = function(event) { Key[event.keyCode] = 0; }
+
+//--------------------------------------------------------------------
+// Key
+//--------------------------------------------------------------------
+function keyon(key)
+{
+  var s, f, x, y;
+
+  f = 0;
+
+  // SHIFT16 CTRL17 ALT18]
+  if      (Key[ 16]) { s = 1;     }
+  else if (Key[ 17]) { s = 0.01;  }
+  else if (Key[ 18]) { s = 0.001; }
+  else               { s = 0.1;   }
+  s *= Ps;
+
+  if (Pt <= 0)
+  { x = Bx  ; y = By  ; }
+  else
+  { x = B.px; y = B.py; }
+
+  if (Key[ 38] || key == 38) //↑
+  {
+    y += s; f = 1;
+  }
+  else if (Key[ 40] || key == 40) //↓
+  {
+    y -= s; f = 1;
+  } 
+  else if (Key[ 39] || key == 39) //→
+  {
+    x += s; f = 1;
+  } 
+  else if (Key[ 37] || key == 37) //←
+  {
+    x -= s; f = 1;
+  }
+  if (f)
+  {
+    if (Pt <= 0)
+    {
+      document.getElementById("num_bx").value = (x).toFixed(Zb);
+      document.getElementById("num_by").value = (y).toFixed(Zb);
+    }
+    else
+    {
+      B.px = x; B.py = y;
+    }
+    pushget();
+    blur(); 
+  }
+}
+
+//----------------------------------------------------------------------
+// Input key
+//----------------------------------------------------------------------
+document.body.addEventListener('keydown', event =>
+{
+  var key = event.keyCode;
+
+  switch (key)
+  {
+    case  13: pushReset(); blur(); break; // Enter
+    case  32: pushStart(); blur(); break; // space
+    case  81: lineWidth( 0.5); isMv = 0; getf(); blur(); break; // 'Q'
+    case  87: lineWidth( 2  ); isMv = 0; getf(); blur(); break; // 'W'
+    case  90: zooming  (-1  ); isMv = 0; getf(); blur(); break; // 'Z'
+    case  88: zooming  ( 1  ); isMv = 0; getf(); blur(); break; // 'X'
+    case  67: zooming  ( 0  ); isMv = 0; getf(); blur(); break; // 'C'
+    case  65: pushd(1)  ; blur(); break; // 'a'
+    case  83: pushd(2)  ; blur(); break; // 's'
+    case  68: pushd(3)  ; blur(); break; // 'd'
+    case  70: pushStat(); blur(); break; // 'f'
+    case  71: pushFall(); blur(); break; // 'g'
+    default : keyon(key);
+  }
+});
+
+//----------------------------------------------------------------------
+// main
+//----------------------------------------------------------------------
+function main()
+{
+  ctx.lineWidth = Width;
+  Display();
+}
+
+lineWidth(1);
+zooming(0);
+pushReset();
+document.getElementById("num_d0").value = Pd1.toFixed(Zd);
+getf();
+main();
+
+//----------------------------------------------------------------------
+</script>
+</body>
+</html>
