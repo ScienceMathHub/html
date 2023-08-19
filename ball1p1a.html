@@ -21,41 +21,50 @@
 
 <input type="button" id="but_g0" value="重力加速度" onclick="pushget()">
 <input type="number" id="num_g0" value="9.8"
-  min = "-9999.0" max="9999.0" />
+  min = "-999.9" max="999.9" step = "0.1" />
 </pre>
 <pre></pre>
 <input type="button" id="but_v0" value="初速度" onclick="pushget()">
-<input type="number" id="num_v0" value="31.0" min = "0.0" max="100000.0"
+<input type="number" id="num_v0" value="31.0" min = "0.0" max="99999.9"
   step = "0.1" />
 <pre></pre>
 <input type="button" id="but_d0" value="仰角" onclick="pushget()">
 <input type="number" id="num_d0" min = "0.0" max="90.0" step = "0.1" />
 <pre></pre>
-<input type="button" id="but_d1" value=" θ1 " onclick="pushd(1)">
-<input type="button" id="but_d2" value=" θ2 " onclick="pushd(2)">
-<input type="button" id="but_d3" value=" θ3 " onclick="pushd(3)">
+<input type="button" id="but_d1" value="θ1" onclick="pushd(1)">
+<input type="button" id="but_d2" value="θ2" onclick="pushd(2)">
+<input type="button" id="but_d3" value="θ3" onclick="pushd(3)">
+<input type="button" id="but_fx" value="落"  onclick="pushf()">
+<input type="button" id="but_gx" value="線"  onclick="pushg()">
 <pre></pre>
 <input type="button" id="but_ds" value="１目盛り" onclick="pushget()">
-<input type="number" id="num_ds" min = "0.0" max="100000.0" value = "1"
-  step = "0.1" />
-<pre></pre>
-<input type="button" id="but_t1" value="最終時間" onclick="pushget()">
-<input type="number" id="num_t1" value="300.0" min = "0" max="100000.0"
+<input type="number" id="num_ds" min = "0.0" max="99999.9" value = "1"
   step = "0.1" />
 <pre></pre>
 <input type="button" id="but_re" value="リセット " onclick="pushReset()">
 <input type="button" id="but_st" value="開始/停止" onclick="pushStart()">
 <pre></pre>
-<input type="button" id="but_sc" value="静止" onclick="pushStat()">
-<input type="button" id="but_fa" value="落下" onclick="pushFall()">
-<pre></pre>
 <input type="button" id="but_bx" value="的x" onclick="pushget()">
 <input type="number" id="num_bx" value="55.000"
-  min = "0.000" max="100000.000" step = "0.001" />
+  min = "0.000" max="99999.999" step = "0.001" />
 <pre></pre>
 <input type="button" id="but_by" value="的y" onclick="pushget()">
 <input type="number" id="num_by" value="30.000"
-  min = "0.000" max="100000.000" step = "0.001" />
+  min = "0.000" max="99999.999" step = "0.001" />
+<pre></pre>
+<input type="button" id="but_ae" value="球反発係数" onclick="pushget()">
+<input type="number" id="num_ae" min = "0.0" max="1.0" value = "0.9"
+  step = "0.1" />
+<pre></pre>
+<input type="button" id="but_m0" value="軽" onclick="pushm(0)">
+<input type="button" id="but_m1" value="等" onclick="pushm(1)">
+<input type="button" id="but_m2" value="重" onclick="pushm(2)">
+<input type="button" id="but_u0" value="衰" onclick="pushu(0)">
+<input type="button" id="but_u1" value="慣" onclick="pushu(1)">
+<pre></pre>
+<input type="button" id="but_t1" value="最終時間" onclick="pushget()">
+<input type="number" id="num_t1" value="300.0" min = "0" max="9999.9"
+  step = "0.1" />
 <pre></pre>
 <script>
 'use strict'
@@ -77,6 +86,7 @@ var LocW, LocH;   // テキストMサイズ
 var OffW, OffH;   // テキストSサイズ
 var Zoom;         // 拡大率×(16,9)
 var Width;        // 線幅
+var Zoom0  = 40;  // 拡大率×(16,9)
 var Width0 = 2;   // 線幅初期値
 //--- color
 var Cg = '#00f';  // graph
@@ -92,7 +102,7 @@ var Prx =  1.5;   // specularのoffset x
 var Pry =  1.5;   // specularのoffset y
 var Px =  Pr;     // 表示位置x
 var Py = 397-Pr;  // 表示位置y
-var Pw = 630-Pr;  // 幅
+var Pw = 634-Pr;  // 幅
 var Ph = 400-Pr;  // 高さ
 var P1 =   4;     //  1目盛り長さ
 var P5 =   6;     //  5目盛り長さ
@@ -107,6 +117,8 @@ var Zm = 1;       // 小数桁(m)
 var Zb = 3;       // 小数桁(m)B
 var Zt = 1;       // 小数桁(s)
 var Zd = 1;       // 小数桁(ﾟ)
+var ZD = 1;       // 小数桁(ﾟ)θ1～3
+var Ze = 1;       // 小数桁(係数)
 //--- 上記inputで設定
 var Pg0;      // 重力加速度
 var Pv0;      // 初速度
@@ -119,13 +131,32 @@ var Pt1;      // 最終時間
 var Vo;       // 初速度
 var Bx;       // 初期位置(m)
 var By;       // 初期位置(m)
+var isDp = 1; // グラフ表示
+//---
+var Bm  = 1;      // 質量(倍)
+var Ae  = 0.9;    // 反発係数(垂直)
+var Au  = 1  ;    // 反発係数(水平)(仮)
+var Awe = 0.8;    // 壁反発係数(垂直)
+var Awu = 0.9;    // 壁反発係数(水平)(仮)
+var Afe = 0.6;    // 床反発係数(垂直)
+var Afu = 0.9;    // 床反発係数(水平)(仮)
+var Afx = 0.9997; // 床反発係数(水平)(仮)
+//--- mouse
+var isMouse = 1;  // mouse sw
+var isTouch = 1;  // touch sw
 //--- class
+var Temp;
 class Motion
 {
   constructor()
   {
-    this.e  = 0.6; // 反発係数(垂直)
-    this.u  = 0.9; // 反発係数(水平)(仮)
+    this.e  = Ae;  // 反発係数(垂直)
+    this.u  = Au;  // 反発係数(水平)(仮)
+    this.we = Awe; // 壁反発係数(垂直)
+    this.wu = Awu; // 壁反発係数(水平)(仮)
+    this.fe = Afe; // 床反発係数(垂直)
+    this.fu = Afu; // 床反発係数(水平)(仮)
+    this.fx = Afx; // 床反発係数(水平)(仮)
     this.x0 = 0;   // 壁始点
     this.y0 = 0;   // 壁始点
     this.x1 = 0;   // 壁終点
@@ -137,8 +168,8 @@ class Motion
     this.vy = 0;
     this.px = 0;
     this.py = 0;
-    this.dx = 0;   // 移動量
-    this.dy = 0;   // 移動量
+    this.dx = 0;   // 移動量用
+    this.dy = 0;   // 移動量用
   }
   distance(that)
   {
@@ -147,108 +178,250 @@ class Motion
     dx = that.px - this.px;
     dy = that.py - this.py;
     r  = Math.sqrt(dx*dx + dy*dy);
-    r -= this.r + that.r;
     return r;
   }
-  #notouch(that)
+  #contact(that)
   {
-    var dx, dy, d, r;
+    var nx, ny, d, r;
 
-    dx = that.px - this.px;
-    dy = that.py - this.py;
+    nx = that.px - this.px;
+    ny = that.py - this.py;
+    d  = Math.sqrt(nx*nx + ny*ny);
     r  = this.r + that.r;
-    r -= Math.sqrt(dx*dx + dy*dy);
-    r *= 1.1;
+
+    if (d > r) return 0;
+    return 1;
+  }
+  #radiustouch(that, dt)
+  {
+    var nx, ny, d, r, x, y;
+
+    nx = that.px - this.px;
+    ny = that.py - this.py;
+    d  = Math.sqrt(nx*nx + ny*ny);
+    r  = this.r + that.r;
+
+    if (d > r) return 0;
+
+    r *= 1.2;
+    r -= d;
+
+
     d  = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
-    if (d < 1e-4) return;
+    if (d > 0)
+    {
+      r /= d;
+      this.px -= this.vx * r;
+      this.py -= this.vy * r;
+      return 1;
+    }
+
+    x  = this.vx * dt + (this.ax / 2) * dt * dt;
+    y  = this.vy * dt + (this.ay / 2) * dt * dt;
+    d  = Math.sqrt(x*x + y*y);
+    if (d == 0) return 1;
     r /= d;
-    this.px -= this.vx * r;
-    this.py -= this.vy * r;
+    this.px -= x * r;
+    this.py -= y * r;
+    return 1;
+  }
+  #touch(that, dt)
+  {
+    var vx, vy, ex, ey, r, rr, vv, v, e, ve, d, x, y, t;
+    
+    x  = this.vx * dt + (this.ax / 2) * dt * dt;
+    y  = this.vy * dt + (this.ay / 2) * dt * dt;
+    vx = this.px + x;
+    vy = this.py + y;
+    ex = that.px - vx;
+    ey = that.py - vy;
+    d  = Math.sqrt(ex*ex + ey*ey);
+    r  = this.r + that.r;
+    if (d <= r)
+    {
+      this.px = vx;
+      this.py = vy;
+      return 1;
+    }
+
+    // 球が原点として視点Vと視線E
+    rr = r * r;
+    vx = this.px - that.px;
+    vy = this.py - that.py;
+    vv = vx*vx + vy*vy;
+    v  = Math.sqrt(vv);
+
+    // 速度e(ex,ey)
+    e  = Math.sqrt(ex*ex + ey*ey);
+    d  = (e > 0)? 1/e : 0;
+    ex = x * d;
+    ey = y * d;
+
+    // t = -V･E±√{ (V･E)^2 - V･V + r^2 }
+    ve = vx*ex + vy*ey;
+    d = ve*ve - vv + rr;
+    if (d < 0) t = -1e+10;
+    else
+    {
+      d = Math.sqrt(d);
+      t = -ve - d;
+    }
+
+    // contact
+    if (t >= 0 && t <= e)
+    {
+      t *= (t > 0)? 0.8 : 1.2;
+      this.px += ex * t;
+      this.py += ey * t;
+      return 1;
+    }
+
+    // nocontact
+    this.px += x;
+    this.py += y;
+    return 0;
   }
   #rebound(that)
   {
-    var dx, dy, d, r, v, v1, v2, m1, m2, e, u;
-    var x1, x2, y1, y2, vx, vy, ux, uy, u1, u2;
+    var nx, ny, v1, v2, u1, u2, m1, m2, m, e, u;
+    var x1, x2, y1, y2, xa, ya, xb, yb, tx, ty;
+    var d, r, c;
 
-    dx = that.px - this.px;
-    dy = that.py - this.py;
-    r  = dx*dx + dy*dy;
-    d  = this.r + that.r;
-    this.d = Math.sqrt(r);
-
-    if (r >= d*d) return 0;
-
-    this.#notouch(that);
-
-    r  = Math.sqrt(r);
-    r  = (r > 0)? 1/r : 0;
-    dx *= r;
-    dy *= r;
-    v1 = this.vx * dx + this.vy * dy;
-    v2 = that.vx * dx + that.vy * dy;
     m1 = this.m;
     m2 = that.m;
+    m  = m1 + m2;
     e  = this.e;
     u  = this.u;
-    r  = m1 + m2;
-    d  = m2 * v1 + m2 * v2;
-    v  = e * (v2 - v1);
-    y1 = (d + v * m2) / r;
-    y2 = (d - v * m1) / r;
-    vx = this.vx - v1 * dx;
-    vy = this.vy - v1 * dy;
-    u1 = Math.sqrt(vx*vx + vy*vy);
-    ux = that.vx - v2 * dx;
-    uy = that.vy - v2 * dy;
-    u2 = Math.sqrt(ux*ux + uy*uy);
-    d  = m1 * u1 + m2 * u2;
-    v  = u * (u2 - u1);
-    x1 = (d - v * m2) / r;
-    x2 = (d + v * m1) / r;
-    x1 = (u1 != 0)? x1 / u1 : 0;
-    x2 = (u2 != 0)? x2 / u2 : 0;
-    this.vx = vx * x1 + dx * y1;
-    this.vy = vy * x1 + dy * y1;
-    that.vx = ux * x2 + dx * y2;
-    that.vy = uy * x2 + dy * y2;
 
-    return 1;
+    // 法線ベクトル
+    nx = that.px - this.px;
+    ny = that.py - this.py;
+    d  = Math.sqrt(nx*nx + ny*ny);
+    d  = (d > 0)? 1/d : 0;
+    nx *= d;
+    ny *= d;
+
+    // 垂直前速度
+    v1 = this.vx * nx + this.vy * ny;
+    v2 = that.vx * nx + that.vy * ny;
+
+    // 垂直後速度
+    d  = m1 * v1 + m2 * v2;
+    c  = e * (v2 - v1);
+    y1 = (d + c * m2) / m;
+    y2 = (d - c * m1) / m;
+
+    // 水平前速度
+    xa = this.vx - v1 * nx;
+    ya = this.vy - v1 * ny;
+    u1 = Math.sqrt(xa*xa + ya*ya);
+    xb = that.vx - v2 * nx;
+    yb = that.vy - v2 * ny;
+    u2 = Math.sqrt(xb*xb + yb*yb);
+
+    // 接ベクトル
+    if      (u1 > 0) { tx = xa / u1; ty = ya / u1; }
+    else if (u2 > 0) { tx = xb / u2; ty = yb / u2; }
+    else             { tx =          ty = 0      ; }
+
+    // 水平後速度
+    d  = m1 * u1 + m2 * u2;
+    c  = u * (u2 - u1);
+    x1 = (d - c * m2) / m;
+    x2 = (d + c * m1) / m;
+
+    // 後速度
+    this.vx = x1 * tx + y1 * nx;
+    this.vy = x1 * ty + y1 * ny;
+    that.vx = x2 * tx + y2 * nx;
+    that.vy = x2 * ty + y2 * ny;
   }
-  motion(dt, that, touch)
+  #veloctiy() // 速度
   {
+    var dx, dy, d;
+
+    dx  = this.vx;
+    dy  = this.vy
+    d = Math.sqrt(dx*dx + dy*dy);
+    return d;
+  }
+  #way() // 移動距離
+  {
+    var dx, dy, d;
+
+    dx  = this.px - this.dx;
+    dy  = this.py - this.dy;
+    this.dx = this.px;
+    this.dy = this.py;
+    d = Math.sqrt(dx*dx + dy*dy);
+    return d;
+  }
+  motion(dt, that, touchf)
+  {
+    var d, i, e, u;
+
+    d = 0;
+
     this.vx += this.ax * dt;
     this.vy += this.ay * dt;
     this.dx  = this.px;
     this.dy  = this.py;
-    this.px += this.vx * dt + (this.ax / 2) * dt * dt;
-    this.py += this.vy * dt + (this.ay / 2) * dt * dt;
 
-    if (this.#rebound(that))
+    if (this.#touch(that, dt))
     {
-        that.ay = this.ay;
-    }
-
-    if (this.px < this.x0)
-    { this.vx *= -this.e; this.vy *=  this.u; this.px = this.x0; }
-    if (this.px > this.x1)
-    { this.vx *= -this.e; this.vy *=  this.u; this.px = this.x1; }
-    if (this.py < this.y0)
-    {
-      var u = Math.abs(this.ay * dt);
-
-      u = (Math.abs(this.vy) <= u)? 0.997 : this.u;
-
-      this.vx *=  u; this.vy *= -this.e; this.py = this.y0;
-
-      if (u > this.u)
+      if (this.fu < 1 && this.vy != 0)
       {
-        if (Math.abs(this.vx) < 0.2) this.vx = 0;
-        if (Math.abs(this.vy) < 0.2) this.vy = 0;
+        for (i = 0; i < 5 && this.#radiustouch(that, dt); i++);
+      }
+      d += this.#way();
+      if (touchf)
+      {
+        this.#rebound(that);
+        that.ay = this.ay;
       }
     }
-    this.dx  = this.px - this.dx;
-    this.dy  = this.py - this.dy;
-    return Math.sqrt(this.dx*this.dx + this.dy*this.dy);
+    d += this.#way();
+
+    // 壁
+    if (this.px < this.x0)
+    {
+      e = this.we * this.e;
+      u = this.wu * this.u;
+      this.vx *= -e; this.vy *= u; this.px = this.x0;
+    }
+    if (this.px > this.x1)
+    {
+      e = Math.sqrt(this.we * this.e);
+      u = Math.sqrt(this.wu * this.u);
+      this.vx *= -e; this.vy *= u; this.px = this.x1;
+    }
+
+    // 床
+    if (this.ay == 0)
+    {
+      if (this.vy != 0) this.ay = -Pg0;
+      else if (this.py == this.y0)
+      {
+        this.vx *= this.fx;
+        if (Math.abs(this.vx) < 0.05) { this.vx = 0; }
+      }
+    }
+    if (this.py < this.y0)
+    {
+      e = this.fe * this.e;
+      u = this.fu * this.u;
+      this.vx *= u; this.vy *= -e;
+      this.py = this.y0;
+      if (Math.abs(this.vy) <= Math.abs(this.ay * dt))
+      {
+        this.vy = 0;
+        this.ay = 0;
+      }
+    }
+
+    // 移動距離
+    d += this.#way();
+    return d;
   }
   velocity0(v0, d)
   {
@@ -314,23 +487,6 @@ var B = new Motion();
 //----------------------------------------------------------------------
 // touch
 //----------------------------------------------------------------------
-
-function reset()
-{  
-  A.velocity0(Pv0, Pd0);
-  A.px = A.py = 0;
-  A.ax = 0;
-  A.ay = -Pg0;
-  B.ax = 0;
-  B.ay = (Pf == '0')? 0 : -Pg0;
-  B.velocity0(0, 0);
-  B.px = Bx;
-  B.py = By;
-  Pd3 = A.degree3(B);
-  Pd2 = A.degree2(B);
-  Pd1 = A.degree1(B);
-}
-
 function blur()
 {
   document.getElementById("num_g0").blur();
@@ -340,6 +496,7 @@ function blur()
   document.getElementById("num_t1").blur();
   document.getElementById("num_bx").blur();
   document.getElementById("num_by").blur();
+  document.getElementById("num_ae").blur();
   document.getElementById("but_g0").blur();
   document.getElementById("but_v0").blur();
   document.getElementById("but_d0").blur();
@@ -351,9 +508,26 @@ function blur()
   document.getElementById("but_bx").blur();
   document.getElementById("but_by").blur();
   document.getElementById("but_re").blur();
-  document.getElementById("but_st").blur();
-  document.getElementById("but_sc").blur();
-  document.getElementById("but_fa").blur();
+  document.getElementById("but_fx").blur();
+  document.getElementById("but_gx").blur();
+  document.getElementById("but_ae").blur();
+  document.getElementById("but_m0").blur();
+  document.getElementById("but_m1").blur();
+  document.getElementById("but_m2").blur();
+  document.getElementById("but_u0").blur();
+  document.getElementById("but_u1").blur();
+}
+
+function reset()
+{  
+  A.velocity0(Pv0, Pd0);
+  A.px = A.py = 0;
+  B.velocity0(0, 0);
+  B.px = Bx;
+  B.py = By;
+  Pd3 = A.degree3(B);
+  Pd2 = A.degree2(B);
+  Pd1 = A.degree1(B);
 }
 
 function getter()
@@ -365,7 +539,10 @@ function getter()
   const t = document.getElementById("num_t1");
   const x = document.getElementById("num_bx");
   const y = document.getElementById("num_by");
+  const a = document.getElementById("num_ae");
   var r, ps;
+
+  A.e = B.e = Number(a.value);
 
   Pg0 = Number(g.value);
   Pv0 = Number(v.value);
@@ -391,6 +568,13 @@ function getter()
   B.x1 = A.x1 = Pw * Ps / Pd;
   B.y1 = A.y1 = Ph * Ps / Pd;
   B.r  = A.r  = Pr * Ps / Pd;
+
+  A.ax = 0;
+  A.ay = -Pg0;
+  B.ax = 0;
+  B.ay = (Pf == 0)? 0 : -Pg0;
+  B.m = A.m * Bm;
+
   if (Pt <= 0) reset();
 }
 
@@ -421,9 +605,57 @@ function pushd(n)
   {
     case  3: Pd0 = Pd3; break;
     case  2: Pd0 = Pd2; break;
+    case  0: Pd0 = 0  ; break;
     default: Pd0 = Pd1;
   }
-  d.value = Pd0.toFixed(Zd);
+  d.value = Pd0.toFixed(ZD);
+  isMv = 0;
+  getf();
+}
+
+function pushm(n)
+{
+  switch (n)
+  {
+    case  0: Bm = 0.01; break;
+    case  2: Bm = 100 ; break;
+    default: Bm = 1;
+  }
+  isMv = 0;
+  getf();
+}
+
+var By0 = By;
+var Bd0 = Pd0;
+function pushu(n)
+{
+  const a = document.getElementById("num_ae");
+  const d = document.getElementById("num_d0");
+  const y = document.getElementById("num_by");
+  switch (n)
+  {
+  case  1:
+    Ae  = A.e;
+    A.e = A.u = A.fu = A.fe = A.wu = A.we = A.fx = 1;
+    B.e = B.u = B.fu = B.fe = B.wu = B.we = B.fx = 1;
+    Bd0 = Pd0;
+    By0 = By;
+    Pd0 = By = 0;
+    d.value = Pd0.toFixed(Zd);
+    y.value = By.toFixed(Zb);
+    break;
+  default:
+    A.e  = B.e  = Ae;  // 反発係数(垂直)
+    A.u  = B.u  = Au;  // 反発係数(水平)(仮)
+    A.we = B.we = Awe; // 壁反発係数(垂直)
+    A.wu = B.wu = Awu; // 壁反発係数(水平)(仮)
+    A.fe = B.fe = Afe; // 床反発係数(垂直)
+    A.fu = B.fu = Afu; // 床反発係数(水平)(仮)
+    A.fx = B.fx = Afx; // 床反発係数(水平)(仮)
+    d.value = Bd0.toFixed(Zd);
+    y.value = By0.toFixed(Zb);
+  }
+  a.value = A.e.toFixed(Ze);
   isMv = 0;
   getf();
 }
@@ -434,21 +666,44 @@ function pushStart()
   getf();
 }
 
-function pushStat()
+function pushf()
 {
-  Pf = '0';
+  Pf = !Pf;
+  if (!Pf) { B.vx = B.vy = B.ay = 0; }
   getf();
 }
 
-function pushFall()
+function pushg()
 {
-  Pf = '1';
+  isDp = !isDp;
+  getf();
+}
+
+function pushmo()
+{
+  isMouse = !isMouse;
+  getf();
+}
+
+function pushto()
+{
+  isTouch = !isTouch;
   getf();
 }
 
 //----------------------------------------------------------------------
 // 描画関数
 //----------------------------------------------------------------------
+function winX(x)
+{
+  return (x * WinW / canvas.width) + WinX;
+}
+
+function winY(y)
+{
+  return (y * WinH / canvas.height) + WinY;
+}
+
 function scrX(x)
 {
   return Math.round((x - WinX) * canvas.width  / WinW);
@@ -653,7 +908,7 @@ function lineWidth(times)
 //----------------------------------------------------------------------
 function zooming(sign)
 {
-  if (sign == 0) { Zoom = 40; }
+  if (sign == 0) { Zoom = Zoom0; }
   else
   {
     Zoom += sign * 5;
@@ -855,11 +1110,14 @@ function Frame(t)
   WINDOW(-Px, Py, 639 - Px, Py - 399);
   FONT(1, 0);
 
-  LINE(0, 0, Bx * Pd / Ps, By * Pd / Ps, Cg);
-//  graph0(Pd1, Cg);
-  graph1(Pd1, Cg);
-  graph1(Pd2, Cg);
-  graph1(Pd3, Cg);
+  if (isDp)
+  {
+    LINE(0, 0, Bx * Pd / Ps, By * Pd / Ps, Cg);
+    //  graph0(Pd1, Cg);
+    graph1(Pd1, Cg);
+    graph1(Pd2, Cg);
+    graph1(Pd3, Cg);
+  }
   axis();
 
   LOCATE(0, 1);
@@ -867,55 +1125,67 @@ function Frame(t)
   COLOR('#ff0'); PRINT("数値");
   COLOR('#0f0'); PRINT("(Enterﾘｾｯﾄ)"); TAB(-4, 0);
   COLOR('#0ff'); PRINT("space開始");
-  COLOR('#0f0'); PRINT(" (asd角,fg落,矢+Shift/Ctrl/Alt位置,zxc拡,qw線)");
-  PRINT(" (");
-  if (Fr < 10) PRINT(' ');
-  PRINT(Fr + "f)"); CR();
+  COLOR('#0f0'); PRINT(" (asd角f落g線hjk重er慣,矢印+S/C/A的,zxc拡qw線)");
+  PRINT((Fr < 10)? "  " : " ");
+  PRINT(Fr + "f"); CR();
   Fr = (Fr + 1) % 60;
 
   COLOR('#fff');
   TAB(tb, 0);
-  PRINTe("重力加速度g = " + Num(Pg0, Zm) + " m/s^2 , ");
-  PRINTe("初速度v_0 = "   + Num(Pv0, Zm) + " m/s , ");
-  PRINTe("仰角θ_0 = "    + Num(Pd0, Zd) + " °"); CR();
+  PRINTe("重力加速度g =" + Num(Pg0, Zm) + " m/s^2 , ");
+  PRINTe("初速度v_0 ="   + Num(Pv0, Zm) + " m/s , ");
+  PRINTe("仰角θ_0 ="    + Num(Pd0, Zd) + " °");
+
+  COLOR('#f00');
+  PRINT(" 非現実動作有"); CR();
 
   COLOR(Cb);
   TAB(tb, 0);
-  PRINT("的初期位置( " + Num(Bx, Zb));
-  PRINT(" m , "        + Num(By, Zb) + " m ) ");
-  if (Pf == '0') PRINT("( 静止 )");
-  else           PRINT("( 落下 )");
-  PRINT(" 中心間距離( " + Num(A.distance(B), Zm) + " m )"); CR();
+  PRINT("的初期位置(" + Num(Bx, Zb));
+  PRINT(" m ,"        + Num(By, Zb) + " m )");
+  PRINT(" 中心間(" + Num(A.distance(B), Zm) + " m ) ");
+
+  PRINT((Pf)? "落下" : "静止");
+  PRINT(" (e=" + A.e.toFixed(Ze));
+  PRINT(" m=" + Bm +"倍)"); CR();
+
+  TAB(tb, 0);
+  PRINT("速度("  + Num(B.vx, Zm));
+  PRINT(" m/s ," + Num(B.vy, Zm) + " m/s ) ");
+  PRINT("位置("  + Num(B.px, Zm));
+  PRINT(" m ,"   + Num(B.py, Zm) + " m )"); CR();
+
+//  PRINT((isMouse)? "mouse" : "key m"); PRINT(" , ");
+//  PRINT((isTouch)? "touch" : "key t"); CR();
 
   COLOR('#fff');
   TAB(tb, 0);
-  PRINT("速度( "  + Num(A.vx, Zm));
-  PRINT(" m/s , " + Num(A.vy, Zm) + " m/s ) , ");
-  PRINT("位置( "  + Num(A.px, Zm));
-  PRINT(" m , "   + Num(A.py, Zm) + " m )"); CR();
+  PRINT("速度("  + Num(A.vx, Zm));
+  PRINT(" m/s ," + Num(A.vy, Zm) + " m/s ) ");
+  PRINT("位置("  + Num(A.px, Zm));
+  PRINT(" m ,"   + Num(A.py, Zm) + " m )"); CR();
 
   COLOR('#0ff');
   TAB(tb, 0);
-  PRINTe("仰角θ_1 = " + Num(Pd1, Zd) + " °");
-  PRINTe(" , θ_2 = "  + Num(Pd2, Zd) + " °");
-  PRINTe(" , θ_3 = "  + Num(Pd3, Zd) + " °"); CR();
+  PRINTe("仰角θ_1 =" + Num(Pd1, ZD) + " °");
+  PRINTe(" , θ_2 ="  + Num(Pd2, ZD) + " °");
+  PRINTe(" , θ_3 ="  + Num(Pd3, ZD) + " °"); CR();
 
   COLOR('#ff0');
   TAB(tb, 0);
-  PRINT("時間t = " + Num(Pt , Zt));
-  PRINT(" s ( ～ " + Num(Pt1, Zt) + " s ) ");
-//  PRINT("   ( ");
+  PRINT("時間t =" + Num(Pt , Zt));
+  PRINT(" s ( ～" + Num(Pt1, Zt) + " s ) ");
   if (isMv) { COLOR('#0ff'); PRINT("経過中"); }
   else      { COLOR('#fa0'); PRINT("停止中"); }
-//  COLOR('#ff0'); PRINT(" )"); CR();
   CR();
 
   COLOR('#fff');
   TAB(tb, 0);
-  PRINT("1目盛り  " + Ps + " m"); CR();
+  PRINT("1目盛り " + Ps + " m"); CR();
 
   Ball(B, Cb);
   Ball(A, Ca);
+//  PRINT(Temp);
 }
 
 //--------------------------------------------------------------------
@@ -929,10 +1199,10 @@ function Display()
   {
     pdt = (Pt1 >= 0)? Pdt : -Pdt;
     Pt += pdt;
-    for (k = 10, dt = pdt / k, ds = 0, i = 0; i < k; i++)
+    for (k = 100, dt = pdt / k, ds = 0, i = 0; i < k; i++)
     {
-      ds += A.motion(dt, B, 1);
       ds += B.motion(dt, A, 0);
+      ds += A.motion(dt, B, 1);
     }
     if (Math.abs(Pt) >= Math.abs(Pt1)) { Pt = Pt1; }
   }
@@ -957,6 +1227,21 @@ window.onkeyup   = function(event) { Key[event.keyCode] = 0; }
 //--------------------------------------------------------------------
 // Key
 //--------------------------------------------------------------------
+function setB(x, y)
+{
+   if (Pt <= 0)
+   {
+     document.getElementById("num_bx").value = (x).toFixed(Zb);
+     document.getElementById("num_by").value = (y).toFixed(Zb);
+   }
+   else
+   {
+     B.px = x; B.py = y;
+   }
+   pushget();
+   blur();
+}
+
 function keyon(key)
 {
   var s, f, x, y;
@@ -991,20 +1276,7 @@ function keyon(key)
   {
     x -= s; f = 1;
   }
-  if (f)
-  {
-    if (Pt <= 0)
-    {
-      document.getElementById("num_bx").value = (x).toFixed(Zb);
-      document.getElementById("num_by").value = (y).toFixed(Zb);
-    }
-    else
-    {
-      B.px = x; B.py = y;
-    }
-    pushget();
-    blur(); 
-  }
+  if (f) { setB(x, y); }
 }
 
 //----------------------------------------------------------------------
@@ -1023,14 +1295,135 @@ document.body.addEventListener('keydown', event =>
     case  90: zooming  (-1  ); isMv = 0; getf(); blur(); break; // 'Z'
     case  88: zooming  ( 1  ); isMv = 0; getf(); blur(); break; // 'X'
     case  67: zooming  ( 0  ); isMv = 0; getf(); blur(); break; // 'C'
-    case  65: pushd(1)  ; blur(); break; // 'a'
-    case  83: pushd(2)  ; blur(); break; // 's'
-    case  68: pushd(3)  ; blur(); break; // 'd'
-    case  70: pushStat(); blur(); break; // 'f'
-    case  71: pushFall(); blur(); break; // 'g'
+    case  65: pushd(1); blur(); break; // 'a'
+    case  83: pushd(2); blur(); break; // 's'
+    case  68: pushd(3); blur(); break; // 'd'
+    case  70: pushf() ; blur(); break; // 'f'
+    case  71: pushg() ; blur(); break; // 'g'
+    case  72: pushm(0); blur(); break; // 'h'
+    case  74: pushm(1); blur(); break; // 'j'
+    case  75: pushm(2); blur(); break; // 'k'
+    case  69: pushu(0); blur(); break; // 'e'
+    case  82: pushu(1); blur(); break; // 'r'
+//    case  77: pushmo(); blur(); break; // 'm'
+//    case  84: pushto(); blur(); break; // 't'
     default : keyon(key);
   }
 });
+
+//----------------------------------------------------------------------
+// mouse
+//----------------------------------------------------------------------
+var mouseD =-1;  // 差分r
+var mouseX = 0;  // 差分x
+var mouseY = 0;  // 差分y
+
+function winB(mx, my)
+{
+  var rect = canvas.getBoundingClientRect();
+  var x, y;
+
+  x  = mx - rect.left;
+  y  = my - rect.top;
+  x = winX(x) * Ps / Pd;
+  y = winY(y) * Ps / Pd;
+  return { x:x, y:y };
+}
+
+function catchB(mx, my, mr)
+{
+  var x, y, w, r, d, dx, dy;
+
+  w = winB(mx, my);
+  x = w.x;
+  y = w.y;
+  dx = B.px - x;
+  dy = B.py - y;
+  d  = dx*dx + dy*dy;
+  r  = mr * mr;
+  mouseD = r - d;
+  if (mouseD < 0) return;
+}
+
+function moveB(mx, my)
+{
+  var x, y, w;
+
+  w = winB(mx, my);
+  x = w.x;
+  y = w.y;
+
+  if (x < 0) { if (B.px <= 0) return; x = 0; }
+  if (y < 0) { if (B.py <= 0) return; y = 0; }
+
+  x += mouseX;
+  y += mouseY;
+  setB(x, y);
+}
+
+function mouse(event)
+{
+  var mx, my;
+
+  if (!isMouse) return;
+  if (mouseD < 0) return;
+  mx = event.clientX;
+  my = event.clientY;
+  moveB(mx, my);
+}
+
+function touch(event)
+{
+  var mx, my;
+
+  if (!isTouch) return;
+  if (mouseD < 0) return;
+  mx = event.changedTouches[0].pageX; //touches[0]
+  my = event.changedTouches[0].pageY; //touches[0]
+  moveB(mx, my);
+}
+
+function mouseDn(event)
+{
+  var mx, my;
+
+  mx = event.clientX;
+  my = event.clientY;
+  catchB(mx, my, B.r);
+}
+
+function touchDn(event)
+{
+  var mx, my;
+
+  mx = event.changedTouches[0].pageX; //touches[0]
+  my = event.changedTouches[0].pageY; //touches[0]
+  catchB(mx, my, B.r * 2);
+}
+
+function mouseUp(event)
+{
+  mouseD = -1;
+}
+
+if(document.addEventListener)
+{
+  document.addEventListener("mousedown" , mouseDn);
+  document.addEventListener("mouseup"   , mouseUp);
+  document.addEventListener("mousemove" , mouse);
+  document.addEventListener("touchmove" , touch);
+  document.addEventListener("touchstart", touchDn);
+  document.addEventListener("touchend"  , mouseUp);
+}
+else if(document.attachEvent)
+{
+  document.attachEvent("onmousedown" , mouseDn);
+  document.attachEvent("onmouseup"   , mouseUp);
+  document.attachEvent("onmousemove" , mouse);
+  document.attachEvent("ontouchmove" , touch);
+  document.attachEvent("ontouchstart", touchDn);
+  document.attachEvent("ontouchend"  , mouseUp);
+}
 
 //----------------------------------------------------------------------
 // main

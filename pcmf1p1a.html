@@ -210,10 +210,12 @@ function scale(c, w, h, m)
   // Infomation
   color('#0f0');
   x = CenX+i/4;
-  inf = "<>矢印+Shift:振動数, as:振幅, vb:時間, 0-3:波形";
-  ctx.fillText(inf, x, CenY+h*3.5);
-  inf = "space:発振, Enter:reset, qwzxc:線画面, e-p,4-9,d-;,nm";
-  ctx.fillText(inf, x, CenY+h*4);
+  inf = "矢印,.+Shift:振動数, as:振幅, vb:発音時間, 0-3:波形";
+  ctx.fillText(inf, x, CenY+h*3.3);
+  inf = "space:発音, Enter:リセット, qw,zxc:線幅,画面サイズ";
+  ctx.fillText(inf, x, CenY+h*3.8);
+  inf = "e-p,4-9:平均律音階,d-;:純正律音階,nm:オクターブ";
+  ctx.fillText(inf, x, CenY+h*4.3);
 }
 
 //--------------------------------------------------------------------
