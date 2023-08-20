@@ -549,10 +549,10 @@ function getter()
   Pv0 = Number(v.value);
   Pd0 = Number(d.value);
 
-  d0 = Pd0.toFixed(Zd);
-  d1 = Pd1.toFixed(Zd);
-  d2 = Pd2.toFixed(Zd);
-  d3 = Pd3.toFixed(Zd);
+  d0 = Pd0.toFixed(ZD);
+  d1 = Pd1.toFixed(ZD);
+  d2 = Pd2.toFixed(ZD);
+  d3 = Pd3.toFixed(ZD);
   if (d0 != d1 && d0 != d2 && d0 != d3) Pdi = 0;
 
   Pt1 = Number(t.value);
@@ -567,9 +567,9 @@ function getter()
       Bx  *= r;
       By  *= r;
       Pv0 *= Math.sqrt(r);
-      document.getElementById("num_bx").value = Bx.toFixed(Zb);
-      document.getElementById("num_by").value = By.toFixed(Zb);
-      document.getElementById("num_v0").value = Pv0.toFixed(Zm);
+      x.value = Bx.toFixed(Zb);
+      y.value = By.toFixed(Zb);
+      v.value = Pv0.toFixed(Zm);
       Ps = ps;
     }
   }
@@ -609,14 +609,13 @@ function pushd(n)
 {
   const d = document.getElementById("num_d0");
 
+  Pdi = n;
   switch (n)
-  {
-    case  3: Pd0 = Pd3    ; Pdi = 3; break;
-    case  2: Pd0 = Pd2    ; Pdi = 2; break;
-    case  0: Pd0 = d.value; Pdi = 0; break;
-    default: Pd0 = Pd1    ; Pdi = 1;
+  { // n = 0～3
+    case  3: d.value = Pd3.toFixed(ZD); break;
+    case  2: d.value = Pd2.toFixed(ZD); break;
+    case  1: d.value = Pd1.toFixed(ZD); break;
   }
-  d.value = Pd0.toFixed(ZD);
   isMv = 0;
   getf();
 }
@@ -633,8 +632,9 @@ function pushm(n)
   getf();
 }
 
-var By0 = By;
-var Bd0 = Pd0;
+var Vy  = By;
+var Vd0 = Pd0;
+var Vdi = Pdi;
 function pushu(n)
 {
   const a = document.getElementById("num_ae");
@@ -646,11 +646,15 @@ function pushu(n)
     Ae  = A.e;
     A.e = A.u = A.fu = A.fe = A.wu = A.we = A.fx = 1;
     B.e = B.u = B.fu = B.fe = B.wu = B.we = B.fx = 1;
-    Bd0 = Pd0;
-    By0 = By;
+    Vy  = y.value;
+    Vd0 = d.value;
+    Vdi = Pdi;
     Pd0 = By = 0;
-    d.value = Pd0.toFixed(Zd);
+    d.value = Pd0.toFixed(ZD);
     y.value = By.toFixed(Zb);
+    a.value = A.e.toFixed(Ze);
+    isMv = 0;
+    getf();
     break;
   default:
     A.e  = B.e  = Ae;  // 反発係数(垂直)
@@ -660,12 +664,14 @@ function pushu(n)
     A.fe = B.fe = Afe; // 床反発係数(垂直)
     A.fu = B.fu = Afu; // 床反発係数(水平)(仮)
     A.fx = B.fx = Afx; // 床反発係数(水平)(仮)
-    d.value = Bd0.toFixed(Zd);
-    y.value = By0.toFixed(Zb);
+    a.value = A.e.toFixed(Ze);
+    isMv = 0;
+    y.value = Vy;
+    d.value = Vd0;
+    getter();
+    Pdi = Vdi;
+    pushd(Pdi);
   }
-  a.value = A.e.toFixed(Ze);
-  isMv = 0;
-  getf();
 }
 
 function pushStart()
@@ -1250,20 +1256,26 @@ function setB(x, y)
    {
      document.getElementById("num_bx").value = (x).toFixed(Zb);
      document.getElementById("num_by").value = (y).toFixed(Zb);
+
+     pushget();
+
      switch(Pdi)
      {
-       case  3: d = Pd3; break;
-       case  2: d = Pd2; break;
-       case  0: d = Pd0; break;
-       default: d = Pd1;
+       case  3: d = Pd0 = Pd3; break;
+       case  2: d = Pd0 = Pd2; break;
+       case  1: d = Pd0 = Pd1; break;
+       default: d = Pd0;
      }
-     document.getElementById("num_d0").value = d.toFixed(Zd);
+     if (Pdi > 0)
+     {
+       document.getElementById("num_d0").value = d.toFixed(ZD);
+     }
    }
    else
    {
      B.px = x; B.py = y;
+     pushget();
    }
-   pushget();
    blur();
 }
 
@@ -1462,7 +1474,7 @@ function main()
 lineWidth(1);
 zooming(0);
 pushReset();
-document.getElementById("num_d0").value = Pd1.toFixed(Zd);
+document.getElementById("num_d0").value = Pd1.toFixed(ZD);
 getf();
 main();
 
