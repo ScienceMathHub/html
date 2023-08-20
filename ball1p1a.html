@@ -28,7 +28,7 @@
 <input type="number" id="num_v0" value="31.0" min = "0.0" max="99999.9"
   step = "0.1" />
 <pre></pre>
-<input type="button" id="but_d0" value="仰角" onclick="pushget()">
+<input type="button" id="but_d0" value="仰角" onclick="pushd(0)">
 <input type="number" id="num_d0" min = "0.0" max="90.0" step = "0.1" />
 <pre></pre>
 <input type="button" id="but_d1" value="θ1" onclick="pushd(1)">
@@ -123,10 +123,11 @@ var Ze = 1;       // 小数桁(係数)
 var Pg0;      // 重力加速度
 var Pv0;      // 初速度
 var Pd0;      // 仰角
-var Pd3;      // 仰角上
-var Pd2;      // 仰角中
-var Pd1;      // 仰角下
-var Ps = 1;   // 1目盛り(m)
+var Pd3 = 0;  // 仰角上
+var Pd2 = 0;  // 仰角中
+var Pd1 = 0;  // 仰角下
+var Pdi = 1;  // 仰角i
+var Ps  = 1;  // 1目盛り(m)
 var Pt1;      // 最終時間
 var Vo;       // 初速度
 var Bx;       // 初期位置(m)
@@ -540,13 +541,20 @@ function getter()
   const x = document.getElementById("num_bx");
   const y = document.getElementById("num_by");
   const a = document.getElementById("num_ae");
-  var r, ps;
+  var r, ps, d0, d1, d2, d3;
 
   A.e = B.e = Number(a.value);
 
   Pg0 = Number(g.value);
   Pv0 = Number(v.value);
   Pd0 = Number(d.value);
+
+  d0 = Pd0.toFixed(Zd);
+  d1 = Pd1.toFixed(Zd);
+  d2 = Pd2.toFixed(Zd);
+  d3 = Pd3.toFixed(Zd);
+  if (d0 != d1 && d0 != d2 && d0 != d3) Pdi = 0;
+
   Pt1 = Number(t.value);
   Bx  = Number(x.value);
   By  = Number(y.value);
@@ -603,10 +611,10 @@ function pushd(n)
 
   switch (n)
   {
-    case  3: Pd0 = Pd3; break;
-    case  2: Pd0 = Pd2; break;
-    case  0: Pd0 = 0  ; break;
-    default: Pd0 = Pd1;
+    case  3: Pd0 = Pd3    ; Pdi = 3; break;
+    case  2: Pd0 = Pd2    ; Pdi = 2; break;
+    case  0: Pd0 = d.value; Pdi = 0; break;
+    default: Pd0 = Pd1    ; Pdi = 1;
   }
   d.value = Pd0.toFixed(ZD);
   isMv = 0;
@@ -1105,6 +1113,7 @@ function Ball(a, c)
 function Frame(t)
 {
   var tb = 2;
+  var C0, C1;
 
   CLS('#032');
   WINDOW(-Px, Py, 639 - Px, Py - 399);
@@ -1165,11 +1174,17 @@ function Frame(t)
   PRINT("位置("  + Num(A.px, Zm));
   PRINT(" m ,"   + Num(A.py, Zm) + " m )"); CR();
 
-  COLOR('#0ff');
+  C0 = '#0ff';
+  C1 = '#fff';
   TAB(tb, 0);
-  PRINTe("仰角θ_1 =" + Num(Pd1, ZD) + " °");
-  PRINTe(" , θ_2 ="  + Num(Pd2, ZD) + " °");
-  PRINTe(" , θ_3 ="  + Num(Pd3, ZD) + " °"); CR();
+  COLOR((Pdi == 1)? C1 : C0);
+  PRINTe("θ_1 =" + Num(Pd1, ZD) + " °");
+  COLOR(C0); PRINT(" , ");
+  COLOR((Pdi == 2)? C1 : C0);
+  PRINTe("θ_2 =" + Num(Pd2, ZD) + " °");
+  COLOR(C0); PRINT(" , ");
+  COLOR((Pdi == 3)? C1 : C0);
+  PRINTe("θ_3 =" + Num(Pd3, ZD) + " °"); CR();
 
   COLOR('#ff0');
   TAB(tb, 0);
@@ -1229,10 +1244,20 @@ window.onkeyup   = function(event) { Key[event.keyCode] = 0; }
 //--------------------------------------------------------------------
 function setB(x, y)
 {
+   var d;
+
    if (Pt <= 0)
    {
      document.getElementById("num_bx").value = (x).toFixed(Zb);
      document.getElementById("num_by").value = (y).toFixed(Zb);
+     switch(Pdi)
+     {
+       case  3: d = Pd3; break;
+       case  2: d = Pd2; break;
+       case  0: d = Pd0; break;
+       default: d = Pd1;
+     }
+     document.getElementById("num_d0").value = d.toFixed(Zd);
    }
    else
    {
