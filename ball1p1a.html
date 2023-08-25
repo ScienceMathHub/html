@@ -207,7 +207,6 @@ class Motion
     r *= 1.2;
     r -= d;
 
-
     d  = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
     if (d > 0)
     {
@@ -228,64 +227,22 @@ class Motion
   }
   #touch(that, dt)
   {
-    var vx, vy, ex, ey, r, rr, vv, v, e, ve, d, x, y, t;
-    
-    x  = this.vx * dt + (this.ax / 2) * dt * dt;
-    y  = this.vy * dt + (this.ay / 2) * dt * dt;
-    vx = this.px + x;
-    vy = this.py + y;
-    ex = that.px - vx;
-    ey = that.py - vy;
-    d  = Math.sqrt(ex*ex + ey*ey);
-    r  = this.r + that.r;
-    if (d <= r)
-    {
-      this.px = vx;
-      this.py = vy;
-      return 1;
-    }
+    var x, y, d, r;
 
-    // 球が原点として視点Vと視線E
-    rr = r * r;
-    vx = this.px - that.px;
-    vy = this.py - that.py;
-    vv = vx*vx + vy*vy;
-    v  = Math.sqrt(vv);
+    this.px += this.vx * dt + (this.ax / 2) * dt * dt; // 速度
+    this.py += this.vy * dt + (this.ay / 2) * dt * dt; // 速度
 
-    // 速度e(ex,ey)
-    e  = Math.sqrt(ex*ex + ey*ey);
-    d  = (e > 0)? 1/e : 0;
-    ex = x * d;
-    ey = y * d;
-
-    // t = -V･E±√{ (V･E)^2 - V･V + r^2 }
-    ve = vx*ex + vy*ey;
-    d = ve*ve - vv + rr;
-    if (d < 0) t = -1e+10;
-    else
-    {
-      d = Math.sqrt(d);
-      t = -ve - d;
-    }
-
-    // contact
-    if (t >= 0 && t <= e)
-    {
-      t *= (t > 0)? 0.8 : 1.2;
-      this.px += ex * t;
-      this.py += ey * t;
-      return 1;
-    }
-
-    // nocontact
-    this.px += x;
-    this.py += y;
+    x = that.px - this.px;
+    y = that.py - this.py;
+    d = x*x + y*y;
+    r = this.r + that.r;
+    if (d <= r * r) return 1;
     return 0;
   }
   #rebound(that)
   {
     var nx, ny, v1, v2, u1, u2, m1, m2, m, e, u;
-    var x1, x2, y1, y2, xa, ya, xb, yb, tx, ty;
+    var x1, x2, y1, y2, tx1, ty1, tx2, ty2, tx, ty;
     var d, r, c;
 
     m1 = this.m;
@@ -312,18 +269,30 @@ class Motion
     y1 = (d + c * m2) / m;
     y2 = (d - c * m1) / m;
 
-    // 水平前速度
-    xa = this.vx - v1 * nx;
-    ya = this.vy - v1 * ny;
-    u1 = Math.sqrt(xa*xa + ya*ya);
-    xb = that.vx - v2 * nx;
-    yb = that.vy - v2 * ny;
-    u2 = Math.sqrt(xb*xb + yb*yb);
-
     // 接ベクトル
-    if      (u1 > 0) { tx = xa / u1; ty = ya / u1; }
-    else if (u2 > 0) { tx = xb / u2; ty = yb / u2; }
-    else             { tx =          ty = 0      ; }
+    tx = ty = 0;
+    tx1 = this.vx - v1 * nx;
+    ty1 = this.vy - v1 * ny;
+    u1  = Math.sqrt(tx1*tx1 + ty1*ty1);
+    if (u1 > 0) { tx = tx1 / u1; ty = ty1 / u1; }
+    tx2 = that.vx - v2 * nx;
+    ty2 = that.vy - v2 * ny;
+    u2  = Math.sqrt(tx2*tx2 + ty2*ty2);
+    if (u2 > 0) { tx = tx2 / u2; ty = ty2 / u2; }
+
+    if (this.u >= 1)
+    {
+      // 垂直後速度
+      this.vx = tx1 + y1 * nx;
+      this.vy = ty1 + y1 * ny;
+      that.vx = tx2 + y2 * nx;
+      that.vy = ty2 + y2 * ny;
+      return;
+    }
+
+    // 水平前速度
+    u1 = this.vx * tx + this.vy * ty;
+    u2 = that.vx * tx + that.vy * ty;
 
     // 水平後速度
     d  = m1 * u1 + m2 * u2;
@@ -332,10 +301,10 @@ class Motion
     x2 = (d + c * m1) / m;
 
     // 後速度
-    this.vx = x1 * tx + y1 * nx;
-    this.vy = x1 * ty + y1 * ny;
-    that.vx = x2 * tx + y2 * nx;
-    that.vy = x2 * ty + y2 * ny;
+    this.vx = x1 * tx1 + y1 * nx;
+    this.vy = y2 * ty1 + y1 * ny;
+    that.vx = x1 * tx2 + y2 * nx;
+    that.vy = y2 * ty2 + y2 * ny;
   }
   #veloctiy() // 速度
   {
@@ -378,6 +347,8 @@ class Motion
       if (touchf)
       {
         this.#rebound(that);
+//        this.px += this.vx * dt + (this.ax / 2) * dt * dt; // 速度
+//        this.py += this.vy * dt + (this.ay / 2) * dt * dt; // 速度
         that.ay = this.ay;
       }
     }
