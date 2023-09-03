@@ -459,6 +459,21 @@ var B = new Motion();
 //----------------------------------------------------------------------
 // touch
 //----------------------------------------------------------------------
+function focus()
+{
+  var doc = document.activeElement;
+
+  if (doc === document.getElementById("num_g0")) return 1;
+  if (doc === document.getElementById("num_v0")) return 1;
+  if (doc === document.getElementById("num_d0")) return 1;
+  if (doc === document.getElementById("num_ds")) return 1;
+  if (doc === document.getElementById("num_t1")) return 1;
+  if (doc === document.getElementById("num_bx")) return 1;
+  if (doc === document.getElementById("num_by")) return 1;
+  if (doc === document.getElementById("num_ae")) return 1;
+  return 0;
+}
+
 function blur()
 {
   document.getElementById("num_g0").blur();
@@ -1253,6 +1268,8 @@ function setB(x, y)
 function keyon(key)
 {
   var s, f, x, y;
+
+  if (focus()) return;
 
   f = 0;
 
