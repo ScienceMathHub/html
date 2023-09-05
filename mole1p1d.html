@@ -595,6 +595,18 @@ function question()
 //----------------------------------------------------------------------
 // touch
 //----------------------------------------------------------------------
+function blur()
+{
+  document.getElementById("num_Am").focus();
+  document.getElementById("but_Am").blur();
+  document.getElementById("rad_4" ).blur();
+  document.getElementById("rad_3" ).blur();
+  document.getElementById("rad_2" ).blur();
+  document.getElementById("rad_1" ).blur();
+  document.getElementById("but_ne").blur();
+  document.getElementById("but_re").blur();
+}
+
 function getvalue()
 {
   const a = document.getElementById("num_Am");
@@ -612,6 +624,7 @@ function getvalue()
 function pushAm()
 {
   getvalue();
+  blur();
   window.requestAnimationFrame(main);
 }
 
@@ -627,6 +640,7 @@ function pushNext()
     a.value = "";
     Am = "";
   }
+  blur();
   window.requestAnimationFrame(main);
 }
 
@@ -644,19 +658,8 @@ function pushAns()
   z = (Zns < 2)? 2 : Zns;
   Am = Ans.toPrecision(z);
   Qa = 1;
+  blur();
   window.requestAnimationFrame(main);
-}
-
-function blur()
-{
-  document.getElementById("num_Am").blur();
-  document.getElementById("but_Am").blur();
-  document.getElementById("rad_4" ).blur();
-  document.getElementById("rad_3" ).blur();
-  document.getElementById("rad_2" ).blur();
-  document.getElementById("rad_1" ).blur();
-  document.getElementById("but_ne").blur();
-  document.getElementById("but_re").blur();
 }
 
 //----------------------------------------------------------------------
@@ -784,6 +787,7 @@ function main()
 }
 
 document.getElementById("target")[Lv1].checked = true;
+blur();
 lineWidth(1);
 zooming(0);
 question();
