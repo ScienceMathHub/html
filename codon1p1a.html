@@ -1,0 +1,733 @@
+<!--
+------------------------------------------------------------------------
+ コドン (mRNA)
+
+ HTML(JavaScript, canvas)
+
+ Alt+(z,x,c, q,w), Enter
+
+ (c)Ohtani 2023.9
+------------------------------------------------------------------------
+-->
+<!DOctxYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <title>コドン</title>
+</head>
+<body>
+<p id="Codon"></p>
+<div style='float:left;'>
+
+<input type="text"   id="str_mRNA" value=""
+  required minlength="1" maxlength="57" size="21">
+<pre></pre>
+<input type="button" id="but_mRNA" value="mRNA" onclick="pushEnter()">
+<pre></pre>
+<input type="text"   id="str_Amno" value=""
+  required minlength="1" maxlength="19" size="21">
+<pre></pre>
+<input type="button" id="but_Amno" value="Amino acid" onclick="pushEnter()">
+<pre></pre>
+<input type="button" id="but_rese" value="Reset" onclick="pushReset()">
+<pre></pre>
+
+<script>
+'use strict'
+
+//----------------------------------------------------------------------
+// canvas
+//----------------------------------------------------------------------
+const canvas = document.createElement('canvas');
+const ctx = canvas.getContext('2d');
+document.body.appendChild(canvas);
+
+//----------------------------------------------------------------------
+// public variable
+//----------------------------------------------------------------------
+var WinX, WinY, WinW, WinH; // Window座標
+var PosX, PosY;   // グラフィックカレント
+var LocX, LocY;   // テキストカレント
+var LocW, LocH;   // テキストMサイズ
+var OffW, OffH;   // テキストSサイズ
+var Zoom;         // 拡大率×(16,9)
+var Width;        // 線幅
+var Zoom0  = 40;  // 拡大率×(16,9)
+var Width0 = 2;   // 線幅初期値
+//--- color
+var CA = '#0f0';  // 緑
+var CG = '#000';  // 黒
+var CC = '#00f';  // 青
+var CU = '#f00';  // 赤
+var Cq = '#f0f';  // ?
+var Ch = '#000';  // -
+var Ca = '#000';  // Amino acid
+var Cm = '#f00';  // Met
+var Cs = '#f00';  // Stop codon
+//---
+var Px =   0;  // 表示位置x
+var Py = 400;  // 表示位置y
+var Pw = 640;  // 幅
+var Ph = 400;  // 高さ
+//---
+var isRNA = 1; // mRNA or Amino acid
+var mRNA = ""; // mRNA
+var Amno = ""; // Amino acid
+
+//----------------------------------------------------------------------
+// Standard genetic code (標準コドン表)
+//----------------------------------------------------------------------
+var CODON =
+[
+  ["UUU", "F"],["UCU", "S"],["UAU", "Y"],["UGU", "C"],
+  ["UUC", "F"],["UCC", "S"],["UAC", "Y"],["UGC", "C"],
+  ["UUA", "L"],["UCA", "S"],["UAA", "-"],["UGA", "-"],
+  ["UUG", "L"],["UCG", "S"],["UAG", "-"],["UGG", "W"],
+
+  ["CUU", "L"],["CCU", "P"],["CAU", "H"],["CGU", "R"],
+  ["CUC", "L"],["CCC", "P"],["CAC", "H"],["CGC", "R"],
+  ["CUA", "L"],["CCA", "P"],["CAA", "Q"],["CGA", "R"],
+  ["CUG", "L"],["CCG", "P"],["CAG", "Q"],["CGG", "R"],
+
+  ["AUU", "I"],["ACU", "T"],["AAU", "N"],["AGU", "S"],
+  ["AUC", "I"],["ACC", "T"],["AAC", "N"],["AGC", "S"],
+  ["AUA", "I"],["ACA", "T"],["AAA", "K"],["AGA", "R"],
+  ["AUG", "M"],["ACG", "T"],["AAG", "K"],["AGG", "R"],
+
+  ["GUU", "V"],["GCU", "A"],["GAU", "D"],["GGU", "G"],
+  ["GUC", "V"],["GCC", "A"],["GAC", "D"],["GGC", "G"],
+  ["GUA", "V"],["GCA", "A"],["GAA", "E"],["GGA", "G"],
+  ["GUG", "V"],["GCG", "A"],["GAG", "E"],["GGG", "G"]
+];
+
+var AMINO =
+[
+  ["Ala", "A", "アラニン"],
+  ["???", "?", ""],
+  ["Cys", "C", "システイン"],
+  ["Asp", "D", "アスパラギン酸"],
+  ["Glu", "E", "グルタミン酸"],
+  ["Phe", "F", "フェニルアラニン"],
+  ["Gly", "G", "グリシン"],
+  ["His", "H", "ヒスチジン"],
+  ["Ile", "I", "イソロイシン"],
+  ["???", "?", ""],
+  ["Lys", "K", "リシン"],
+  ["Leu", "L", "ロイシン"],
+  ["Met", "M", "メチオニン"],
+  ["Asn", "N", "アスパラギン"],
+  ["???", "?", ""],
+  ["Pro", "P", "プロリン"],
+  ["Gln", "Q", "グルタミン"],
+  ["Arg", "R", "アルギニン"],
+  ["Ser", "S", "セリン"],
+  ["Thr", "T", "トレオニン"],
+  ["???", "?", ""],
+  ["Val", "V", "バリン"],
+  ["Trp", "W", "トリプトファン"],
+  ["???", "?", ""],
+  ["Tyr", "Y", "チロシン"],
+  ["---", "-", "ストップ"]
+];
+
+//----------------------------------------------------------------------
+// touch
+//----------------------------------------------------------------------
+function focus()
+{
+  var doc = document.activeElement;
+
+  if (doc === document.getElementById("str_mRNA")) return 1;
+  if (doc === document.getElementById("but_mRNA")) return 1;
+  if (doc === document.getElementById("str_Amno")) return 2;
+  if (doc === document.getElementById("but_Amno")) return 2;
+  if (doc === document.getElementById("but_rese")) return 3;
+  return 0;
+}
+
+function blur()
+{
+  document.getElementById("str_mRNA").blur();
+  document.getElementById("but_mRNA").blur();
+  document.getElementById("str_Amno").blur();
+  document.getElementById("but_Amno").blur();
+  document.getElementById("but_rese").blur();
+  if (isRNA) document.getElementById("str_mRNA").focus();
+  else       document.getElementById("str_Amno").focus();
+}
+
+function getter()
+{
+  const r = document.getElementById("str_mRNA");
+  const a = document.getElementById("str_Amno");
+
+  mRNA = r.value;
+  Amno = a.value;
+  switch (focus())
+  {
+    case 1: isRNA = 1; break;
+    case 2: isRNA = 0; break;
+  }
+}
+
+function pushEnter()
+{
+  getter();
+  blur();
+  window.requestAnimationFrame(main);
+}
+
+function pushReset()
+{
+  if (isRNA) document.getElementById("str_mRNA").value = "";
+  else       document.getElementById("str_Amno").value = "";
+  getter();
+  blur();
+  window.requestAnimationFrame(main);
+}
+
+//----------------------------------------------------------------------
+// 描画関数
+//----------------------------------------------------------------------
+function winX(x)
+{
+  return (x * WinW / canvas.width) + WinX;
+}
+
+function winY(y)
+{
+  return (y * WinH / canvas.height) + WinY;
+}
+
+function scrX(x)
+{
+  return Math.round((x - WinX) * canvas.width  / WinW);
+}
+
+function scrY(y)
+{
+  return Math.round((y - WinY) * canvas.height / WinH);
+}
+
+function scrW(w)
+{
+  return Math.round(w * canvas.width  / WinW);
+}
+
+function scrH(h)
+{
+  return Math.round(h * canvas.height / WinH);
+}
+
+function WINDOW(x1, y1, x2, y2)
+{
+  WinX = x1;
+  WinY = y1;
+  WinW = x2 - x1 + 1;
+  WinH = y2 - y1 + 1;
+}
+
+function LOCATE(x, y)
+{
+  LocX = x * LocW;
+  LocY = y * LocH;
+}
+
+function TAB(x, y)
+{
+  LocX += x * LocW;
+  LocY += y * LocH;
+}
+
+function CR()
+{
+  LocX = 0;
+  LocY += LocH;
+}
+
+function CLS(c)
+{
+  ctx.fillStyle = c;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  LOCATE(0, 0);
+}
+
+function COLOR(c)
+{
+  ctx.fillStyle   = c;
+  ctx.strokeStyle = c;
+}
+
+String.prototype.bytes = function ()
+{
+  return(encodeURIComponent(this).replace(/%../g,"x").length);
+}
+
+function FONT(zoom, offs)
+{
+  var h;
+
+  zoom = Math.round(Zoom * zoom / 40 * 8);
+  LocW = zoom;
+  h    = zoom * 2;
+  offs = Math.round(Zoom * offs / 40 * 8);
+  OffH = offs * 2;
+  offs = Math.round(Zoom        / 40 * 8);
+  LocH = offs * 2;
+  ctx.font = h + "px 'ＭＳ ゴシック'";  
+}
+
+function PRINT(text)
+{
+  var len, b;
+
+  text += '';
+  b     = text.bytes();
+  len   = text.length;
+  b    -= len;
+  b     = b / 2;
+  len  += b;
+  ctx.fillText(text, LocX, LocY + OffH  - 1);
+  LocX += len * LocW;
+}
+
+function SYMBOL(x, y, text, c)
+{
+  var x1, y1;
+
+  x1 = scrX(x);
+  y1 = scrY(y);
+  ctx.fillStyle   = c;
+  ctx.strokeStyle = c;
+  ctx.fillText(text, x1, y1);
+}
+
+function POINT(x, y)
+{
+  PosX = scrX(x);
+  PosY = scrY(y);
+}
+
+function LINE(x1, y1, x2, y2, c)
+{
+  ctx.strokeStyle = c;
+  ctx.beginPath();
+  PosX = scrX(x1);
+  PosY = scrY(y1);
+  ctx.moveTo(PosX, PosY);
+  PosX = scrX(x2);
+  PosY = scrY(y2);
+  ctx.lineTo(PosX, PosY);
+  ctx.stroke();
+  ctx.closePath();
+}
+
+function LINE2(x2, y2, c)
+{
+  ctx.strokeStyle = c;
+  ctx.beginPath();
+  ctx.moveTo(PosX, PosY);
+  PosX = scrX(x2);
+  PosY = scrY(y2);
+  ctx.lineTo(PosX, PosY);
+  ctx.stroke();
+  ctx.closePath();
+}
+
+function LINEB(x1, y1, x2, y2, c)
+{
+  LINE(x1, y1, x1, y2, c);
+  LINE(x2, y1, x2, y2, c);
+  LINE(x1, y1, x2, y1, c);
+  LINE(x1, y2, x2, y2, c);
+}
+/*
+function LINEB(x1, y1, x2, y2, c)
+{
+  var x, y, w, h;
+
+  x = scrX(x1);
+  y = scrY(y1);
+  PosX = scrX(x2);
+  PosY = scrY(y2);
+  w = PosX - x + 1;
+  h = PosY - y + 1;
+  ctx.strokeStyle = c;
+  ctx.strokeRect(x, y, w, h);
+}
+*/
+
+function LINEBF(x1, y1, x2, y2, c)
+{
+  var x, y, w, h;
+
+  x = scrX(x1);
+  y = scrY(y1);
+  PosX = scrX(x2);
+  PosY = scrY(y2);
+  w = PosX - x + 1;
+  h = PosY - y + 1;
+  ctx.fillStyle = c;
+  ctx.fillRect(x, y, w, h);
+}
+
+function CIRCLERF(x, y, r0, c)
+{
+  var x0, y0;
+
+  PosX = x0 = scrX(x);
+  PosY = y0 = scrY(y);
+
+  ctx.beginPath();
+  ctx.arc(x0, y0, r0, 0, Math.PI * 2, true);
+  ctx.fillStyle = c; // ctx.strokeStyle = c;
+  ctx.fill();        // ctx.stroke();
+}
+
+//----------------------------------------------------------------------
+// Line width
+//----------------------------------------------------------------------
+function lineWidth(times)
+{
+  if (times == 1) { Width = Width0; }
+  else
+  {
+    Width *= times;
+    if      (Width <  1) Width =  1;
+    else if (Width > 16) Width = 16;
+  }
+}
+
+//----------------------------------------------------------------------
+// Zoom
+//----------------------------------------------------------------------
+function zooming(sign)
+{
+  if (sign == 0) { Zoom = Zoom0; }
+  else
+  {
+    Zoom += sign * 5;
+    if      (Zoom <  20) Zoom =  20;
+    else if (Zoom > 120) Zoom = 120;
+  }
+  canvas.width  = 16 * Zoom;
+  canvas.height =  9 * Zoom;
+
+  FONT(1, 0);
+}
+
+//----------------------------------------------------------------------
+// Amino
+//----------------------------------------------------------------------
+function Amino1to3(a)
+{
+  var i, a1;
+
+  for (i = 0; i < 26; i++)
+  {
+    a1 = AMINO[i][1];
+    if (a == a1) return AMINO[i][0];
+  }
+  return "???";
+}
+
+function ColorAmino1(a)
+{
+  var c;
+
+  switch (a)
+  {
+    case 'M': c = Cm; break;
+    case '-': c = Cs; break;
+    case '?': c = Cq; break;
+    default : c = Ca;
+  }
+  return c;
+}
+
+function DispAmino1(a, n)
+{
+  var c, c3;
+
+  c  = ColorAmino1(a);
+  COLOR(c);
+  c3 = (n == 1)? a + "  " : Amino1to3(a);
+  PRINT(c3);
+}
+
+function DispAmino1s(m, n)
+{
+  var i, c, c3, a, len, h;
+
+  h = "";
+  len = m.length;
+  for (i = 0; i < len; i++)
+  {
+    a = m.charAt(i);
+    COLOR(Ch);
+    PRINT(h);
+    h = (n == 1)? ' ' : '-';
+    DispAmino1(a, n);
+  }
+}
+
+//----------------------------------------------------------------------
+// Codon
+//----------------------------------------------------------------------
+function PrintCodon3(c3)
+{
+  var i, a, c;
+
+  for (i = 0; i < 3; i++)
+  {
+    a = c3.charAt(i);
+    switch (a)
+    {
+      case 'A': c = CA; break;
+      case 'G': c = CG; break;
+      case 'C': c = CC; break;
+      case 'U': c = CU; break;
+      default : c = Cq; a = '?';
+    }
+    COLOR(c);
+    PRINT(a);
+  }
+}
+
+function DispCodon(tb)
+{
+  var i, x, y, z, k;
+  var a, c, c3;
+
+  for (z = 0; z < 4; z++)
+  {
+    TAB(tb, 0);
+    for (y = 0; y < 4; y++)
+    {
+      for (x = 0; x < 4; x++)
+      {
+        i = x + y * 16 + z * 4;
+        c3 = CODON[i][0];
+        PrintCodon3(c3);
+        PRINT(' ');
+      }
+      PRINT(" ");
+    }
+    CR();
+    TAB(tb, 0);
+    for (y = 0; y < 4; y++)
+    {
+      for (x = 0; x < 4; x++)
+      {
+        i = x + y * 16 + z * 4;
+        a = CODON[i][1];
+        DispAmino1(a);
+        PRINT(' ');
+      }
+      PRINT(" ");
+    }
+    CR();
+    CR();
+  }
+}
+
+//----------------------------------------------------------------------
+// mRNA
+//----------------------------------------------------------------------
+function ToAmino1(c3)
+{
+  var i, n;
+
+  n = 4 * 4 * 4;
+  for (i = 0; i < n; i++) 
+  {
+    if (c3 == CODON[i][0])
+    {
+      return CODON[i][1];
+    }
+  }
+  return '?';
+}
+
+function DispmRNA(m)
+{
+  var c3, a, len, i, k, amino, h;
+
+  h = "";
+  amino = "";
+  len = m.length;
+  k = 0;
+  c3 = "";
+  for (i = 0; i < len || k > 0; i++)
+  {
+    if (i < len)
+    {
+      a = m.charAt(i);
+      a = a.toUpperCase();
+      if (! a.match(/^[A-Z?]+$/)) continue;
+      if (a == 'T') a = 'U';
+    }
+    else
+    {
+      a = '?';
+    }
+    c3 += a;
+    k++;
+    if (k >= 3)
+    {
+      a = ToAmino1(c3);
+      amino += a;
+      COLOR(Ch);
+      PRINT(h);
+      h = '-';
+      PrintCodon3(c3);
+      c3 = "";
+      k = 0;
+    }
+  }
+  return amino;
+}
+
+function DispAmino(tb, m)
+{
+  var amino;
+
+  TAB(tb, 0);
+  amino = DispmRNA(m);
+  CR();
+  TAB(tb, 0);
+  DispAmino1s(amino, 3);
+  CR();
+  TAB(tb, 0);
+  DispAmino1s(amino, 1);
+  CR();
+}
+
+//----------------------------------------------------------------------
+// To mRNA
+//----------------------------------------------------------------------
+function ToRNA1(a)
+{
+  var i, n, m;
+
+  n = 4 * 4 * 4;
+  for (i = 0; i < n; i++) 
+  {
+    if (a == CODON[i][1])
+    {
+      return CODON[i][0];
+    }
+  }
+  return "???";
+}
+
+function ToRNAs(s)
+{
+  var a, i, len, m, mrna;
+
+  mrna = "";
+  len = s.length;
+  for (i = 0; i < len; i++)
+  {
+    a = s.charAt(i);
+    a = a.toUpperCase();
+    m = ToRNA1(a);
+    mrna += m;
+  }
+  return mrna;
+}
+
+//--------------------------------------------------------------------
+// Main
+//--------------------------------------------------------------------
+function Display()
+{
+  var tb = 2;
+  var m;
+
+  CLS('#fff');
+  WINDOW(-Px, Py, 639 - Px, Py - 399);
+  LINEB(-Px, Py, 639 - Px, Py - 398, '#000');
+  FONT(1, 0);
+
+  LOCATE(0, 1);
+  TAB(tb, 0);
+  COLOR('#000'); PRINT("配列");
+  COLOR('#00f'); PRINT("(Enter)");
+  COLOR('#0f0'); PRINT(" (Alt+z,x,c:拡大 , Alt+r:リセット)");
+  CR();
+
+  COLOR('#000');
+  TAB(tb, 0);
+  PRINT("Standard genetic code (標準コドン表)"); CR();
+  CR();
+
+  DispCodon(tb);
+  CR();
+
+  if (isRNA)
+  {
+    m = mRNA;
+  }
+  else
+  {
+    m = ToRNAs(Amno);
+  }
+
+  DispAmino(tb, m);
+  CR();
+
+  COLOR('#fff');
+}
+
+//----------------------------------------------------------------------
+// Key status
+//----------------------------------------------------------------------
+var Key = new Array(256);
+for (var i = 0; i < 256; i++) Key[i] = 0;
+window.onkeydown = function(event) { Key[event.keyCode] = 1; }
+window.onkeyup   = function(event) { Key[event.keyCode] = 0; }
+
+//----------------------------------------------------------------------
+// Input key
+//----------------------------------------------------------------------
+document.body.addEventListener('keydown', event =>
+{
+  if (event.altKey)
+  {
+    if      (event.code === "KeyQ") { lineWidth( 0.5); blur(); }
+    else if (event.code === "KeyW") { lineWidth( 2  ); blur(); }
+    else if (event.code === "KeyZ") { zooming  (-1  ); blur(); }
+    else if (event.code === "KeyX") { zooming  ( 1  ); blur(); }
+    else if (event.code === "KeyC") { zooming  ( 0  ); blur(); }
+    else if (event.code === "KeyR") { pushReset(); }
+  }
+  else
+  {
+    switch (event.keyCode)
+    {
+      case  13: pushEnter(); break; // Enter
+    }
+  }
+
+  window.requestAnimationFrame(main);
+});
+
+//----------------------------------------------------------------------
+// main
+//----------------------------------------------------------------------
+function main()
+{
+  ctx.lineWidth = Width;
+  Display();
+}
+
+lineWidth(1);
+zooming(0);
+pushReset();
+main();
+
+//----------------------------------------------------------------------
+</script>
+</body>
+</html>
