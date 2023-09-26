@@ -19,17 +19,18 @@
 <p id="Codon"></p>
 <div style='float:left;'>
 
-<input type="text"   id="str_mRNA" value=""
-  required minlength="1" maxlength="57" size="21">
+<input type="text"   id="str_mRNA" value="" onFocus="setfocus()"
+  required minlength="1" maxlength="60" size="21">
 <pre></pre>
 <input type="button" id="but_mRNA" value="mRNA" onclick="pushEnter()">
 <pre></pre>
-<input type="text"   id="str_Amno" value=""
-  required minlength="1" maxlength="19" size="21">
+<input type="text"   id="str_Amno" value="" onFocus="setfocus()"
+  required minlength="1" maxlength="20" size="21">
 <pre></pre>
 <input type="button" id="but_Amno" value="Amino acid" onclick="pushEnter()">
 <pre></pre>
 <input type="button" id="but_rese" value="Reset" onclick="pushReset()">
+<input type="button" id="but_omni" value="All" onclick="pushOmni()">
 <pre></pre>
 
 <script>
@@ -71,8 +72,11 @@ var Pw = 640;  // 幅
 var Ph = 400;  // 高さ
 //---
 var isRNA = 1; // mRNA or Amino acid
-var mRNA = ""; // mRNA
-var Amno = ""; // Amino acid
+var Amno  = ""; // Amino acid
+var mRNA  = ""; // mRNA
+var mRNAN = 8;
+var mRNAS = ["", "", "", "", "", "", "", ""]; // mRNA
+var isEnter = 0; // Enter
 
 //----------------------------------------------------------------------
 // Standard genetic code (標準コドン表)
@@ -130,6 +134,11 @@ var AMINO =
   ["---", "-", "ストップ"]
 ];
 
+var AmnoOmni =
+"ACDEFGHIKLMNPQRSTVWY";
+var mRNAOmni =
+"GCUUGUGAUGAAUUUGGUCAUAUUAAAUUAAUGAAUCCUCAACGUUCUACUGUUUGGUAU";
+
 //----------------------------------------------------------------------
 // touch
 //----------------------------------------------------------------------
@@ -142,6 +151,7 @@ function focus()
   if (doc === document.getElementById("str_Amno")) return 2;
   if (doc === document.getElementById("but_Amno")) return 2;
   if (doc === document.getElementById("but_rese")) return 3;
+  if (doc === document.getElementById("but_omni")) return 3;
   return 0;
 }
 
@@ -152,6 +162,7 @@ function blur()
   document.getElementById("str_Amno").blur();
   document.getElementById("but_Amno").blur();
   document.getElementById("but_rese").blur();
+  document.getElementById("but_omni").blur();
   if (isRNA) document.getElementById("str_mRNA").focus();
   else       document.getElementById("str_Amno").focus();
 }
@@ -170,10 +181,20 @@ function getter()
   }
 }
 
+function setfocus()
+{
+  switch (focus())
+  {
+    case 1: isRNA = 1; break;
+    case 2: isRNA = 0; break;
+  }
+}
+
 function pushEnter()
 {
   getter();
   blur();
+  isEnter = 1;
   window.requestAnimationFrame(main);
 }
 
@@ -181,6 +202,15 @@ function pushReset()
 {
   if (isRNA) document.getElementById("str_mRNA").value = "";
   else       document.getElementById("str_Amno").value = "";
+  getter();
+  blur();
+  window.requestAnimationFrame(main);
+}
+
+function pushOmni()
+{
+  if (isRNA) document.getElementById("str_mRNA").value = mRNAOmni;
+  else       document.getElementById("str_Amno").value = AmnoOmni;
   getter();
   blur();
   window.requestAnimationFrame(main);
@@ -243,6 +273,12 @@ function CR()
 {
   LocX = 0;
   LocY += LocH;
+}
+
+function CRn(n)
+{
+  LocX = 0;
+  LocY += LocH * n;
 }
 
 function CLS(c)
@@ -417,61 +453,6 @@ function zooming(sign)
 }
 
 //----------------------------------------------------------------------
-// Amino
-//----------------------------------------------------------------------
-function Amino1to3(a)
-{
-  var i, a1;
-
-  for (i = 0; i < 26; i++)
-  {
-    a1 = AMINO[i][1];
-    if (a == a1) return AMINO[i][0];
-  }
-  return "???";
-}
-
-function ColorAmino1(a)
-{
-  var c;
-
-  switch (a)
-  {
-    case 'M': c = Cm; break;
-    case '-': c = Cs; break;
-    case '?': c = Cq; break;
-    default : c = Ca;
-  }
-  return c;
-}
-
-function DispAmino1(a, n)
-{
-  var c, c3;
-
-  c  = ColorAmino1(a);
-  COLOR(c);
-  c3 = (n == 1)? a + "  " : Amino1to3(a);
-  PRINT(c3);
-}
-
-function DispAmino1s(m, n)
-{
-  var i, c, c3, a, len, h;
-
-  h = "";
-  len = m.length;
-  for (i = 0; i < len; i++)
-  {
-    a = m.charAt(i);
-    COLOR(Ch);
-    PRINT(h);
-    h = (n == 1)? ' ' : '-';
-    DispAmino1(a, n);
-  }
-}
-
-//----------------------------------------------------------------------
 // Codon
 //----------------------------------------------------------------------
 function PrintCodon3(c3)
@@ -487,6 +468,7 @@ function PrintCodon3(c3)
       case 'G': c = CG; break;
       case 'C': c = CC; break;
       case 'U': c = CU; break;
+      case ' ': c = Cq; break;
       default : c = Cq; a = '?';
     }
     COLOR(c);
@@ -527,14 +509,84 @@ function DispCodon(tb)
       PRINT(" ");
     }
     CR();
-    CR();
+    CRn(0.5);
+  }
+  CRn(0.5);
+}
+
+//----------------------------------------------------------------------
+// Amino
+//----------------------------------------------------------------------
+function Amino1to3(a)
+{
+  var i;
+
+  for (i = 0; i < 26; i++)
+  {
+    if (a == AMINO[i][1]) return AMINO[i][0];
+  }
+  return "???";
+}
+
+function ColorAmino1(a)
+{
+  var c;
+
+  switch (a)
+  {
+    case 'M': c = Cm; break;
+    case '-': c = Cs; break;
+    case '?': c = Cq; break;
+    default : c = Ca;
+  }
+  return c;
+}
+
+function DispAmino1(a, n)
+{
+  var c, c3;
+
+  c  = ColorAmino1(a);
+  COLOR(c);
+  c3 = (n == 1)? a + "  " : Amino1to3(a);
+  PRINT(c3);
+}
+
+function DispAminos(m, n)
+{
+  var i, c, c3, a, len, h;
+
+  h = "";
+  len = m.length;
+  for (i = 0; i < len; i++)
+  {
+    a = m.charAt(i);
+    COLOR(Ch);
+    PRINT(h);
+    h = (n == 1)? ' ' : '-';
+    DispAmino1(a, n);
+  }
+}
+
+function DispmRNA(m)
+{
+  var c3, len, i, k, h;
+
+  len = m.length;
+  for (i = 0; i < len; i += 4)
+  {
+    c3 = m.substr(i  , 3);
+    PrintCodon3(c3);
+    h  = m.substr(i+3, 1);
+    COLOR(Ch);
+    PRINT(h);
   }
 }
 
 //----------------------------------------------------------------------
-// mRNA
+// To Amino
 //----------------------------------------------------------------------
-function ToAmino1(c3)
+function mRNA2Amino1(c3)
 {
   var i, n;
 
@@ -549,15 +601,33 @@ function ToAmino1(c3)
   return '?';
 }
 
-function DispmRNA(m)
+function mRNA2Amino(m)
 {
-  var c3, a, len, i, k, amino, h;
+  var c3, len, i, amino, a;
 
-  h = "";
   amino = "";
   len = m.length;
-  k = 0;
-  c3 = "";
+  for (i = 0; i < len; i += 4)
+  {
+    c3 = m.substr(i, 3);
+    a  = mRNA2Amino1(c3);
+    amino += a;
+  }
+  return amino;
+}
+
+//----------------------------------------------------------------------
+// To mRNA
+//----------------------------------------------------------------------
+function mRNAtomRNAS(m)
+{
+  var c3, a, len, i, k, h, mrna;
+
+  h    = "";
+  len  = m.length;
+  k    = 0;
+  mrna = "";
+  c3   = "";
   for (i = 0; i < len || k > 0; i++)
   {
     if (i < len)
@@ -575,66 +645,56 @@ function DispmRNA(m)
     k++;
     if (k >= 3)
     {
-      a = ToAmino1(c3);
-      amino += a;
-      COLOR(Ch);
-      PRINT(h);
-      h = '-';
-      PrintCodon3(c3);
+      mrna += h + c3;
+      h = "-";
       c3 = "";
       k = 0;
     }
   }
-  return amino;
+  mRNAS[0] = mrna;
+  for (k = 1; k < mRNAN; mRNAS[k++] = "");
 }
 
-function DispAmino(tb, m)
-{
-  var amino;
-
-  TAB(tb, 0);
-  amino = DispmRNA(m);
-  CR();
-  TAB(tb, 0);
-  DispAmino1s(amino, 3);
-  CR();
-  TAB(tb, 0);
-  DispAmino1s(amino, 1);
-  CR();
-}
-
-//----------------------------------------------------------------------
-// To mRNA
-//----------------------------------------------------------------------
-function ToRNA1(a)
+function Amino2num(a, k)
 {
   var i, n, m;
 
+  if (k < 0) return -2;
   n = 4 * 4 * 4;
-  for (i = 0; i < n; i++) 
+  for (i = k; i < n; i++) 
   {
     if (a == CODON[i][1])
     {
-      return CODON[i][0];
+      return i;
     }
   }
-  return "???";
+  return -2;
 }
 
-function ToRNAs(s)
+function Amino2mRNAS(s)
 {
-  var a, i, len, m, mrna;
+  var a, i, len, m, k, h, n, b;
 
-  mrna = "";
+  h = "";
+  b = "";
+  for (k = 0; k < mRNAN; mRNAS[k++] = "");
   len = s.length;
   for (i = 0; i < len; i++)
   {
     a = s.charAt(i);
     a = a.toUpperCase();
-    m = ToRNA1(a);
-    mrna += m;
+    n = Amino2num(a, 0);
+    m = (n < 0)? "???" : CODON[n][0];
+    mRNAS[0] += h + m;
+    for (k = 1; k < mRNAN; k++)
+    {
+      n = Amino2num(a, n + 1);
+      m = (n < 0)? "   " : CODON[n][0];
+      mRNAS[k] += b + m;
+    }
+    h = "-";
+    b = " ";
   }
-  return mrna;
 }
 
 //--------------------------------------------------------------------
@@ -642,8 +702,8 @@ function ToRNAs(s)
 //--------------------------------------------------------------------
 function Display()
 {
-  var tb = 2;
-  var m;
+  var amino, i;
+  var tb = 0.5;
 
   CLS('#fff');
   WINDOW(-Px, Py, 639 - Px, Py - 399);
@@ -652,32 +712,36 @@ function Display()
 
   LOCATE(0, 1);
   TAB(tb, 0);
-  COLOR('#000'); PRINT("配列");
+  COLOR('#000'); PRINT("Standard genetic code(標準コドン表)");
+  COLOR('#000'); PRINT(" 配列");
   COLOR('#00f'); PRINT("(Enter)");
-  COLOR('#0f0'); PRINT(" (Alt+z,x,c:拡大 , Alt+r:リセット)");
-  CR();
-
-  COLOR('#000');
-  TAB(tb, 0);
-  PRINT("Standard genetic code (標準コドン表)"); CR();
+  COLOR('#0f0'); PRINT(" (Alt+r,a,z,x,c:空,全,拡大)"); CR();
   CR();
 
   DispCodon(tb);
-  CR();
 
-  if (isRNA)
+  if (isEnter)
   {
-    m = mRNA;
+    if (isRNA) { mRNAtomRNAS(mRNA); }
+    else       { Amino2mRNAS(Amno); }
+    isEnter = 0;
   }
-  else
-  {
-    m = ToRNAs(Amno);
-  }
+  amino = mRNA2Amino(mRNAS[0]);
 
-  DispAmino(tb, m);
+  TAB(tb, 0);
+  DispAminos(amino, 1);
   CR();
+  TAB(tb, 0);
+  DispAminos(amino, 3);
+  CR();
+  for (i= 0; i < mRNAN; i++)
+  {
+    TAB(tb, 0);
+    DispmRNA(mRNAS[i]);
+    CR();
+  }
 
-  COLOR('#fff');
+  COLOR('#000');
 }
 
 //----------------------------------------------------------------------
@@ -701,6 +765,7 @@ document.body.addEventListener('keydown', event =>
     else if (event.code === "KeyX") { zooming  ( 1  ); blur(); }
     else if (event.code === "KeyC") { zooming  ( 0  ); blur(); }
     else if (event.code === "KeyR") { pushReset(); }
+    else if (event.code === "KeyA") { pushOmni() ; }
   }
   else
   {
