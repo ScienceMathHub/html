@@ -29,8 +29,8 @@
 <pre></pre>
 <input type="button" id="but_Amno" value="Amino acid" onclick="pushEnter()">
 <pre></pre>
+<input type="button" id="but_omni" value="Evrything" onclick="pushOmni()">
 <input type="button" id="but_rese" value="Reset" onclick="pushReset()">
-<input type="button" id="but_omni" value="All" onclick="pushOmni()">
 <pre></pre>
 
 <script>
@@ -715,7 +715,7 @@ function Display()
   COLOR('#000'); PRINT("Standard genetic code(標準コドン表)");
   COLOR('#000'); PRINT(" 配列");
   COLOR('#00f'); PRINT("(Enter)");
-  COLOR('#0f0'); PRINT(" (Alt+r,a,z,x,c:空,全,拡大)"); CR();
+  COLOR('#0f0'); PRINT(" (Alt+r,e,z,x,c:空,全,拡大)"); CR();
   CR();
 
   DispCodon(tb);
@@ -765,7 +765,7 @@ document.body.addEventListener('keydown', event =>
     else if (event.code === "KeyX") { zooming  ( 1  ); blur(); }
     else if (event.code === "KeyC") { zooming  ( 0  ); blur(); }
     else if (event.code === "KeyR") { pushReset(); }
-    else if (event.code === "KeyA") { pushOmni() ; }
+    else if (event.code === "KeyE") { pushOmni() ; }
   }
   else
   {
