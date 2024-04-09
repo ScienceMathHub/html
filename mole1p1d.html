@@ -166,6 +166,9 @@ function PRINT(text)
   var len, b;
 
   text += '';
+  ctx.fillText(text, LocX, LocY + OffH  - 1);
+  LocX += ctx.measureText(text).width;
+/*
   b     = text.bytes();
   len   = text.length;
   b    -= len;
@@ -173,6 +176,7 @@ function PRINT(text)
   len  += b;
   ctx.fillText(text, LocX, LocY + OffH  - 1);
   LocX += len * LocW;
+*/
 }
 
 function SYMBOL(x, y, text, c)

@@ -180,6 +180,9 @@ function PRINT(text)
   var len, b;
 
   text += '';
+  ctx.fillText(text, LocX, LocY + OffH  - 1);
+  LocX += ctx.measureText(text).width;
+/*
   b     = text.bytes();
   len   = text.length;
   b    -= len;
@@ -187,6 +190,7 @@ function PRINT(text)
   len  += b;
   ctx.fillText(text, LocX, LocY + OffH  - 1);
   LocX += len * LocW;
+*/
 }
 
 function SYMBOL(x, y, text, c)
@@ -267,6 +271,62 @@ function LINEBF(x1, y1, x2, y2, c)
   h = PosY - y + 1;
   ctx.fillStyle = c;
   ctx.fillRect(x, y, w, h);
+}
+
+//----------------------------------------------------------------------
+// 指数
+//----------------------------------------------------------------------
+function PRINTe(s)
+{
+  var i, n, pow, num, a, p;
+
+  s = String(s);
+  p = 0;
+  num = pow = 0;
+  n = s.length;
+  for (i = 0; i < n; i++)
+  {
+    a = s.substring(i, i+1);
+    if (a == '^')
+    {
+      i++;
+      a = s.substring(i, i+1);
+      FONT(0.7, -0.3);
+      PRINT(a);
+      FONT(1, 0);
+      continue;
+    }
+    if (a == '_')
+    {
+      i++;
+      a = s.substring(i, i+1);
+      FONT(0.7, 0.0);
+      PRINT(a);
+      FONT(1, 0);
+      continue;
+    }
+    if (num && (a == 'e' || a == 'E'))
+    {
+      pow = 1;
+      PRINT("x10");
+      FONT(0.7, -0.4);
+      continue;
+    }
+    num = ('0' <= a && a <= '9' || a == '-' || a== '+')? 1 : 0;
+    if (pow && !num)
+    {
+      pow = 0;
+      FONT(1, 0);
+    }
+    if (pow)
+    {
+      if (a != '+') { PRINT(a); p++; }
+      continue;
+    }
+    PRINT(a);
+  }
+  FONT(1, 0);
+  return p;
 }
 
 //----------------------------------------------------------------------
@@ -440,8 +500,8 @@ function Quan(n)
   PRINT(Atom + '原子 (' + n + 's): ');
   E = Energy(n);
   f = E / e;
-  PRINT('E = ' + E.toPrecision(7) + ' J ');
-  PRINT('( ' + f.toPrecision(7) + ' eV )');
+  PRINTe('E = ' + E.toPrecision(7) + ' J ');
+  PRINTe('( ' + f.toPrecision(7) + ' eV )');
   COLOR('#f0f');
   LOCATE(0, 3);
   COLOR('#0ff');
@@ -449,9 +509,9 @@ function Quan(n)
   COLOR('#fff');
   PRINT(' … ');
   COLOR('#f0f');
-  PRINT('a = ' + a.toPrecision(7) + ' m ');
+  PRINTe('a = ' + a.toPrecision(7) + ' m ');
   f = a * 1e+9;
-  PRINT('( ' + f.toPrecision(7) + ' nm )');
+  PRINTe('( ' + f.toPrecision(7) + ' nm )');
   PRINT(' Scale r/a = 0, 1, … , ' + Dw.toFixed(0));
   COLOR('#fff');
   LOCATE(0, 4);
