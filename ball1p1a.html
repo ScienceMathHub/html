@@ -73,7 +73,6 @@
 //----------------------------------------------------------------------
 // public variable
 //----------------------------------------------------------------------
-//--- color
 var Cg = '#00f';  // graph
 var Ca = '#f00';  // 質点A
 var Cb = '#0f0';  // 質点B
@@ -677,43 +676,6 @@ function pushto()
 }
 
 //----------------------------------------------------------------------
-// 有効数字
-//----------------------------------------------------------------------
-function precision(a)
-{
-  var s, i;
-
-  s = a.toPrecision(12);
-  s = s.replace(/[+-]/g, "");
-  if (!(/^\d*\./.test(s)))
-  { // 10の0を消す、1.0の0は消さない
-    s = s.replace(/0+$/g, "");
-  }
-  s = s.replace(/\./g, "");
-  s = s.replace(/^0+/g, "");
-  s = s.replace(/[eE]\d+/g, "");
-
-  return s.length;
-}
-
-function precision0(a)
-{
-  var s, i;
-
-  s = a.toPrecision(12);
-  s = s.replace(/[+-]/g, "");
-  s = s.replace(/[eE]\d+/g, "");
-  if (/^\d*\./.test(s))
-  { // 1.0の0を消す、10の0は消さない
-    s = s.replace(/0+$/g, "");
-  }
-  s = s.replace(/\./g, "");
-  s = s.replace(/^0+/g, "");
-
-  return s.length;
-}
-
-//----------------------------------------------------------------------
 // Axis and grid
 //----------------------------------------------------------------------
 function axis()
@@ -823,7 +785,7 @@ function Frame(t)
   LOCATE(0, 1);
   TAB(tb, 0);
   COLOR('#ff0'); PRINT("数値");
-  COLOR('#0f0'); PRINT("(Enterﾘｾｯﾄ)"); TAB(-4, 0);
+  COLOR('#0f0'); PRINT("(Enterﾘｾｯﾄ)");
   COLOR('#0ff'); PRINT("space開始");
   COLOR('#0f0'); PRINT(" (asd角f落g線hjk重er慣,矢印+S/C/A的,zxc拡qw線)");
   PRINT((Fr < 10)? "  " : " ");
