@@ -88,6 +88,12 @@ function CR()
   LocY += LocH;
 }
 
+function CRn(n)
+{
+  LocX = 0;
+  LocY += LocH * n;
+}
+
 function CLS(c)
 {
   ctx.fillStyle = c;
