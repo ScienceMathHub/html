@@ -326,3 +326,40 @@ function PRINTe(s)
 }
 
 //----------------------------------------------------------------------
+// 有効数字
+//----------------------------------------------------------------------
+function precision(a)
+{
+  var s, i;
+
+  s = a.toPrecision(12);
+  s = s.replace(/[+-]/g, "");
+  if (!(/^\d*\./.test(s)))
+  { // 10の0を消す、1.0の0は消さない
+    s = s.replace(/0+$/g, "");
+  }
+  s = s.replace(/\./g, "");
+  s = s.replace(/^0+/g, "");
+  s = s.replace(/[eE]\d+/g, "");
+
+  return s.length;
+}
+
+function precision0(a)
+{
+  var s, i;
+
+  s = a.toPrecision(12);
+  s = s.replace(/[+-]/g, "");
+  s = s.replace(/[eE]\d+/g, "");
+  if (/^\d*\./.test(s))
+  { // 1.0の0を消す、10の0は消さない
+    s = s.replace(/0+$/g, "");
+  }
+  s = s.replace(/\./g, "");
+  s = s.replace(/^0+/g, "");
+
+  return s.length;
+}
+
+//----------------------------------------------------------------------
