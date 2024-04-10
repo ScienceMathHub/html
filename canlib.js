@@ -124,22 +124,24 @@ function FONT(zoom, offs)
   offs = Math.round(Zoom        / 40 * 8);
   LocH = offs * 2;
   ctx.font = h + "px 'ＭＳ ゴシック'";
+//  ctx.font = h + "px 'ＭＳ Ｐ ゴシック'";
+//  ctx.font = "bold 14px 'ＭＳ 明朝'";
   LocW = ctx.measureText('a').width;
 }
 
 function PRINT(text)
 {
-  var s, n, i, w, x, a;
+  var s, n, i, w, x, m, a;
 
   s = String(text);
   n = s.length;
   for (i = 0; i < n; i++)
   {
     a = s.substring(i, i+1);
-    x = ctx.measureText(a).width;
-    w = (x < LocW*1.5)? LocW : LocW * 2;
-    x = (w - x) / 2;
-    if (x < 0) x = 0;
+    m = ctx.measureText(a).width;
+    w = (m < LocW*1.5)? LocW : LocW * 2;
+    x = (w - m) / 2;
+//    if (x < 0) x = 0;
     ctx.fillText(a, LocX+x, LocY + OffH  - 1);
     LocX += w;
   }
