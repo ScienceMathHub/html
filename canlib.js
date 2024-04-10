@@ -138,8 +138,9 @@ function PRINT(text)
   for (i = 0; i < n; i++)
   {
     a = s.substring(i, i+1);
+//    w = (a.match(/[ -~]/))? LocW : LocW * 2;
     m = ctx.measureText(a).width;
-    w = (m < LocW*1.5)? LocW : LocW * 2;
+    w = (m < LocW*1.6)? LocW : LocW * 2;
     x = (w - m) / 2;
 //    if (x < 0) x = 0;
     ctx.fillText(a, LocX+x, LocY + OffH  - 1);
@@ -304,14 +305,12 @@ function PRINTe(s)
   for (i = 0; i < n; i++)
   {
     a = s.substring(i, i+1);
-/*
     if (a == 'θ')
     {
       PRINT(a);
       LocX -= LocW / 2;
       continue;
     }
-*/
     if (a == '^')
     {
       i++;
