@@ -126,7 +126,7 @@ function FONT(zoom, offs)
   ctx.font = h + "px 'ＭＳ ゴシック'";
 //  ctx.font = h + "px 'ＭＳ Ｐ ゴシック'";
 //  ctx.font = "bold 14px 'ＭＳ 明朝'";
-  LocW = ctx.measureText('a').width;
+  LocW = ctx.measureText('t').width;
 }
 
 function PRINT(text)
