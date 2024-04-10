@@ -124,7 +124,7 @@ function FONT(zoom, offs)
   offs = Math.round(Zoom        / 40 * 8);
   LocH = offs * 2;
   ctx.font = h + "px 'ＭＳ ゴシック'";
-  LocW = ctx.measureText('Aa').width / 2;
+  LocW = ctx.measureText('Aaaa').width / 4;
 }
 
 function PRINT(text)
