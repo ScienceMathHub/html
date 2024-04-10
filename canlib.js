@@ -124,18 +124,35 @@ function FONT(zoom, offs)
   offs = Math.round(Zoom        / 40 * 8);
   LocH = offs * 2;
   ctx.font = h + "px 'ＭＳ ゴシック'";
-  LocW = ctx.measureText('abcd').width / 4;
+  LocW = ctx.measureText('a').width;
 }
 
 function PRINT(text)
 {
-  var len, b;
+  var s, p, n, i, w;
 
+  s = String(text);
+  p = 0;
+  num = pow = 0;
+  n = s.length;
+  for (i = 0; i < n; i++)
+  {
+    a = s.substring(i, i+1);
+    ctx.fillText(a, LocX, LocY + OffH  - 1);
+    w = ctx.measureText(a).width;
+    if (w < LocW) w = LocW;
+    else (w > LocW) w * LocW * 2;
+  }
 /*
+  var len;
+
   text += '';
   ctx.fillText(text, LocX, LocY + OffH  - 1);
   LocX += ctx.measureText(text).width;
 */
+/*
+  var len, b;
+
   b     = text.bytes();
   len   = text.length;
   b    -= len;
@@ -143,6 +160,7 @@ function PRINT(text)
   len  += b;
   ctx.fillText(text, LocX, LocY + OffH  - 1);
   LocX += len * LocW;
+*/
 }
 
 function SYMBOL(x, y, text, c)
