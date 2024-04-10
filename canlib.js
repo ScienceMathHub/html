@@ -123,9 +123,8 @@ function FONT(zoom, offs)
   OffH = offs * 2;
   offs = Math.round(Zoom        / 40 * 8);
   LocH = offs * 2;
-  ctx.font = h + "px 'ＭＳ ゴシック'";
-//  ctx.font = h + "px 'ＭＳ Ｐ ゴシック'";
-//  ctx.font = "bold 14px 'ＭＳ 明朝'";
+//  ctx.font = h + "px 'ＭＳ ゴシック'";
+  ctx.font = h + "px 'ＭＳ 明朝'";
   LocW = ctx.measureText('t').width;
 }
 
