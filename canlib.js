@@ -335,7 +335,7 @@ function PRINTe(s)
     if (num && (a == 'e' || a == 'E'))
     {
       pow = 1;
-      PRINT("x10");
+      PRINT("×10");
       FONT(0.7, -0.4);
       continue;
     }
