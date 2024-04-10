@@ -129,16 +129,18 @@ function FONT(zoom, offs)
 
 function PRINT(text)
 {
-  var s, n, i, w, a;
+  var s, n, i, w, x, a;
 
   s = String(text);
   n = s.length;
   for (i = 0; i < n; i++)
   {
     a = s.substring(i, i+1);
-    ctx.fillText(a, LocX, LocY + OffH  - 1);
-    w = ctx.measureText(a).width;
-    w = (w < LocW*2)? LocW : LocW * 2;
+    x = ctx.measureText(a).width;
+    w = (x < LocW*1.5)? LocW : LocW * 2;
+    x = (w - x) / 2;
+    if (x < 0) x = 0;
+    ctx.fillText(a, LocX+x, LocY + OffH  - 1);
     LocX += w;
   }
 /*
