@@ -123,9 +123,11 @@ function FONT(zoom, offs)
   OffH = offs * 2;
   offs = Math.round(Zoom        / 40 * 8);
   LocH = offs * 2;
-//  ctx.font = h + "px 'ＭＳ ゴシック'";
-  ctx.font = h + "px 'ＭＳ 明朝'";
-  LocW = ctx.measureText('t').width;
+  ctx.font = h + "px 'ＭＳ ゴシック'";
+//  ctx.font = h + "px 'sans-serif'";
+//  ctx.font = h + "px '游ゴシック'";
+//  ctx.font = h + "px '游明朝'";
+  LocW = ctx.measureText('あ').width / 2;
 }
 
 function PRINT(text)
@@ -137,9 +139,11 @@ function PRINT(text)
   for (i = 0; i < n; i++)
   {
     a = s.substring(i, i+1);
-//    w = (a.match(/[ -~]/))? LocW : LocW * 2;
+    w = LocW * 2;
+    if (a.match(/[ -~]/)) w = LocW;
+    if (a.match(/[ｧ-ﾝ]/)) w = LocW;
     m = ctx.measureText(a).width;
-    w = (m < LocW*1.6)? LocW : LocW * 2;
+//    w = (m < LocW*1.6)? LocW : LocW * 2;
     x = (w - m) / 2;
 //    if (x < 0) x = 0;
     ctx.fillText(a, LocX+x, LocY + OffH  - 1);
