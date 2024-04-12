@@ -436,7 +436,7 @@ function precN(a, n)
 
 function molecularWeight(cf, select)
 {
-  var mw;
+  var mw, m;
 
   Mw = Mwr = M = 0;
 
@@ -444,12 +444,12 @@ function molecularWeight(cf, select)
   PRINT(" = ");
   switch (select)
   {
-    case  1: PRINT(mw.toPrecision(precN(mw, 4))); break;
-    case  2: PRINT(mw.toPrecision(precN(mw, 2))); break;
+    case  1: m = mw.toPrecision(precN(mw, 4)); PRINT(m); break;
+    case  2: m = mw.toPrecision(precN(mw, 2)); PRINT(m); break;
   }
   CR();
 
-  return mw;
+  return m;
 }
 
 //----------------------------------------------------------------------
@@ -541,7 +541,6 @@ function Display()
   CR();
 
   COLOR(CAw);
-  mr = molecularWeight(Cf, 0);
   mr = molecularWeight(Cf, 2);
   COLOR(CM);
   PRINT("モル質量 M = "); PRINT(mr); PRINT(" g/mol"); CR();

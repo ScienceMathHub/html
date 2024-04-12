@@ -102,19 +102,22 @@ function axis()
 {
   var i, x, y;
 
-  LINE(0, 0, 0, -Fh, Cp);
-  LINE(0, 0, Fw,  0, Cr);
-
-  for (i = 1; i <= Dw; i++)
-  {
-    x = i * Fw / Dw;
-    LINE(x,  0, x, -Fh, Co);
-  }
   for (i = 1; i <= Dh; i++)
   {
     y = i * Fh / Dh;
     LINE(0, -y, Fw, -y, Co);
   }
+  x = 1 * Fw / Dw;
+  LINE(x,  0, x, -Fh, Cr);
+  for (i = 2; i < Dw; i++)
+  {
+    x = i * Fw / Dw;
+    LINE(x,  0, x, -Fh, Co);
+  }
+  x = Fw;
+  LINE(x,  0, x, -Fh, Cp);
+  LINE(0,  0, 0, -Fh, Cp);
+  LINE(0,  0, Fw,  0, Cr);
 }
 
 //----------------------------------------------------------------------
@@ -246,8 +249,17 @@ function Quan(n)
   PRINTe('a = ' + a.toPrecision(7) + ' m ');
   f = a * 1e+9;
   PRINTe('( ' + f.toPrecision(7) + ' nm )');
-  PRINT(' Scale r/a = 0, 1, … , ' + Dw.toFixed(0));
-  COLOR('#fff');
+  PRINT(' Scale r/a = ');
+  COLOR('#0ff');
+  PRINT('0');
+  COLOR('#00f');
+  PRINT(', ');
+  COLOR('#f0f');
+  PRINT('1');
+  COLOR('#00f');
+  PRINT(', … , ');
+  COLOR('#0ff');
+  PRINT(Dw.toFixed(0));
   LOCATE(0, 4);
 
   c = '#00f';
