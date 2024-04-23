@@ -20,7 +20,7 @@
 <div style='float:left;'>
 
 <input type="text"   id="str_As" value="H"
-  required minlength="1" maxlength="2" size="4">
+  required minlength="1" maxlength="2" size="5">
 <input type="button" id="but_As" value="元素記号" onclick="pushAs()">
 <pre></pre>
 <input type="number" id="num_An" value="1" min = "1" max="118">
@@ -252,6 +252,17 @@ function blur()
   document.getElementById("but_An").blur();
 }
 
+function focus()
+{
+  var doc = document.activeElement;
+
+  if (doc === document.getElementById("str_As")) return 1;
+  if (doc === document.getElementById("num_An")) return 2;
+  if (doc === document.getElementById("but_As")) return 1;
+  if (doc === document.getElementById("but_An")) return 2;
+  return 0;
+}
+
 //----------------------------------------------------------------------
 // Input key
 //----------------------------------------------------------------------
@@ -271,8 +282,12 @@ document.body.addEventListener('keydown', event =>
   {
     switch (event.keyCode)
     {
-      case  13: pushAs(); blur(); break; // Enter
-      case  32: pushAn(); blur(); break; // space
+      case  13:
+        switch (focus())
+        {
+          case 1: pushAs(); blur(); break; // Enter
+          case 2: pushAn(); blur(); break; // Enter
+        }
     }
   }
   window.requestAnimationFrame(main);
@@ -294,10 +309,11 @@ function Display()
   FONT(1, 0);
 
   LOCATE(0, 1);
-  COLOR('#ff0'); PRINT("元素記号を入力し");
+  COLOR('#ff0'); PRINT("元素記号");
+  COLOR('#0f0'); PRINT("または");
+  COLOR('#ff0'); PRINT("原子番号");
+  COLOR('#0f0'); PRINT("を入力し");
   COLOR('#0ff'); PRINT("Enter");
-  COLOR('#ff0'); PRINT(" 原子番号を入力し");
-  COLOR('#0ff'); PRINT("space");
   COLOR('#0f0'); PRINT(" (Alt+z,x,c:縮小,拡大,初期)"); CR();
   CR();
 
