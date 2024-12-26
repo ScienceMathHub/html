@@ -19,15 +19,13 @@ document.body.appendChild(canvas);
 //----------------------------------------------------------------------
 // public variable
 //----------------------------------------------------------------------
-var WinX, WinY, WinW, WinH; // Window座標
-var PosX, PosY;   // グラフィックカレント
-var LocX, LocY;   // テキストカレント
-var LocW, LocH;   // テキストMサイズ
-var OffW, OffH;   // テキストSサイズ
-var Zoom;         // 拡大率×(16,9)
-var Width;        // 線幅
-var Zoom0  = 40;  // 拡大率×(16,9)
-var Width0 = 2;   // 線幅初期値
+var WinX, WinY, WinW, WinH;      // Window座標
+var PosX, PosY;                  // グラフィックカレント
+var LocX, LocY;                  // テキストカレント
+var LocW, LocH;                  // テキストMサイズ
+var OffW, OffH;                  // テキストSサイズ
+var Zoom0  = 40, Zoom  = Zoom0 ; // 拡大率×(16,9)
+var Width0 =  2, Width = Width0; // 線幅初期値
 
 //----------------------------------------------------------------------
 // 描画関数

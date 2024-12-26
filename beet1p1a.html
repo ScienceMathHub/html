@@ -1,0 +1,399 @@
+<!--
+----------------------------------------------------------------------
+ うなり
+
+ HTML(JavaScript, canvas)
+
+ Physics (c) Ohtani 2024.12
+----------------------------------------------------------------------
+-->
+<!DOctxYPE html>
+<html lang="ja">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<head>
+  <meta charset="utf-8">
+  <title>うなり</title>
+</head>
+<body>
+<p id="Beet"></p>
+<div style='float:left;'>
+<label><input type="range" id ="rangeA1" min="0" max= "1" step="0.1"
+  value="1">A1<br></label>
+<label><input type="range" id ="rangeF1" min="1" max= "9" step="1"
+  value="1">f1<br></label>
+<label><input type="range" id ="rangeA2" min="0" max= "1" step="0.1"
+  value="1">A2<br></label>
+<label><input type="range" id ="rangeF2" min="1" max= "9" step="1"
+  value="2">f2<br></label>
+<br>
+<input type="button" id="butR" value="Reset" onclick="inkey(13)">Enter<br><br>
+<input type="button" id="butA" value="重" onclick="inkey(65)">a
+<input type="button" id="butS" value="別" onclick="inkey(83)">s<br><br>
+<input type="button" id="butQ" value="細線"  onclick="inkey(81)">q
+<input type="button" id="butW" value="太線"  onclick="inkey(87)">w<br><br>
+<input type="button" id="butZ" value="縮小"  onclick="inkey(90)">z 
+<input type="button" id="butX" value="拡大"  onclick="inkey(88)">x<br>
+<input type="button" id="butC" value="初期"  onclick="inkey(67)">c<br><br>
+
+<!--
+<script src="https://sciencemathhub.github.io/html/canlib.js"></script>
+-->
+<script src="E:/Edit25/polar/KSU/canlib.js"></script>
+<script>
+'use strict'
+
+//--------------------------------------------------------------------
+// public variable
+//--------------------------------------------------------------------
+var Sec    =    2; // 1sec
+var SecW   =  560; // 1sec
+var isDup  =    0; // 重ね表示
+
+var cA1 =  1, A1 = cA1; // 振幅1
+var cF1 =  1, F1 = cF1; // 振動数1
+var cA2 =  1, A2 = cA2; // 振幅2
+var cF2 =  2, F2 = cF2; // 振動数2
+
+//--------------------------------------------------------------------
+// 関数1 y = f(th)
+//--------------------------------------------------------------------
+function func1(c, py, h, a)
+{
+  var str  = " y_1 = A_1sin(-2πf_1t)  (A_1 = ";
+      str += A1.toFixed(1) + " m , f_1 = " + F1 + " Hz)";
+  COLOR(c);
+  LOCATE(0, (py-h*a-10)/17.8); PRINTe(str);
+}
+function f1(th)
+{
+  var y = A1 * Math.sin(-2 * Math.PI * F1 * th);
+  return y;
+}
+function func2(c, py, h, a)
+{
+  var str  = " y_2 = A_2sin(-2πf_2t)  (A_2 = ";
+      str += A2.toFixed(1) + " m , f_2 = " + F2 + " Hz)";
+  COLOR(c);
+  LOCATE(0, (py-h*a-10)/17.8); PRINTe(str);
+}
+function f2(th)
+{
+  var y = A2 * Math.sin(-2 * Math.PI * F2 * th);
+  return y;
+}
+
+//--------------------------------------------------------------------
+// 関数の和
+// y = Asina + Bsinb
+//   = √{(A-B)^2 + 2^2ABcos^2β}sin{α + aTanC + γ}
+// α=(a+b)/2 , β=(a-b)/2 , C = {(A-B)/(A+B)}tanβ
+// γ = 0 if cos^2 ≧ 0 , γ = π if cos^2 ＜ 0
+//--------------------------------------------------------------------
+function funcAA(c, py, h, a, b, d)
+{
+  var ly = (py+h*(a+1)+8)/17.8;
+  var str;
+
+  LOCATE(0, ly);
+  COLOR(c); PRINT (" y = ");
+  COLOR(b); PRINTe("2A_1cos( -2π(f_1-f_2)/2 )");
+  COLOR(d); PRINTe("sin( -2π(f_1+f_2)/2 )");
+}
+function funcAB(c, py, h, a, b, d)
+{
+  var ly = (py+h*(a+1)+8)/17.8;
+  var str;
+
+  LOCATE(0, ly);
+  str = " y_A = ±√{ (A_1-A_2)^2 + 2^2A_1A_2cos^2( -2π(f_1-f_2)/2 ) }";
+  COLOR(b); PRINTe(str);
+}
+function f12(th)
+{
+  var y = f1(th) + f2(th);
+  return y;
+}
+/*
+function f12(th)
+{
+  var y, a, b, c;
+  var fa = -2 * Math.PI * (F1 + F2) * th / 2;
+  var fs = -2 * Math.PI * (F1 - F2) * th / 2;
+  var aa = A1 + A2;
+  var as = A1 - A2;
+
+  b = as/aa * Math.tan(fs);
+  b = Math.atan(b);
+  c = Math.cos(fs);
+  a = Math.sqrt(as*as + 4*A1*A2*c*c);
+  if (c < 0) b += Math.PI;
+  y = a * Math.sin(fa + b);
+  return y;
+}
+*/
+/*
+function f12m(th)
+{
+  var y, a, b, c;
+  var fa = -2 * Math.PI * (F1 + F2) * th / 2;
+  var fs = -2 * Math.PI * (F1 - F2) * th / 2;
+  var aa = A1 + A2;
+  var as = A1 - A2;
+
+  b = as/aa * Math.tan(fs);
+  b = Math.atan(b);
+  c = Math.cos(fs);
+  a = Math.sqrt(as*as + 4*A1*A2*c*c);
+  y = Math.sin(fa + b);
+//  if (c < 0 && as != 0) y = -y;
+  return y;
+}
+*/
+function f12u(th)
+{
+  var y, a, c;
+  var fs = 2 * Math.PI * (F1 - F2) * th / 2;
+  var as = A1 - A2;
+
+  c = Math.cos(fs);
+  a = Math.sqrt(as*as + 4*A1*A2*c*c);
+  return a;
+}
+function f12d(th)
+{
+  return -f12u(th);
+}
+
+//--------------------------------------------------------------------
+// グラフ
+//--------------------------------------------------------------------
+function graph(c, py, h, m, func)
+{
+  var x, y, x0, y0, s, n, t, str;
+
+  WINDOW(-40, py, 599, py-399);
+
+  x0 = -1000;
+  y0 = 0;
+  n = SecW;
+  i = n / 10;
+  s = n / 1000;
+  for (x = -i * 2; x <= n + i * 2; x += s)
+  {
+    t = (x / n) * Sec;
+    y = func(t);
+    if (Math.abs(y0 - y) > 5)
+    {
+      x0 = x;
+      y0 = y;
+    }
+    LINE(x0, y0*h, x, y*h, c);
+    x0 = x;
+    y0 = y;
+  }
+}
+
+//--------------------------------------------------------------------
+// 目盛り
+//--------------------------------------------------------------------
+function scale(c, py, h, m, b)
+{
+  var t, x, y, i, n, cl;
+
+  COLOR(c);
+
+  WINDOW(-40, py, 599, py-399);
+
+  n = SecW;
+  i = n / 10 / Sec;
+  x = i /  7;
+  for (t = 1; t <= m; t++)
+  {
+    y = h * t;
+    LOCATE(43/8-3, (py-y+8)/17.8); PRINT(" "+t);
+    LOCATE(43/8-3, (py+y+8)/17.8); PRINT("-"+t);
+    LINE(-x,  y, x,  y, c);
+    LINE(-x, -y, x, -y, c);
+  }
+  LINE(-1000,  0, 1000, 0, c);
+
+  for (t = -2; t <= Sec * 10 + 2; t++)
+  {
+    x = t * i;
+    if      ((t % 10) == 0) { y = h * (m+0.2); cl = c; }
+    else if ((t %  5) == 0) { y = h * (m+0.2); cl = b; }
+    else                    { y = h *    0.2 ; cl = c; }
+    LINE( x, -y,  x, y, cl);
+  }
+  LOCATE((i * 10 + 43) / 8, (py-3)/17.8);
+  PRINT(Sec/2+"s");
+  LOCATE((i * 20 + 43) / 8, (py-3)/17.8);
+  PRINT(Sec+"s");
+}
+
+//--------------------------------------------------------------------
+// screen
+//--------------------------------------------------------------------
+function sepa()
+{
+  var py, h, a, str;
+
+  FONT(1,0);
+  CLS('#000');
+
+  ctx.lineWidth = Width;
+
+  a = 1;
+  h = 32;
+  py =  60;
+  func1('#fff', py, h, a);
+  scale('#ff0', py, h, a, '#0ff');
+  graph('#fff', py, h, a, f1);
+
+  py += 102;
+  func2('#fff', py, h, a);
+  scale('#ff0', py, h, a, '#0ff');
+  graph('#fff', py, h, a, f2);
+
+  a = 2;
+  py += 118;
+  if (A1 == A2) funcAA('#fff', py, h, a, '#7ff', '#ffb');
+  else          funcAB('#fff', py, h, a, '#7ff', '#ffb');
+  scale('#ff0', py, h, a, '#0ff');
+  graph('#7ff', py, h, a, f12u);
+  graph('#7ff', py, h, a, f12d);
+  graph('#fff', py, h, a, f12);
+}
+function dupl()
+{
+  var py, h, a, str;
+
+  FONT(1,0);
+  CLS('#000');
+
+  ctx.lineWidth = Width;
+
+  a = 1;
+  h = 32;
+  py =  60;
+  func1('#fff', py, h, a);
+  scale('#ff0', py, h, a, '#0ff');
+  graph('#fff', py, h, a, f1);
+  graph('#ff0', py, h, a, f2);
+
+  py += 102;
+  func2('#ff0', py, h, a);
+
+  a = 2;
+  py += 48;
+  if (A1 == A2) funcAA('#fff', py, h, a, '#7ff', '#ffb');
+  else          funcAB('#fff', py, h, a, '#7ff', '#ffb');
+  scale('#ff0', py, h, a, '#0ff');
+  graph('#7ff', py, h, a, f12u);
+  graph('#7ff', py, h, a, f12d);
+  graph('#fff', py, h, a, f12);
+}
+
+//--------------------------------------------------------------------
+// input
+//--------------------------------------------------------------------
+var elemA1 = document.getElementById('rangeA1');
+var elemF1 = document.getElementById('rangeF1');
+var elemA2 = document.getElementById('rangeA2');
+var elemF2 = document.getElementById('rangeF2');
+function inputA1()
+{ A1 = Number(elemA1.value); window.requestAnimationFrame(main); }
+function inputF1()
+{ F1 = Number(elemF1.value); window.requestAnimationFrame(main); }
+function inputA2()
+{ A2 = Number(elemA2.value); window.requestAnimationFrame(main); }
+function inputF2()
+{ F2 = Number(elemF2.value); window.requestAnimationFrame(main); }
+elemA1.addEventListener('input', inputA1);
+elemF1.addEventListener('input', inputF1);
+elemA2.addEventListener('input', inputA2);
+elemF2.addEventListener('input', inputF2);
+function blur()
+{
+  elemA1.blur();
+  elemF1.blur();
+  elemA2.blur();
+  elemF2.blur();
+  document.getElementById('butR').blur();
+  document.getElementById('butQ').blur();
+  document.getElementById('butW').blur();
+  document.getElementById('butZ').blur();
+  document.getElementById('butX').blur();
+  document.getElementById('butC').blur();
+}
+
+//--------------------------------------------------------------------
+// init
+//--------------------------------------------------------------------
+function init()
+{
+  elemA1.value = A1 = cA1;
+  elemF1.value = F1 = cF1;
+  elemA2.value = A2 = cA2;
+  elemF2.value = F2 = cF2;
+  window.requestAnimationFrame(main);
+}
+
+//--------------------------------------------------------------------
+// Input key
+//--------------------------------------------------------------------
+function inkey(key)
+{
+  switch (key)
+  {
+    case 13: init()             ; break; // 'R' Enter
+    case 65: isDup = 1;         ; break; // 'A'
+    case 83: isDup = 0;         ; break; // 'S'
+    case 81: lineWidth( 0.5)    ; break; // 'Q'
+    case 87: lineWidth( 2  )    ; break; // 'W'
+    case 90: zooming  (-1  )    ; break; // 'Z'
+    case 88: zooming  ( 1  )    ; break; // 'X'
+    case 67: zooming  ( 0  )    ; break; // 'C'
+  }
+  blur();
+  window.requestAnimationFrame(main);
+}
+document.body.addEventListener('keydown', event =>
+{
+  var key = event.keyCode;
+
+  inkey(key);
+});
+
+//--------------------------------------------------------------------
+// Key status
+//--------------------------------------------------------------------
+var Key = new Array(256);
+for (var i = 0; i < 256; i++) Key[i] = 0;
+window.onkeydown = function(event) { Key[event.keyCode] = 1; }
+window.onkeyup   = function(event) { Key[event.keyCode] = 0; }
+
+//--------------------------------------------------------------------
+// main
+//--------------------------------------------------------------------
+function main()
+{
+  if (isDup)
+  {
+    dupl();
+  }
+  else
+  {
+    sepa();
+  }
+}
+
+lineWidth(0);
+zooming(0);
+init();
+
+//--------------------------------------------------------------------
+</script>
+</body>
+</html>
