@@ -6,17 +6,39 @@
 
  key 0-9, qw, zxc, カーソル(+shift), Enter, space
 
- MathⅡ Ohtani 2022.1
+ MathⅡ Ohtani 2022.1 - 2024.12
 ------------------------------------------------------------
 -->
 <!DOctxYPE html>
 <html lang="ja">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <head>
   <meta charset="utf-8">
   <title>三角関数のグラフ</title>
 </head>
 <body>
 <p id="Trigonometric"></p>
+<div style='float:left;'>
+<input type="button" id="but1" value="1"     onclick="inkey(49)">
+<input type="button" id="but1" value="2"     onclick="inkey(50)">
+<input type="button" id="but1" value="3"     onclick="inkey(51)"><br>
+<input type="button" id="but1" value="4"     onclick="inkey(52)">
+<input type="button" id="but1" value="5"     onclick="inkey(53)">
+<input type="button" id="but1" value="6"     onclick="inkey(54)"><br>
+<input type="button" id="but1" value="7"     onclick="inkey(55)">
+<input type="button" id="but1" value="8"     onclick="inkey(56)">
+<input type="button" id="but1" value="9"     onclick="inkey(57)"><br>
+<input type="button" id="but1" value="0"     onclick="inkey(48)"><br>
+<br>キー操作<br>
+<br>↑↓←→伸縮
+<br> +Shift
+<br>Enterリセット
+<br>Spaceリセット
+<br>0～9選択
+<br>q,w線幅
+<br>z,x,c縮拡<br>
+
 <script src="https://sciencemathhub.github.io/html/canlib.js"></script>
 <script>
 'use strict'
@@ -327,9 +349,23 @@ function zooming(sign)
 //----------------------------------------------------------
 // Input key
 //----------------------------------------------------------
-document.body.addEventListener('keydown', event =>
+function blur()
 {
-  switch (event.keyCode)
+  document.getElementById('but1').blur();
+  document.getElementById('but2').blur();
+  document.getElementById('but3').blur();
+  document.getElementById('but4').blur();
+  document.getElementById('but5').blur();
+  document.getElementById('but6').blur();
+  document.getElementById('but7').blur();
+  document.getElementById('but8').blur();
+  document.getElementById('but9').blur();
+  document.getElementById('but0').blur();
+  document.getElementById('butR').blur();
+}
+function inkey(key)
+{
+  switch (key)
   {
     case 13: ScaleX = ScaleY = 1; break; // Enter
     case 32:          ScaleY = 1; break; // Space
@@ -338,8 +374,14 @@ document.body.addEventListener('keydown', event =>
     case 90: zooming  (-1  )    ; break; // 'Z'
     case 88: zooming  ( 1  )    ; break; // 'X'
     case 67: zooming  ( 0  )    ; break; // 'C'
-    default: selectof(event.keyCode - 48);
+    default: selectof(key - 48);
   }
+  blur();
+  window.requestAnimationFrame(main);
+}
+document.body.addEventListener('keydown', event =>
+{
+  inkey(event.keyCode);
 });
 
 //----------------------------------------------------------------------
