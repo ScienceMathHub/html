@@ -28,15 +28,17 @@
   value="2">f2<br></label>
 <br>
 <input type="button" id="butR" value="Reset" onclick="inkey(13)">Enter<br><br>
-<input type="button" id="butA" value="重" onclick="inkey(65)">a
-<input type="button" id="butS" value="別" onclick="inkey(83)">s<br><br>
+<input type="button" id="but1" value="無"    onclick="inkey(49)">1
+<input type="button" id="but2" value="有"    onclick="inkey(50)">2<br>
+<input type="button" id="butA" value="重"    onclick="inkey(65)">a
+<input type="button" id="butS" value="別"    onclick="inkey(83)">s<br><br>
 <input type="button" id="butQ" value="細線"  onclick="inkey(81)">q
 <input type="button" id="butW" value="太線"  onclick="inkey(87)">w<br><br>
 <input type="button" id="butZ" value="縮小"  onclick="inkey(90)">z 
 <input type="button" id="butX" value="拡大"  onclick="inkey(88)">x<br>
 <input type="button" id="butC" value="初期"  onclick="inkey(67)">c<br><br>
 
-<script src="https://sciencemathhub.github.io/html/canlib.js"></script>
+<script src="E:/Edit25/polar/KSU/Git/canlib.js"></script>
 <script>
 'use strict'
 
@@ -45,6 +47,7 @@
 //--------------------------------------------------------------------
 var Sec    =    2; // 1sec
 var SecW   =  560; // 1sec
+var isBeet =    1; // Beet表示
 var isDup  =    0; // 重ね表示
 
 var cA1 =  1, A1 = cA1; // 振幅1
@@ -84,19 +87,24 @@ function f2(th)
 // 関数の和
 // y = Asina + Bsinb
 //   = √{(A-B)^2 + 2^2ABcos^2β}sin{α + aTanC + γ}
-// α=(a+b)/2 , β=(a-b)/2 , C = {(A-B)/(A+B)}tanβ
+// α=(a+b)/2 , β=(a-b)/2 , C = {(A-B)sinβ}/{(A+B)cosβ}
 // γ = 0 if cos^2 ≧ 0 , γ = π if cos^2 ＜ 0
 //--------------------------------------------------------------------
-function funcAA(c, py, h, a, b, d)
+function func12(c, py, h, a, b, d)
 {
-  var ly = (py+h*(a+1)+8)/17.8;
+  var ly = (py+h*(a+1)+0)/17.8;
   var str;
 
   LOCATE(0, ly);
-  COLOR(c); PRINT (" y = ");
-  COLOR(b); PRINTe("2A_1cos( -2π(f_1-f_2)/2 )");
-  COLOR(d); PRINTe("sin( -2π(f_1+f_2)/2 )");
+  COLOR(c); PRINTe(" y_1+y_2 = ");
+  COLOR(b); PRINTe("√{(A_1-A_2)^2+2^2A_1A_2cos^2β}");
+  str = "sin( α+Tan^-^1({(A_1-A_2)sinβ}/{(A_1+A_2)cosβ}) )";
+  COLOR(d); PRINTe(str);
+  LOCATE(9, ly+1);
+  str  = "… [ α = -2π(f_1+f_2)/2, β = -2π(f_1-f_2)/2 ]";
+  COLOR(c); PRINTe(str);
 }
+/*
 function funcAB(c, py, h, a, b, d)
 {
   var ly = (py+h*(a+1)+8)/17.8;
@@ -105,6 +113,17 @@ function funcAB(c, py, h, a, b, d)
   LOCATE(0, ly);
   str = " y_A = ±√{ (A_1-A_2)^2 + 2^2A_1A_2cos^2( -2π(f_1-f_2)/2 ) }";
   COLOR(b); PRINTe(str);
+}
+*/
+function funcAA(c, py, h, a, b, d)
+{
+  var ly = (py+h*(a+1)+8)/17.8;
+  var str;
+
+  LOCATE(0, ly);
+  COLOR(c); PRINTe(" y_1+y_2 = ");
+  COLOR(b); PRINTe("2A_1cos( -2π(f_1-f_2)/2 )");
+  COLOR(d); PRINTe("sin( -2π(f_1+f_2)/2 )");
 }
 function f12(th)
 {
@@ -120,30 +139,10 @@ function f12(th)
   var aa = A1 + A2;
   var as = A1 - A2;
 
-  b = as/aa * Math.tan(fs);
-  b = Math.atan(b);
+  b = Math.atan2(Math.abs(as)*Math.sin(fs), aa*Math.cos(fs));
   c = Math.cos(fs);
   a = Math.sqrt(as*as + 4*A1*A2*c*c);
-  if (c < 0) b += Math.PI;
   y = a * Math.sin(fa + b);
-  return y;
-}
-*/
-/*
-function f12m(th)
-{
-  var y, a, b, c;
-  var fa = -2 * Math.PI * (F1 + F2) * th / 2;
-  var fs = -2 * Math.PI * (F1 - F2) * th / 2;
-  var aa = A1 + A2;
-  var as = A1 - A2;
-
-  b = as/aa * Math.tan(fs);
-  b = Math.atan(b);
-  c = Math.cos(fs);
-  a = Math.sqrt(as*as + 4*A1*A2*c*c);
-  y = Math.sin(fa + b);
-//  if (c < 0 && as != 0) y = -y;
   return y;
 }
 */
@@ -232,63 +231,47 @@ function scale(c, py, h, m, b)
 //--------------------------------------------------------------------
 // screen
 //--------------------------------------------------------------------
-function sepa()
+function display()
 {
   var py, h, a, str;
 
   FONT(1,0);
   CLS('#000');
-
   ctx.lineWidth = Width;
 
-  a = 1;
-  h = 32;
-  py =  60;
+  a = 1; h = 32; py =  60;
   func1('#fff', py, h, a);
   scale('#ff0', py, h, a, '#0ff');
   graph('#fff', py, h, a, f1);
-
-  py += 102;
-  func2('#fff', py, h, a);
-  scale('#ff0', py, h, a, '#0ff');
-  graph('#fff', py, h, a, f2);
-
+  if (isDup)
+  {
+    graph('#ff0', py, h, a, f2);
+    py += 102;
+    func2('#ff0', py, h, a);
+    py += 48;
+  }
+  else
+  {
+    py += 102;
+    func2('#fff', py, h, a);
+    scale('#ff0', py, h, a, '#0ff');
+    graph('#fff', py, h, a, f2);
+    py += 118;
+  }
   a = 2;
-  py += 118;
-  if (A1 == A2) funcAA('#fff', py, h, a, '#7ff', '#ffb');
-  else          funcAB('#fff', py, h, a, '#7ff', '#ffb');
   scale('#ff0', py, h, a, '#0ff');
-  graph('#7ff', py, h, a, f12u);
-  graph('#7ff', py, h, a, f12d);
-  graph('#fff', py, h, a, f12);
-}
-function dupl()
-{
-  var py, h, a, str;
-
-  FONT(1,0);
-  CLS('#000');
-
-  ctx.lineWidth = Width;
-
-  a = 1;
-  h = 32;
-  py =  60;
-  func1('#fff', py, h, a);
-  scale('#ff0', py, h, a, '#0ff');
-  graph('#fff', py, h, a, f1);
-  graph('#ff0', py, h, a, f2);
-
-  py += 102;
-  func2('#ff0', py, h, a);
-
-  a = 2;
-  py += 48;
-  if (A1 == A2) funcAA('#fff', py, h, a, '#7ff', '#ffb');
-  else          funcAB('#fff', py, h, a, '#7ff', '#ffb');
-  scale('#ff0', py, h, a, '#0ff');
-  graph('#7ff', py, h, a, f12u);
-  graph('#7ff', py, h, a, f12d);
+  if (isBeet)
+  {
+    if (A1 == A2) funcAA('#fff', py, h, a, '#7ff', '#ffb');
+    else          func12('#fff', py, h, a, '#7ff', '#ffb');
+    graph('#7ff', py, h, a, f12u);
+    graph('#7ff', py, h, a, f12d);
+  }
+  else
+  {
+    if (A1 == A2) funcAA('#fff', py, h, a, '#cff', '#ffd');
+    else          func12('#fff', py, h, a, '#cff', '#ffd');
+  }
   graph('#fff', py, h, a, f12);
 }
 
@@ -318,6 +301,10 @@ function blur()
   elemA2.blur();
   elemF2.blur();
   document.getElementById('butR').blur();
+  document.getElementById('but1').blur();
+  document.getElementById('but2').blur();
+  document.getElementById('butA').blur();
+  document.getElementById('butS').blur();
   document.getElementById('butQ').blur();
   document.getElementById('butW').blur();
   document.getElementById('butZ').blur();
@@ -334,6 +321,8 @@ function init()
   elemF1.value = F1 = cF1;
   elemA2.value = A2 = cA2;
   elemF2.value = F2 = cF2;
+  isBeet = 1;
+  isDup  = 0;
   window.requestAnimationFrame(main);
 }
 
@@ -345,8 +334,10 @@ function inkey(key)
   switch (key)
   {
     case 13: init()             ; break; // 'R' Enter
-    case 65: isDup = 1;         ; break; // 'A'
-    case 83: isDup = 0;         ; break; // 'S'
+    case 49: isBeet = 0;        ; break; // '1'
+    case 50: isBeet = 1;        ; break; // '2'
+    case 65: isDup  = 1;        ; break; // 'A'
+    case 83: isDup  = 0;        ; break; // 'S'
     case 81: lineWidth( 0.5)    ; break; // 'Q'
     case 87: lineWidth( 2  )    ; break; // 'W'
     case 90: zooming  (-1  )    ; break; // 'Z'
@@ -376,14 +367,7 @@ window.onkeyup   = function(event) { Key[event.keyCode] = 0; }
 //--------------------------------------------------------------------
 function main()
 {
-  if (isDup)
-  {
-    dupl();
-  }
-  else
-  {
-    sepa();
-  }
+  display();
 }
 
 lineWidth(0);
