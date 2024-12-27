@@ -18,25 +18,24 @@
 <body>
 <p id="Beet"></p>
 <div style='float:left;'>
-<label><input type="range" id ="rangeA1" min="0" max= "1" step="0.1"
-  value="1">A1<br></label>
-<label><input type="range" id ="rangeF1" min="1" max= "9" step="1"
-  value="1">f1<br></label>
-<label><input type="range" id ="rangeA2" min="0" max= "1" step="0.1"
-  value="1">A2<br></label>
-<label><input type="range" id ="rangeF2" min="1" max= "9" step="1"
-  value="2">f2<br></label>
-<br>
+A1<label><input type="range" id ="rangeA1" min="0" max= "1" step="0.1"
+  value="1">34<br><br></label>
+f1<label><input type="range" id ="rangeF1" min="1" max= "9" step="1"
+  value="1">er<br><br></label>
+A2<label><input type="range" id ="rangeA2" min="0" max= "1" step="0.1"
+  value="1">df<br><br></label>
+f2<label><input type="range" id ="rangeF2" min="1" max= "9" step="1"
+  value="2">cv<br><br></label>
 <input type="button" id="butR" value="Reset" onclick="inkey(13)">Enter<br><br>
 <input type="button" id="but1" value="無"    onclick="inkey(49)">1
-<input type="button" id="but2" value="有"    onclick="inkey(50)">2<br>
+<input type="button" id="but2" value="有"    onclick="inkey(50)">2
 <input type="button" id="butA" value="重"    onclick="inkey(65)">a
 <input type="button" id="butS" value="別"    onclick="inkey(83)">s<br><br>
-<input type="button" id="butQ" value="細線"  onclick="inkey(81)">q
-<input type="button" id="butW" value="太線"  onclick="inkey(87)">w<br><br>
-<input type="button" id="butZ" value="縮小"  onclick="inkey(90)">z 
-<input type="button" id="butX" value="拡大"  onclick="inkey(88)">x<br>
-<input type="button" id="butC" value="初期"  onclick="inkey(67)">c<br><br>
+<input type="button" id="butQ" value="細"    onclick="inkey(81)">q
+<input type="button" id="butW" value="太"    onclick="inkey(87)">w<br><br>
+<input type="button" id="butZ" value="縮"    onclick="inkey(90)">z 
+<input type="button" id="butX" value="拡"    onclick="inkey(88)">x
+<input type="button" id="butC" value="初"    onclick="inkey(67)">b<br><br>
 
 <script src="https://sciencemathhub.github.io/html/canlib.js"></script>
 <script>
@@ -329,6 +328,16 @@ function init()
 //--------------------------------------------------------------------
 // Input key
 //--------------------------------------------------------------------
+function limitA(x)
+{
+  if (x < 0) x = 0; else if (x > 1) x = 1;
+  return x;
+}
+function limitF(x)
+{
+  if (x < 1) x = 1; else if (x > 9) x = 9;
+  return x;
+}
 function inkey(key)
 {
   switch (key)
@@ -342,7 +351,15 @@ function inkey(key)
     case 87: lineWidth( 2  )    ; break; // 'W'
     case 90: zooming  (-1  )    ; break; // 'Z'
     case 88: zooming  ( 1  )    ; break; // 'X'
-    case 67: zooming  ( 0  )    ; break; // 'C'
+    case 66: zooming  ( 0  )    ; break; // 'B'
+    case 51: elemA1.value = A1 = limitA(A1-0.1); break; // '3'
+    case 52: elemA1.value = A1 = limitA(A1+0.1); break; // '4'
+    case 69: elemF1.value = F1 = limitF(F1-1  ); break; // 'E'
+    case 82: elemF1.value = F1 = limitF(F1+1  ); break; // 'R'
+    case 68: elemA2.value = A2 = limitA(A2-0.1); break; // 'D'
+    case 70: elemA2.value = A2 = limitA(A2+0.1); break; // 'F'
+    case 67: elemF2.value = F2 = limitF(F2-1  ); break; // 'C'
+    case 86: elemF2.value = F2 = limitF(F2+1  ); break; // 'V'
   }
   blur();
   window.requestAnimationFrame(main);
