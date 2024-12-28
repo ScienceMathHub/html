@@ -194,7 +194,7 @@ function graph(c, py, h, m, func)
 //--------------------------------------------------------------------
 function scale(c, py, h, m, b)
 {
-  var t, x, y, i, n, cl;
+  var t, x, y, i, n;
 
   COLOR(c);
 
@@ -216,11 +216,18 @@ function scale(c, py, h, m, b)
   for (t = -2; t <= Sec * 10 + 2; t++)
   {
     x = t * i;
-    if      ((t % 10) == 0) { y = h * (m+0.2); cl = c; }
-    else if ((t %  5) == 0) { y = h * (m+0.2); cl = b; }
-    else                    { y = h *    0.2 ; cl = c; }
-    LINE( x, -y,  x, y, cl);
+    if      ((t % 10) == 0) { y = h * (m+0.2); }
+    else                    { y = h *    0.2 ; }
+    LINE( x, -y,  x, y, c);
   }
+  y = h * (m+0.2);
+  x = Math.abs(F1 - F2);
+  if (x > 0)
+  {
+    x  = i * (5 / x); LINE( x, -y,  x, y, b);
+    x += i * 10     ; LINE( x, -y,  x, y, b);
+  }
+  
   LOCATE((i * 10 + 43) / 8, (py-3)/17.8);
   PRINT(Sec/2+"s");
   LOCATE((i * 20 + 43) / 8, (py-3)/17.8);
