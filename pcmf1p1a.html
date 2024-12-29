@@ -218,6 +218,8 @@ function aPop()
 {
   if (Aui <= 0) return 0;
   Aur = (Aur + 1) % Aun;
+  Aup[Aur][1].disconnect();
+  Aup[Aur][1].buffer = null;
   Aup[Aur][0].close();
   Aui--;
   keyBdInit();
@@ -293,12 +295,17 @@ const Kfreq =
 ];
 function keyBdInit()
 {
+  var au;
+
   for (var i = 0; i < Kn; i++)
   {
     AuOn[i] = 0;
-    if (AuBd[i] != 0)
+    au = AuBd[i];
+    if (au != 0)
     {
-      AuBd[i][0].close();
+      au[1].disconnect();
+      au[1].buffer = null;
+      au[0].close();
       AuBd[i] = 0;
     }
   }
@@ -322,6 +329,8 @@ function keyBd(on, k, f)
     {
       if (au != 0)
       {
+        au[1].disconnect();
+        au[1].buffer = null;
         au[0].close();
       }
       au = audioF(f, 10);
