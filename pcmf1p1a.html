@@ -34,11 +34,11 @@
 <input type="button" id="butD1" value="低1"   onclick="inkey( 37)">←<br><br>
 <input type="button" id="butSP" value="発音"  onclick="inkey( 32)">Space
 <input type="button" id="butOM" value="全消"  onclick="inkey(191)">/<br><br>
+<input type="button" id="butRE" value="Reset" onclick="inkey( 13)">Enter<br>
 <input type="button" id="butVD" value="小"    onclick="inkey( 65)">a
 <input type="button" id="butVU" value="大"    onclick="inkey( 83)">s
 <input type="button" id="butTD" value="短"    onclick="inkey( 86)">v
-<input type="button" id="butTU" value="長"    onclick="inkey( 66)">b<br>
-<input type="button" id="butRE" value="Reset" onclick="inkey( 13)">Enter<br><br>
+<input type="button" id="butTU" value="長"    onclick="inkey( 66)">b<br><br>
 <input type="button" id="butWD" value="細"    onclick="inkey( 81)">q
 <input type="button" id="butWU" value="太"    onclick="inkey( 87)">w<br>
 <input type="button" id="butZD" value="縮"    onclick="inkey( 90)">z
@@ -52,17 +52,16 @@
 //--------------------------------------------------------------------
 // public variable
 //--------------------------------------------------------------------
-var Sec    =    1; // sec
-var SecW   =  540; // sec表示幅
-var Freq   =  440; // 440Hz
-var Volume =    1; // 音量
-var Time   =    5; // 発振時間(s)
-//var Ktime  =   20; // 鍵盤発振時間(s)
-var Select =    1; // 波形
-var Func         ; // 関数
+var Sec    =     1; // sec
+var SecW   =   540; // sec表示幅
+var Freq          ; // 440Hz
+var Volume        ; // 音量
+var Time          ; // 発振時間(s)
+var Select =     1; // 波形
+var Func          ; // 関数
 
-var Octa   =    4; // Octave
-var Temp   = ""  ; // For debug
+var Octa          ; // Octave
+var Temp   = 48000; // For debug
 
 //--------------------------------------------------------------------
 // 関数0 y = f(th)
@@ -219,8 +218,9 @@ function aPop()
 {
   if (Aui <= 0) return 0;
   Aur = (Aur + 1) % Aun;
-  Aup[Aur].close();
+  Aup[Aur][0].close();
   Aui--;
+  keyBdInit();
   display();
   return 1;
 }
@@ -232,27 +232,6 @@ function aPush(a)
   Aui++;
   display();
 }
-/*
-var Aup = new Array(128);
-var Aui = -1;
-function aPush(a)
-{
-  if (Aui < 128) Aui++;
-  display();
-  Aup[Aui] = a;
-}
-function aPop()
-{
-  var a;
-
-  if (Aui < 0) return 0;
-  a = Aup[Aui];
-  a.close();
-  Aui--;
-  display();
-  return 1;
-}
-*/
 function aStop()
 {
   while (aPop());
@@ -273,7 +252,7 @@ function audioF(f, time)
     arr = buffer.getChannelData(ch);
     for (var i = 0; i < buffer.length; i++)
     {
-      t = (i / buffer.length) * time;
+      t = time * i / buffer.length;
       arr[i] = Func(t * f) * Volume / 8;
     }
   }
@@ -281,39 +260,84 @@ function audioF(f, time)
   au = audioctx.createBufferSource();
   au.buffer = buffer;
   au.connect(audioctx.destination);
-  au.start();
-  return audioctx;
+  return [audioctx, au];
 }
+/* suspend */
 function audio(f)
 {
   var au;
 
   au = audioF(f, Time);
+  au[1].loop = true; //false;
+  au[1].start(0);
   aPush(au);
   setTimeout(function() { aPop(); }, Time * 1000);
 }
-var AuBd = new Array(21);
-var AuCt = 0;
-for (var i = 0; i < 21; AuBd[i++] = 0);
-function keyBd(f, on, key)
-{
-  var au;
 
-  au = AuBd[key];
+const Kn = 21;
+var AuBd = new Array(Kn);
+var AuOn = new Array(Kn);
+var AuCt = 0;
+for (var i = 0; i < Kn; i++) { AuBd[i] = 0; }
+const Kfreq =
+[ /* 平均律 */
+  261.626, 277.183, 293.665, 311.127, 329.628, 349.228,
+  369.994, 391.995, 415.305, 440.000, 466.164, 493.883, 523.251,
+  /* 純正律 */
+  264    , 297    , 330    , 352    ,
+  396    , 440    , 495    , 528
+/* ピタゴラス音階
+  260.7  , 293.3  , 330    , 347.7  ,
+  391.1  , 440    , 495    , 521.5
+*/
+];
+function keyBdInit()
+{
+  for (var i = 0; i < Kn; i++)
+  {
+    AuOn[i] = 0;
+    if (AuBd[i] != 0)
+    {
+      AuBd[i][0].close();
+      AuBd[i] = 0;
+    }
+  }
+  AuCt = 0;
+}
+function keyBd(on, k, f)
+{
+  var au, i;
+
+  au = AuBd[k];
   if (on)
   {
-    if (au != 0) return;
-//    au = audioF(f, Ktime);
-    au = audioF(f, Time);
-    AuBd[key] = au;
+    if (AuOn[k] != 0) return;
     AuCt++;
+    i = Select * 10 + Octa;
+    if (au != 0 && AuOn[k] == i)
+    {
+      au[0].resume();
+    }
+    else
+    {
+      if (au != 0)
+      {
+        au[0].close();
+      }
+      au = audioF(f, 10);
+      au[1].loop = true;
+      au[1].start(0);
+      AuBd[k] = au;
+    }
+    AuOn[k] = i;
     display();
     return;
   }
-  if (au == 0) return;
-  au.close();
-  AuBd[key] = 0;
+  if (AuOn[k] == 0 || au == 0) return;
+  AuOn[k] = 0;
   AuCt--;
+//  au[0].close(); AuBd[k] = 0;
+  au[0].suspend();
   display();
 }
 
@@ -328,34 +352,35 @@ function keyUD(key, on)
   switch(key)
   {
     // 平均律
-    case  69: f = 261.626; k =  0; break; // 'E'
-    case  52: f = 277.183; k =  1; break; // '4'
-    case  82: f = 293.665; k =  2; break; // 'R'
-    case  53: f = 311.127; k =  3; break; // '5'
-    case  84: f = 329.628; k =  4; break; // 'T'
-    case  89: f = 349.228; k =  5; break; // 'Y'
-    case  55: f = 369.994; k =  6; break; // '7'
-    case  85: f = 391.995; k =  7; break; // 'U'
-    case  56: f = 415.305; k =  8; break; // '8'
-    case  73: f = 440.000; k =  9; break; // 'I'
-    case  57: f = 466.164; k = 10; break; // '9'
-    case  79: f = 493.883; k = 11; break; // 'O'
-    case  80: f = 523.251; k = 12; break; // 'P'
+    case  69: k =  0; break; // 'E'
+    case  52: k =  1; break; // '4'
+    case  82: k =  2; break; // 'R'
+    case  53: k =  3; break; // '5'
+    case  84: k =  4; break; // 'T'
+    case  89: k =  5; break; // 'Y'
+    case  55: k =  6; break; // '7'
+    case  85: k =  7; break; // 'U'
+    case  56: k =  8; break; // '8'
+    case  73: k =  9; break; // 'I'
+    case  57: k = 10; break; // '9'
+    case  79: k = 11; break; // 'O'
+    case  80: k = 12; break; // 'P'
     // 純正律
-    case  68: f = 264    ; k = 13; break; // 'D'
-    case  70: f = 297    ; k = 14; break; // 'F'
-    case  71: f = 330    ; k = 15; break; // 'G'
-    case  72: f = 352    ; k = 16; break; // 'H'
-    case  74: f = 396    ; k = 17; break; // 'J'
-    case  75: f = 440    ; k = 18; break; // 'K'
-    case  76: f = 495    ; k = 19; break; // 'L'
-    case 187: f = 528    ; k = 20; break; // ';'
+    case  68: k = 13; break; // 'D'
+    case  70: k = 14; break; // 'F'
+    case  71: k = 15; break; // 'G'
+    case  72: k = 16; break; // 'H'
+    case  74: k = 17; break; // 'J'
+    case  75: k = 18; break; // 'K'
+    case  76: k = 19; break; // 'L'
+    case 187: k = 20; break; // ';'
   }
   if (k < 0) return 0;
   t = Math.pow(2, Octa - 4);
-  f *= t;
+  f = Kfreq[k] * t;
+  f = Math.round(f * 10) / 10;
   if (on) { Freq = f; }
-  keyBd(f, on, k);
+  keyBd(on, k, f);
   return 1;
 }
 
@@ -416,36 +441,39 @@ function inkey2(t, key)
 }
 function timeup()
 {
-   switch (Time)
-   {
-   case 0.2: Time =   1; break;
-   case   1: Time =   5; break;
-   case   5: Time =  10; break;
-   case  10: Time =  20; break;
-   case  20: Time =  20; break;
-   }
-  aStop();
+  switch (Time)
+  {
+  case 0.2: Time =   1; break;
+  case   1: Time =   5; break;
+  case   5: Time =  10; break;
+  case  10: Time =  20; break;
+  case  20: Time =  20; break;
+  }
 }
 function timedn()
 {
-   switch (Time)
-   {
-   case 0.2: Time = 0.2; break;
-   case   1: Time = 0.2; break;
-   case   5: Time =   1; break;
-   case  10: Time =   5; break;
-   case  20: Time =  10; break;
-   }
-  aStop();
+  switch (Time)
+  {
+  case 0.2: Time = 0.2; break;
+  case   1: Time = 0.2; break;
+  case   5: Time =   1; break;
+  case  10: Time =   5; break;
+  case  20: Time =  10; break;
+  }
+}
+function init()
+{
+  Freq = 440; Time = 10; Volume = 1; Octa = 4;
+  inkey2(0, 0); aStop(); keyBdInit();
 }
 function inkey(key)
 {
+  blur();
   switch (key)
   {
-    case  13: Freq = 440; Time = 5; Volume = 1; Octa = 4;
-      inkey2(0, 0); aStop()      ; break; // Enter
+    case  13: init()              ; break; // Enter
     case  32: audio(Freq)         ; break; // Space
-    case 191: aStop()             ; break; // '/'
+    case 191: aStop(); keyBdInit(); break; // '/'
     case  81: lineWidth( 0.5)     ; break; // 'Q'
     case  87: lineWidth( 2  )     ; break; // 'W'
     case  90: zooming  (-1  )     ; break; // 'Z'
@@ -453,15 +481,14 @@ function inkey(key)
     case  67: zooming  ( 0  )     ; break; // 'C'
     case  86: timedn()            ; break; // 'V'
     case  66: timeup()            ; break; // 'B'
-    case  48: Select = 0          ; break; // '0'
-    case  49: Select = 1          ; break; // '1'
-    case  50: Select = 2          ; break; // '2'
-    case  51: Select = 3          ; break; // '3'
+    case  48: Select = 0;         ; break; // '0'
+    case  49: Select = 1;         ; break; // '1'
+    case  50: Select = 2;         ; break; // '2'
+    case  51: Select = 3;         ; break; // '3'
     case  78: if (Octa > 1) Octa--; break; // 'N'
     case  77: if (Octa < 8) Octa++; break; // 'M'
     default: inkey2(1, key);
   }
-  blur();
   window.requestAnimationFrame(main);
 }
 
@@ -503,7 +530,6 @@ function display()
 
   COLOR('#fff');
   LOCATE(1, 1.1);
-//  PRINT(((AuCt)? Ktime : Time) + "s");
   PRINT(Time + "s");
   PRINT("(" + (AuCt+Aui) + "), ");
   PRINT("f = " + Freq + "Hz, ");
@@ -511,8 +537,9 @@ function display()
 
   COLOR('#0f0');
   LOCATE(9, 22);
-  PRINTe("e^4r^5ty^7u^8i^9op平均律音階, dfghjkl;正律音階");
+  PRINTe("e^4r^5ty^7u^8i^9op平均律, dfghjkl;純正律");
   PRINT (", nm:オクターブ("+Octa+")");
+  PRINT (" Rate"+Temp/1000+"kHz");
 
   py = 180;
   h  = 40;
@@ -538,6 +565,7 @@ function main()
   display();
 }
 
+init();
 lineWidth(0);
 zooming(0);
 inkey2(0, 0);
