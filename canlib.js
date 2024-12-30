@@ -64,8 +64,8 @@ function WINDOW(x1, y1, x2, y2)
 {
   WinX = x1;
   WinY = y1;
-  WinW = x2 - x1 + 1;
-  WinH = y2 - y1 + 1;
+  WinW = (x2 - x1) * 640 / 639;
+  WinH = (y2 - y1) * 400 / 399;
 }
 
 function LOCATE(x, y)
@@ -141,41 +141,16 @@ function PRINT(text)
     if (a.match(/[ -~]/)) w = LocW;
     if (a.match(/[ｧ-ﾝ]/)) w = LocW;
     m = ctx.measureText(a).width;
-//    w = (m < LocW*1.6)? LocW : LocW * 2;
     x = (w - m) / 2;
-//    if (x < 0) x = 0;
     ctx.fillText(a, LocX+x, LocY + OffH  - 1);
     LocX += w;
   }
-/*
-  var len;
-
-  text += '';
-  ctx.fillText(text, LocX, LocY + OffH  - 1);
-  LocX += ctx.measureText(text).width;
-*/
-/*
-  var len, b;
-
-  b     = text.bytes();
-  len   = text.length;
-  b    -= len;
-  b     = b / 2;
-  len  += b;
-  ctx.fillText(text, LocX, LocY + OffH  - 1);
-  LocX += len * LocW;
-*/
 }
 
-function SYMBOL(x, y, text, c)
+function LOCATEp(x, y)
 {
-  var x1, y1;
-
-  x1 = scrX(x);
-  y1 = scrY(y);
-  ctx.fillStyle   = c;
-  ctx.strokeStyle = c;
-  ctx.fillText(text, x1, y1);
+  LocX = scrX(x);
+  LocY = scrY(y);
 }
 
 function POINT(x, y)

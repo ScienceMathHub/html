@@ -562,9 +562,9 @@ function display()
 var Key = new Array(256);
 for (var i = 0; i < 256; i++) Key[i] = 0;
 window.onkeydown = function(event)
-{ var k = event.keyCode; Key[k] = 1; keyUD(k, 1); return false; }
+{ var k = event.keyCode; Key[k] = 1; keyUD(k, 1); return; }
 window.onkeyup   = function(event)
-{ var k = event.keyCode; Key[k] = 0; keyUD(k, 0); return false; }
+{ var k = event.keyCode; Key[k] = 0; keyUD(k, 0); return; }
 
 //--------------------------------------------------------------------
 // main
