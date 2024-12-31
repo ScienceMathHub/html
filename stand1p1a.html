@@ -1,6 +1,6 @@
 <!--
 ----------------------------------------------------------------------
- うなり
+ 定常波
 
  HTML(JavaScript, canvas)
 
@@ -13,26 +13,29 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <head>
   <meta charset="utf-8">
-  <title>うなり</title>
+  <title>定常波</title>
 </head>
 <body>
-<p id="Beet"></p>
+<p id="Standing wave"></p>
 <div style='float:left;'>
+ｖ <label><input type="range" id ="rangeVo" min="0.1" max= "8" step="0.1"
+  value="2">12<br><br></label>
 A1<label><input type="range" id ="rangeA1" min="0" max= "1" step="0.1"
-  value="1">34<br><br></label>
+  value="1">34<br></label>
 A2<label><input type="range" id ="rangeA2" min="0" max= "1" step="0.1"
   value="1">er<br><br></label>
-f1<label><input type="range" id ="rangeF1" min="1" max= "9" step="1"
+λ1<label><input type="range" id ="rangeL1" min="0.5" max= "4" step="0.5"
   value="1">df<br><br></label>
-f2<label><input type="range" id ="rangeF2" min="1" max= "9" step="1"
+λ2<label><input type="range" id ="rangeL2" min="0.5" max= "4" step="0.5"
   value="2">cv<br><br></label>
-<input type="button" id="butR" value="Reset" onclick="inkey(13)">Enter<br><br>
-<input type="button" id="but1" value="無"    onclick="inkey(49)">1
-<input type="button" id="but2" value="有"    onclick="inkey(50)">2
+<input type="button" id="butS" value="進行/停止" onclick="inkey(32)">Space
+<input type="button" id="butM" value="消"    onclick="inkey(77)">m<br><br>
+<input type="button" id="butR" value="Reset" onclick="inkey(13)">Enter
 <input type="button" id="butA" value="重"    onclick="inkey(65)">a
 <input type="button" id="butS" value="別"    onclick="inkey(83)">s<br><br>
 <input type="button" id="butQ" value="細"    onclick="inkey(81)">q
-<input type="button" id="butW" value="太"    onclick="inkey(87)">w<br><br>
+<input type="button" id="butW" value="太"    onclick="inkey(87)">w
+<input type="button" id="butN" value="補"    onclick="inkey(78)">n<br>
 <input type="button" id="butZ" value="縮"    onclick="inkey(90)">z 
 <input type="button" id="butX" value="拡"    onclick="inkey(88)">x
 <input type="button" id="butC" value="初"    onclick="inkey(67)">b<br><br>
@@ -44,15 +47,19 @@ f2<label><input type="range" id ="rangeF2" min="1" max= "9" step="1"
 //--------------------------------------------------------------------
 // public variable
 //--------------------------------------------------------------------
-var Sec    =    2; // sec
-var SecW   =  560; // sec表示幅
-var isBeet =    1; // Beet表示
+var DisN   =   10; // 目盛の数(m)
+var DisW   =  580; // 表示幅(dot)
+var DisX   =    8; // 2点間距離(m)
 var isDup  =    0; // 重ね表示
+var Vt     =    0; // 移動距離(m)
+var isVt   =    0; // 移動/停止
+var isCos  =    0; // 包括線表示
 
-var cA1 =  1, A1 = cA1; // 振幅1
-var cF1 =  1, F1 = cF1; // 振動数1
-var cA2 =  1, A2 = cA2; // 振幅2
-var cF2 =  2, F2 = cF2; // 振動数2
+var cVo =  1  , Vo = cVo; // 速度(m/s)
+var cA1 =  1  , A1 = cA1; // 振幅1
+var cL1 =  2  , L1 = cL1; // 波長1
+var cA2 =  1  , A2 = cA2; // 振幅2
+var cL2 =  2  , L2 = cL2; // 波長2
 
 var B = new BASIC();
 
@@ -61,80 +68,52 @@ var B = new BASIC();
 //--------------------------------------------------------------------
 function func1(c, px, py, h, a)
 {
-  var str  = "y_1 = A_1sin(-2πf_1t)  (A_1 = ";
-      str += A1.toFixed(1) + " m , f_1 = " + F1 + " Hz)";
+  var str  = "y_1 = A_1sin( 2π(x-vt)/λ_1)  (A_1 = ";
+      str += A1.toFixed(1) + " m , λ_1 = " + L1.toFixed(1) + " m";
+      str += " , v = "+ Vo.toFixed(1) + " m/s)";
   B.WINDOW(px, py, px+639, py-399);
   B.COLOR(c);
-  B.LOCATEp(px, h*a); B.TAB(1, -0.55); B.PRINTe(str);
+  B.LOCATEp(px, h*a); B.TAB(1, -1); B.PRINTe(str);
 }
-function f1(t)
+function f1(x)
 {
-  var y = A1 * Math.sin(-2 * Math.PI * F1 * t);
+  var y = x - Vt;
+  if (y > 0) return 0;
+  y = A1 * Math.sin(2 * Math.PI * y / L1);
   return y;
 }
 function func2(c, px, py, h, a)
 {
-  var str  = "y_2 = A_2sin(-2πf_2t)  (A_2 = ";
-      str += A2.toFixed(1) + " m , f_2 = " + F2 + " Hz)";
+  var str  = "y_2 = A_2sin(-2π(x+vt)/λ_2)  (A_2 = ";
+      str += A2.toFixed(1) + " m , λ_2 = " + L2.toFixed(1) + " m";
+      str += " , v = "+ Vo.toFixed(1) + " m/s)";
   B.WINDOW(px, py, px+639, py-399);
   B.COLOR(c);
-  B.LOCATEp(px, h*a); B.TAB(1, -0.55); B.PRINTe(str);
+  B.LOCATEp(px, h*a); B.TAB(1, -1); B.PRINTe(str);
 }
-function f2(t)
+function f2(x)
 {
-  var y = A2 * Math.sin(-2 * Math.PI * F2 * t);
+  var y = x + Vt;
+  if (y < 0) return 0;
+  y = A2 * Math.sin(-2 * Math.PI * y / L2);
   return y;
 }
 
 //--------------------------------------------------------------------
 // 関数の和
-// y = Asina + Bsinb
-//   = √{(A-B)^2 + 2^2ABcos^2β}sin{α + aTanC + γ}
-// α=(a+b)/2 , β=(a-b)/2 , C = {(A-B)sinβ}/{(A+B)cosβ}
-// γ = 0 if cos^2 ≧ 0 , γ = π if cos^2 ＜ 0
 //--------------------------------------------------------------------
-function funcAA(c, px, py, h, a, b, d)
+function f12(x)
 {
-  var str;
-
-  B.WINDOW(px, py, px+639, py-399);
-  B.LOCATEp(px, -h*a); B.TAB(1, 2.2);
-  B.COLOR(c); B.PRINTe("y_1+y_2 = ");
-  B.COLOR(b); B.PRINTe("2A_1cos( -2π(f_1-f_2)/2 )");
-  B.COLOR(d); B.PRINTe("sin( -2π(f_1+f_2)/2 )");
-}
-function func12(c, px, py, h, a, b, d)
-{
-  var str;
-
-  B.WINDOW(px, py, px+639, py-399);
-  B.LOCATEp(px, -h*a); B.TAB(1, 1.7);
-  B.COLOR(c); B.PRINTe("y_1+y_2 = ");
-  B.COLOR(b); B.PRINTe("√{(A_1-A_2)^2+2^2A_1A_2cos^2β}");
-  str = "sin( α+Tan^-^1({(A_1-A_2)sinβ}/{(A_1+A_2)cosβ}) )";
-  B.COLOR(d); B.PRINTe(str);
-  B.LOCATEp(px, -h*a); B.TAB(9, 2.7);
-  str  = "… [ α = -2π(f_1+f_2)/2, β = -2π(f_1-f_2)/2 ]";
-  B.COLOR(c); B.PRINTe(str);
-}
-function f12(t)
-{
-  var y = f1(t) + f2(t);
+  var y = f1(x + DisX / 2) + f2(x - DisX / 2);
   return y;
 }
-function f12u(t)
+function fAu(x)
 {
-  var y, a, c;
-  var fs = 2 * Math.PI * (F1 - F2) * t / 2;
-  var as = A1 - A2;
-
-  c = Math.cos(fs);
-  a = Math.sqrt(as*as + 4*A1*A2*c*c);
-  return a;
+  return  2 * A1 * Math.cos(2 * Math.PI * x / L1);
 }
-function f12d(th)
+function fAd(x)
 {
-  return -f12u(th);
+  return -2 * A1 * Math.cos(2 * Math.PI * x / L1);
 }
 
 //--------------------------------------------------------------------
@@ -148,12 +127,12 @@ function graph(c, px, py, h, m, func)
 
   x0 = -1000;
   y0 = 0;
-  n = SecW;
+  n = DisW;
   i = n / 10;
-  s = n / 1000;
-  for (x = -i * 2; x <= n + i * 2; x += s)
+  s = n / 360;
+  for (x = -(n + i * 2); x <= n + i * 2; x += s)
   {
-    t = (x / n) * Sec;
+    t = (x / n) * DisN;
     y = func(t);
     if (Math.abs(y0 - y) > 5)
     {
@@ -169,16 +148,16 @@ function graph(c, px, py, h, m, func)
 //--------------------------------------------------------------------
 // 目盛り
 //--------------------------------------------------------------------
-function scale(c, px, py, h, m, b)
-{
-  var t, x, y, i, n;
+function scale(c, px, py, h, m, dn, sl, sr)
+{ /* dn=0:up 1:dn 2:half scale */
+  var t, x, y, i, n, k, r;
 
   B.COLOR(c);
 
   B.WINDOW(px, py, px+639, py-399);
 
-  n = Sec;
-  i = SecW / 10 / n;
+  n = DisN;
+  i = DisW / 10 / n;
   x = i /  7;
   for (t = 1; t <= m; t++)
   {
@@ -190,27 +169,26 @@ function scale(c, px, py, h, m, b)
   }
   B.LINE(-1000,  0, 1000, 0, c);
 
-  for (t = -2; t <= n * 10 + 2; t++)
+  k = (dn == 2)? m/4 : m/2;
+  for (t = -(n * 10 + 2); t <= n * 10 + 2; t++)
   {
     x = t * i;
-    if      ((t % 10) == 0) { y = h * (m  +0.2); }
+    if      ( t == 0      ) { y = h * (m  +0.2); }
+    else if ((t % 10) == 0) { y = h * (k  +0.2); }
     else if ((t %  5) == 0) { y = h * (m/4+0.2); }
     else                    { y = h *      0.2 ; }
     B.LINE( x, -y,  x, y, c);
   }
-  y = h * (m+0.2);
-  x = Math.abs(F1 - F2);
-  if (x > 0)
-  {
-    x  = i * (5 / x); B.LINE( x, -y,  x, y, b);
-    x += i * 10     ; B.LINE( x, -y,  x, y, b);
-  }
 
-  B.LOCATEp(0, 0); B.TAB(0.3, -0.2); B.PRINT("0s");
+  if (dn == 2) { n *= 2; i /= 2; }
   x = i * 10;
+  y = (dn == 1)? 1.3 : -0.3;
+  B.LOCATEp(0, 0); B.TAB(0.3, y); B.PRINT("0m");
   for (t = 1; t <= n; t++)
   {
-    B.LOCATEp(t * x, 0); B.TAB(0.3, -0.2); B.PRINT(t + "s");
+    if (dn == 2) { if ((t % 2) != 0) continue; }
+    B.LOCATEp( t * x, 0); B.TAB(0.3, y); B.PRINT(sr + t + "m");
+    B.LOCATEp(-t * x, 0); B.TAB(0.3, y); B.PRINT(sl + t + "m");
   }
 }
 
@@ -219,64 +197,87 @@ function scale(c, px, py, h, m, b)
 //--------------------------------------------------------------------
 function display()
 {
-  var px, py, h, a, str;
+  var px, py, h, a, str, s;
 
   B.FONT(1,0);
   B.CLS('#000');
 
-  px = -40;
-  a = 1; h = 32; py =  60;
-  func1('#fff', px, py, h, a);
-  scale('#ff0', px, py, h, a, '#0ff');
-  graph('#fff', px, py, h, a, f1);
+  s = DisW / DisN;
+  h = 16;
+  a = 1;
+  py =  60;
   if (isDup)
   {
-    graph('#ff0', px, py, h, a, f2);
-    py += 102;
-    func2('#ff0', px, py, h, a);
+    px = -s * 1.5;
+    func1('#fff', px, py, h, a);
+    scale('#ff0', px, py, h, a, 0, '-', '');
+    px = -s * (1.5 + DisX);
+    scale('#ffb', px, py, h, a, 1, '', '-');
+    px = -s * 1.5;
+    graph('#fff', px, py, h, a, f1);
+    px = -s * (1.5 + DisX);
+    graph('#ffb', px, py, h, a, f2);
+    px = -s * 1.5;
+    py += 90;
+    func2('#ffb', px, py, h, a);
     py += 48;
   }
   else
   {
-    py += 102;
+    px = -s * 1.5;
+    func1('#fff', px, py, h, a);
+    scale('#ff0', px, py, h, a, 0, '-', '');
+    graph('#fff', px, py, h, a, f1);
+    px = -s * (1.5 + DisX);
+    py += 90;
     func2('#fff', px, py, h, a);
-    scale('#ff0', px, py, h, a, '#0ff');
+    scale('#ff0', px, py, h, a, 0, '', '-');
     graph('#fff', px, py, h, a, f2);
     py += 118;
   }
+  px = -s * (1.5 + DisX / 2);
   a = 2;
-  scale('#ff0', px, py, h, a, '#0ff');
-  if (isBeet)
+  scale('#0f0', px, py, h, a, 2, '', '');
+  if (isCos)
   {
-    if (A1 == A2) funcAA('#fff', px, py, h, a, '#7ff', '#ffb');
-    else          func12('#fff', px, py, h, a, '#7ff', '#ffb');
-    graph('#7ff', px, py, h, a, f12u);
-    graph('#7ff', px, py, h, a, f12d);
+    if (L1 == L2 && A1 == A2)
+    {
+      graph('#0af', px, py, h, a, fAu);
+      graph('#0af', px, py, h, a, fAd);
+    }
+    else
+    {
+      var aa = (A1 + A2) * h;
+      B.WINDOW(px, py, px+639, py-399);
+      B.LINE(-1000,  aa, 1000,  aa, '#0af');
+      B.LINE(-1000, -aa, 1000, -aa, '#0af');
+    }
   }
-  else
-  {
-    if (A1 == A2) funcAA('#fff', px, py, h, a, '#cff', '#ffd');
-    else          func12('#fff', px, py, h, a, '#cff', '#ffd');
-  }
+  B.WINDOW(px, py, px+639, py-399);
+  B.COLOR('#0f0');
+  B.LOCATEp(px, -h*a); B.TAB(1, 3); B.PRINT("2つの波源までの距離の差");
   graph('#fff', px, py, h, a, f12);
 }
 
 //--------------------------------------------------------------------
 // input
 //--------------------------------------------------------------------
+var elemVo = document.getElementById('rangeVo');
 var elemA1 = document.getElementById('rangeA1');
-var elemF1 = document.getElementById('rangeF1');
+var elemL1 = document.getElementById('rangeL1');
 var elemA2 = document.getElementById('rangeA2');
-var elemF2 = document.getElementById('rangeF2');
+var elemL2 = document.getElementById('rangeL2');
 function blur()
 {
+  elemVo.blur();
   elemA1.blur();
-  elemF1.blur();
+  elemL1.blur();
   elemA2.blur();
-  elemF2.blur();
+  elemL2.blur();
+  document.getElementById('butS').blur();
+  document.getElementById('butN').blur();
   document.getElementById('butR').blur();
-  document.getElementById('but1').blur();
-  document.getElementById('but2').blur();
+  document.getElementById('butM').blur();
   document.getElementById('butA').blur();
   document.getElementById('butS').blur();
   document.getElementById('butQ').blur();
@@ -284,49 +285,65 @@ function blur()
   document.getElementById('butZ').blur();
   document.getElementById('butX').blur();
   document.getElementById('butC').blur();
+  if (isVt > 0) isVt = 2; else if (isVt < 0) isVt = 1;
 }
-function inputA1()
-{
-  A1 = Number(elemA1.value); blur();
+function inputVo()
+{ Vo = Number(elemVo.value); blur();
   window.requestAnimationFrame(main);
 }
-function inputF1()
-{
-  F1 = Number(elemF1.value); blur();
+function inputA1()
+{ A1 = Number(elemA1.value); blur();
+  window.requestAnimationFrame(main);
+}
+function inputL1()
+{ L1 = Number(elemL1.value); blur();
   window.requestAnimationFrame(main);
 }
 function inputA2()
-{
-  A2 = Number(elemA2.value); blur();
+{ A2 = Number(elemA2.value); blur();
   window.requestAnimationFrame(main);
 }
-function inputF2()
-{
-  F2 = Number(elemF2.value); blur();
+function inputL2()
+{ L2 = Number(elemL2.value); blur();
   window.requestAnimationFrame(main);
 }
+elemVo.addEventListener('input', inputVo);
 elemA1.addEventListener('input', inputA1);
-elemF1.addEventListener('input', inputF1);
+elemL1.addEventListener('input', inputL1);
 elemA2.addEventListener('input', inputA2);
-elemF2.addEventListener('input', inputF2);
+elemL2.addEventListener('input', inputL2);
 
 //--------------------------------------------------------------------
 // init
 //--------------------------------------------------------------------
 function init()
 {
+  elemVo.value = Vo = cVo;
   elemA1.value = A1 = cA1;
-  elemF1.value = F1 = cF1;
+  elemL1.value = L1 = cL1;
   elemA2.value = A2 = cA2;
-  elemF2.value = F2 = cF2;
-  isBeet = 1;
+  elemL2.value = L2 = cL2;
   isDup  = 0;
+  isVt   = 0;
+  Vt     = 0;
+  isCos  = 0;
+  blur();
   window.requestAnimationFrame(main);
 }
 
 //--------------------------------------------------------------------
 // Input key
 //--------------------------------------------------------------------
+function limitV(x, s)
+{
+  var min  = 0.1;
+  var max  = 8;
+  var step = 0.1;
+  
+  x += (s < 0)? -step : step;
+  if (x < min) x = min; else if (x > max) x = max;
+  return x;
+}
 function limitA(x, s)
 {
   var min  = 0;
@@ -337,11 +354,11 @@ function limitA(x, s)
   if (x < min) x = min; else if (x > max) x = max;
   return x;
 }
-function limitF(x, s)
+function limitL(x, s)
 {
-  var min  = 1;
-  var max  = 9;
-  var step = 1;
+  var min  = 0.5;
+  var max  = 4;
+  var step = 0.5;
   
   x += (s < 0)? -step : step;
   if (x < min) x = min; else if (x > max) x = max;
@@ -351,24 +368,27 @@ function inkey(key)
 {
   switch (key)
   {
-    case 13: init()             ; break; // 'R' Enter
-    case 49: isBeet = 0;        ; break; // '1'
-    case 50: isBeet = 1;        ; break; // '2'
-    case 65: isDup  = 1;        ; break; // 'A'
-    case 83: isDup  = 0;        ; break; // 'S'
+    case 13: init()               ; break; // 'R' Enter
+    case 32: isVt = (isVt)? 0 : -1; break; // ' '
+    case 77: Vt = 0; isVt = 0     ; break; // 'm'
+    case 78: isCos = !isCos       ; break; // 'n'
+    case 65: isDup = 1            ; break; // 'A'
+    case 83: isDup = 0            ; break; // 'S'
     case 81: B.lineWidth( 0.5)    ; break; // 'Q'
     case 87: B.lineWidth( 2  )    ; break; // 'W'
     case 90: B.zooming  (-1  )    ; break; // 'Z'
     case 88: B.zooming  ( 1  )    ; break; // 'X'
     case 66: B.zooming  ( 0  )    ; break; // 'B'
+    case 49: elemVo.value = Vo = limitV(Vo, -1); break; // '1'
+    case 50: elemVo.value = Vo = limitV(Vo,  1); break; // '2'
     case 51: elemA1.value = A1 = limitA(A1, -1); break; // '3'
     case 52: elemA1.value = A1 = limitA(A1,  1); break; // '4'
     case 69: elemA2.value = A2 = limitA(A2, -1); break; // 'D'
     case 82: elemA2.value = A2 = limitA(A2,  1); break; // 'F'
-    case 68: elemF1.value = F1 = limitF(F1, -1); break; // 'E'
-    case 70: elemF1.value = F1 = limitF(F1,  1); break; // 'R'
-    case 67: elemF2.value = F2 = limitF(F2, -1); break; // 'C'
-    case 86: elemF2.value = F2 = limitF(F2,  1); break; // 'V'
+    case 68: elemL1.value = L1 = limitL(L1, -1); break; // 'E'
+    case 70: elemL1.value = L1 = limitL(L1,  1); break; // 'R'
+    case 67: elemL2.value = L2 = limitL(L2, -1); break; // 'C'
+    case 86: elemL2.value = L2 = limitL(L2,  1); break; // 'V'
   }
   blur();
   window.requestAnimationFrame(main);
@@ -394,6 +414,10 @@ window.onkeyup   = function(event) { Key[event.keyCode] = 0; }
 function main()
 {
   display();
+  if (isVt == 0) return;
+  if (isVt > 1) { isVt--; return; }
+  Vt += Vo / 60;
+  window.requestAnimationFrame(main);
 }
 
 init();
