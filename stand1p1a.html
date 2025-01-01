@@ -21,21 +21,25 @@
 ｖ <label><input type="range" id ="rangeVo" min="0.1" max= "8" step="0.1"
   value="2">12<br><br></label>
 A1<label><input type="range" id ="rangeA1" min="0" max= "1" step="0.1"
-  value="1">34<br></label>
+  value="1">34</label>
+<pre></pre>
 A2<label><input type="range" id ="rangeA2" min="0" max= "1" step="0.1"
   value="1">er<br><br></label>
 λ1<label><input type="range" id ="rangeL1" min="0.5" max= "4" step="0.5"
-  value="1">df<br><br></label>
+  value="1">df</label>
+<pre></pre>
 λ2<label><input type="range" id ="rangeL2" min="0.5" max= "4" step="0.5"
   value="2">cv<br><br></label>
 <input type="button" id="butS" value="進行/停止" onclick="inkey(32)">Space
 <input type="button" id="butM" value="初"    onclick="inkey(77)">m<br><br>
 <input type="button" id="butR" value="Reset" onclick="inkey(13)">Enter
 <input type="button" id="butA" value="重"    onclick="inkey(65)">a
-<input type="button" id="butS" value="別"    onclick="inkey(83)">s<br><br>
+<input type="button" id="butS" value="別"    onclick="inkey(83)">s
+<pre></pre>
 <input type="button" id="butQ" value="細"    onclick="inkey(81)">q
 <input type="button" id="butW" value="太"    onclick="inkey(87)">w
-　 <input type="button" id="butN" value="包絡線"    onclick="inkey(78)">n<br>
+　 <input type="button" id="butN" value="包絡線"    onclick="inkey(78)">n
+<pre></pre>
 <input type="button" id="butZ" value="縮"    onclick="inkey(90)">z 
 <input type="button" id="butX" value="拡"    onclick="inkey(88)">x
 <input type="button" id="butC" value="初"    onclick="inkey(67)">b<br><br>
@@ -47,6 +51,8 @@ A2<label><input type="range" id ="rangeA2" min="0" max= "1" step="0.1"
 //--------------------------------------------------------------------
 // public variable
 //--------------------------------------------------------------------
+var B = new BASIC();
+
 var DisN   =   10; // 目盛の数(m)
 var DisW   =  580; // 表示幅(dot)
 var DisX   =    8; // 2点間距離(m)
@@ -60,8 +66,6 @@ var cA1 =  1  , A1 = cA1; // 振幅1
 var cL1 =  2  , L1 = cL1; // 波長1
 var cA2 =  1  , A2 = cA2; // 振幅2
 var cL2 =  2  , L2 = cL2; // 波長2
-
-var B = new BASIC();
 
 //--------------------------------------------------------------------
 // 関数1 y = f(th)
@@ -171,7 +175,7 @@ function graph(c, px, py, h, m, func)
 //--------------------------------------------------------------------
 function scale(c, px, py, h, m, up, sl, sr)
 { /* dn=0:up 1:dn 2:half scale */
-  var t, x, y, i, n, k, r;
+  var t, x, y, i, n, k, r, b;
 
   B.COLOR(c);
 
@@ -223,20 +227,21 @@ function scale(c, px, py, h, m, up, sl, sr)
   r = i * 10;
   x = -0.4;
   y = m + 1.1;
-  B.LOCATEp(0, 0); B.TAB(x, 1-y); B.PRINT("0m");
-  B.LOCATEp(0, 0); B.TAB(x,   y); B.PRINT("0m");
+  b = '#af8';
+  B.COLOR(c); B.LOCATEp(0, 0); B.TAB(x, 1-y); B.PRINT("0m");
+  B.COLOR(b); B.LOCATEp(0, 0); B.TAB(x,   y); B.PRINT("0m");
   for (t = 1; t <= n; t++)
   {
     if ((t % 2) != 0) continue;
     B.COLOR(c);
     B.LOCATEp( t * r, 0); B.TAB(x, 0.9-y); B.PRINT(sr + t/2 + "m");
     B.LOCATEp(-t * r, 0); B.TAB(x, 0.9-y); B.PRINT(sl + t/2 + "m");
-    B.COLOR('#afa');
+    B.COLOR(b);
     B.LOCATEp( t * r, 0); B.TAB(x,     y); B.PRINT(sr + t   + "m");
     B.LOCATEp(-t * r, 0); B.TAB(x,     y); B.PRINT(sl + t   + "m");
   }
-  B.COLOR('#afa');
-  B.LOCATEp(px, -h*m); B.TAB(1, 3.1); B.PRINT("2つの波源までの距離の差");
+  B.COLOR(b); B.LOCATEp(px, -h*m); B.TAB(1, 3.1);
+  B.PRINT("2つの波源までの距離の差");
 }
 
 //--------------------------------------------------------------------

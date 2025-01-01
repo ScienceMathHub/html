@@ -4,7 +4,7 @@
 
  HTML(JavaScript, canvas)
 
- Physics (c) Ohtani 2022.5-2024.12
+ Physics (c) Ohtani 2022.5-2025.1
 ----------------------------------------------------------------------
 -->
 <!DOctxYPE html>
@@ -21,37 +21,44 @@
 <input type="button" id="butA1" value="音"    onclick="inkey( 49)">1
 <input type="button" id="butA2" value="音"    onclick="inkey( 50)">2
 <input type="button" id="butA3" value="音"    onclick="inkey( 51)">3
-<input type="button" id="butA0" value="音"    onclick="inkey( 48)">0<br>
-<input type="button" id="butDV" value="半"    onclick="inkey(188)">,
-<input type="button" id="butMU" value="倍"    onclick="inkey(190)">.<br>
+<input type="button" id="butA0" value="音"    onclick="inkey( 48)">0
+<pre></pre>
 <input type="button" id="butU4" value="高1k"  onclick="inkey(938)">Shift↑
-<input type="button" id="butU2" value="高10"  onclick="inkey( 38)">↑<br>
+<input type="button" id="butU2" value="高10"  onclick="inkey( 38)">↑
+<pre></pre>
 <input type="button" id="butD4" value="低1k"  onclick="inkey(940)">Shift↓
-<input type="button" id="butD2" value="低10"  onclick="inkey( 40)">↓<br>
+<input type="button" id="butD2" value="低10"  onclick="inkey( 40)">↓
+<pre></pre>
 <input type="button" id="butU3" value="高1h"  onclick="inkey(939)">Shift→
-<input type="button" id="butU1" value="高1"   onclick="inkey( 39)">→<br>
+<input type="button" id="butU1" value="高1"   onclick="inkey( 39)">→
+<pre></pre>
 <input type="button" id="butD3" value="低1h"  onclick="inkey(937)">Shift←
 <input type="button" id="butD1" value="低1"   onclick="inkey( 37)">←<br><br>
 <input type="button" id="butSP" value="発音"  onclick="inkey( 32)">Space
 <input type="button" id="butOM" value="全消"  onclick="inkey(191)">/<br><br>
-<input type="button" id="butRE" value="Reset" onclick="inkey( 13)">Enter<br>
-<input type="button" id="butVD" value="小"    onclick="inkey( 65)">a
-<input type="button" id="butVU" value="大"    onclick="inkey( 83)">s
+<input type="button" id="butRE" value="Reset" onclick="inkey( 13)">Enter
 <input type="button" id="butTD" value="短"    onclick="inkey( 86)">v
-<input type="button" id="butTU" value="長"    onclick="inkey( 66)">b<br><br>
+<input type="button" id="butTU" value="長"    onclick="inkey( 66)">b
+<pre></pre>
+<input type="button" id="butDV" value="半"    onclick="inkey(188)">,
+<input type="button" id="butMU" value="倍"    onclick="inkey(190)">.
+<input type="button" id="butVD" value="小"    onclick="inkey( 65)">a
+<input type="button" id="butVU" value="大"    onclick="inkey( 83)">s<br>
 <input type="button" id="butWD" value="細"    onclick="inkey( 81)">q
 <input type="button" id="butWU" value="太"    onclick="inkey( 87)">w<br>
 <input type="button" id="butZD" value="縮"    onclick="inkey( 90)">z
 <input type="button" id="butZU" value="拡"    onclick="inkey( 88)">x
 <input type="button" id="butZC" value="元"    onclick="inkey( 67)">c<br>
 
-<script src="https://sciencemathhub.github.io/html/canlib.js"></script>
+<script src="https://sciencemathhub.github.io/html/canlib2.js"></script>
 <script>
 'use strict'
 
 //--------------------------------------------------------------------
 // public variable
 //--------------------------------------------------------------------
+var B = new BASIC();
+
 var Sec    =     1; // sec
 var SecW   =   540; // sec表示幅
 var Freq          ; // 440Hz
@@ -136,7 +143,7 @@ function graph(c, py, h, func)
 {
   var x, y, x0, y0, s, n, t;
 
-  WINDOW(-60, py, 599, py-359);
+  B.WINDOW(-60, py, 599, py-359);
 
   x0 = -1000;
   y0 = 0;
@@ -152,7 +159,7 @@ function graph(c, py, h, func)
       x0 = x;
       y0 = y;
     }
-    LINE(x0, y0*h, x, y*h, c);
+    B.LINE(x0, y0*h, x, y*h, c);
     x0 = x;
     y0 = y;
   }
@@ -165,8 +172,8 @@ function scale(c, py, h, m)
 {
   var t, x, y, i, n;
 
-  WINDOW(-60, py, 599, py-359);
-  COLOR(c);
+  B.WINDOW(-60, py, 599, py-359);
+  B.COLOR(c);
 
   n = SecW;
   i = n / 10;
@@ -174,22 +181,22 @@ function scale(c, py, h, m)
   for (t = 1; t <= m; t++)
   {
     y = h * t;
-    LOCATE(4, (py-y)/16+0.5); PRINT(" "+t);
-    LOCATE(4, (py+y)/16+0.5); PRINT("-"+t);
-    LINE(-x,  y, x,  y, c);
-    LINE(-x, -y, x, -y, c);
+    B.LOCATE(4, (py-y)/16+0.5); B.PRINT(" "+t);
+    B.LOCATE(4, (py+y)/16+0.5); B.PRINT("-"+t);
+    B.LINE(-x,  y, x,  y, c);
+    B.LINE(-x, -y, x, -y, c);
   }
-  LINE(-1000,  0, 1000, 0, c);
+  B.LINE(-1000,  0, 1000, 0, c);
 
   for (t = -2; t <= 10 + 2; t++)
   {
     x = t * i;
     if      ((t % 10) == 0) { y = h * (m+0.2); }
     else                    { y = h *    0.2 ; }
-    LINE( x, -y,  x, y, c);
+    B.LINE( x, -y,  x, y, c);
   }
   x = 10 * i / 8 + 6;
-  LOCATE(x, 21); PRINT(Sec+" s");
+  B.LOCATE(x, 21); B.PRINT(Sec+" s");
 }
 
 //--------------------------------------------------------------------
@@ -483,11 +490,11 @@ function inkey(key)
     case  13: init()              ; break; // Enter
     case  32: audio(Freq)         ; break; // Space
     case 191: aStop(); keyBdInit(); break; // '/'
-    case  81: lineWidth( 0.5)     ; break; // 'Q'
-    case  87: lineWidth( 2  )     ; break; // 'W'
-    case  90: zooming  (-1  )     ; break; // 'Z'
-    case  88: zooming  ( 1  )     ; break; // 'X'
-    case  67: zooming  ( 0  )     ; break; // 'C'
+    case  81: B.lineWidth( 0.5)   ; break; // 'Q'
+    case  87: B.lineWidth( 2  )   ; break; // 'W'
+    case  90: B.zooming  (-1  )   ; break; // 'Z'
+    case  88: B.zooming  ( 1  )   ; break; // 'X'
+    case  67: B.zooming  ( 0  )   ; break; // 'C'
     case  86: timedn()            ; break; // 'V'
     case  66: timeup()            ; break; // 'B'
     case  48: Select = 0;         ; break; // '0'
@@ -533,22 +540,21 @@ function display()
     case 3: Func = f3; title = t3; break;
   }
 
-  FONT(1, 0);
-  CLS('#000');
-  ctx.lineWidth = Width;
+  B.FONT(1, 0);
+  B.CLS('#000');
 
-  COLOR('#fff');
-  LOCATE(1, 1.1);
-  PRINT(Time + "s");
-  PRINT("(" + (AuCt+Aui) + "), ");
-  PRINT("f = " + Freq + "Hz, ");
-  PRINT(title);
+  B.COLOR('#fff');
+  B.LOCATE(1, 1.1);
+  B.PRINT(Time + "s");
+  B.PRINT("(" + (AuCt+Aui) + "), ");
+  B.PRINT("f = " + Freq + "Hz, ");
+  B.PRINT(title);
 
-  COLOR('#0f0');
-  LOCATE(9, 22);
-  PRINTe("e^4r^5ty^7u^8i^9op平均律, dfghjkl;純正律");
-  PRINT (", nm:オクターブ("+Octa+")");
-  PRINT (" Rate"+Temp/1000+"kHz");
+  B.COLOR('#0f0');
+  B.LOCATE(9, 22);
+  B.PRINTe("e^4r^5ty^7u^8i^9op平均律, dfghjkl;純正律");
+  B.PRINT (", nm:オクターブ("+Octa+")");
+  B.PRINT (" Rate"+Temp/1000+"kHz");
 
   py = 180;
   h  = 40;
@@ -575,8 +581,6 @@ function main()
 }
 
 init();
-lineWidth(0);
-zooming(0);
 inkey2(0, 0);
 main();
 

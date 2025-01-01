@@ -4,7 +4,7 @@
 
  HTML(JavaScript, canvas)
 
- (c)Ohtani 2024.4 - 2024.12
+ (c)Ohtani 2024.4 - 2025.1
 ------------------------------------------------------------------------
 */
 'use strict'
@@ -129,6 +129,16 @@ class BASIC
     ctx.fillStyle   = c;
     ctx.strokeStyle = c;
   }
+  SYMBOL(x, y, text, c)
+  {
+    var x1, y1;
+
+    x1 = this.scrX(x);
+    y1 = this.scrY(y);
+    ctx.fillStyle   = c;
+    ctx.strokeStyle = c;
+    ctx.fillText(text, x1, y1);
+  }
   PRINT(text)
   {
     var s, n, i, w, x, m, a;
@@ -232,13 +242,21 @@ class BASIC
   {
     ctx.strokeStyle = c;
     ctx.beginPath();
-    ctx.moveTo(PosX, PosY);
+    ctx.moveTo(this.posX, this.posY);
     this.posX = this.scrX(x2);
     this.posY = this.scrY(y2);
     ctx.lineTo(this.posX, this.posY);
     ctx.stroke();
     ctx.closePath();
   }
+  LINEB(x1, y1, x2, y2, c)
+  {
+    this.LINE(x1, y1, x1, y2, c);
+    this.LINE(x2, y1, x2, y2, c);
+    this.LINE(x1, y1, x2, y1, c);
+    this.LINE(x1, y2, x2, y2, c);
+  }
+/*
   LINEB(x1, y1, x2, y2, c)
   {
     var x, y, w, h;
@@ -252,6 +270,7 @@ class BASIC
     ctx.strokeStyle = c;
     ctx.strokeRect(x, y, w, h);
   }
+*/
   LINEBF(x1, y1, x2, y2, c)
   {
     var x, y, w, h;
@@ -289,6 +308,7 @@ class BASIC
     }
     canvas.width  = 16 * this.zoom;
     canvas.height =  9 * this.zoom;
+    ctx.lineWidth = this.width;
     this.FONT(1, 0);
   }
   lineWidth(times)

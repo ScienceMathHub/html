@@ -4,7 +4,7 @@
 
  HTML(JavaScript, canvas)
 
- (c)Ohtani 2024.4
+ (c)Ohtani 2024.4 - 2025.1
 ------------------------------------------------------------------------
 */
 'use strict'
@@ -128,6 +128,17 @@ function FONT(zoom, offs)
   LocW = ctx.measureText('あ').width / 2;
 }
 
+function SYMBOL(x, y, text, c)
+{
+  var x1, y1;
+
+  x1 = scrX(x);
+  y1 = scrY(y);
+  ctx.fillStyle   = c;
+  ctx.strokeStyle = c;
+  ctx.fillText(text, x1, y1);
+}
+
 function PRINT(text)
 {
   var s, n, i, w, x, m, a;
@@ -207,7 +218,6 @@ function LINEB(x1, y1, x2, y2, c)
   ctx.strokeRect(x, y, w, h);
 }
 */
-
 function LINEBF(x1, y1, x2, y2, c)
 {
   var x, y, w, h;
@@ -247,6 +257,7 @@ function lineWidth(times)
     if      (Width <  1) Width =  1;
     else if (Width > 16) Width = 16;
   }
+  ctx.lineWidth = Width;
 }
 
 //----------------------------------------------------------------------
@@ -263,7 +274,7 @@ function zooming(sign)
   }
   canvas.width  = 16 * Zoom;
   canvas.height =  9 * Zoom;
-
+  ctx.lineWidth = Width;
   FONT(1, 0);
 }
 

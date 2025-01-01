@@ -1,12 +1,12 @@
 <!--
 ------------------------------------------------------------------------
- 滴定曲線(neutralization titration curve) (Click)
+ 滴定曲線(neutralization titration curve)
 
  HTML(JavaScript, canvas)
 
  key 0-9, qw, zxc, カーソル(+shift), Enter
 
- Basic-Chemistry (c)Ohtani 2022.5
+ Basic-Chemistry (c) Ohtani 2022.5 - 2025.1
 ------------------------------------------------------------------------
 -->
 <!DOctxYPE html>
@@ -18,37 +18,37 @@
 <body>
 <p id="neutralization"></p>
 <div style='float:left;'>
-<input type="button" id = "but_0" value="Select0" onclick="push0(0)">
+<input type="button" id = "but_0" value="No.0" onclick="inkey(48)">0
 <pre></pre>
-<input type="button" id = "but_1" value="Select1" onclick="push0(1)">
+<input type="button" id = "but_1" value="No.1" onclick="inkey(49)">1
+<input type="button" id = "but_2" value="No.2" onclick="inkey(50)">2
 <pre></pre>
-<input type="button" id = "but_2" value="Select2" onclick="push0(2)">
+<input type="button" id = "but_3" value="No.3" onclick="inkey(51)">3
+<input type="button" id = "but_4" value="No.4" onclick="inkey(52)">4
 <pre></pre>
-<input type="button" id = "but_3" value="Select3" onclick="push0(3)">
+<input type="button" id = "but_5" value="No.5" onclick="inkey(53)">5
+<input type="button" id = "but_6" value="No.6" onclick="inkey(54)">6
 <pre></pre>
-<input type="button" id = "but_4" value="Select4" onclick="push0(4)">
+<input type="button" id = "but_7" value="No.7" onclick="inkey(55)">7<br><br>
+<input type="button" id = "but_d2" value="多滴下" onclick="inkey(38)">↑
+<input type="button" id = "but_d1" value="少滴下" onclick="inkey(39)">→<br><br>
+<input type="button" id = "but_R" value="Reset" onclick="inkey(13)">Enter<br><br>
+<input type="button" id="butWD" value="細"    onclick="inkey( 81)">q
+<input type="button" id="butWU" value="太"    onclick="inkey( 87)">w
 <pre></pre>
-<input type="button" id = "but_5" value="Select5" onclick="push0(5)">
-<pre></pre>
-<input type="button" id = "but_6" value="Select6" onclick="push0(6)">
-<pre></pre>
-<input type="button" id = "but_7" value="Select7" onclick="push0(7)">
-<pre> </pre>
-<pre></pre>
-<input type="button" id = "but_d2" value="多量滴下"
-  onclick="pushd(0.5)">
-<pre> </pre>
-<pre></pre>
-<input type="button" id = "but_d1" value="少量滴下"
-  onclick="pushd(0.05)">
-<pre></pre>
-<script src="https://sciencemathhub.github.io/html/canlib.js"></script>
+<input type="button" id="butZD" value="縮"    onclick="inkey( 90)">z
+<input type="button" id="butZU" value="拡"    onclick="inkey( 88)">x
+<input type="button" id="butZC" value="元"    onclick="inkey( 67)">c<br>
+
+<script src="https://sciencemathhub.github.io/html/canlib2.js"></script>
 <script>
 'use strict'
 
 //----------------------------------------------------------------------
 // public variable
 //----------------------------------------------------------------------
+var B = new BASIC();
+
 var Volume  = 0; // 滴定量
 var Select  = 0; // 種類
 var Selects = 7; // 種類最大
@@ -60,50 +60,6 @@ var Ka1, Ka2;
 var Vh, Mh, Mc, Vc, Nh;
 //--- Public temp
 var Ca, Cb;
-
-//----------------------------------------------------------------------
-// Zoom
-//----------------------------------------------------------------------
-function zooming(sign)
-{
-  if (sign == 0) { Zoom = 40; }
-  else
-  {
-    Zoom += sign * 5;
-    if      (Zoom <  20) Zoom =  20;
-    else if (Zoom > 120) Zoom = 120;
-  }
-  canvas.width  = 16 * Zoom;
-  canvas.height =  9 * Zoom;
-
-  FONT(1, 1);
-}
-
-//----------------------------------------------------------------------
-// touch
-//----------------------------------------------------------------------
-function push0(s)
-{ Select = s; Volume = 0; window.requestAnimationFrame(main); }
-function pushd(v)
-{
-  Volume += v;
-  if (Volume > Lv) Volume = Lv;
-  window.requestAnimationFrame(main);
-}
-
-function blur()
-{
-  document.getElementById("but_0" ).blur();
-  document.getElementById("but_1" ).blur();
-  document.getElementById("but_2" ).blur();
-  document.getElementById("but_3" ).blur();
-  document.getElementById("but_4" ).blur();
-  document.getElementById("but_5" ).blur();
-  document.getElementById("but_6" ).blur();
-  document.getElementById("but_7" ).blur();
-  document.getElementById("but_d2").blur();
-  document.getElementById("but_d1").blur();
-}
 
 //----------------------------------------------------------------------
 // 初期設定
@@ -121,21 +77,21 @@ function init0()
 }
 function neut0()
 {
-  COLOR('#fff'); PRINT("[NaOH]    = " + Mb.toFixed(2) + " mol/L, ");
-  COLOR('#00f'); PRINT(('  '+Vb).slice(-2));
-  COLOR('#0ff'); PRINT(" mL");
-  COLOR('#fff'); PRINT(" , ");
-  COLOR('#fff'); PRINT("v = 0 ～ " + ('  '+Lv).slice(-2) + " mL");
-  CR();
-  COLOR('#fff'); PRINT("[CH");
-  FONT(0.8, 1); PRINT("3"); FONT(1, 1); PRINT("COOH]");
-  FONT(0.2, 1); PRINT(" "); FONT(1, 1); PRINT(" = ");
-  COLOR('#00f'); PRINT(Ma.toFixed(2));
-  COLOR('#fff'); PRINT(" mol/L, ");
-  COLOR('#0ff'); PRINT(('  '+Va).slice(-2) + " mL");
-  COLOR('#fff'); PRINT(" , ");
-  COLOR('#0f0'); PRINT("pH  0 ～ 14");
-  CR();
+  B.COLOR('#fff'); B.PRINT("[NaOH]    = " + Mb.toFixed(2) + " mol/L, ");
+  B.COLOR('#00f'); B.PRINT(('  '+Vb).slice(-2));
+  B.COLOR('#0ff'); B.PRINT(" mL");
+  B.COLOR('#fff'); B.PRINT(" , ");
+  B.COLOR('#fff'); B.PRINT("v = 0 ～ " + ('  '+Lv).slice(-2) + " mL");
+  B.CR();
+  B.COLOR('#fff'); B.PRINT("[CH");
+  B.FONT(0.8, 1); B.PRINT("3"); B.FONT(1, 1); B.PRINT("COOH]");
+  B.FONT(0.2, 1); B.PRINT(" "); B.FONT(1, 1); B.PRINT(" = ");
+  B.COLOR('#00f'); B.PRINT(Ma.toFixed(2));
+  B.COLOR('#fff'); B.PRINT(" mol/L, ");
+  B.COLOR('#0ff'); B.PRINT(('  '+Va).slice(-2) + " mL");
+  B.COLOR('#fff'); B.PRINT(" , ");
+  B.COLOR('#0f0'); B.PRINT("pH  0 ～ 14");
+  B.CR();
 }
 //--- CH3COOH + NaOH
 function init1()
@@ -165,21 +121,21 @@ function init2()
 }
 function neut2()
 {
-  COLOR('#fff'); PRINT("[NH");
-  FONT(0.8, 1); PRINT("3"); FONT(0.2, 1); PRINT(" "); FONT(1, 1);
-  PRINT("] = " + Mb.toFixed(2) + " mol/L, ");
-  COLOR('#00f'); PRINT(('  '+Vb).slice(-2));
-  COLOR('#0ff'); PRINT(" mL");
-  COLOR('#fff'); PRINT(" , ");
-  COLOR('#fff'); PRINT("v = 0 ～ " + ('  '+Lv).slice(-2) + " mL");
-  CR();
-  COLOR('#fff'); PRINT("[HCl] = ");
-  COLOR('#00f'); PRINT(Ma.toFixed(2));
-  COLOR('#fff'); PRINT(" mol/L, ");
-  COLOR('#0ff'); PRINT(('  '+Va).slice(-2) + " mL");
-  COLOR('#fff'); PRINT(" , ");
-  COLOR('#0f0'); PRINT("pH  0 ～ 14");
-  CR();
+  B.COLOR('#fff'); B.PRINT("[NH");
+  B.FONT(0.8, 1); B.PRINT("3"); B.FONT(0.2, 1); B.PRINT(" "); B.FONT(1, 1);
+  B.PRINT("] = " + Mb.toFixed(2) + " mol/L, ");
+  B.COLOR('#00f'); B.PRINT(('  '+Vb).slice(-2));
+  B.COLOR('#0ff'); B.PRINT(" mL");
+  B.COLOR('#fff'); B.PRINT(" , ");
+  B.COLOR('#fff'); B.PRINT("v = 0 ～ " + ('  '+Lv).slice(-2) + " mL");
+  B.CR();
+  B.COLOR('#fff'); B.PRINT("[HCl] = ");
+  B.COLOR('#00f'); B.PRINT(Ma.toFixed(2));
+  B.COLOR('#fff'); B.PRINT(" mol/L, ");
+  B.COLOR('#0ff'); B.PRINT(('  '+Va).slice(-2) + " mL");
+  B.COLOR('#fff'); B.PRINT(" , ");
+  B.COLOR('#0f0'); B.PRINT("pH  0 ～ 14");
+  B.CR();
 }
 //--- HCl + NaOH
 function init3()
@@ -194,19 +150,19 @@ function init3()
 }
 function neut3()
 {
-  COLOR('#fff'); PRINT("[NaOH] = " + Mb.toFixed(2) + " mol/L, ");
-  COLOR('#00f'); PRINT(('  '+Vb).slice(-2));
-  COLOR('#0ff'); PRINT(" mL");
-  COLOR('#fff'); PRINT(" , ");
-  COLOR('#fff'); PRINT("v = 0 ～ " + ('  '+Lv).slice(-2) + " mL");
-  CR();
-  COLOR('#fff'); PRINT("[HCl]  = ");
-  COLOR('#00f'); PRINT(Ma.toFixed(2));
-  COLOR('#fff'); PRINT(" mol/L, ");
-  COLOR('#0ff'); PRINT(('  '+Va).slice(-2) + " mL");
-  COLOR('#fff'); PRINT(" , ");
-  COLOR('#0f0'); PRINT("pH  0 ～ 14");
-  CR();
+  B.COLOR('#fff'); B.PRINT("[NaOH] = " + Mb.toFixed(2) + " mol/L, ");
+  B.COLOR('#00f'); B.PRINT(('  '+Vb).slice(-2));
+  B.COLOR('#0ff'); B.PRINT(" mL");
+  B.COLOR('#fff'); B.PRINT(" , ");
+  B.COLOR('#fff'); B.PRINT("v = 0 ～ " + ('  '+Lv).slice(-2) + " mL");
+  B.CR();
+  B.COLOR('#fff'); B.PRINT("[HCl]  = ");
+  B.COLOR('#00f'); B.PRINT(Ma.toFixed(2));
+  B.COLOR('#fff'); B.PRINT(" mol/L, ");
+  B.COLOR('#0ff'); B.PRINT(('  '+Va).slice(-2) + " mL");
+  B.COLOR('#fff'); B.PRINT(" , ");
+  B.COLOR('#0f0'); B.PRINT("pH  0 ～ 14");
+  B.CR();
 }
 //--- CH3COOH + NH3
 function init4()
@@ -221,23 +177,23 @@ function init4()
 }
 function neut4()
 {
-  COLOR('#fff'); PRINT("[NH");
-  FONT(0.8, 1); PRINT("3"); FONT(0.2, 1); PRINT(" "); FONT(1, 1);
-  PRINT("]     = " + Mb.toFixed(2) + " mol/L, ");
-  COLOR('#00f'); PRINT(('  '+Vb).slice(-2));
-  COLOR('#0ff'); PRINT(" mL");
-  COLOR('#fff'); PRINT(" , ");
-  COLOR('#fff'); PRINT("v = 0 ～ " + ('  '+Lv).slice(-2) + " mL");
-  CR();
-  COLOR('#fff'); PRINT("[CH");
-  FONT(0.8, 1); PRINT("3"); FONT(1, 1); PRINT("COOH]");
-  FONT(0.2, 1); PRINT(" "); FONT(1, 1); PRINT(" = ");
-  COLOR('#00f'); PRINT(Ma.toFixed(2));
-  COLOR('#fff'); PRINT(" mol/L, ");
-  COLOR('#0ff'); PRINT(('  '+Va).slice(-2) + " mL");
-  COLOR('#fff'); PRINT(" , ");
-  COLOR('#0f0'); PRINT("pH  0 ～ 14");
-  CR();
+  B.COLOR('#fff'); B.PRINT("[NH");
+  B.FONT(0.8, 1); B.PRINT("3"); B.FONT(0.2, 1); B.PRINT(" "); B.FONT(1, 1);
+  B.PRINT("]     = " + Mb.toFixed(2) + " mol/L, ");
+  B.COLOR('#00f'); B.PRINT(('  '+Vb).slice(-2));
+  B.COLOR('#0ff'); B.PRINT(" mL");
+  B.COLOR('#fff'); B.PRINT(" , ");
+  B.COLOR('#fff'); B.PRINT("v = 0 ～ " + ('  '+Lv).slice(-2) + " mL");
+  B.CR();
+  B.COLOR('#fff'); B.PRINT("[CH");
+  B.FONT(0.8, 1); B.PRINT("3"); B.FONT(1, 1); B.PRINT("COOH]");
+  B.FONT(0.2, 1); B.PRINT(" "); B.FONT(1, 1); B.PRINT(" = ");
+  B.COLOR('#00f'); B.PRINT(Ma.toFixed(2));
+  B.COLOR('#fff'); B.PRINT(" mol/L, ");
+  B.COLOR('#0ff'); B.PRINT(('  '+Va).slice(-2) + " mL");
+  B.COLOR('#fff'); B.PRINT(" , ");
+  B.COLOR('#0f0'); B.PRINT("pH  0 ～ 14");
+  B.CR();
 }
 //--- NH3 + HCl
 function init5()
@@ -252,21 +208,21 @@ function init5()
 }
 function neut5()
 {
-  COLOR('#fff'); PRINT("[HCl] = " + Mb.toFixed(2) + " mol/L, ");
-  COLOR('#00f'); PRINT(('  '+Vb).slice(-2));
-  COLOR('#0ff'); PRINT(" mL");
-  COLOR('#fff'); PRINT(" , ");
-  COLOR('#fff'); PRINT("v = 0 ～ " + ('  '+Lv).slice(-2) + " mL");
-  CR();
-  COLOR('#fff'); PRINT("[NH");
-  FONT(0.8, 1); PRINT("3"); FONT(1, 1); PRINT("]");
-  FONT(0.2, 1); PRINT(" "); FONT(1, 1); PRINT(" = ");
-  COLOR('#00f'); PRINT(Ma.toFixed(2));
-  COLOR('#fff'); PRINT(" mol/L, ");
-  COLOR('#0ff'); PRINT(('  '+Va).slice(-2) + " mL");
-  COLOR('#fff'); PRINT(" , ");
-  COLOR('#0f0'); PRINT("pH  0 ～ 14");
-  CR();
+  B.COLOR('#fff'); B.PRINT("[HCl] = " + Mb.toFixed(2) + " mol/L, ");
+  B.COLOR('#00f'); B.PRINT(('  '+Vb).slice(-2));
+  B.COLOR('#0ff'); B.PRINT(" mL");
+  B.COLOR('#fff'); B.PRINT(" , ");
+  B.COLOR('#fff'); B.PRINT("v = 0 ～ " + ('  '+Lv).slice(-2) + " mL");
+  B.CR();
+  B.COLOR('#fff'); B.PRINT("[NH");
+  B.FONT(0.8, 1); B.PRINT("3"); B.FONT(1, 1); B.PRINT("]");
+  B.FONT(0.2, 1); B.PRINT(" "); B.FONT(1, 1); B.PRINT(" = ");
+  B.COLOR('#00f'); B.PRINT(Ma.toFixed(2));
+  B.COLOR('#fff'); B.PRINT(" mol/L, ");
+  B.COLOR('#0ff'); B.PRINT(('  '+Va).slice(-2) + " mL");
+  B.COLOR('#fff'); B.PRINT(" , ");
+  B.COLOR('#0f0'); B.PRINT("pH  0 ～ 14");
+  B.CR();
 }
 //--- (COOH)2 + NaOH
 function init6()
@@ -281,21 +237,21 @@ function init6()
 }
 function neut6()
 {
-  COLOR('#fff'); PRINT("[NaOH]    = " + Mb.toFixed(2) + " mol/L, ");
-  COLOR('#00f'); PRINT(('  '+Vb).slice(-2));
-  COLOR('#0ff'); PRINT(" mL");
-  COLOR('#fff'); PRINT(" , ");
-  COLOR('#fff'); PRINT("v = 0 ～ " + ('  '+Lv).slice(-2) + " mL");
-  CR();
-  COLOR('#fff'); PRINT("[(COOH)");
-  FONT(0.8, 1); PRINT("2"); FONT(1, 1); PRINT("]");
-  FONT(0.2, 1); PRINT(" "); FONT(1, 1); PRINT(" = ");
-  COLOR('#00f'); PRINT(Ma.toFixed(2));
-  COLOR('#fff'); PRINT(" mol/L, ");
-  COLOR('#0ff'); PRINT(('  '+Va).slice(-2) + " mL");
-  COLOR('#fff'); PRINT(" , ");
-  COLOR('#0f0'); PRINT("pH  0 ～ 14");
-  CR();
+  B.COLOR('#fff'); B.PRINT("[NaOH]    = " + Mb.toFixed(2) + " mol/L, ");
+  B.COLOR('#00f'); B.PRINT(('  '+Vb).slice(-2));
+  B.COLOR('#0ff'); B.PRINT(" mL");
+  B.COLOR('#fff'); B.PRINT(" , ");
+  B.COLOR('#fff'); B.PRINT("v = 0 ～ " + ('  '+Lv).slice(-2) + " mL");
+  B.CR();
+  B.COLOR('#fff'); B.PRINT("[(COOH)");
+  B.FONT(0.8, 1); B.PRINT("2"); B.FONT(1, 1); B.PRINT("]");
+  B.FONT(0.2, 1); B.PRINT(" "); B.FONT(1, 1); B.PRINT(" = ");
+  B.COLOR('#00f'); B.PRINT(Ma.toFixed(2));
+  B.COLOR('#fff'); B.PRINT(" mol/L, ");
+  B.COLOR('#0ff'); B.PRINT(('  '+Va).slice(-2) + " mL");
+  B.COLOR('#fff'); B.PRINT(" , ");
+  B.COLOR('#0f0'); B.PRINT("pH  0 ～ 14");
+  B.CR();
 }
 //--- Na2CO3 + HCl
 function init7()
@@ -310,22 +266,22 @@ function init7()
 }
 function neut7()
 {
-  COLOR('#fff'); PRINT("[HCl]    = " + Mc.toFixed(2) + " mol/L, ");
-  COLOR('#00f'); PRINT(('  '+Vc).slice(-2));
-  COLOR('#0ff'); PRINT(" mL");
-  COLOR('#fff'); PRINT(" , ");
-  COLOR('#fff'); PRINT("v = 0 ～ " + ('  '+Lv).slice(-2) + " mL");
-  CR();
-  COLOR('#fff'); PRINT("[Na");
-  FONT(0.8, 1); PRINT("2"); FONT(1, 1); PRINT("CO");
-  FONT(0.8, 1); PRINT("3"); FONT(1, 1); PRINT("]");
-  FONT(0.2, 1); PRINT("  "); FONT(1, 1); PRINT(" = ");
-  COLOR('#00f'); PRINT(Mh.toFixed(2));
-  COLOR('#fff'); PRINT(" mol/L, ");
-  COLOR('#0ff'); PRINT(('  '+Vh).slice(-2) + " mL");
-  COLOR('#fff'); PRINT(" , ");
-  COLOR('#0f0'); PRINT("pH  0 ～ 14");
-  CR();
+  B.COLOR('#fff'); B.PRINT("[HCl]    = " + Mc.toFixed(2) + " mol/L, ");
+  B.COLOR('#00f'); B.PRINT(('  '+Vc).slice(-2));
+  B.COLOR('#0ff'); B.PRINT(" mL");
+  B.COLOR('#fff'); B.PRINT(" , ");
+  B.COLOR('#fff'); B.PRINT("v = 0 ～ " + ('  '+Lv).slice(-2) + " mL");
+  B.CR();
+  B.COLOR('#fff'); B.PRINT("[Na");
+  B.FONT(0.8, 1); B.PRINT("2"); B.FONT(1, 1); B.PRINT("CO");
+  B.FONT(0.8, 1); B.PRINT("3"); B.FONT(1, 1); B.PRINT("]");
+  B.FONT(0.2, 1); B.PRINT("  "); B.FONT(1, 1); B.PRINT(" = ");
+  B.COLOR('#00f'); B.PRINT(Mh.toFixed(2));
+  B.COLOR('#fff'); B.PRINT(" mol/L, ");
+  B.COLOR('#0ff'); B.PRINT(('  '+Vh).slice(-2) + " mL");
+  B.COLOR('#fff'); B.PRINT(" , ");
+  B.COLOR('#0f0'); B.PRINT("pH  0 ～ 14");
+  B.CR();
 }
 
 //----------------------------------------------------------------------
@@ -333,15 +289,15 @@ function neut7()
 //----------------------------------------------------------------------
 function help()
 {
-  COLOR('#0f0');
-  LOCATE(57,  9); PRINT("0～" + Selects + " :選択");
-  LOCATE(57, 10); PRINT("Enter:リセット");
+  B.COLOR('#0f0');
+  B.LOCATE(57,  9); B.PRINT("0～" + Selects + " :選択");
+  B.LOCATE(57, 10); B.PRINT("Enter:リセット");
 
-  LOCATE(57, 12); PRINT("→:滴下(↑,+shift:多)");
-  LOCATE(57, 13); PRINT("←:戻す(↓,+shift:多)");
+  B.LOCATE(57, 12); B.PRINT("→:滴下(↑,+shift:多)");
+  B.LOCATE(57, 13); B.PRINT("←:戻す(↓,+shift:多)");
 
-  LOCATE(57, 15); PRINT("z,x,c:縮小,拡大,初期");
-  LOCATE(57, 16); PRINT("q,w  :線(細く,太く)")
+  B.LOCATE(57, 15); B.PRINT("z,x,c:縮小,拡大,初期");
+  B.LOCATE(57, 16); B.PRINT("q,w  :線(細く,太く)")
 }
 
 //----------------------------------------------------------------------
@@ -349,8 +305,8 @@ function help()
 //----------------------------------------------------------------------
 function plot(vb, ph, c)
 {
-  if (vb <= 0) { POINT(vb, -ph); return; }
-  LINE2(vb, -ph, c);
+  if (vb <= 0) { B.POINT(vb, -ph); return; }
+  B.LINE2(vb, -ph, c);
 }
 
 //----------------------------------------------------------------------
@@ -419,7 +375,7 @@ function indicator(ph1, ph2, r1, g1, b1, r2, g2, b2, x, w, ph)
   var x0, x1, r, b, g, c, c1, phw, lw;
 
   lw = ctx.lineWidth;
-  ctx.lineWidth = Math.ceil(lw * Zoom / 40);
+  ctx.lineWidth = Math.ceil(lw * B.zoom / 40);
 
   x0 = x;
   x1 = x0 + w;
@@ -436,16 +392,16 @@ function indicator(ph1, ph2, r1, g1, b1, r2, g2, b2, x, w, ph)
        b = b1 + Math.round((i - ph1) / phw * b2);
     }
     c = '#' + r.toString(16) + g.toString(16) + b.toString(16);
-    LINE(x0, -i, x1, -i, c);
+    B.LINE(x0, -i, x1, -i, c);
     if (c1 < 0 && i > ph) c1 = c;
   }
-  LINEB (x0,   0, x1+w, -14, '#fff');
+  B.LINEB (x0,   0, x1+w, -14, '#fff');
 
-  LINEBF(x0,   0, x1+w,   2,  c1   );
-  LINEB (x0,   0, x1+w,   2, '#fff');
+  B.LINEBF(x0,   0, x1+w,   2,  c1   );
+  B.LINEB (x0,   0, x1+w,   2, '#fff');
   x0 = x1;
   x1 = x0 + w;
-  LINE  (x0, -ph, x1  , -ph, '#fff');
+  B.LINE  (x0, -ph, x1  , -ph, '#fff');
   ctx.lineWidth = lw;
 }
 
@@ -482,47 +438,47 @@ function balance1(ca, cb)
 
   ca *= Math.abs(Val);
 
-  COLOR('#fff'); LOCATE(57, 0); PRINT("酸と塩基(H");
-  FONT(0.7, 0.6); PRINT("+"); FONT(1, 1); PRINT(",OH");
-  FONT(0.7, 0.6); PRINT("-"); FONT(1, 1); PRINT("換算)");
-  LOCATE(57, 1);
+  B.COLOR('#fff'); B.LOCATE(57, 0); B.PRINT("酸と塩基(H");
+  B.FONT(0.7, 0.6); B.PRINT("+"); B.FONT(1, 1); B.PRINT(",OH");
+  B.FONT(0.7, 0.6); B.PRINT("-"); B.FONT(1, 1); B.PRINT("換算)");
+  B.LOCATE(57, 1);
   if (!Rev)
   {
-    PRINT("[H" ); FONT(0.7, 0.6); PRINT("+"); FONT(1, 1);
-    PRINT("]  = " + ca.toFixed(4) + " mol/L");
+    B.PRINT("[H" ); B.FONT(0.7, 0.6); B.PRINT("+"); B.FONT(1, 1);
+    B.PRINT("]  = " + ca.toFixed(4) + " mol/L");
   }
   else
   {
-    PRINT("[OH" ); FONT(0.7, 0.6); PRINT("-"); FONT(1, 1);
-    PRINT("] = " + ca.toFixed(4) + " mol/L");
+    B.PRINT("[OH" ); B.FONT(0.7, 0.6); B.PRINT("-"); B.FONT(1, 1);
+    B.PRINT("] = " + ca.toFixed(4) + " mol/L");
   }
-  LOCATE(57, 2);
+  B.LOCATE(57, 2);
   if (!Rev)
   {
-    PRINT("[OH" ); FONT(0.7, 0.6); PRINT("-"); FONT(1, 1);
-    PRINT("] = "  + cb.toFixed(4) + " mol/L"); 
+    B.PRINT("[OH" ); B.FONT(0.7, 0.6); B.PRINT("-"); B.FONT(1, 1);
+    B.PRINT("] = "  + cb.toFixed(4) + " mol/L"); 
   }
   else
   {
-    PRINT("[H" ); FONT(0.7, 0.6); PRINT("+"); FONT(1, 1);
-    PRINT("]  = "  + cb.toFixed(4) + " mol/L"); 
+    B.PRINT("[H" ); B.FONT(0.7, 0.6); B.PRINT("+"); B.FONT(1, 1);
+    B.PRINT("]  = "  + cb.toFixed(4) + " mol/L"); 
   }
 
-  LOCATE(57, 4); COLOR('#fff');
+  B.LOCATE(57, 4); B.COLOR('#fff');
   if (!Rev)
   {
-    PRINT("H");
-    FONT(0.7, 0.6); PRINT("+"); FONT(1, 1);
-    PRINT("               OH");
-    FONT(0.7, 0.6); PRINT("-"); FONT(1, 1);
+    B.PRINT("H");
+    B.FONT(0.7, 0.6); B.PRINT("+"); B.FONT(1, 1);
+    B.PRINT("               OH");
+    B.FONT(0.7, 0.6); B.PRINT("-"); B.FONT(1, 1);
     c1 = '#f00'; c2 = '#0ff';
   }
   else
   {
-    PRINT("OH");
-    FONT(0.7, 0.6); PRINT("-"); FONT(1, 1);
-    PRINT("               H");
-    FONT(0.7, 0.6); PRINT("+"); FONT(1, 1);
+    B.PRINT("OH");
+    B.FONT(0.7, 0.6); B.PRINT("-"); B.FONT(1, 1);
+    B.PRINT("               H");
+    B.FONT(0.7, 0.6); B.PRINT("+"); B.FONT(1, 1);
     c1 = '#0ff'; c2 = '#f00';
   }
 
@@ -531,60 +487,61 @@ function balance1(ca, cb)
   x0 = Lv + x * 0.6;
   x1 = x0 + x * p;
   x2 = x0 + x;
-  LINEBF(x0, -12, x1, -11, c1    );
-  LINEBF(x1, -12, x2, -11, c2    );
-  LINEB (x0, -12, x2, -11, '#fff');
-  LINE  (x1, -12, x1, -11, '#ff0');
+  B.LINEBF(x0, -12, x1, -11, c1    );
+  B.LINEBF(x1, -12, x2, -11, c2    );
+  B.LINEB (x0, -12, x2, -11, '#fff');
+  B.LINE  (x1, -12, x1, -11, '#ff0');
   x1 = (x2 + x0) / 2;
-  LINE  (x1, -12, x1, -11, '#00f');
+  B.LINE  (x1, -12, x1, -11, '#00f');
 }
+
 function balance2(ca, cb)
 {
   var p, x, x0, x1, x2, c1, c2;
 
   ca *= Math.abs(Val);
 
-  COLOR('#fff'); LOCATE(57, 0); PRINT("塩と酸(1価A");
-  FONT(0.7, 0.6); PRINT("-"); FONT(1, 1); PRINT(",H");
-  FONT(0.7, 0.6); PRINT("+"); FONT(1, 1); PRINT("換算)");
-  LOCATE(57, 1);
+  B.COLOR('#fff'); B.LOCATE(57, 0); B.PRINT("塩と酸(1価A");
+  B.FONT(0.7, 0.6); B.PRINT("-"); B.FONT(1, 1); B.PRINT(",H");
+  B.FONT(0.7, 0.6); B.PRINT("+"); B.FONT(1, 1); B.PRINT("換算)");
+  B.LOCATE(57, 1);
   if (!Rev)
   {
-    PRINT("[A" ); FONT(0.7, 0.6); PRINT("-"); FONT(1, 1);
-    PRINT("] = " + ca.toFixed(4) + " mol/L");
+    B.PRINT("[A" ); B.FONT(0.7, 0.6); B.PRINT("-"); B.FONT(1, 1);
+    B.PRINT("] = " + ca.toFixed(4) + " mol/L");
   }
   else
   {
-    PRINT("[H" ); FONT(0.7, 0.6); PRINT("+"); FONT(1, 1);
-    PRINT("] = " + ca.toFixed(4) + " mol/L");
+    B.PRINT("[H" ); B.FONT(0.7, 0.6); B.PRINT("+"); B.FONT(1, 1);
+    B.PRINT("] = " + ca.toFixed(4) + " mol/L");
   }
-  LOCATE(57, 2);
+  B.LOCATE(57, 2);
   if (!Rev)
   {
-    PRINT("[H" ); FONT(0.7, 0.6); PRINT("+"); FONT(1, 1);
-    PRINT("] = "  + cb.toFixed(4) + " mol/L"); 
+    B.PRINT("[H" ); B.FONT(0.7, 0.6); B.PRINT("+"); B.FONT(1, 1);
+    B.PRINT("] = "  + cb.toFixed(4) + " mol/L"); 
   }
   else
   {
-    PRINT("[A" ); FONT(0.7, 0.6); PRINT("-"); FONT(1, 1);
-    PRINT("] = "  + cb.toFixed(4) + " mol/L"); 
+    B.PRINT("[A" ); B.FONT(0.7, 0.6); B.PRINT("-"); B.FONT(1, 1);
+    B.PRINT("] = "  + cb.toFixed(4) + " mol/L"); 
   }
 
-  LOCATE(57, 4); COLOR('#fff');
+  B.LOCATE(57, 4); B.COLOR('#fff');
   if (!Rev)
   {
-    PRINT("A");
-    FONT(0.7, 0.6); PRINT("-"); FONT(1, 1);
-    PRINT("                H");
-    FONT(0.7, 0.6); PRINT("+"); FONT(1, 1);
+    B.PRINT("A");
+    B.FONT(0.7, 0.6); B.PRINT("-"); B.FONT(1, 1);
+    B.PRINT("                H");
+    B.FONT(0.7, 0.6); B.PRINT("+"); B.FONT(1, 1);
     c1 = '#0f0'; c2 = '#f00';
   }
   else
   {
-    PRINT("H");
-    FONT(0.7, 0.6); PRINT("+"); FONT(1, 1);
-    PRINT("                A");
-    FONT(0.7, 0.6); PRINT("-"); FONT(1, 1);
+    B.PRINT("H");
+    B.FONT(0.7, 0.6); B.PRINT("+"); B.FONT(1, 1);
+    B.PRINT("                A");
+    B.FONT(0.7, 0.6); B.PRINT("-"); B.FONT(1, 1);
     c1 = '#f00'; c2 = '#0f0';
   }
 
@@ -593,12 +550,12 @@ function balance2(ca, cb)
   x0 = Lv + x * 0.6;
   x1 = x0 + x * p;
   x2 = x0 + x;
-  LINEBF(x0, -12, x1, -11, c1    );
-  LINEBF(x1, -12, x2, -11, c2    );
-  LINEB (x0, -12, x2, -11, '#fff');
-  LINE  (x1, -12, x1, -11, '#ff0');
+  B.LINEBF(x0, -12, x1, -11, c1    );
+  B.LINEBF(x1, -12, x2, -11, c2    );
+  B.LINEB (x0, -12, x2, -11, '#fff');
+  B.LINE  (x1, -12, x1, -11, '#ff0');
   x1 = (x2 + x0) / 2;
-  LINE  (x1, -12, x1, -11, '#00f');
+  B.LINE  (x1, -12, x1, -11, '#00f');
 }
 function balance(ca, cb)
 {
@@ -645,7 +602,7 @@ function init()
   }
 
   x = Lv / 3;
-  WINDOW(-Lv / 2 + x, -17, Lv + Lv / 2 + x, 1);
+  B.WINDOW(-Lv / 2 + x, -17, Lv + Lv / 2 + x, 1);
 }
 
 //----------------------------------------------------------------------
@@ -696,7 +653,7 @@ function neut(lv)
   var i, vb, ph1, ca1, cb1, dv, ph;
 
   init();
-  CLS('#000');
+  B.CLS('#000');
 
   switch(Select)
   {
@@ -716,25 +673,26 @@ function neut(lv)
 
     if (i > 0)
     {
-      LINE(0, -i, Lv, -i, '#00f');
+      B.LINE(0, -i, Lv, -i, '#00f');
     }
     t = (i < 10)? ' ' + i : i;
-    SYMBOL(-Lv/15, -i+0.4, t, '#fff');
+    B.SYMBOL(-Lv/15, -i+0.4, t, '#fff');
   }
-  LINE( 0, -14,  0,  0, '#0f0');
-  if (Val >= 0) LINE(Vb, -14, Vb,  0, '#0ff');
-  else          LINE(Vc, -14, Vc,  0, '#0ff');
-  LINE( 0,   0, Lv,  0, '#fff');
-  LINE( 0,  -7, Lv, -7, '#0ff');
+  B.LINE( 0, -14,  0,  0, '#0f0');
+  if (Val >= 0) B.LINE(Vb, -14, Vb,  0, '#0ff');
+  else          B.LINE(Vc, -14, Vc,  0, '#0ff');
+  B.LINE( 0,   0, Lv,  0, '#fff');
+  B.LINE( 0,  -7, Lv, -7, '#0ff');
+
   if (Val >= 0)
   {
-    SYMBOL(Vb-Lv/40 , +1, Vb + " mL", '#fff');
-    SYMBOL(Vb+Lv*0.8, +1, "滴下量 " + lv.toFixed(2) + " mL", '#fff');
+    B.SYMBOL(Vb-Lv/40 , +1, Vb + " mL", '#fff');
+    B.SYMBOL(Vb+Lv*0.8, +1, "滴下量 " + lv.toFixed(2) + " mL", '#fff');
   }
   else
   {
-    SYMBOL(Vc-Lv/40 , +1, Vc + " mL", '#fff');
-    SYMBOL(Vc+Lv*0.8, +1, "滴下量 " + lv.toFixed(2) + " mL", '#fff');
+    B.SYMBOL(Vc-Lv/40 , +1, Vc + " mL", '#fff');
+    B.SYMBOL(Vc+Lv*0.8, +1, "滴下量 " + lv.toFixed(2) + " mL", '#fff');
   }
 
   dv = Dv / 2;
@@ -748,7 +706,6 @@ function neut(lv)
   ph = titration(vb);
   plot(vb, ph, '#ff0');
   ph1 = ph; ca1 = Ca; cb1 = Cb;
-
   for (vb += dv; vb <= Lv; vb += dv)
   {
     ph = titration(vb)
@@ -761,30 +718,6 @@ function neut(lv)
   help();
 }
 
-//----------------------------------------------------------------------
-// Key
-//----------------------------------------------------------------------
-function keyon(t)
-{
-  if (Key[ 16]) { t = t * 10; } // SHIFT
-  if (Key[ 38]) //↑
-  {
-    Volume += t * 4; if (Volume > Lv) Volume = Lv; blur();
-  }
-  if (Key[ 40]) //↓
-  {
-    Volume -= t * 4; if (Volume <  0) Volume =  0; blur();
-  } 
-  if (Key[ 39]) //→
-  {
-    Volume += t    ; if (Volume > Lv) Volume = Lv; blur();
-  } 
-  if (Key[ 37]) //←
-  {
-    Volume -= t    ; if (Volume <  0) Volume =  0; blur();
-  }
-}
-
 //----------------------------------------------------------
 // select(0～9)
 //----------------------------------------------------------
@@ -794,26 +727,58 @@ function selectof(k)
   {
     Select = k;
     Volume = 0;
-    blur();
   }
 }
 
 //----------------------------------------------------------------------
 // Input key
 //----------------------------------------------------------------------
-document.body.addEventListener('keydown', event =>
+function blur()
 {
-  switch (event.keyCode)
+  document.getElementById("but_0" ).blur();
+  document.getElementById("but_1" ).blur();
+  document.getElementById("but_2" ).blur();
+  document.getElementById("but_3" ).blur();
+  document.getElementById("but_4" ).blur();
+  document.getElementById("but_5" ).blur();
+  document.getElementById("but_6" ).blur();
+  document.getElementById("but_7" ).blur();
+  document.getElementById("but_R" ).blur();
+  document.getElementById("but_d2").blur();
+  document.getElementById("but_d1").blur();
+}
+
+function inkey(key)
+{
+  var t = Dv;
+
+  if (Key[ 16]) { t = t * 4; } // SHIFT
+  switch (key)
   {
-    case 13: Volume = 0     ; blur(); break; // Enter
-    case 81: lineWidth( 0.5); blur(); break; // 'Q'
-    case 87: lineWidth( 2  ); blur(); break; // 'W'
-    case 90: zooming  (-1  ); blur(); break; // 'Z'
-    case 88: zooming  ( 1  ); blur(); break; // 'X'
-    case 67: zooming  ( 0  ); blur(); break; // 'C'
-    default: selectof(event.keyCode - 48);
+    case 13: Volume = 0       ; break; // Enter
+    case 81: B.lineWidth( 0.5); break; // 'Q'
+    case 87: B.lineWidth( 2  ); break; // 'W'
+    case 90: B.zooming  (-1  ); break; // 'Z'
+    case 88: B.zooming  ( 1  ); break; // 'X'
+    case 67: B.zooming  ( 0  ); break; // 'C'
+    case 38: //↑
+      Volume += t * 10; if (Volume > Lv) Volume = Lv; break;
+    case 40: //↓
+      Volume -= t * 10; if (Volume <  0) Volume =  0; break;
+    case 39: //→
+      Volume += t     ; if (Volume > Lv) Volume = Lv; break;
+    case 37: //←
+      Volume -= t     ; if (Volume <  0) Volume =  0; break;
+    default: selectof(key - 48);
   }
   window.requestAnimationFrame(main);
+  blur();
+  window.requestAnimationFrame(main);
+}
+
+document.body.addEventListener('keydown', event =>
+{
+  inkey(event.keyCode);
 });
 
 //----------------------------------------------------------------------------------
@@ -830,14 +795,11 @@ window.onkeyup   = function(event) { Key[event.keyCode] = 0; }
 function main()
 {
 //  ctx.lineWidth = Width;
-//  keyon(Dv);  //--- 1滴 0.05 mL
   neut(Volume);
 //  window.requestAnimationFrame(main);
 }
 
-lineWidth(0);
-zooming(0);
-WINDOW(-320, -200, 319, 199);
+main();
 main();
 
 //----------------------------------------------------------------------
