@@ -50,27 +50,27 @@ class BASIC
     this.lineWidth(0);
     this.zooming(0);
   }
-  winX(x)
+  WinX(x)
   {
     return (x * this.winW / canvas.width) + this.winX;
   }
-  winY(y)
+  WinY(y)
   {
     return (y * this.winH / canvas.height) + this.winY;
   }
-  scrX(x)
+  ScrX(x)
   {
     return Math.round((x - this.winX) * canvas.width  / this.winW);
   }
-  scrY(y)
+  ScrY(y)
   {
     return Math.round((y - this.winY) * canvas.height / this.winH);
   }
-  scrW(w)
+  ScrW(w)
   {
     return Math.round(w * canvas.width  / this.winW);
   }
-  scrH(h)
+  ScrH(h)
   {
     return Math.round(h * canvas.height / this.winH);
   }
@@ -133,8 +133,8 @@ class BASIC
   {
     var x1, y1;
 
-    x1 = this.scrX(x);
-    y1 = this.scrY(y);
+    x1 = this.ScrX(x);
+    y1 = this.ScrY(y);
     ctx.fillStyle   = c;
     ctx.strokeStyle = c;
     ctx.fillText(text, x1, y1);
@@ -217,23 +217,23 @@ class BASIC
   }
   LOCATEp(x, y)
   {
-    this.locX = this.scrX(x);
-    this.locY = this.scrY(y);
+    this.locX = this.ScrX(x);
+    this.locY = this.ScrY(y);
   }
   POINT(x, y)
   {
-    this.posX = this.scrX(x);
-    this.posY = this.scrY(y);
+    this.posX = this.ScrX(x);
+    this.posY = this.ScrY(y);
   }
   LINE(x1, y1, x2, y2, c)
   {
     ctx.strokeStyle = c;
     ctx.beginPath();
-    this.posX = this.scrX(x1);
-    this.posY = this.scrY(y1);
+    this.posX = this.ScrX(x1);
+    this.posY = this.ScrY(y1);
     ctx.moveTo(this.posX, this.posY);
-    this.posX = this.scrX(x2);
-    this.posY = this.scrY(y2);
+    this.posX = this.ScrX(x2);
+    this.posY = this.ScrY(y2);
     ctx.lineTo(this.posX, this.posY);
     ctx.stroke();
     ctx.closePath();
@@ -243,8 +243,8 @@ class BASIC
     ctx.strokeStyle = c;
     ctx.beginPath();
     ctx.moveTo(this.posX, this.posY);
-    this.posX = this.scrX(x2);
-    this.posY = this.scrY(y2);
+    this.posX = this.ScrX(x2);
+    this.posY = this.ScrY(y2);
     ctx.lineTo(this.posX, this.posY);
     ctx.stroke();
     ctx.closePath();
@@ -261,10 +261,10 @@ class BASIC
   {
     var x, y, w, h;
 
-    x = this.scrX(x1);
-    y = this.scrY(y1);
-    this.posX = this.scrX(x2);
-    this.posY = this.scrY(y2);
+    x = this.ScrX(x1);
+    y = this.ScrY(y1);
+    this.posX = this.ScrX(x2);
+    this.posY = this.ScrY(y2);
     w = this.posX - x + 1;
     h = this.posY - y + 1;
     ctx.strokeStyle = c;
@@ -275,10 +275,10 @@ class BASIC
   {
     var x, y, w, h;
 
-    x = this.scrX(x1);
-    y = this.scrY(y1);
-    this.posX = this.scrX(x2);
-    this.posY = this.scrY(y2);
+    x = this.ScrX(x1);
+    y = this.ScrY(y1);
+    this.posX = this.ScrX(x2);
+    this.posY = this.ScrY(y2);
     w = this.posX - x + 1;
     h = this.posY - y + 1;
     ctx.fillStyle = c;
@@ -288,8 +288,8 @@ class BASIC
   {
     var x0, y0;
 
-    this.posX = x0 = this.scrX(x);
-    this.posY = y0 = this.scrY(y);
+    this.posX = x0 = this.ScrX(x);
+    this.posY = y0 = this.ScrY(y);
 
     ctx.beginPath();
     ctx.arc(x0, y0, r0, 0, Math.PI * 2, true);

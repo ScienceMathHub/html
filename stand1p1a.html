@@ -25,10 +25,10 @@ A1<label><input type="range" id ="rangeA1" min="0" max= "1" step="0.1"
 <pre></pre>
 A2<label><input type="range" id ="rangeA2" min="0" max= "1" step="0.1"
   value="1">er<br><br></label>
-λ1<label><input type="range" id ="rangeL1" min="0.5" max= "4" step="0.5"
+λ1<label><input type="range" id ="rangeL1" min="1" max= "4" step="0.5"
   value="1">df</label>
 <pre></pre>
-λ2<label><input type="range" id ="rangeL2" min="0.5" max= "4" step="0.5"
+λ2<label><input type="range" id ="rangeL2" min="1" max= "4" step="0.5"
   value="2">cv<br><br></label>
 <input type="button" id="butS" value="進行/停止" onclick="inkey(32)">Space
 <input type="button" id="butM" value="初"    onclick="inkey(77)">m<br><br>
@@ -42,7 +42,8 @@ A2<label><input type="range" id ="rangeA2" min="0" max= "1" step="0.1"
 <pre></pre>
 <input type="button" id="butZ" value="縮"    onclick="inkey(90)">z 
 <input type="button" id="butX" value="拡"    onclick="inkey(88)">x
-<input type="button" id="butC" value="初"    onclick="inkey(67)">b<br><br>
+<input type="button" id="butC" value="初"    onclick="inkey(67)">b
+　<input type="button" id="butJ" value="縦"    onclick="inkey(74)">j<br><br>
 
 <script src="https://sciencemathhub.github.io/html/canlib2.js"></script>
 <script>
@@ -60,6 +61,7 @@ var isDup;         // 重ね表示
 var Vt;            // 移動距離(m)
 var isVt;          // 移動/停止
 var isCos;         // 包括線表示
+var isLon;         // 縦波表示
 
 var cVo =  1  , Vo = cVo; // 速度(m/s)
 var cA1 =  1  , A1 = cA1; // 振幅1
@@ -146,7 +148,7 @@ function f12d(x)
 //--------------------------------------------------------------------
 function graph(c, px, py, h, m, func)
 {
-  var x, y, x0, y0, i, s, n, t, str;
+  var x, y, x0, y0, i, s, n, t;
 
   B.WINDOW(px, py, px+639, py-399);
 
@@ -245,6 +247,29 @@ function scale(c, px, py, h, m, up, sl, sr)
 }
 
 //--------------------------------------------------------------------
+// longitudinal wave
+//--------------------------------------------------------------------
+function longi(c, px, py, h, m, func)
+{
+  var x, y, w, s, n, t, a;
+
+  if (!isLon) return;
+  B.WINDOW(px, py, px+639, py-399);
+
+  a = h * 2;
+  n = DisW;
+  i = n / 10;
+  s = n / 72;
+  for (x = -(n + i * 2); x <= n + i * 2; x += s)
+  {
+    t = (x / n) * DisN;
+    y = func(t);
+    w = x + y * s * 0.9;
+    B.LINE(w, a, w, -a, c);
+  }
+}
+
+//--------------------------------------------------------------------
 // screen
 //--------------------------------------------------------------------
 function display()
@@ -266,8 +291,10 @@ function display()
     px = -s * (1.5 + DisX);
     scale('#ffb', px, py, h, a, 0, '', '-');
     px = -s * 1.5;
+    longi('#fff', px, py, h, a, f1);
     graph('#fff', px, py, h, a, f1);
     px = -s * (1.5 + DisX);
+    longi('#ffb', px, py, h, a, f2);
     graph('#ffb', px, py, h, a, f2);
     px = -s * 1.5;
     py += 112;
@@ -279,11 +306,13 @@ function display()
     px = -s * 1.5;
     func1('#fff', px, py, h, a);
     scale('#ff0', px, py, h, a, 0, '-', '');
+    longi('#fff', px, py, h, a, f1);
     graph('#fff', px, py, h, a, f1);
     px = -s * (1.5 + DisX);
     py += 116;
     func2('#fff', px, py, h, a);
     scale('#ff0', px, py, h, a, 0, '', '-');
+    longi('#fff', px, py, h, a, f2);
     graph('#fff', px, py, h, a, f2);
     py += 102;
   }
@@ -292,6 +321,7 @@ function display()
   a = 2;
 
   scale('#0f0', px, py, h, a, 2, '', '');
+  longi('#fff', px, py, h, a, f12);
   if (isCos)
   {
     graph('#0af', px, py, h, a, f12u);
@@ -326,6 +356,7 @@ function blur()
   document.getElementById('butZ').blur();
   document.getElementById('butX').blur();
   document.getElementById('butC').blur();
+  document.getElementById('butJ').blur();
   if (isVt > 0) isVt = 2; else if (isVt < 0) isVt = 1;
 }
 function inputVo()
@@ -368,6 +399,7 @@ function init()
   isVt   = 0;
   Vt     = 0;
   isCos  = 0;
+  isLon  = 0;
   blur();
   window.requestAnimationFrame(main);
 }
@@ -397,7 +429,7 @@ function limitA(x, s)
 }
 function limitL(x, s)
 {
-  var min  = 0.5;
+  var min  = 1;
   var max  = 4;
   var step = 0.5;
   
@@ -413,6 +445,7 @@ function inkey(key)
     case 32: isVt = (isVt)? 0 : -1; break; // ' '
     case 77: Vt = 0; isVt = 0     ; break; // 'm'
     case 78: isCos = !isCos       ; break; // 'n'
+    case 74: isLon = !isLon       ; break; // 'j'
     case 65: isDup = 1            ; break; // 'A'
     case 83: isDup = 0            ; break; // 'S'
     case 81: B.lineWidth( 0.5)    ; break; // 'Q'

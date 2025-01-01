@@ -6,7 +6,7 @@
 
  z,x,c, q,w, Enter, space
 
- (c)Ohtani 2023.8
+ (c)Ohtani 2023.8 - 2025.1
 ------------------------------------------------------------------------
 -->
 <!DOctxYPE html>
@@ -66,13 +66,16 @@
 <input type="number" id="num_t1" value="300.0" min = "0" max="9999.9"
   step = "0.1" />
 <pre></pre>
-<script src="https://sciencemathhub.github.io/html/canlib.js"></script>
+
+<script src="https://sciencemathhub.github.io/html/canlib2.js"></script>
 <script>
 'use strict'
 
 //----------------------------------------------------------------------
 // public variable
 //----------------------------------------------------------------------
+var B = new BASIC();
+
 var Cg = '#00f';  // graph
 var Ca = '#f00';  // 質点A
 var Cb = '#0f0';  // 質点B
@@ -437,8 +440,8 @@ class Motion
     return d;
   }
 }
-var A = new Motion();
-var B = new Motion();
+var MA = new Motion();
+var MB = new Motion();
 
 //----------------------------------------------------------------------
 // touch
@@ -491,14 +494,14 @@ function blur()
 
 function reset()
 {  
-  A.velocity0(Pv0, Pd0);
-  A.px = A.py = 0;
-  B.velocity0(0, 0);
-  B.px = Bx;
-  B.py = By;
-  Pd3 = A.degree3(B);
-  Pd2 = A.degree2(B);
-  Pd1 = A.degree1(B);
+  MA.velocity0(Pv0, Pd0);
+  MA.px = MA.py = 0;
+  MB.velocity0(0, 0);
+  MB.px = Bx;
+  MB.py = By;
+  Pd3 = MA.degree3(MB);
+  Pd2 = MA.degree2(MB);
+  Pd1 = MA.degree1(MB);
 }
 
 function getter()
@@ -513,7 +516,7 @@ function getter()
   const a = document.getElementById("num_ae");
   var r, ps, d0, d1, d2, d3;
 
-  A.e = B.e = Number(a.value);
+  MA.e = MB.e = Number(a.value);
 
   Pg0 = Number(g.value);
   Pv0 = Number(v.value);
@@ -543,15 +546,15 @@ function getter()
       Ps = ps;
     }
   }
-  B.x1 = A.x1 = Pw * Ps / Pd;
-  B.y1 = A.y1 = Ph * Ps / Pd;
-  B.r  = A.r  = Pr * Ps / Pd;
+  MB.x1 = MA.x1 = Pw * Ps / Pd;
+  MB.y1 = MA.y1 = Ph * Ps / Pd;
+  MB.r  = MA.r  = Pr * Ps / Pd;
 
-  A.ax = 0;
-  A.ay = -Pg0;
-  B.ax = 0;
-  B.ay = (Pf == 0)? 0 : -Pg0;
-  B.m = A.m * Bm;
+  MA.ax = 0;
+  MA.ay = -Pg0;
+  MB.ax = 0;
+  MB.ay = (Pf == 0)? 0 : -Pg0;
+  MB.m = MA.m * Bm;
 
   if (Pt <= 0) reset();
 }
@@ -613,28 +616,28 @@ function pushu(n)
   switch (n)
   {
   case  1:
-    Ae  = A.e;
-    A.e = A.u = A.fu = A.fe = A.wu = A.we = A.fx = 1;
-    B.e = B.u = B.fu = B.fe = B.wu = B.we = B.fx = 1;
+    Ae  = MA.e;
+    MA.e = MA.u = MA.fu = MA.fe = MA.wu = MA.we = MA.fx = 1;
+    MB.e = MB.u = MB.fu = MB.fe = MB.wu = MB.we = MB.fx = 1;
     Vy  = y.value;
     Vd0 = d.value;
     Vdi = Pdi;
     Pd0 = By = 0;
     d.value = Pd0.toFixed(ZD);
     y.value = By.toFixed(Zb);
-    a.value = A.e.toFixed(Ze);
+    a.value = MA.e.toFixed(Ze);
     isMv = 0;
     getf();
     break;
   default:
-    A.e  = B.e  = Ae;  // 反発係数(垂直)
-    A.u  = B.u  = Au;  // 反発係数(水平)(仮)
-    A.we = B.we = Awe; // 壁反発係数(垂直)
-    A.wu = B.wu = Awu; // 壁反発係数(水平)(仮)
-    A.fe = B.fe = Afe; // 床反発係数(垂直)
-    A.fu = B.fu = Afu; // 床反発係数(水平)(仮)
-    A.fx = B.fx = Afx; // 床反発係数(水平)(仮)
-    a.value = A.e.toFixed(Ze);
+    MA.e  = MB.e  = Ae;  // 反発係数(垂直)
+    MA.u  = MB.u  = Au;  // 反発係数(水平)(仮)
+    MA.we = MB.we = Awe; // 壁反発係数(垂直)
+    MA.wu = MB.wu = Awu; // 壁反発係数(水平)(仮)
+    MA.fe = MB.fe = Afe; // 床反発係数(垂直)
+    MA.fu = MB.fu = Afu; // 床反発係数(水平)(仮)
+    MA.fx = MB.fx = Afx; // 床反発係数(水平)(仮)
+    a.value = MA.e.toFixed(Ze);
     isMv = 0;
     y.value = Vy;
     d.value = Vd0;
@@ -653,7 +656,7 @@ function pushStart()
 function pushf()
 {
   Pf = !Pf;
-  if (!Pf) { B.vx = B.vy = B.ay = 0; }
+  if (!Pf) { MB.vx = MB.vy = MB.ay = 0; }
   getf();
 }
 
@@ -686,18 +689,18 @@ function axis()
   {
     y = i * Pd
     s = (i % 5)? P1 : (i % 2)? P5 : P0;
-    LINE(-s,  y, s,  y, Cy);
-    LINE(-s, -y, s, -y, Cy);
+    B.LINE(-s,  y, s,  y, Cy);
+    B.LINE(-s, -y, s, -y, Cy);
   }
   for (i = 1; i <= Pw / Pd; i++)
   {
     x = i * Pd;
     s = (i % 5)? P1 : (i % 2)? P5 : P0;
-    LINE( x,  -s,  x, s, Cx);
-    LINE(-x,  -s, -x, s, Cx);
+    B.LINE( x,  -s,  x, s, Cx);
+    B.LINE(-x,  -s, -x, s, Cx);
   }
-  LINE(0, -Ph, 0, Ph, Cy);
-  LINE(-Pw, 0, Pw, 0, Cx);
+  B.LINE(0, -Ph, 0, Ph, Cy);
+  B.LINE(-Pw, 0, Pw, 0, Cx);
 }
 
 //----------------------------------------------------------------------
@@ -710,7 +713,7 @@ function graph0(d, c)
   x = Pw;
   t = d * Math.PI / 180;
   y = x * Math.tan(t);
-  LINE(0, 0, x, y, c);
+  B.LINE(0, 0, x, y, c);
 }
 
 function graph1(d, c)
@@ -722,20 +725,20 @@ function graph1(d, c)
   t  = d  * Math.PI / 180;
   vx = v0 * Math.cos(t);
   vy = v0 * Math.sin(t);
-  POINT(0, 0);
+  B.POINT(0, 0);
   s = 1;
   for (i = s; i < Pw; i += s)
   {
     x = i * Ps / Pd;
     t = x / vx;
     y = vy*t - (g/2)*t*t;
-    LINE2(x * Pd / Ps, y * Pd / Ps, Cg);    
+    B.LINE2(x * Pd / Ps, y * Pd / Ps, Cg);    
   }
   i = Pw;
   x = i * Ps / Pd;
   t = x / vx;
   y = vy*t - (g/2)*t*t;
-  LINE2(x * Pd / Ps, y * Pd / Ps, Cg);    
+  B.LINE2(x * Pd / Ps, y * Pd / Ps, Cg);    
 }
 
 //----------------------------------------------------------------------
@@ -757,10 +760,10 @@ function Ball(a, c)
 
   x = a.px * Pd / Ps;
   y = a.py * Pd / Ps;
-  CIRCLERF(x, y, Pr ,  c    );
+  B.CIRCLERF(x, y, Pr ,  c    );
   x += Prx;
   y += Pry;
-  CIRCLERF(x, y, Prr, '#fff');
+  B.CIRCLERF(x, y, Prr, '#fff');
 }
 
 function Frame(t)
@@ -768,13 +771,13 @@ function Frame(t)
   var tb = 2;
   var C0, C1;
 
-  CLS('#032');
-  WINDOW(-Px, Py, 639 - Px, Py - 399);
-  FONT(1, 0);
+  B.CLS('#032');
+  B.WINDOW(-Px, Py, 639 - Px, Py - 399);
+  B.FONT(1, 0);
 
   if (isDp)
   {
-    LINE(0, 0, Bx * Pd / Ps, By * Pd / Ps, Cg);
+    B.LINE(0, 0, Bx * Pd / Ps, By * Pd / Ps, Cg);
     //  graph0(Pd1, Cg);
     graph1(Pd1, Cg);
     graph1(Pd2, Cg);
@@ -782,78 +785,79 @@ function Frame(t)
   }
   axis();
 
-  LOCATE(0, 1);
-  TAB(tb, 0);
-  COLOR('#ff0'); PRINT("数値");
-  COLOR('#0f0'); PRINT("(Enterﾘｾｯﾄ)");
-  COLOR('#0ff'); PRINT("space開始");
-  COLOR('#0f0'); PRINT(" (asd角f落g線hjk重er慣,矢印+S/C/A的,zxc拡qw線)");
-  PRINT((Fr < 10)? "  " : " ");
-  PRINT(Fr + "f"); CR();
+  B.LOCATE(0, 1);
+  B.TAB(tb, 0);
+  B.COLOR('#ff0'); B.PRINT("数値");
+  B.COLOR('#0f0'); B.PRINT("(Enterﾘｾｯﾄ)");
+  B.COLOR('#0ff'); B.PRINT("space開始");
+  B.COLOR('#0f0'); B.PRINT(" (asd角f落g線hjk重er慣,矢印+S/C/A的,zxc拡qw線)");
+  B.PRINT((Fr < 10)? "  " : " ");
+  B.PRINT(Fr + "f"); B.CR();
   Fr = (Fr + 1) % 60;
 
-  COLOR('#fff');
-  TAB(tb, 0);
-  PRINTe("重力加速度g =" + Num(Pg0, Zm) + " m/s^2 , ");
-  PRINTe("初速度v_0 ="   + Num(Pv0, Zm) + " m/s , ");
-  PRINTe("仰角θ_0 ="    + Num(Pd0, Zd) + " °");
+  B.COLOR('#fff');
+  B.TAB(tb, 0);
+  B.PRINTe("重力加速度g =" + Num(Pg0, Zm) + " m/s^2 , ");
+  B.PRINTe("初速度v_0 ="   + Num(Pv0, Zm) + " m/s , ");
+  B.PRINTe("仰角θ_0 ="    + Num(Pd0, Zd) + " °");
 
-  COLOR('#f00');
-  PRINT(" 非現実動作有"); CR();
+  B.COLOR('#f00');
+  B.PRINT(" 非現実動作有"); B.CR();
 
-  COLOR(Cb);
-  TAB(tb, 0);
-  PRINT("的初期位置(" + Num(Bx, Zb));
-  PRINT(" m ,"        + Num(By, Zb) + " m )");
-  PRINT(" 中心間(" + Num(A.distance(B), Zm) + " m ) ");
+  B.COLOR(Cb);
+  B.TAB(tb, 0);
+  B.PRINT("的初期位置(" + Num(Bx, Zb));
+  B.PRINT(" m ,"        + Num(By, Zb) + " m )");
+  B.PRINT(" 中心間(" + Num(MA.distance(MB), Zm) + " m ) ");
 
-  PRINT((Pf)? "落下" : "静止");
-  PRINT(" (e=" + A.e.toFixed(Ze));
-  PRINT(" m=" + Bm +"倍)"); CR();
+  B.PRINT((Pf)? "落下" : "静止");
+  B.PRINT(" (e=" + MA.e.toFixed(Ze));
+  B.PRINT(" m=" + Bm +"倍)"); B.CR();
 
-  TAB(tb, 0);
-  PRINT("速度("  + Num(B.vx, Zm));
-  PRINT(" m/s ," + Num(B.vy, Zm) + " m/s ) ");
-  PRINT("位置("  + Num(B.px, Zm));
-  PRINT(" m ,"   + Num(B.py, Zm) + " m )"); CR();
+  B.TAB(tb, 0);
+  B.PRINT("速度("  + Num(MB.vx, Zm));
+  B.PRINT(" m/s ," + Num(MB.vy, Zm) + " m/s ) ");
+  B.PRINT("位置("  + Num(MB.px, Zm));
+  B.PRINT(" m ,"   + Num(MB.py, Zm) + " m )"); B.CR();
 
-//  PRINT((isMouse)? "mouse" : "key m"); PRINT(" , ");
-//  PRINT((isTouch)? "touch" : "key t"); CR();
+//  B.PRINT((isMouse)? "mouse" : "key m"); B.PRINT(" , ");
+//  B.PRINT((isTouch)? "touch" : "key t"); B.CR();
 
-  COLOR('#fff');
-  TAB(tb, 0);
-  PRINT("速度("  + Num(A.vx, Zm));
-  PRINT(" m/s ," + Num(A.vy, Zm) + " m/s ) ");
-  PRINT("位置("  + Num(A.px, Zm));
-  PRINT(" m ,"   + Num(A.py, Zm) + " m )"); CR();
+  B.COLOR('#fff');
+  B.TAB(tb, 0);
+  B.PRINT("速度("  + Num(MA.vx, Zm));
+  B.PRINT(" m/s ," + Num(MA.vy, Zm) + " m/s ) ");
+  B.PRINT("位置("  + Num(MA.px, Zm));
+  B.PRINT(" m ,"   + Num(MA.py, Zm) + " m )"); B.CR();
 
   C0 = '#0ff';
   C1 = '#fff';
-  TAB(tb, 0);
-  COLOR((Pdi == 1)? C1 : C0);
-  PRINTe("θ_1 =" + Num(Pd1, ZD) + " °");
-  COLOR(C0); PRINT(" , ");
-  COLOR((Pdi == 2)? C1 : C0);
-  PRINTe("θ_2 =" + Num(Pd2, ZD) + " °");
-  COLOR(C0); PRINT(" , ");
-  COLOR((Pdi == 3)? C1 : C0);
-  PRINTe("θ_3 =" + Num(Pd3, ZD) + " °"); CR();
+  B.TAB(tb, 0);
+  B.COLOR((Pdi == 1)? C1 : C0);
+  B.PRINTe("θ_1 =" + Num(Pd1, ZD) + " °");
+  B.COLOR(C0); B.PRINT(" , ");
+  B.COLOR((Pdi == 2)? C1 : C0);
+  B.PRINTe("θ_2 =" + Num(Pd2, ZD) + " °");
+  B.COLOR(C0); B.PRINT(" , ");
+  B.COLOR((Pdi == 3)? C1 : C0);
+  B.PRINTe("θ_3 =" + Num(Pd3, ZD) + " °"); B.CR();
 
-  COLOR('#ff0');
-  TAB(tb, 0);
-  PRINT("時間t =" + Num(Pt , Zt));
-  PRINT(" s ( ～" + Num(Pt1, Zt) + " s ) ");
-  if (isMv) { COLOR('#0ff'); PRINT("経過中"); }
-  else      { COLOR('#fa0'); PRINT("停止中"); }
-  CR();
+  B.COLOR('#ff0');
+  B.TAB(tb, 0);
+  B.PRINT("時間t =" + Num(Pt , Zt));
+  B.PRINT(" s ( ～" + Num(Pt1, Zt) + " s ) ");
+  if (isMv) { B.COLOR('#0ff'); B.PRINT("経過中"); }
+  else      { B.COLOR('#fa0'); B.PRINT("停止中"); }
+  B.CR();
 
-  COLOR('#fff');
-  TAB(tb, 0);
-  PRINT("1目盛り " + Ps + " m"); CR();
+  B.COLOR('#fff');
+  B.TAB(tb, 0);
+  B.PRINT("1目盛り " + Ps + " m"); B.CR();
 
-  Ball(B, Cb);
-  Ball(A, Ca);
-//  PRINT(Temp);
+  Ball(MB, Cb);
+  Ball(MA, Ca);
+
+//  B.PRINT(Temp);
 }
 
 //--------------------------------------------------------------------
@@ -869,8 +873,8 @@ function Display()
     Pt += pdt;
     for (k = 100, dt = pdt / k, ds = 0, i = 0; i < k; i++)
     {
-      ds += B.motion(dt, A, 0);
-      ds += A.motion(dt, B, 1);
+      ds += MB.motion(dt, MA, 0);
+      ds += MA.motion(dt, MB, 1);
     }
     if (Math.abs(Pt) >= Math.abs(Pt1)) { Pt = Pt1; }
   }
@@ -920,7 +924,7 @@ function setB(x, y)
    }
    else
    {
-     B.px = x; B.py = y;
+     MB.px = x; MB.py = y;
      pushget();
    }
    blur();
@@ -944,7 +948,7 @@ function keyon(key)
   if (Pt <= 0)
   { x = Bx  ; y = By  ; }
   else
-  { x = B.px; y = B.py; }
+  { x = MB.px; y = MB.py; }
 
   if (Key[ 38] || key == 38) //↑
   {
@@ -976,11 +980,11 @@ document.body.addEventListener('keydown', event =>
   {
     case  13: pushReset(); blur(); break; // Enter
     case  32: pushStart(); blur(); break; // space
-    case  81: lineWidth( 0.5); isMv = 0; getf(); blur(); break; // 'Q'
-    case  87: lineWidth( 2  ); isMv = 0; getf(); blur(); break; // 'W'
-    case  90: zooming  (-1  ); isMv = 0; getf(); blur(); break; // 'Z'
-    case  88: zooming  ( 1  ); isMv = 0; getf(); blur(); break; // 'X'
-    case  67: zooming  ( 0  ); isMv = 0; getf(); blur(); break; // 'C'
+    case  81: B.lineWidth( 0.5); isMv = 0; getf(); blur(); break; // 'Q'
+    case  87: B.lineWidth( 2  ); isMv = 0; getf(); blur(); break; // 'W'
+    case  90: B.zooming  (-1  ); isMv = 0; getf(); blur(); break; // 'Z'
+    case  88: B.zooming  ( 1  ); isMv = 0; getf(); blur(); break; // 'X'
+    case  67: B.zooming  ( 0  ); isMv = 0; getf(); blur(); break; // 'C'
     case  65: pushd(1); blur(); break; // 'a'
     case  83: pushd(2); blur(); break; // 's'
     case  68: pushd(3); blur(); break; // 'd'
@@ -1011,8 +1015,8 @@ function winB(mx, my)
 
   x  = mx - rect.left;
   y  = my - rect.top;
-  x = winX(x) * Ps / Pd;
-  y = winY(y) * Ps / Pd;
+  x = B.WinX(x) * Ps / Pd;
+  y = B.WinY(y) * Ps / Pd;
   return { x:x, y:y };
 }
 
@@ -1023,8 +1027,8 @@ function catchB(mx, my, mr)
   w = winB(mx, my);
   x = w.x;
   y = w.y;
-  dx = B.px - x;
-  dy = B.py - y;
+  dx = MB.px - x;
+  dy = MB.py - y;
   d  = dx*dx + dy*dy;
   r  = mr * mr;
   mouseD = r - d;
@@ -1039,8 +1043,8 @@ function moveB(mx, my)
   x = w.x;
   y = w.y;
 
-  if (x < 0) { if (B.px <= 0) return; x = 0; }
-  if (y < 0) { if (B.py <= 0) return; y = 0; }
+  if (x < 0) { if (MB.px <= 0) return; x = 0; }
+  if (y < 0) { if (MB.py <= 0) return; y = 0; }
 
   x += mouseX;
   y += mouseY;
@@ -1075,7 +1079,7 @@ function mouseDn(event)
 
   mx = event.clientX;
   my = event.clientY;
-  catchB(mx, my, B.r);
+  catchB(mx, my, MB.r);
 }
 
 function touchDn(event)
@@ -1084,7 +1088,7 @@ function touchDn(event)
 
   mx = event.changedTouches[0].pageX; //touches[0]
   my = event.changedTouches[0].pageY; //touches[0]
-  catchB(mx, my, B.r * 2);
+  catchB(mx, my, MB.r * 2);
 }
 
 function mouseUp(event)
@@ -1116,12 +1120,10 @@ else if(document.attachEvent)
 //----------------------------------------------------------------------
 function main()
 {
-  ctx.lineWidth = Width;
   Display();
 }
 
-lineWidth(1);
-zooming(0);
+B.lineWidth(1);
 pushReset();
 document.getElementById("num_d0").value = Pd1.toFixed(ZD);
 getf();
