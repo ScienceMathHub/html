@@ -229,7 +229,7 @@ function scale(c, px, py, h, m, up, sl, sr)
   r = i * 10;
   x = -0.4;
   y = m + 1.1;
-  b = '#af8';
+  b = '#fff';
   B.COLOR(c); B.LOCATEp(0, 0); B.TAB(x, 1-y); B.PRINT("0m");
   B.COLOR(b); B.LOCATEp(0, 0); B.TAB(x,   y); B.PRINT("0m");
   for (t = 1; t <= n; t++)
@@ -291,10 +291,10 @@ function display()
     px = -s * (1.5 + DisX);
     scale('#ffb', px, py, h, a, 0, '', '-');
     px = -s * 1.5;
-    longi('#fff', px, py, h, a, f1);
+    longi('#8ff', px, py, h, a, f1);
     graph('#fff', px, py, h, a, f1);
     px = -s * (1.5 + DisX);
-    longi('#ffb', px, py, h, a, f2);
+    longi('#8f0', px, py, h, a, f2);
     graph('#ffb', px, py, h, a, f2);
     px = -s * 1.5;
     py += 112;
@@ -306,13 +306,13 @@ function display()
     px = -s * 1.5;
     func1('#fff', px, py, h, a);
     scale('#ff0', px, py, h, a, 0, '-', '');
-    longi('#fff', px, py, h, a, f1);
+    longi('#8ff', px, py, h, a, f1);
     graph('#fff', px, py, h, a, f1);
     px = -s * (1.5 + DisX);
     py += 116;
     func2('#fff', px, py, h, a);
     scale('#ff0', px, py, h, a, 0, '', '-');
-    longi('#fff', px, py, h, a, f2);
+    longi('#8ff', px, py, h, a, f2);
     graph('#fff', px, py, h, a, f2);
     py += 102;
   }
@@ -321,7 +321,7 @@ function display()
   a = 2;
 
   scale('#0f0', px, py, h, a, 2, '', '');
-  longi('#fff', px, py, h, a, f12);
+  longi('#8ff', px, py, h, a, f12);
   if (isCos)
   {
     graph('#0af', px, py, h, a, f12u);
