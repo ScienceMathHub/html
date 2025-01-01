@@ -4,7 +4,7 @@
 
  HTML(JavaScript, canvas)
 
- Physics (c) Ohtani 2024.12
+ Physics (c) Ohtani 2024.12 - 2025.1
 ----------------------------------------------------------------------
 -->
 <!DOctxYPE html>
@@ -73,7 +73,7 @@ function func1(c, px, py, h, a)
       str += " , v = "+ Vo.toFixed(1) + " m/s)";
   B.WINDOW(px, py, px+639, py-399);
   B.COLOR(c);
-  B.LOCATEp(px, h*a); B.TAB(1, -1); B.PRINTe(str);
+  B.LOCATEp(px, h*a); B.TAB(1, -1.5); B.PRINTe(str);
 }
 function f1(x)
 {
@@ -89,7 +89,7 @@ function func2(c, px, py, h, a)
       str += " , v = "+ Vo.toFixed(1) + " m/s)";
   B.WINDOW(px, py, px+639, py-399);
   B.COLOR(c);
-  B.LOCATEp(px, h*a); B.TAB(1, -1); B.PRINTe(str);
+  B.LOCATEp(px, h*a); B.TAB(1, -1.5); B.PRINTe(str);
 }
 function f2(x)
 {
@@ -117,14 +117,19 @@ function fAd(x)
 }
 function f12u(x)
 {
-  var a, xs;
+  var a, xs, a1, a2, x1, x2;
 
-  xs = Vt - DisX / 2 ;
-  xs = ((x + xs) / L2 + (x - xs) / L1) * Math.PI;
-
+  a1 = A1;  
+  a2 = A2;  
+  a  = Vt - DisX / 2 ;
+  x1 = x - a;
+  x2 = x + a;
+  if (x1 > 0) a1 = 0;
+  if (x2 < 0) a2 = 0;
+  xs = (x2 / L2 + x1 / L1) * Math.PI;
   a  = Math.cos(xs);
-  xs = A1 - A2;
-  a  = Math.sqrt(xs*xs + 4 * A1*A2 * a*a);
+  xs = a1 - a2;
+  a  = Math.sqrt(xs*xs + 4 * a1*a2 * a*a);
   return a;
 }
 function f12d(x)
@@ -164,7 +169,7 @@ function graph(c, px, py, h, m, func)
 //--------------------------------------------------------------------
 // 目盛り
 //--------------------------------------------------------------------
-function scale(c, px, py, h, m, dn, sl, sr)
+function scale(c, px, py, h, m, up, sl, sr)
 { /* dn=0:up 1:dn 2:half scale */
   var t, x, y, i, n, k, r;
 
@@ -178,14 +183,14 @@ function scale(c, px, py, h, m, dn, sl, sr)
   for (t = 1; t <= m; t++)
   {
     y = h * t;
-    B.LOCATEp(x,  y); B.TAB(-3.2, 0.45); B.PRINT(" "+t);
-    B.LOCATEp(x, -y); B.TAB(-3.2, 0.45); B.PRINT("-"+t);
+    B.LOCATEp(x,  y); B.TAB(-2.5, 0.45); B.PRINT(" "+t);
+    B.LOCATEp(x, -y); B.TAB(-2.5, 0.45); B.PRINT("-"+t);
     B.LINE(-x,  y, x,  y, c);
     B.LINE(-x, -y, x, -y, c);
   }
   B.LINE(-1000,  0, 1000, 0, c);
 
-  k = (dn == 2)? m/4 : m/2;
+  k = (up == 2)? m/4 : m/2;
   for (t = -(n * 10 + 2); t <= n * 10 + 2; t++)
   {
     x = t * i;
@@ -196,16 +201,42 @@ function scale(c, px, py, h, m, dn, sl, sr)
     B.LINE( x, -y,  x, y, c);
   }
 
-  if (dn == 2) { n *= 2; i /= 2; }
-  x = i * 10;
-  y = (dn == 1)? 1.3 : -0.3;
-  B.LOCATEp(0, 0); B.TAB(0.3, y); B.PRINT("0m");
+  if (up != 2)
+  {
+    r = i * 10;
+    x = -0.4;
+    y =  m + 1.1;
+    if (up) y = 0.9 - y;
+    B.LOCATEp(0, 0); B.TAB(x, y); B.PRINT("0m");
+    for (t = 1; t <= n; t++)
+    {
+      B.LOCATEp( t * r, 0); B.TAB(x, y); if (sr == '-') B.TAB(-1, 0);
+      B.PRINT(sr + t + "m");
+      B.LOCATEp(-t * r, 0); B.TAB(x, y); if (sl == '-') B.TAB(-1, 0);
+      B.PRINT(sl + t + "m");
+    }
+    return;
+  }
+  /* up == 2 */
+  n *= 2;
+  i /= 2;
+  r = i * 10;
+  x = -0.4;
+  y = m + 1.1;
+  B.LOCATEp(0, 0); B.TAB(x, 1-y); B.PRINT("0m");
+  B.LOCATEp(0, 0); B.TAB(x,   y); B.PRINT("0m");
   for (t = 1; t <= n; t++)
   {
-    if (dn == 2) { if ((t % 2) != 0) continue; }
-    B.LOCATEp( t * x, 0); B.TAB(0.3, y); B.PRINT(sr + t + "m");
-    B.LOCATEp(-t * x, 0); B.TAB(0.3, y); B.PRINT(sl + t + "m");
+    if ((t % 2) != 0) continue;
+    B.COLOR(c);
+    B.LOCATEp( t * r, 0); B.TAB(x, 0.9-y); B.PRINT(sr + t/2 + "m");
+    B.LOCATEp(-t * r, 0); B.TAB(x, 0.9-y); B.PRINT(sl + t/2 + "m");
+    B.COLOR('#afa');
+    B.LOCATEp( t * r, 0); B.TAB(x,     y); B.PRINT(sr + t   + "m");
+    B.LOCATEp(-t * r, 0); B.TAB(x,     y); B.PRINT(sl + t   + "m");
   }
+  B.COLOR('#afa');
+  B.LOCATEp(px, -h*m); B.TAB(1, 3.1); B.PRINT("2つの波源までの距離の差");
 }
 
 //--------------------------------------------------------------------
@@ -221,22 +252,22 @@ function display()
   s = DisW / DisN;
   h = 16;
   a = 1;
-  py =  60;
+  py =  64;
   if (isDup)
   {
     px = -s * 1.5;
     func1('#fff', px, py, h, a);
-    scale('#ff0', px, py, h, a, 0, '-', '');
+    scale('#ff0', px, py, h, a, 1, '-', '');
     px = -s * (1.5 + DisX);
-    scale('#ffb', px, py, h, a, 1, '', '-');
+    scale('#ffb', px, py, h, a, 0, '', '-');
     px = -s * 1.5;
     graph('#fff', px, py, h, a, f1);
     px = -s * (1.5 + DisX);
     graph('#ffb', px, py, h, a, f2);
     px = -s * 1.5;
-    py += 90;
+    py += 112;
     func2('#ffb', px, py, h, a);
-    py += 48;
+    py += 36;
   }
   else
   {
@@ -245,11 +276,11 @@ function display()
     scale('#ff0', px, py, h, a, 0, '-', '');
     graph('#fff', px, py, h, a, f1);
     px = -s * (1.5 + DisX);
-    py += 90;
+    py += 116;
     func2('#fff', px, py, h, a);
     scale('#ff0', px, py, h, a, 0, '', '-');
     graph('#fff', px, py, h, a, f2);
-    py += 118;
+    py += 102;
   }
 
   px = -s * (1.5 + DisX / 2);
@@ -261,10 +292,6 @@ function display()
     graph('#0af', px, py, h, a, f12u);
     graph('#0af', px, py, h, a, f12d);
   }
-
-  B.WINDOW(px, py, px+639, py-399);
-  B.COLOR('#0f0');
-  B.LOCATEp(px, -h*a); B.TAB(1, 3); B.PRINT("2つの波源までの距離の差");
   graph('#fff', px, py, h, a, f12);
 }
 
