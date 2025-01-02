@@ -1,0 +1,634 @@
+<!--
+----------------------------------------------------------------------
+ 共鳴
+
+ HTML(JavaScript, canvas)
+
+ Physics (c) Ohtani 2025.1
+----------------------------------------------------------------------
+-->
+<!DOctxYPE html>
+<html lang="ja">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<head>
+  <meta charset="utf-8">
+  <title>共鳴</title>
+</head>
+<body>
+<p id="Resonance"></p>
+<div style='float:left;'>
+R<label><input type="range" id ="rangeRo" min="0.1" max= "1" step="0.1"
+  value="0.8">56</label>
+<pre></pre>
+ｖ <label><input type="range" id ="rangeVo" min="0.1" max= "8" step="0.1"
+  value="2">12</label>
+<pre></pre>
+A<label><input type="range" id ="rangeA1" min="0" max= "1" step="0.1"
+  value="1">34</label>
+<pre></pre>
+λ<label><input type="range" id ="rangeL1" min="2" max= "8" step="1"
+  value="2">er</label>
+<pre></pre>
+L.<label><input type="range" id ="rangeLe" min="-0.5" max= "0.5"
+  step="0.125" value="-0.5">df</label>
+<pre></pre>
+L <label><input type="range" id ="rangeLd" min="1" max= "8" step="1"
+  value="3">cv</label>
+<pre></pre>
+<input type="button" id="butS" value="進行/停止" onclick="inkey(32)">Space
+<input type="button" id="butM" value="初"    onclick="inkey(77)">m<br><br>
+<input type="button" id="butR" value="Reset" onclick="inkey(13)">Enter
+<input type="button" id="butA" value="閉"    onclick="inkey(65)">a
+<input type="button" id="butS" value="開"    onclick="inkey(83)">s
+<pre></pre>
+<input type="button" id="butQ" value="細"    onclick="inkey(81)">q
+<input type="button" id="butW" value="太"    onclick="inkey(87)">w
+　 <input type="button" id="butN" value="包絡線"    onclick="inkey(78)">n
+<pre></pre>
+<input type="button" id="butZ" value="縮"    onclick="inkey(90)">z 
+<input type="button" id="butX" value="拡"    onclick="inkey(88)">x
+<input type="button" id="butC" value="初"    onclick="inkey(67)">b
+　<input type="button" id="butJ" value="縦"    onclick="inkey(74)">j<br><br>
+
+<script src="https://sciencemathhub.github.io/html/canlib2.js"></script>
+<script>
+'use strict'
+
+//--------------------------------------------------------------------
+// public variable
+//--------------------------------------------------------------------
+var B = new BASIC();
+
+var DisN   =   10; // 目盛の数(m)
+var DisW   =  580; // 表示幅(dot)
+var DisX   =    8; // 2点間距離(m)
+var isOpen;        // 開放端
+var Vt;            // 移動距離(m)
+var isVt;          // 移動/停止
+var isCos;         // 包絡線表示
+var isLon;         // 縦波表示
+var Rc;            // 閉口反射率
+var Rn;            // 重合回数
+
+var cRo =  0.8, Ro = cRo; // 開口反射率
+var cVo =  2  , Vo = cVo; // 速度(m/s)
+var cA1 =  1  , A1 = cA1; // 振幅1
+var cL1 =  2  , L1 = cL1; // 波長1
+var cLd =  3.0, Ld = cLd; // 筒長
+var cLe = -0.5, Le = cLe; // 筒長
+
+//--------------------------------------------------------------------
+// 関数1 y = f(th)
+//--------------------------------------------------------------------
+function func1(c, px, py, h, a)
+{
+  var len = Ld + Le;
+  var str  = "y = Asin( 2π(x-vt)/λ)  (A = ";
+      str += A1.toFixed(1) + " m , λ = " + L1.toFixed(1) + " m";
+      str += " , v = "+ Vo.toFixed(1) + " m/s";
+      str += " , L = "+ len.toFixed(3) + " m)";
+  B.WINDOW(px, py, px+639, py-399);
+  B.COLOR(c);
+  B.LOCATEp(px, h*a); B.TAB(1, -1.5); B.PRINTe(str);
+}
+function f1(x)
+{
+  var y, d;
+
+  d = x - Vt;
+  if (d > 0) return 0;
+  y = A1 * Math.sin(2 * Math.PI * d / L1);
+  return y;
+}
+function f2(x)
+{
+  var y, d, x1, x2, len;
+
+  len = Ld + Le;
+  x1 = x % len;
+  x2 = len - x1;
+  x += x2 * 2;
+  d = x - Vt;
+  if (d > 0) return 0;
+  y = A1 * Math.sin(2 * Math.PI * d / L1);
+  if (!isOpen) y = -y;
+  return y;
+}
+function f3(x)
+{
+  var y, d, len;
+
+  len = Ld + Le;
+  x += len * 2;
+  d = x - Vt;
+  if (d > 0) return 0;
+  y = A1 * Math.sin(2 * Math.PI * d / L1);
+  if (!isOpen) y = -y;
+  return y;
+}
+function f4(x)
+{
+  var y, d, x1, x2, len;
+
+  len = Ld + Le;
+  x += len * 2;
+  x1 = x % len;
+  x2 = len - x1;
+  x += x2 * 2;
+  d = x - Vt;
+  if (d > 0) return 0;
+  y = A1 * Math.sin(2 * Math.PI * d / L1);
+  return y;
+}
+function fAu(x)
+{
+  var y, d, len;
+
+  len = Ld + Le;
+  d = 20 * len / L1;
+  d %= 10;
+  if (isOpen)
+  { if (d != 0) return 0; }
+  else
+  { if (d != 5) return 0; }
+  d = x - Vt;
+  if (d > 0) return 0;
+  y = A1 * Math.cos(2 * Math.PI * x / L1);
+  return y;
+}
+function fAd(x)
+{
+  return -fAu(x);
+}
+function f12(x)
+{
+  var y, d, i, x1, x2, y1, s, a, as, len;
+
+  len = Ld + Le;
+  if (x < 0 || x > len) return f1(x);
+  x1 = x % len;
+  x2 = len - x1;
+  x1 *= 2;
+  x2 *= 2;
+  y = 0;
+  s = 1;
+  a = 1;
+  as = 0;
+  for (i = 0; i < Rn; i++)
+  {
+    y1 = f1(x);
+    d = x - Vt;
+    if (d <= 0)
+    {
+      y += s * a * y1;
+    }  
+    as += a;
+    if ((i % 2) == 0)
+    { x += x2; if (isOpen) a *= Ro; else { s = -s; a *= Rc; }} // →
+    else
+    { x += x1;             a *= Ro;                          } // ←
+  }
+  if (as <= 0) return 0;
+  y /= as;
+  return y;
+}
+
+//--------------------------------------------------------------------
+// グラフ
+//--------------------------------------------------------------------
+function graph(c, px, py, h, m, func, t1, t2)
+{
+  var x, y, x0, y0, i, s, n, t, b, len;
+
+  B.WINDOW(px, py, px+639, py-399);
+
+  b = '#48f';
+
+  len = Ld + Le;
+  x0 = -1000;
+  y0 = -1000;
+  n = DisW;
+  i = n / 10;
+  s = n / 360;
+  for (x = -(n + i * 2); x <= n + i * 2; x += s)
+  {
+    t = (x / n) * DisN;
+    if (!(t1 <= t && t <= t2)) continue;
+    y = func(t);
+    if (t > len) { c = b; if (!isOpen) y = 0; }
+    if (Math.abs(y0 - y) > 1)
+    {
+      x0 = x;
+      y0 = y;
+    }
+    B.LINE(x0, y0*h, x, y*h, c);
+    x0 = x;
+    y0 = y;
+  }
+}
+
+//--------------------------------------------------------------------
+// longitudinal wave
+//--------------------------------------------------------------------
+function longi(c, px, py, h, m, func, t1, t2)
+{
+  var x, y, x0, y0, i, s, n, t, a, b, w, len, lenw;
+
+  if (!isLon) return;
+  B.WINDOW(px, py, px+639, py-399);
+
+  b = c; // '#00f';
+
+  len = Ld + Le;
+
+  a = h;
+  n = DisW;
+  i = n / 10;
+  s = n / (10 * 8);
+  lenw = len * n / DisN;
+  for (x = -(n + i * 2); x <= n + i * 2; x += s)
+  {
+    t = (x / n) * DisN;
+    if (!(t1 <= t && t <= t2)) continue;
+    if (t > len) { c = b; if (!isOpen) y = 0; }
+    y = func(t);
+    w = x + y * s * 0.9;
+    if (!isOpen)
+    {
+      if (w > lenw) continue;
+    }
+    B.LINE(w, a, w, -a, c);
+  }
+}
+
+//--------------------------------------------------------------------
+// 目盛り
+//--------------------------------------------------------------------
+function scale(c, px, py, h, m, up, sl, sr)
+{ /* dn=0:up 1:dn 2:half scale */
+  var t, x, y, i, n, k, r, s, b;
+
+  B.COLOR(c);
+
+  B.WINDOW(px, py, px+639, py-399);
+
+  n = DisN;
+  i = DisW / 10 / n;
+  x = i /  7;
+  for (t = 1; t <= m; t++)
+  {
+    y = h * t;
+//    B.LOCATEp(x,  y); B.TAB(-2.5, 0.45); B.PRINT(" "+t);
+//    B.LOCATEp(x, -y); B.TAB(-2.5, 0.45); B.PRINT("-"+t);
+    B.LINE(-x,  y, x,  y, c);
+    B.LINE(-x, -y, x, -y, c);
+  }
+  B.LINE(-1000,  0, 1000, 0, c);
+
+  for (t = -(n * 10 + 2); t <= n * 10 + 2; t++)
+  {
+    x = t * i;
+    if      ( t == 0      ) { y = h * (m  +0.2)      ; }
+    else if ((t % 10) == 0) { y = h * (1/2+0.2) * 0.5; }
+    else if ((t %  5) == 0) { y = h * (1/4+0.2) * 0.5; }
+    else                    { y = h *      0.2  * 0.7; }
+    B.LINE( x, -y,  x, y, c);
+  }
+
+  r = i * 10;
+  s = -m * h;
+  x = -0.4;
+  y =  1.5;
+  if (up) y = 0.9 - y;
+  B.LOCATEp(0, s); B.TAB(x, y); B.PRINT("0m");
+  for (t = 1; t <= n; t++)
+  {
+    B.LOCATEp( t*r, s); B.TAB(x, y); if (sr == '-') B.TAB(-1, 0);
+    B.PRINT(sr + t + "m");
+    B.LOCATEp(-t*r, s); B.TAB(x, y); if (sl == '-') B.TAB(-1, 0);
+    B.PRINT(sl + t + "m");
+  }
+}
+
+//--------------------------------------------------------------------
+// tube
+//--------------------------------------------------------------------
+function tube(c, px, py, h, m)
+{
+  var w, x, y, n, i, len, b;
+
+  B.WINDOW(px, py, px+639, py-399);
+
+  b = '#48f';
+
+  len = Ld + Le;
+  n = DisN;
+  i = DisW / 10 / n;
+  y = h;
+  x = len * i * 10;
+  w = i * 1.5;
+  B.LINE(0,  y, w,  y, b);
+  B.LINE(0, -y, w, -y, b);
+  if (isOpen)
+  {
+    B.LINE(w,  y, x-w,  y, c);
+    B.LINE(w, -y, x-w, -y, c);
+    B.LINE(x-w,  y, x,  y, b);
+    B.LINE(x-w, -y, x, -y, b);
+    return; 
+  }
+  B.LINE(w,  y, x,  y, c);
+  B.LINE(w, -y, x, -y, c);
+  B.LINE(x,  y, x, -y, c);
+}
+
+//--------------------------------------------------------------------
+// screen
+//--------------------------------------------------------------------
+function display()
+{
+  var px, py, h, a, str, s, len;
+
+  B.FONT(1,0);
+  B.CLS('#000');
+
+  len = Ld + Le;
+
+  s = DisW / DisN;
+  h = 32;
+  a = 1;
+  py =  64+16+8;
+
+  px = -s * 1.5;
+  func1('#fff', px, py, h, a);
+  scale('#ff0', px, py, h, a, 0, '-', '');
+
+  longi('#808', px, py, h, a, f4,   0, len);
+  graph('#f0f', px, py, h, a, f4,   0, len);
+  longi('#080', px, py, h, a, f3,   0, len);
+  graph('#0f0', px, py, h, a, f3,   0, len);
+  longi('#880', px, py, h, a, f2,   0, len);
+  graph('#ff0', px, py, h, a, f2,   0, len);
+  longi('#8ff', px, py, h, a, f1, -99,  99);
+  graph('#fff', px, py, h, a, f1, -99,  99);
+  tube ('#fff', px, py, h, a);
+
+  B.WINDOW(px, py, px+639, py-399);
+  B.LOCATEp(px, -h*2.2); B.TAB(1, 1);
+  B.COLOR('#fff'); B.PRINT("進行波→  ");
+  B.COLOR('#ff0'); B.PRINT("反射波←  ");
+  B.COLOR('#0f0'); B.PRINT("反射波→  ");
+  B.COLOR('#f0f'); B.PRINT("反射波←  ");
+
+  py += 160;
+
+  scale('#0f0', px, py, h, a, 0, '-', '');
+
+  if (isCos)
+  {
+    graph('#48f', px, py, h, a, fAu, 0, len);
+    graph('#48f', px, py, h, a, fAd, 0, len);
+  }
+
+  longi('#8ff', px, py, h, a, f12, 0, len);
+  graph('#fff', px, py, h, a, f12, 0, len);
+  tube ('#fff', px, py, h, a);
+
+  B.WINDOW(px, py, px+639, py-399);
+  B.LOCATEp(px, -h*2.2); B.TAB(1, 1); B.COLOR('#0f0');
+  str  = "開口端反射率 = " + Ro + " , 閉口端反射率 = " + Rc;
+  str += " , 合成回数 = " + Rn;
+  B.PRINT(str);
+}
+
+//--------------------------------------------------------------------
+// input
+//--------------------------------------------------------------------
+function setRn()
+{
+  Rn = 4;
+/*
+  switch(Ro)
+  {
+  case 0.1: Rn = 10; break;
+  case 0.2: Rn = 10; break;
+  case 0.3: Rn = 10; break;
+  case 0.4: Rn = 10; break;
+  case 0.5: Rn = 10; break;
+  case 0.6: Rn = 10; break;
+  case 0.7: Rn = 10; break;
+  case 0.8: Rn = 10; break;
+  case 0.9: Rn = 10; break;
+  default : Rn = 10;
+  }
+*/
+}
+var elemRo = document.getElementById('rangeRo');
+var elemVo = document.getElementById('rangeVo');
+var elemA1 = document.getElementById('rangeA1');
+var elemL1 = document.getElementById('rangeL1');
+var elemLd = document.getElementById('rangeLd');
+var elemLe = document.getElementById('rangeLe');
+function blur()
+{
+  elemRo.blur();
+  elemVo.blur();
+  elemA1.blur();
+  elemL1.blur();
+  elemLd.blur();
+  elemLe.blur();
+  document.getElementById('butS').blur();
+  document.getElementById('butN').blur();
+  document.getElementById('butR').blur();
+  document.getElementById('butM').blur();
+  document.getElementById('butA').blur();
+  document.getElementById('butS').blur();
+  document.getElementById('butQ').blur();
+  document.getElementById('butW').blur();
+  document.getElementById('butZ').blur();
+  document.getElementById('butX').blur();
+  document.getElementById('butC').blur();
+  document.getElementById('butJ').blur();
+  if (isVt > 0) isVt = 2; else if (isVt < 0) isVt = 1;
+}
+function inputRo()
+{ Ro = Number(elemRo.value); blur();
+  setRn();
+  window.requestAnimationFrame(main);
+}
+function inputVo()
+{ Vo = Number(elemVo.value); blur();
+  window.requestAnimationFrame(main);
+}
+function inputA1()
+{ A1 = Number(elemA1.value); blur();
+  window.requestAnimationFrame(main);
+}
+function inputL1()
+{ L1 = Number(elemL1.value); blur();
+  window.requestAnimationFrame(main);
+}
+function inputLd()
+{ Ld = Number(elemLd.value); blur();
+  window.requestAnimationFrame(main);
+}
+function inputLe()
+{ Le = Number(elemLe.value); blur();
+  window.requestAnimationFrame(main);
+}
+elemRo.addEventListener('input', inputRo);
+elemVo.addEventListener('input', inputVo);
+elemA1.addEventListener('input', inputA1);
+elemL1.addEventListener('input', inputL1);
+elemLd.addEventListener('input', inputLd);
+elemLe.addEventListener('input', inputLe);
+
+//--------------------------------------------------------------------
+// init
+//--------------------------------------------------------------------
+function init()
+{
+  elemRo.value = Ro = cRo; setRn(); Rc = 1;
+  elemVo.value = Vo = cVo;
+  elemA1.value = A1 = cA1;
+  elemL1.value = L1 = cL1;
+  elemLd.value = Ld = cLd;
+  elemLe.value = Le = cLe;
+  isOpen = 0;
+  isVt   = 0;
+  Vt     = 0;
+  isLon  = 0;
+  isCos  = 0;
+  blur();
+  window.requestAnimationFrame(main);
+}
+
+//--------------------------------------------------------------------
+// Input key
+//--------------------------------------------------------------------
+function limitR(x, s)
+{
+  var min  = 0.1;
+  var max  = 1;
+  var step = 0.1;
+  
+  x += (s < 0)? -step : step;
+  if (x < min) x = min; else if (x > max) x = max;
+  return x;
+}
+function limitV(x, s)
+{
+  var min  = 0.1;
+  var max  = 8;
+  var step = 0.1;
+  
+  x += (s < 0)? -step : step;
+  if (x < min) x = min; else if (x > max) x = max;
+  return x;
+}
+function limitA(x, s)
+{
+  var min  = 0;
+  var max  = 1;
+  var step = 0.1;
+  
+  x += (s < 0)? -step : step;
+  if (x < min) x = min; else if (x > max) x = max;
+  return x;
+}
+function limitL(x, s)
+{
+  var min  = 2;
+  var max  = 8;
+  var step = 1;
+  
+  x += (s < 0)? -step : step;
+  if (x < min) x = min; else if (x > max) x = max;
+  return x;
+}
+function limitD(x, s)
+{
+  var min  = 1;
+  var max  = 8;
+  var step = 1;
+  
+  x += (s < 0)? -step : step;
+  if (x < min) x = min; else if (x > max) x = max;
+  return x;
+}
+function limitE(x, s)
+{
+  var min  = -0.5;
+  var max  =  0.5;
+  var step =  0.125;
+  
+  x += (s < 0)? -step : step;
+  if (x < min) x = min; else if (x > max) x = max;
+  return x;
+}
+function inkey(key)
+{
+  switch (key)
+  {
+    case 13: init()               ; break; // 'R' Enter
+    case 32: isVt = (isVt)? 0 : -1; break; // ' '
+    case 77: Vt = 0; isVt = 0     ; break; // 'm'
+    case 78: isCos = !isCos       ; break; // 'n'
+    case 74: isLon = !isLon       ; break; // 'j'
+    case 65: isOpen = 0           ; break; // 'A'
+    case 83: isOpen = 1           ; break; // 'S'
+    case 81: B.lineWidth( 0.5)    ; break; // 'Q'
+    case 87: B.lineWidth( 2  )    ; break; // 'W'
+    case 90: B.zooming  (-1  )    ; break; // 'Z'
+    case 88: B.zooming  ( 1  )    ; break; // 'X'
+    case 66: B.zooming  ( 0  )    ; break; // 'B'
+    case 49: elemVo.value = Vo = limitV(Vo, -1); break; // '1'
+    case 50: elemVo.value = Vo = limitV(Vo,  1); break; // '2'
+    case 51: elemA1.value = A1 = limitA(A1, -1); break; // '3'
+    case 52: elemA1.value = A1 = limitA(A1,  1); break; // '4'
+    case 51: elemRo.value = Ro = limitR(Ro, -1); setRn(); break; // '5'
+    case 52: elemRo.value = Ro = limitR(Ro,  1); setRn(); break; // '6'
+    case 69: elemL1.value = L1 = limitL(L1, -1); break; // 'E'
+    case 82: elemL1.value = L1 = limitL(L1,  1); break; // 'R'
+    case 68: elemLe.value = Le = limitE(Le, -1); break; // 'D'
+    case 70: elemLe.value = Le = limitE(Le,  1); break; // 'F'
+    case 67: elemLd.value = Ld = limitD(Ld, -1); break; // 'C'
+    case 86: elemLd.value = Ld = limitD(Ld,  1); break; // 'V'
+  }
+  blur();
+  window.requestAnimationFrame(main);
+}
+document.body.addEventListener('keydown', event =>
+{
+  var key = event.keyCode;
+
+  inkey(key);
+});
+
+//--------------------------------------------------------------------
+// Key status
+//--------------------------------------------------------------------
+var Key = new Array(256);
+for (var i = 0; i < 256; i++) Key[i] = 0;
+window.onkeydown = function(event) { Key[event.keyCode] = 1; }
+window.onkeyup   = function(event) { Key[event.keyCode] = 0; }
+
+//--------------------------------------------------------------------
+// main
+//--------------------------------------------------------------------
+function main()
+{
+  display();
+  if (isVt == 0) return;
+  if (isVt > 1) { isVt--; return; }
+  Vt += Vo / 60;
+  window.requestAnimationFrame(main);
+}
+
+init();
+
+//--------------------------------------------------------------------
+</script>
+</body>
+</html>

@@ -31,7 +31,7 @@ f2<label><input type="range" id ="rangeF2" min="1" max= "9" step="1"
 <input type="button" id="butS" value="別"    onclick="inkey(83)">s<br><br>
 <input type="button" id="butQ" value="細"    onclick="inkey(81)">q
 <input type="button" id="butW" value="太"    onclick="inkey(87)">w
-　 <input type="button" id="butN" value="包括線"    onclick="inkey(78)">n<br><br>
+　 <input type="button" id="butN" value="包絡線"    onclick="inkey(78)">n<br><br>
 <input type="button" id="butZ" value="縮"    onclick="inkey(90)">z 
 <input type="button" id="butX" value="拡"    onclick="inkey(88)">x
 <input type="button" id="butC" value="初"    onclick="inkey(67)">b<br><br>
@@ -146,7 +146,7 @@ function graph(c, px, py, h, m, func)
   B.WINDOW(px, py, px+639, py-399);
 
   x0 = -1000;
-  y0 = 0;
+  y0 = -1000;
   n = SecW;
   i = n / 10;
   s = n / 1000;
@@ -360,10 +360,10 @@ function inkey(key)
     case 66: B.zooming  ( 0  )    ; break; // 'B'
     case 51: elemA1.value = A1 = limitA(A1, -1); break; // '3'
     case 52: elemA1.value = A1 = limitA(A1,  1); break; // '4'
-    case 69: elemA2.value = A2 = limitA(A2, -1); break; // 'D'
-    case 82: elemA2.value = A2 = limitA(A2,  1); break; // 'F'
-    case 68: elemF1.value = F1 = limitF(F1, -1); break; // 'E'
-    case 70: elemF1.value = F1 = limitF(F1,  1); break; // 'R'
+    case 69: elemA2.value = A2 = limitA(A2, -1); break; // 'E'
+    case 82: elemA2.value = A2 = limitA(A2,  1); break; // 'R'
+    case 68: elemF1.value = F1 = limitF(F1, -1); break; // 'D'
+    case 70: elemF1.value = F1 = limitF(F1,  1); break; // 'F'
     case 67: elemF2.value = F2 = limitF(F2, -1); break; // 'C'
     case 86: elemF2.value = F2 = limitF(F2,  1); break; // 'V'
   }
