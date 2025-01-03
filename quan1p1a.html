@@ -6,7 +6,7 @@
 
  key1-9,0,-,^, z,x,c, q,w,enter
 
- (c)Ohtani 2023.6
+ (c)Ohtani 2023.6 - 2025.1
 ------------------------------------------------------------------------
 -->
 <!DOctxYPE html>
@@ -18,33 +18,36 @@
 <body>
 <p id="quantum"></p>
 <div style='float:left;'>
-<input type="button" id = "but_1" value="Obital  1s" onclick="push(1)">
+<input type="button" id = "but_1" value="Obital  1s" onclick="push(1)">1
 <pre></pre>
-<input type="button" id = "but_2" value="Obital  2s" onclick="push(2)">
+<input type="button" id = "but_2" value="Obital  2s" onclick="push(2)">2
 <pre></pre>
-<input type="button" id = "but_3" value="Obital  3s" onclick="push(3)">
+<input type="button" id = "but_3" value="Obital  3s" onclick="push(3)">3
 <pre></pre>
-<input type="button" id = "but_4" value="Obital  4s" onclick="push(4)">
+<input type="button" id = "but_4" value="Obital  4s" onclick="push(4)">4
 <pre></pre>
-<input type="button" id = "but_5" value="Obital  5s" onclick="push(5)">
+<input type="button" id = "but_5" value="Obital  5s" onclick="push(5)">5
 <pre></pre>
-<input type="button" id = "but_6" value="Obital  6s" onclick="push(6)">
+<input type="button" id = "but_6" value="Obital  6s" onclick="push(6)">6
 <pre></pre>
-<input type="button" id = "but_7" value="Obital  7s" onclick="push(7)">
+<input type="button" id = "but_7" value="Obital  7s" onclick="push(7)">7
 <pre></pre>
-<input type="button" id = "but_8" value="Obital  8s" onclick="push(8)">
+<input type="button" id = "but_8" value="Obital  8s" onclick="push(8)">8
 <pre></pre>
-<input type="button" id = "but_9" value="Obital  9s" onclick="push(9)">
+<input type="button" id = "but_9" value="Obital  9s" onclick="push(9)">9
 <pre></pre>
-<input type="button" id = "but_0" value="Obital 10s" onclick="push(10)">
+<input type="button" id = "but_0" value="Obital 10s" onclick="push(10)">0
 <pre></pre>
-<script src="https://sciencemathhub.github.io/html/canlib.js"></script>
+
+<script src="https://sciencemathhub.github.io/html/canlib2.js"></script>
 <script>
 'use strict'
 
 //----------------------------------------------------------------------
 // public variable
 //----------------------------------------------------------------------
+var B = new BASIC();
+
 var PI   = Math.PI;
 var H    = 6.62607015E-34;       // プランク定数(J･s)
 var Hd   = H / (2 * PI);         // ディラック定数
@@ -105,19 +108,19 @@ function axis()
   for (i = 1; i <= Dh; i++)
   {
     y = i * Fh / Dh;
-    LINE(0, -y, Fw, -y, Co);
+    B.LINE(0, -y, Fw, -y, Co);
   }
   x = 1 * Fw / Dw;
-  LINE(x,  0, x, -Fh, Cr);
+  B.LINE(x,  0, x, -Fh, Cr);
   for (i = 2; i < Dw; i++)
   {
     x = i * Fw / Dw;
-    LINE(x,  0, x, -Fh, Co);
+    B.LINE(x,  0, x, -Fh, Co);
   }
   x = Fw;
-  LINE(x,  0, x, -Fh, Cp);
-  LINE(0,  0, 0, -Fh, Cp);
-  LINE(0,  0, Fw,  0, Cr);
+  B.LINE(x,  0, x, -Fh, Cp);
+  B.LINE(0,  0, 0, -Fh, Cp);
+  B.LINE(0,  0, Fw,  0, Cr);
 }
 
 //----------------------------------------------------------------------
@@ -189,14 +192,14 @@ function Graph(n, c)
     s += p;
   }
 
-  POINT(0, 0);
+  B.POINT(0, 0);
   for (r = 0; r <= Dw; r += dr)
   {
     p = P(n, r, 1) * dr;
     p /= s;
     x = r * Fw / Dw
     y = p * Fh / Dh * Zh
-    LINE2(x, -y, c);
+    B.LINE2(x, -y, c);
   }
 }
 
@@ -223,44 +226,44 @@ function Quan(n)
     Dw = Math.round(Dw);
   }
 
-  CLS('#000');
-  WINDOW(-Px, -Py, 639 - Px, 399 - Py);
+  B.CLS('#000');
+  B.WINDOW(-Px, -Py, 639 - Px, 399 - Py);
 
-  COLOR('#0f0');
-  FONT(1,0);
-  LOCATE(0, 1);
+  B.COLOR('#0f0');
+  B.FONT(1,0);
+  B.LOCATE(0, 1);
   i = (Selects > 9)? 0 : Selects;
-  PRINT("Key1～" + i + ":量子数n  ");
-  PRINT("(-,^,Enter,zxc,qw:可変,固定,初期化,画面サイズ,線幅)");
-  COLOR('#fff');
-  LOCATE(0, 2);
-  PRINT(Atom + '原子 (' + n + 's): ');
+  B.PRINT("Key1～" + i + ":量子数n  ");
+  B.PRINT("(-,^,Enter,zxc,qw:可変,固定,初期化,画面サイズ,線幅)");
+  B.COLOR('#fff');
+  B.LOCATE(0, 2);
+  B.PRINT(Atom + '原子 (' + n + 's): ');
   E = Energy(n);
   f = E / e;
-  PRINTe('E = ' + E.toPrecision(7) + ' J ');
-  PRINTe('( ' + f.toPrecision(7) + ' eV )');
-  COLOR('#f0f');
-  LOCATE(0, 3);
-  COLOR('#0ff');
-  PRINT('P(r/a)');
-  COLOR('#fff');
-  PRINT(' … ');
-  COLOR('#f0f');
-  PRINTe('a = ' + a.toPrecision(7) + ' m ');
+  B.PRINTe('E = ' + E.toPrecision(7) + ' J ');
+  B.PRINTe('( ' + f.toPrecision(7) + ' eV )');
+  B.COLOR('#f0f');
+  B.LOCATE(0, 3);
+  B.COLOR('#0ff');
+  B.PRINT('P(r/a)');
+  B.COLOR('#fff');
+  B.PRINT(' … ');
+  B.COLOR('#f0f');
+  B.PRINTe('a = ' + a.toPrecision(7) + ' m ');
   f = a * 1e+9;
-  PRINTe('( ' + f.toPrecision(7) + ' nm )');
-  PRINT(' Scale r/a = ');
-  COLOR('#0ff');
-  PRINT('0');
-  COLOR('#00f');
-  PRINT(', ');
-  COLOR('#f0f');
-  PRINT('1');
-  COLOR('#00f');
-  PRINT(', … , ');
-  COLOR('#0ff');
-  PRINT(Dw.toFixed(0));
-  LOCATE(0, 4);
+  B.PRINTe('( ' + f.toPrecision(7) + ' nm )');
+  B.PRINT(' Scale r/a = ');
+  B.COLOR('#0ff');
+  B.PRINT('0');
+  B.COLOR('#00f');
+  B.PRINT(', ');
+  B.COLOR('#f0f');
+  B.PRINT('1');
+  B.COLOR('#00f');
+  B.PRINT(', … , ');
+  B.COLOR('#0ff');
+  B.PRINT(Dw.toFixed(0));
+  B.LOCATE(0, 4);
 
   c = '#00f';
   for (i = 1; i <= Selects; i++)
@@ -281,15 +284,15 @@ document.body.addEventListener('keydown', event =>
 
   switch (event.keyCode)
   {
-    case  13: lineWidth( 1  ); isDisp = 1; blur(); break; // Enter
-    case  81: lineWidth( 0.5); blur(); break; // 'Q'
-    case  87: lineWidth( 2  ); blur(); break; // 'W'
-    case  90: zooming  (-1  ); blur(); break; // 'Z'
-    case  88: zooming  ( 1  ); blur(); break; // 'X'
-    case  67: zooming  ( 0  ); blur(); break; // 'C'
-    case  48: Select = 10    ; blur(); break; // '0'
-    case 222:      isDisp = 0; blur(); break; // '^'
-    case 189:      isDisp = 1; blur(); break; // '-'
+    case  13: B.lineWidth( 1  ); isDisp = 1; blur(); break; // Enter
+    case  81: B.lineWidth( 0.5); blur(); break; // 'Q'
+    case  87: B.lineWidth( 2  ); blur(); break; // 'W'
+    case  90: B.zooming  (-1  ); blur(); break; // 'Z'
+    case  88: B.zooming  ( 1  ); blur(); break; // 'X'
+    case  67: B.zooming  ( 0  ); blur(); break; // 'C'
+    case  48: Select = 10      ; blur(); break; // '0'
+    case 222: isDisp = 0       ; blur(); break; // '^'
+    case 189: isDisp = 1       ; blur(); break; // '-'
 //    case 220:      isDisp = 0; blur(); break; // '|'
     default :
     {
@@ -319,13 +322,11 @@ window.onkeyup   = function(event) { Key[event.keyCode] = 0; }
 //----------------------------------------------------------------------
 function main()
 {
-  ctx.lineWidth = Width;
   Quan(Select);
 //  window.requestAnimationFrame(main);
 }
 
-lineWidth(1);
-zooming(0);
+B.lineWidth(1);
 main();
 
 //----------------------------------------------------------------------
