@@ -99,7 +99,7 @@ class BASIC
   CRn(n)
   {
     this.locX = 0;
-    this.locY += LocH * n;
+    this.locY += this.locH * n;
   }
   CLS(c)
   {
@@ -323,7 +323,7 @@ class BASIC
     ctx.lineWidth = this.width;
   }
   // math func (precision)
-  prec(a)
+  precision(a)
   {
     var s, i;
 
@@ -339,7 +339,7 @@ class BASIC
 
     return s.length;
   }
-  prec0(a)
+  precision0(a)
   {
     var s, i;
 

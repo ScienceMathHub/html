@@ -1,22 +1,22 @@
 <!--
 ------------------------------------------------------------------------
- 原子量
+ 分子量(原子量)
 
  HTML(JavaScript, canvas)
 
  z,x,c, q,w, Enter, space
 
- (c)Ohtani 2023.8
+ (c)Ohtani 2023.8 2025.1
 ------------------------------------------------------------------------
 -->
 <!DOctxYPE html>
 <html lang="ja">
 <head>
   <meta charset="utf-8">
-  <title>原子量</title>
+  <title>分子量</title>
 </head>
 <body>
-<p id="atomic weght"></p>
+<p id="molecular weight"></p>
 <div style='float:left;'>
 
 <input type="text"   id="str_As" value="H"
@@ -26,13 +26,33 @@
 <input type="number" id="num_An" value="1" min = "1" max="118">
 <input type="button" id="but_An" value="原子番号" onclick="pushAn()">
 <pre></pre>
-<script src="https://sciencemathhub.github.io/html/canlib.js"></script>
+<input type="text"   id="str_Cf" value="H2"
+  required minlength="1" maxlength="20" size="20" />
+<pre></pre>
+<input type="button" id="but_Cf" value="化学式" onclick="pushCf()" />
+<pre></pre>
+<input type="number" id="num_Am" value="1" min = "0" />
+<pre></pre>
+<input type="button" id="but_Am" value="量" onclick="pushAm()" />
+<pre></pre>
+<form id="target">
+  <input type="radio" id="rad_n" name="amount" value="n" /> mol
+  <input type="radio" id="rad_m" name="amount" value="m" /> g
+  <pre></pre>
+  <input type="radio" id="rad_v" name="amount" value="v" /> L
+  <input type="radio" id="rad_N" name="amount" value="N" /> 個
+</form>
+<pre></pre>
+
+<script src="https://sciencemathhub.github.io/html/canlib2.js"></script>
 <script>
 'use strict'
 
 //----------------------------------------------------------------------
 // public data (原子量×Mu = モル質量)
 //----------------------------------------------------------------------
+var B = new BASIC();
+
 var NA = "6.02214076e+23";    // Avogadro constant
 var NR = "6.0e+23";           // 概数
 var mU = "1.66053906660e-24"; // 原子質量定数(g)(Atomic mass constant)
@@ -175,7 +195,11 @@ const Aelm = AW.length;
 var Px = 320;     // 表示位置x
 var Py = 199;     // 表示位置y
 //--- public variable
-var An = 1;  // 原子番号(Atomic number)
+var An =  1  ;   // 原子番号(Atomic number)
+var Cf = "H2"; // 化学式
+var Am =  1  ;  // 量
+var Tg = "n" ;  // 物質量
+var Sw =  1  ;  // 分子量/原子量
 
 //----------------------------------------------------------------------
 // Key status
@@ -232,6 +256,7 @@ function pushAs()
 
   AW[0][As] = a.value;
   setAs();
+  Sw = 0;
   window.requestAnimationFrame(main);
 }
 
@@ -241,6 +266,37 @@ function pushAn()
 
   An = Number(a.value);
   setAn();
+  Sw = 0;
+  window.requestAnimationFrame(main);
+}
+
+function getvalue()
+{
+  const c = document.getElementById("str_Cf");
+  const a = document.getElementById("num_Am");
+  const m = document.getElementById("target");
+  var i;
+
+  Cf = c.value;
+  Am = Number(a.value);
+
+  Tg = 'm';
+  for (i = 0; i < m.length; i++)
+  {
+    if (m[i].checked) { Tg = m[i].value; break; }
+  }
+  Sw = 1;
+}
+
+function pushCf()
+{
+  getvalue()
+  window.requestAnimationFrame(main);
+}
+
+function pushAm()
+{
+  getvalue()
   window.requestAnimationFrame(main);
 }
 
@@ -250,6 +306,15 @@ function blur()
   document.getElementById("num_An").blur();
   document.getElementById("but_As").blur();
   document.getElementById("but_An").blur();
+
+  document.getElementById("str_Cf").blur();
+  document.getElementById("but_Cf").blur();
+  document.getElementById("num_Am").blur();
+  document.getElementById("but_Am").blur();
+  document.getElementById("rad_n" ).blur();
+  document.getElementById("rad_m" ).blur();
+  document.getElementById("rad_v" ).blur();
+  document.getElementById("rad_N" ).blur();
 }
 
 function focus()
@@ -257,9 +322,13 @@ function focus()
   var doc = document.activeElement;
 
   if (doc === document.getElementById("str_As")) return 1;
-  if (doc === document.getElementById("num_An")) return 2;
   if (doc === document.getElementById("but_As")) return 1;
+  if (doc === document.getElementById("num_An")) return 2;
   if (doc === document.getElementById("but_An")) return 2;
+  if (doc === document.getElementById("str_Cf")) return 3;
+  if (doc === document.getElementById("but_Cf")) return 3;
+  if (doc === document.getElementById("num_Am")) return 3;
+  if (doc === document.getElementById("nut_Am")) return 3;
   return 0;
 }
 
@@ -272,11 +341,11 @@ document.body.addEventListener('keydown', event =>
 
   if (event.altKey)
   {
-    if      (event.code === "KeyQ") { lineWidth( 0.5); blur(); }
-    else if (event.code === "KeyW") { lineWidth( 2  ); blur(); }
-    else if (event.code === "KeyZ") { zooming  (-1  ); blur(); }
-    else if (event.code === "KeyX") { zooming  ( 1  ); blur(); }
-    else if (event.code === "KeyC") { zooming  ( 0  ); blur(); }
+    if      (event.code === "KeyQ") { B.lineWidth( 0.5); blur(); }
+    else if (event.code === "KeyW") { B.lineWidth( 2  ); blur(); }
+    else if (event.code === "KeyZ") { B.zooming  (-1  ); blur(); }
+    else if (event.code === "KeyX") { B.zooming  ( 1  ); blur(); }
+    else if (event.code === "KeyC") { B.zooming  ( 0  ); blur(); }
   }
   else
   {
@@ -287,11 +356,311 @@ document.body.addEventListener('keydown', event =>
         {
           case 1: pushAs(); blur(); break; // Enter
           case 2: pushAn(); blur(); break; // Enter
+          case 3: pushCf(); blur(); break; // Enter
         }
+//      case  32: pushAm(); blur();  break; // space
     }
   }
   window.requestAnimationFrame(main);
 });
+
+//----------------------------------------------------------------------
+// モル質量
+//----------------------------------------------------------------------
+var Mw, Mwr, M;
+function molecularNum(cf)
+{
+  var i, a1;
+
+  i  = 0;
+
+  a1 = cf.substring(0, 1);    
+  while ('0' <= a1 && a1 <= '9')
+  {
+    i++;
+    a1 = cf.substring(i, i+1);
+  }
+
+  return i;
+}
+
+function brackets(s)
+{
+  var i, n, k, a;
+
+  n = s.length;
+  k = 1;
+  for (i = 0; i < n; i++)
+  {
+    a = s.substring(i, i+1);
+    if (a == '(' || a == '[') k++;
+    if (a == ')' || a == ']') k--;
+    if (k <= 0) break;
+  }
+  return i;
+}
+
+function molecular(cf, select, sn)
+{
+  var a1, a2, a0, a, n, i, s, mw, sn;
+
+  mw = 0;
+
+  a1 = cf.substring(0, 1);
+
+  while (a1 != '')
+  {
+    cf = cf.substring(1);
+    if (a1 == '(' || a1 == '[')
+    {
+      a2 = (a1 == '(')? ')' : ']';
+      i = brackets(cf);
+      a0 = cf.substring(0, i);
+      cf = cf.substring(i+1);
+
+      a  = a0.substring(0, 1);
+      if ('0' <= a && a <= '9')
+      {
+        if (select == 0)
+        {
+          B.FONT(0.7, -0.5); B.PRINT(a0); B.FONT(1, 0);
+        }
+        a1 = cf.substring(0, 1);
+        continue;
+      }
+
+      B.PRINT(sn + a1);
+      s = molecular(a0, select, '');
+      B.PRINT(a2);
+      i = molecularNum(cf);
+      n = cf.substring(0, i);
+      cf = cf.substring(i);
+      if (n <= 0) n = 1;
+      mw += s * n;
+      if (select)
+      {
+        if (n > 1) B.PRINT('×'+n);
+      }
+      else
+      {
+        if (n > 1) { B.FONT(0.7, 0.1); B.PRINT(n); B.FONT(1, 0); }
+      }
+      a1 = cf.substring(0, 1);
+      if (select) { sn = '+'; }
+      continue;
+    }
+    a2 = cf.substring(0, 1);
+    if ('a' <= a2 && a2 <= 'z')
+    {
+      a1 += a2;
+      cf = cf.substring(1);
+    }
+    i = molecularNum(cf);
+    if (i > 0)
+    {
+      n  = cf.substring(0, i);
+      cf = cf.substring(i);
+    }
+    else
+    {
+      n  = 1;
+    }
+    if (a1 == '') return mw;
+    AW[0][As] = a1;
+    setAs();
+    if (An == 0)
+    { s = "不明"; }
+    else
+    { s = (select == 1)? AW[0][Aw] : AW[0][Ar]; mw += s * n; }
+    if (select)
+    {
+      B.PRINT(sn + s.trim());
+      if (n > 1) B.PRINT('×'+n);
+      sn = '+';
+    }
+    else
+    {
+      B.PRINT(AW[0][As]);
+      if (n > 1) { B.FONT(0.7, 0.1); B.PRINT(n); B.FONT(1, 0); }
+    }
+    a1 = cf.substring(0, 1);
+  }
+  return mw;
+}
+
+function precN(a, n)
+{
+  var i = B.precision0(a);
+
+  return (i < n)? n : i;
+}
+
+function molecularWeight(cf, select)
+{
+  var mw, m;
+
+  Mw = Mwr = M = 0;
+
+  mw = molecular(cf,  select, '');
+  B.PRINT(" = ");
+
+  switch (select)
+  {
+    case  1: m = mw.toPrecision(precN(mw, 4)); B.PRINT(m); break;
+    case  2: m = mw.toPrecision(precN(mw, 2)); B.PRINT(m); break;
+  }
+  B.CR();
+
+  return m;
+}
+
+//----------------------------------------------------------------------
+// 原子量表示
+//----------------------------------------------------------------------
+function Display0()
+{
+  var CmU = '#0f0';
+  var CMu = '#fa0';
+  var CNA = '#0ff';
+  var CM  = '#ff0';
+  var CAw = '#fff';
+
+  B.CR();
+  B.COLOR(CM);
+  B.PRINT("モル質量 M (g/mol) ＝ ");
+  B.COLOR(CAw);
+  B.PRINT("原子量");
+  B.COLOR(CM);
+  B.PRINT(" × ");
+  B.COLOR(CMu);
+  B.PRINT("M"); B.FONT(0.5, 0); B.PRINT("U"); B.TAB(-1.0, 0);
+  B.FONT(1, 0); B.TAB(1, 0);
+  B.COLOR(CM);
+  B.PRINT(" ≒ ");
+  B.COLOR(CAw);
+  B.PRINT("原子量");
+  B.COLOR(CAw);
+  B.PRINT(" ( 基準 ");
+  B.FONT(0.7, -0.4); B.PRINT("12");
+  B.FONT(1, 0); B.PRINT("C = 12 )"); B.CR();
+  B.CR();
+
+  if (An == 0)
+  { B.COLOR(CAw); B.PRINT("不明"); B.CR(); return; }
+
+  B.FONT(0.8, 0.1); B.PRINT(An.toString().padStart(3, ' '));
+  B.FONT(1, 0); B.TAB(0.3, 0); B.PRINT(AW[0][As].padEnd(2, ' '));
+  B.PRINT(" ≒ "); B.PRINT(AW[0][Aw].padEnd(7, ' '));
+
+  B.COLOR(CM);
+  B.PRINT(" (M ≒ ");
+  B.PRINT((AW[0][Aw] * Mu).toFixed(11)); B.PRINT(" g/mol)"); B.CR();
+
+  B.COLOR(CAw);
+  B.TAB(2 + 0.8 * 3 + 0.3, 0);
+  B.PRINT(" ≒ "); B.PRINT(AW[0][Ar].padEnd(7, ' '));
+
+  B.COLOR(CM);
+  B.PRINT(" (M ≒ ");
+  B.PRINT(AW[0][Ar].toString().trim()); B.PRINT(" g/mol)"); B.CR();
+  B.CR();
+
+  B.COLOR(CAw);
+  B.PRINT ("[ ");
+  B.PRINT(AW[0][En]);
+  B.PRINT(" ]");
+  B.CR();
+}
+
+//----------------------------------------------------------------------
+// 分子量表示
+//----------------------------------------------------------------------
+function Display1()
+{
+  var CmU = '#0f0';
+  var CMu = '#fa0';
+  var CNA = '#0ff';
+  var CM  = '#ff0';
+  var CAw = '#fff';
+  var mw, mr;
+  var m, n, v, N, m0, n0, v0, N0, x;
+
+  B.COLOR(CmU);
+  B.PRINT("標準状態(0℃ 1013hPa)での気体の体積 ≒ ");
+  B.PRINT(Vm); B.PRINT(" L/mol"); B.CR();
+
+  B.COLOR(CM);
+  B.PRINT("モル質量 M (g/mol) ＝ ");
+  B.COLOR(CAw);
+  B.PRINT("分子量など");
+  B.COLOR(CM);
+  B.PRINT(" × ");
+  B.COLOR(CMu);
+  B.PRINT("M"); B.FONT(0.5, 0); B.PRINT("U"); B.TAB(-1.0, 0);
+  B.FONT(1, 0); B.TAB(1, 0);
+  B.COLOR(CM);
+  B.PRINT(" ≒ ");
+  B.COLOR(CAw);
+  B.PRINT("分子量など");
+  B.COLOR(CAw);
+  B.PRINT(" ( 基準 ");
+  B.FONT(0.7, -0.4); B.PRINT("12");
+  B.FONT(1, 0); B.PRINT("C = 12 )"); B.CR();
+  B.CR();
+
+  mw = molecularWeight(Cf, 1);
+  B.COLOR(CM);
+  B.PRINT("モル質量 M = "); B.PRINT((mw * Mu).toPrecision(12));
+  B.PRINT(" g/mol"); B.CR();
+  B.CR();
+
+  B.COLOR(CAw);
+  mr = molecularWeight(Cf, 2);
+  B.COLOR(CM);
+  B.PRINT("モル質量 M = "); B.PRINT(mr); B.PRINT(" g/mol"); B.CR();
+  B.CR();
+  
+  switch( Tg )
+  {
+    case 'n': n = Am     ; break;
+    case 'm': n = Am / mr; break;
+    case 'v': n = Am / Vm; break;
+    case 'N': n = Am / NR; break;
+  }
+  m = n * mr;
+  v = n * Vm;
+  N = n * NR;
+  n = n.toPrecision(precN(n, 2));
+  m = m.toPrecision(precN(m, 2));
+  v = v.toPrecision(precN(v, 2));
+  N = N.toPrecision(precN(N, 2));
+
+  switch( Tg )
+  {
+    case 'n': n0 = Am            ; break;
+    case 'm': n0 = Am / (mw * Mu); break;
+    case 'v': n0 = Am /  Vm      ; break;
+    case 'N': n0 = Am /  NA      ; break;
+  }
+  m0 = n0 * (mw * Mu);
+  v0 = n0 *  Vm;
+  N0 = n0 *  NA;
+  n0 = n0.toPrecision(precN(n0, 4));
+  m0 = m0.toPrecision(precN(m0, 4));
+  v0 = v0.toPrecision(precN(v0, 3));
+  N0 = N0.toPrecision(precN(N0, 4));
+
+  B.COLOR(CAw);
+  x = 35;
+  B.PRINT("物質量 n = "); B.PRINTe(n) ; B.PRINT(" mol"); B.LOCATE(x, '');
+  B.PRINT(" "          ); B.PRINTe(n0); B.PRINT(" mol"); B.CR();
+  B.PRINT("質量   m = "); B.PRINTe(m) ; B.PRINT(" g"  ); B.LOCATE(x, '');
+  B.PRINT(" "          ); B.PRINTe(m0); B.PRINT(" g"  ); B.CR();
+  B.PRINT("体積   v = "); B.PRINTe(v) ; B.PRINT(" L"  ); B.LOCATE(x, '');
+  B.PRINT(" "          ); B.PRINTe(v0); B.PRINT(" L"  ); B.CR();
+  B.PRINT("個数   N = "); B.PRINTe(N) ; B.PRINT(" 個" ); B.LOCATE(x, '');
+  B.PRINT(" "          ); B.PRINTe(N0); B.PRINT(" 個" ); B.CR();
+}
 
 //----------------------------------------------------------------------
 // 画面
@@ -303,109 +672,55 @@ function Display()
   var CNA = '#0ff';
   var CM  = '#ff0';
   var CAw = '#fff';
+  var mw, mr;
+  var m, n, v, N, m0, n0, v0, N0, x;
 
-  CLS('#032');
-  WINDOW(-Px, -Py, 639 - Px, 399 - Py);
-  FONT(1, 0);
+  B.CLS('#032');
+  B.WINDOW(-Px, -Py, 639 - Px, 399 - Py);
+  B.FONT(1, 0);
 
-  LOCATE(0, 1);
-  COLOR('#ff0'); PRINT("元素記号");
-  COLOR('#0f0'); PRINT("または");
-  COLOR('#ff0'); PRINT("原子番号");
-  COLOR('#0f0'); PRINT("を入力し");
-  COLOR('#0ff'); PRINT("Enter");
-  COLOR('#0f0'); PRINT(" (Alt+z,x,c:縮小,拡大,初期)"); CR();
-  CR();
+  B.LOCATE(0, 1);
+  B.COLOR('#ff0'); B.PRINT("元素記号,原子番号,化学式");
+  B.COLOR('#0f0'); B.PRINT("のいずれを入力し");
+  B.COLOR('#0ff'); B.PRINT("Enter");
+  B.COLOR('#0f0'); B.PRINT(" (Alt+z,x,c:縮小,拡大,初期)"); B.CR();
+  B.CR();
 
-  COLOR(CmU);
-  PRINT("原子質量定数　 m");
-  FONT(0.5, 0); PRINT("U"); TAB(-1.0, 0);
-  FONT(1, 0); TAB(1, 0);
-  PRINT(" ≒ "); PRINTe(mU);
-  PRINT(" g ( ");
-  FONT(0.7, -0.4); PRINT("12");
-  FONT(1, 0); PRINT("Cの質量 / 12 )"); CR();
+  B.COLOR(CmU);
+  B.PRINT("原子質量定数　 m");
+  B.FONT(0.5, 0); B.PRINT("U"); B.TAB(-1.0, 0);
+  B.FONT(1, 0); B.TAB(1, 0);
+  B.PRINTe(" ≒ " + mU + " g ( ^1^2Cの質量 / 12 )"); B.CR();
 
-  COLOR(CMu);
-  PRINT("モル質量定数　 M");
-  FONT(0.5, 0); PRINT("U"); TAB(-1.0, 0);
-  FONT(1, 0); TAB(1, 0);
-  PRINT(" ≒ "); PRINT(Mu.toFixed(11)); PRINT(" g/mol ( ");
-  COLOR(CmU);
-  PRINT("m"); FONT(0.5, 0); PRINT("U");
-  FONT(1, 0);
-  COLOR(CMu);
-  PRINT(" × ");
-  COLOR(CNA);
-  PRINT("N"); FONT(0.7, 0); PRINT("A"); TAB(-1.0, 0);
-  FONT(1, 0); TAB(1, 0);
-  COLOR(CMu);
-  PRINT(" )"); CR();
+  B.COLOR(CMu);
+  B.PRINT("モル質量定数　 M");
+  B.FONT(0.5, 0); B.PRINT("U"); B.TAB(-1.0, 0);
+  B.FONT(1, 0); B.TAB(1, 0);
+  B.PRINT(" ≒ "); B.PRINT(Mu.toPrecision(11)); B.PRINT(" g/mol ( ");
+  B.COLOR(CmU);
+  B.PRINT("m"); B.FONT(0.5, 0); B.PRINT("U");
+  B.FONT(1, 0);
+  B.COLOR(CMu);
+  B.PRINT(" × ");
+  B.COLOR(CNA);
+  B.PRINT("N"); B.FONT(0.7, 0); B.PRINT("A"); B.TAB(-1.0, 0);
+  B.FONT(1, 0); B.TAB(1, 0);
+  B.COLOR(CMu);
+  B.PRINT(" )"); B.CR();
 
-  TAB(17, 0);
-  PRINT(" ≒ "); PRINT(MR.toFixed(1)); PRINT(" g/mol"); CR();
+  B.TAB(17, 0);
+  B.PRINT(" ≒ "); B.PRINT(MR.toFixed(1)); B.PRINT(" g/mol"); B.CR();
 
-  COLOR(CNA);
-  PRINT("アボガドロ定数 N");
-  FONT(0.7, 0); PRINT("A"); TAB(-1.0, 0);
-  FONT(1, 0); TAB(1, 0);
-  PRINT(" ＝ "); PRINTe(NA); PRINT(" /mol"); CR();
-  TAB(17, 0);
-  PRINT(" ≒ "); PRINTe(NR); PRINT(" /mol"); CR();
-  CR();
+  B.COLOR(CNA);
+  B.PRINT("アボガドロ定数 N");
+  B.FONT(0.7, 0); B.PRINT("A"); B.TAB(-1.0, 0);
+  B.FONT(1, 0); B.TAB(1, 0);
+  B.PRINT(" ＝ "); B.PRINTe(NA); B.PRINT(" /mol"); B.CR();
+  B.TAB(17, 0);
+  B.PRINT(" ≒ "); B.PRINTe(NR); B.PRINT(" /mol"); B.CR();
 
-  if (An == 0)
-  {
-    COLOR(CAw);
-    PRINT("見つかりませんでした"); CR();
-    return;
-  }
-
-  COLOR(CM);
-  PRINT("モル質量 M (g/mol) ( ");
-  COLOR(CAw);
-  PRINT("原子量");
-  COLOR(CM);
-  PRINT(" × ");
-  COLOR(CMu);
-  PRINT("M"); FONT(0.5, 0); PRINT("U"); TAB(-1.0, 0);
-  FONT(1, 0); TAB(1, 0);
-  COLOR(CM);
-  PRINT(" ≒ ");
-  COLOR(CAw);
-  PRINT("原子量");
-  COLOR(CM);
-  PRINT(" )"); CR();
-  CR();
-
-  COLOR(CAw);
-  PRINT("原子量 ( 基準 ");
-  FONT(0.7, -0.4); PRINT("12");
-  FONT(1, 0); PRINT("C = 12 )"); CR();
-  CR();
-
-  FONT(0.8, 0.1); PRINT(An.toString().padStart(3, ' '));
-  FONT(1, 0); TAB(0.3, 0); PRINT(AW[0][As].padEnd(2, ' '));
-  PRINT(" ≒ "); PRINT(AW[0][Aw].padEnd(7, ' '));
-
-  COLOR(CM);
-  PRINT(" (M ≒ ");
-  PRINT((AW[0][Aw] * Mu).toFixed(11)); PRINT(" g/mol)"); CR();
-
-  COLOR(CAw);
-  TAB(2 + 0.8 * 3 + 0.3, 0);
-  PRINT(" ≒ "); PRINT(AW[0][Ar].padEnd(7, ' '));
-
-  COLOR(CM);
-  PRINT(" (M ≒ ");
-  PRINT(AW[0][Ar].toString().trim()); PRINT(" g/mol)"); CR();
-  CR();
-
-  COLOR(CAw);
-  PRINT ("[ ");
-  PRINT(AW[0][En]);
-  PRINT(" ]");
-  CR();
+  if (Sw) Display1();
+  else    Display0();
 }
 
 //----------------------------------------------------------------------
@@ -413,13 +728,11 @@ function Display()
 //----------------------------------------------------------------------
 function main()
 {
-  ctx.lineWidth = Width;
   Display();
 }
 
-lineWidth(1);
-zooming(0);
-setAn();
+document.getElementById("target")[0].checked = true;
+B.lineWidth(1);
 main();
 
 //----------------------------------------------------------------------

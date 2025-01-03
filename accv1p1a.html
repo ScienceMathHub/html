@@ -6,7 +6,7 @@
 
  z,x,c, q,w, Enter, space
 
- (c)Ohtani 2023.6
+ (c)Ohtani 2023.6 - 2025.1
 ------------------------------------------------------------------------
 -->
 <!DOctxYPE html>
@@ -46,13 +46,16 @@
 <input type="button" id="but_st" value="時間の開始/停止"
   onclick="pushStart()">
 <pre></pre>
-<script src="https://sciencemathhub.github.io/html/canlib.js"></script>
+
+<script src="https://sciencemathhub.github.io/html/canlib2.js"></script>
 <script>
 'use strict'
 
 //----------------------------------------------------------------------
 // public variable
 //----------------------------------------------------------------------
+var B = new BASIC();
+
 var Px = 320;     // 表示位置x
 var Py = 199;     // 表示位置y
 var Fw = 320;     // 幅
@@ -189,15 +192,15 @@ function axis()
 {
   var i, x, s;
 
-  LINE(-Fw, 0, Fw,  0, Co);
-  LINE(0, -Fh*1.2, 0, Fh*1.2, Cg);
+  B.LINE(-Fw, 0, Fw,  0, Co);
+  B.LINE(0, -Fh*1.2, 0, Fh*1.2, Cg);
 
   for (i = 1; i <= Dw; i++)
   {
     x = i * Fw / Dw;
     s = (i % 5)? Fh*0.4 : (i % 2)? Fh*0.6 : Fh;
-    LINE( x,  -s,  x, s, Cg);
-    LINE(-x,  -s, -x, s, Cg);
+    B.LINE( x,  -s,  x, s, Cg);
+    B.LINE(-x,  -s, -x, s, Cg);
   }
 }
 
@@ -239,25 +242,25 @@ function Num(x, n, d)
 //----------------------------------------------------------------------
 function funcv(s)
 {
-  TAB(s, 0);
-  PRINT("( v = v"); FONT(0.5, 0.1); PRINT('0');  FONT(1, 0);
-  PRINT(" + at");
-  TAB(8.5, 0); PRINT(")");
+  B.TAB(s, 0);
+  B.PRINT("( v = v"); B.FONT(0.5, 0.1); B.PRINT('0');  B.FONT(1, 0);
+  B.PRINT(" + at");
+  B.TAB(8.5, 0); B.PRINT(")");
 }
 
 function funcx(s)
 {
-  TAB(s, 0);
-  PRINT("( x = x"); FONT(0.5, 0.1); PRINT('0'); FONT(1, 0);
-  PRINT(" + v");    FONT(0.5, 0.1); PRINT('0'); FONT(1, 0);
-  PRINT("t + ");
-  FONT(0.8, -0.5); PRINT('1' ); TAB(-1.5, 0);
-  FONT(0.8, -0.0); PRINT('－'); TAB(-1.5, 0);
-  FONT(0.8,  0.5); PRINT('2' ); TAB(-1  , 0);
-  FONT(1, 0); TAB(1, 0);
-  PRINT("at");
-  FONT(0.5, -0.35); PRINT("2"); FONT(1, 0);
-  TAB(1.5, 0); PRINT(")");
+  B.TAB(s, 0);
+  B.PRINT("( x = x"); B.FONT(0.5, 0.1); B.PRINT('0'); B.FONT(1, 0);
+  B.PRINT(" + v");    B.FONT(0.5, 0.1); B.PRINT('0'); B.FONT(1, 0);
+  B.PRINT("t + ");
+  B.FONT(0.8, -0.5); B.PRINT('1' ); B.TAB(-1.5, 0);
+  B.FONT(0.8, -0.0); B.PRINT('－'); B.TAB(-1.5, 0);
+  B.FONT(0.8,  0.5); B.PRINT('2' ); B.TAB(-1  , 0);
+  B.FONT(1, 0); B.TAB(1, 0);
+  B.PRINT("at");
+  B.FONT(0.5, -0.35); B.PRINT("2"); B.FONT(1, 0);
+  B.TAB(1.5, 0); B.PRINT(")");
 }
 
 function Infom(b, z, d, u, p)
@@ -271,48 +274,48 @@ function Infom(b, z, d, u, p)
   x = x + v * t + a * t * t / 2;
   t = Math.log10(x) + 4;
 
-  PRINT(b); FONT(0.5, 0.1); PRINT(z); FONT(1, 0);
-  PRINT(" =" + Num(d, t, 1) + ' ' + u);
+  B.PRINT(b); B.FONT(0.5, 0.1); B.PRINT(z); B.FONT(1, 0);
+  B.PRINT(" =" + Num(d, t, 1) + ' ' + u);
   if (p == ' ') return;
-  FONT(0.5, -0.35); PRINT("2"); FONT(1, 0);
+  B.FONT(0.5, -0.35); B.PRINT("2"); B.FONT(1, 0);
 }
 
 function Frame(t)
 {
    var v, x, p;
 
-  CLS('#000');
-  WINDOW(-Px, -Py, 639 - Px, 399 - Py);
-  FONT(1, 0);
+  B.CLS('#000');
+  B.WINDOW(-Px, -Py, 639 - Px, 399 - Py);
+  B.FONT(1, 0);
 
-  LOCATE(0, 1);
-  COLOR('#ff0'); PRINT("数値入力し");
-  COLOR('#0f0'); PRINT("(Enter後)");
-  COLOR('#0ff'); PRINT("spaceで開始");
-  COLOR('#0f0'); PRINT(" (z,x,c,q,w:縮小,拡大,初期,細,太)");
-  PRINT(" ( Frame = " + Fr + " )");
+  B.LOCATE(0, 1);
+  B.COLOR('#ff0'); B.PRINT("数値入力し");
+  B.COLOR('#0f0'); B.PRINT("(Enter後)");
+  B.COLOR('#0ff'); B.PRINT("spaceで開始");
+  B.COLOR('#0f0'); B.PRINT(" (z,x,c,q,w:縮小,拡大,初期,細,太)");
+  B.PRINT(" ( Frame = " + Fr + " )");
   Fr = (Fr + 1) % 60;
-  CR();
+  B.CR();
 
-  COLOR('#fff');
-  Infom("加速度   a", ' ', Pa0, "m/s", '2'); CR();
-  Infom("初速度   v", '0', Pv0, "m/s", ' '); CR();
-  Infom("初期位置 x", '0', Px0, "m", ' ');   CR();
+  B.COLOR('#fff');
+  Infom("加速度   a", ' ', Pa0, "m/s", '2'); B.CR();
+  Infom("初速度   v", '0', Pv0, "m/s", ' '); B.CR();
+  Infom("初期位置 x", '0', Px0, "m", ' ');   B.CR();
 
   v = Fv(t);
   x = Fx(t);
-  Infom("速度     v", ' ', v, "m/s", ' '); funcv(2); CR();
-  Infom("位置     x", ' ', x, "m", ' ');   funcx(4); CR();
+  Infom("速度     v", ' ', v, "m/s", ' '); funcv(2); B.CR();
+  Infom("位置     x", ' ', x, "m", ' ');   funcx(4); B.CR();
   Infom("時間 　  t", ' ', t, "s", ' ');
-     TAB(4, 1); PRINT("( ～ " + Pt1 + " s ");
-  if (isMv) { COLOR('#0ff'); PRINT("時間経過中"); }
-  else      { COLOR('#fff'); PRINT("時間停止中"); }
-  COLOR('#fff'); PRINT(" )"); CR();
-  PRINT("1目盛り " + Ds + " m"); CR();
+     B.TAB(4, 1); B.PRINT("( ～ " + Pt1 + " s ");
+  if (isMv) { B.COLOR('#0ff'); B.PRINT("時間経過中"); }
+  else      { B.COLOR('#fff'); B.PRINT("時間停止中"); }
+  B.COLOR('#fff'); B.PRINT(" )"); B.CR();
+  B.PRINT("1目盛り " + Ds + " m"); B.CR();
 
   axis();
   p = x * Fw / Dw / Ds;
-  LINEBF(p-Fp, -Fp, p+Fp, Fp, Cp);
+  B.LINEBF(p-Fp, -Fp, p+Fp, Fp, Cp);
 }
 
 function Display()
@@ -346,11 +349,11 @@ document.body.addEventListener('keydown', event =>
   {
     case  13: pushReset(); blur(); break; // Enter
     case  32: pushStart(); blur(); break; // space
-    case  81: lineWidth( 0.5); isMv = 0; getterf(); blur(); break; // 'Q'
-    case  87: lineWidth( 2  ); isMv = 0; getterf(); blur(); break; // 'W'
-    case  90: zooming  (-1  ); isMv = 0; getterf(); blur(); break; // 'Z'
-    case  88: zooming  ( 1  ); isMv = 0; getterf(); blur(); break; // 'X'
-    case  67: zooming  ( 0  ); isMv = 0; getterf(); blur(); break; // 'C'
+    case  81: B.lineWidth( 0.5); isMv = 0; getterf(); blur(); break; // 'Q'
+    case  87: B.lineWidth( 2  ); isMv = 0; getterf(); blur(); break; // 'W'
+    case  90: B.zooming  (-1  ); isMv = 0; getterf(); blur(); break; // 'Z'
+    case  88: B.zooming  ( 1  ); isMv = 0; getterf(); blur(); break; // 'X'
+    case  67: B.zooming  ( 0  ); isMv = 0; getterf(); blur(); break; // 'C'
   }
 });
 
@@ -367,12 +370,10 @@ window.onkeyup   = function(event) { Key[event.keyCode] = 0; }
 //----------------------------------------------------------------------
 function main()
 {
-  ctx.lineWidth = Width;
   Display();
 }
 
-lineWidth(1);
-zooming(0);
+B.lineWidth(1);
 getter();
 main();
 

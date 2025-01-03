@@ -1,6 +1,6 @@
 <!--
 ------------------------------------------------------------------------
- 物質量の問題
+ モル濃度の問題
 
  HTML(JavaScript, canvas)
 
@@ -13,10 +13,10 @@
 <html lang="ja">
 <head>
   <meta charset="utf-8">	
-  <title>物質量</title>
+  <title>モル濃度</title>
 </head>
 <body>
-<p id="amount of substance"></p>
+<p id="molar concentration"></p>
 <div style='float:left;'>
 
 <!--
@@ -28,16 +28,16 @@
 <pre></pre>
 <form id="target">
   <input type="radio" id="rad_4" name="amount"
-    value="4" /> Level4(数値範囲大)
+    value="4" /> Level4(％⇔mol/L)
   <pre></pre>
   <input type="radio" id="rad_3" name="amount"
-    value="3" /> Level3(数値範囲中)
+    value="3" /> Level3(gとmol/L)
   <pre></pre>
   <input type="radio" id="rad_2" name="amount"
-    value="2" /> Level2(数値範囲小)
+    value="2" /> Level2(モル濃度)
   <pre></pre>
   <input type="radio" id="rad_1" name="amount"
-    value="1" /> Level1(molのみ)
+    value="1" /> Level1(質量％濃度)
 </form>
 <pre></pre>
 <input type="button" id="but_ne" value="次の問い"
@@ -46,25 +46,17 @@
 <input type="button" id="but_re" value="リセット"
   onclick="pushReset()" />
 <pre></pre>
-<script src="https://sciencemathhub.github.io/html/canlib.js"></script>
+
+<script src="https://sciencemathhub.github.io/html/canlib2.js"></script>
 <script>
 'use strict'
 
 //----------------------------------------------------------------------
 // radio button
 //----------------------------------------------------------------------
-var Lv1 = 3;  // Lv4～1 = 0～3
+var B = new BASIC();
 
-//----------------------------------------------------------------------
-// public data (原子量×Mu = モル質量)
-//----------------------------------------------------------------------
-var NA = "6.02214076e+23";    // Avogadro constant
-var NR = "6.0e+23";           // 概数
-var mU = "1.66053906660e-24"; // 原子質量定数(g)(Atomic mass constant)
-var Mu = NA * mU;          // モル質量定数(g/mol)(Molar mass constant)
-var MR = NR * mU;          // 概数
-var Vm = 22.4;                // モル体積(L/mol)
-var Me = 9.1093837015e-28;    // 電子質量(g)
+var Lv1 = 3;  // Lv4～1 = 0～3
 
 //----------------------------------------------------------------------
 // public variable
@@ -86,6 +78,7 @@ var Qo  = 0 ; // 正答数
 var Qx  = 0 ; // 誤答数
 var Qa  = 0 ; // 模範解答
 
+
 //----------------------------------------------------------------------
 // Key status
 //----------------------------------------------------------------------
@@ -97,82 +90,204 @@ window.onkeyup   = function(event) { Key[event.keyCode] = 0; }
 //----------------------------------------------------------------------
 // 問題
 //----------------------------------------------------------------------
-function questionA(a, ua, za, b, ub, zb)
-{
-  var q, i;
+function question4()
+{ // ％ ⇔ mol/L 
+  var c, zc, sc; // mol/L, 有効数字, 文字列
+  var M, zM, sM; // g/mol, 有効数字, 文字列
+  var d, zd, sd; // g/mL , 有効数字, 文字列
+  var p, zp, sp; // ％   , 有効数字, 文字列
+  var k;
+  var ac = [0.1, 0.2, 0.4, 0.5, 1.0, 1.2, 1.5, 1.6, 1.8, 2.0];
+  var ad = [1.0, 1.1, 1.2, 1.25];
 
-  i = (za < 2)? 2 : za;
-  q = a.toPrecision(i) + " " + ua + " は 何 " + ub +" か?";
-  Ans = b;
-  Zns = zb;
-  Uni = ub;
+  d = ad[Math.floor(Math.random() *  ad.length)];
+  c = ac[Math.floor(Math.random() *  ac.length)];
+  M = (Math.floor(Math.random() * 10) + 1) * 10 * d;
+  p = c * M / (10 * d); 
 
-  return q;
+  zd = B.precision0(d);
+  zc = B.precision0(c);
+  zM = B.precision0(M);
+  zp = B.precision0(p);
+
+  sd = d.toPrecision((zd < 2)? 2 : zd);
+  sc = c.toPrecision((zc < 2)? 2 : zc);
+  sM = M.toPrecision((zM < 2)? 2 : zM);
+  sp = p.toPrecision((zp < 2)? 2 : zp);
+
+  k  = Math.floor(Math.random() * 2);
+  switch (k)
+  {
+    case  0:
+      Que = sp+" ％ の水溶液は 何 mol/L か"
+      Ans = c;
+      Zns = zc;
+      Uni = "mol/L";
+      break;
+    default:
+      Que = sc+" mol/L の水溶液は 何 ％ か"
+      Ans = p;
+      Zns = zp;
+      Uni = "％";
+  }
+　Que = Que + " ( M = "+sM+" , d = "+sd+" g/cm^3 )";
 }
 
-function questionAtoB(order, a, b, ua, ub, za, zb, M)
-{
-  if (order)
-    Que = questionA(b, ub, zb, a, ua, za);
-  else
-    Que = questionA(a, ua, za, b, ub, zb);
-  if (M != 0)
+function question3()
+{ // mol/L g
+  var n, zn, sn; // mol  , 有効数字, 文字列
+  var v, zv, sv; // mL   , 有効数字, 文字列
+  var c, zc, sc; // mol/L, 有効数字, 文字列
+  var m, zm, sm; // g    , 有効数字, 文字列
+  var M, zM, sM; // g/mol, 有効数字, 文字列
+  var k;
+
+  c = (Math.floor(Math.random() *  8) + 1) /   2;
+  v = (Math.floor(Math.random() *  5) + 1) * 100;
+  M = (Math.floor(Math.random() * 10) + 1) *  10;
+  n = c * v / 1000;
+  m = M * n;
+
+  zc = B.precision0(c);
+  zv = B.precision0(v);
+  zn = B.precision0(n);
+  zM = B.precision0(M);
+  zm = B.precision0(m);
+
+  sc = c.toPrecision((zc < 2)? 2 : zc);
+  sv = v.toPrecision((zv < 2)? 2 : zv);
+  sn = n.toPrecision((zn < 2)? 2 : zn);
+  sM = M.toPrecision((zM < 2)? 2 : zM);
+  sm = m.toPrecision((zm < 2)? 2 : zm);
+
+  k  = Math.floor(Math.random() * 3);
+  switch (k)
   {
-    Que = Que + " ( M = " + M + " )";
+    case  0:
+      Que = "溶質 "+sm+" g と水で "+sv+" mL にした水溶液は 何 mol/L か";
+      Ans = c;
+      Zns = zc;
+      Uni = "mol/L";
+      break;
+    case  1:
+      Que = sc+" mol/L の水溶液 "+sv+" mL に溶けている溶質は 何 g か";
+      Ans = m;
+      Zns = zm;
+      Uni = "g";
+      break;
+    default:
+      Que = sm+" g の溶質が溶けている "+sc+" mol/L の水溶液は 何 mL か";
+      Ans = v;
+      Zns = zv;
+      Uni = "mL";
+  }
+　Que = Que + " ( M = "+sM+" )";
+}
+
+function question2()
+{ // mol/L
+  var n, zn, sn; // mol  , 有効数字, 文字列
+  var v, zv, sv; // mL   , 有効数字, 文字列
+  var c, zc, sc; // mol/L, 有効数字, 文字列
+  var k;
+
+  c = (Math.floor(Math.random() * 40) + 1) / 10;
+  v = (Math.floor(Math.random() *  9) + 2) * 50;
+  n = c * v / 1000;
+
+  zc = B.precision0(c);
+  zv = B.precision0(v);
+  zn = B.precision0(n);
+
+  sc = c.toPrecision((zc < 2)? 2 : zc);
+  sv = v.toPrecision((zv < 2)? 2 : zv);
+  sn = n.toPrecision((zn < 2)? 2 : zn);
+
+  k  = Math.floor(Math.random() * 3);
+  switch (k)
+  {
+    case  0:
+      Que = "食塩 "+sn+" mol と水で "+sv+" mL にした食塩水は 何 mol/L か";
+      Ans = c;
+      Zns = zc;
+      Uni = "mol/L";
+      break;
+    case  1:
+      Que = sc+" mol/L の食塩水 "+sv+" mL に溶けている食塩は 何 mol か";
+      Ans = n;
+      Zns = zn;
+      Uni = "mol";
+      break;
+    default:
+      Que = sn+" mol の食塩が溶けている "+sc+" mol/L の食塩水は 何 mL か";
+      Ans = v;
+      Zns = zv;
+      Uni = "mL";
+  }
+}
+
+function question1()
+{ // ％
+  var m, zm, sm; // g , 有効数字, 文字列
+  var w, zw, sw; // g , 有効数字, 文字列
+  var s, zs, ss; // g , 有効数字, 文字列
+  var p, zp, sp; // ％, 有効数字, 文字列
+  var k;
+
+  s = (Math.floor(Math.random() * 30) + 1) * 10;
+  p = (Math.floor(Math.random() *  5) + 1) *  5;
+  m = s * p / 100;
+  w = s - m;
+
+  zm = B.precision0(m);
+  zw = B.precision0(w);
+  zs = B.precision0(s);
+  zp = B.precision0(p);
+
+  sm = m.toPrecision((zm < 2)? 2 : zm);
+  sw = w.toPrecision((zw < 2)? 2 : zw);
+  ss = s.toPrecision((zs < 2)? 2 : zs);
+  sp = p.toPrecision((zp < 2)? 2 : zp);
+
+  k  = Math.floor(Math.random() * 4);
+  switch (k)
+  {
+    case  0:
+      Que = "食塩 "+sm+" g と水で "+ss+" g にした食塩水は 何 ％ か";
+      Ans = p;
+      Zns = zp;
+      Uni = "％";
+      break;
+    case  1:
+      Que = "食塩 "+sm+" g と水 "+sw+" g を混ぜた食塩水は 何 ％ か";
+      Ans = p;
+      Zns = zp;
+      Uni = "％";
+      break;
+    case  2:
+      Que = sp+" ％ の食塩水 "+ss+" g に溶けている食塩は 何 g か";
+      Ans = m;
+      Zns = zm;
+      Uni = "g";
+      break;
+    default:
+      Que = sm+" g の食塩が溶けている "+sp+" ％ の食塩水は 何 g か";
+      Ans = s;
+      Zns = zs;
+      Uni = "g";
   }
 }
 
 function question()
 {
-  var n, zn; // mol  , 有効数字
-  var m, zm; // g    , 有効数字
-  var v, zv; // L    , 有効数字
-  var N, zN; // 個   , 有効数字
-  var M, zM; // g/mol, 有効数字
-  var nl, ml, kind, d, p;
-
   Am = "";
 
   switch (Tg)
   {
-    case '4': nl = 99; ml = 100; kind = 6; break;
-    case '3': nl =  9; ml = 100; kind = 6; break;
-    case '2': nl =  2; ml =  10; kind = 6; break;
-    default : nl =  2; ml =  10; kind = 3; break;
-  }
-  n = Math.floor(Math.random() * nl) + 1;
-  if (nl > 10) n /= 10;
-  M = Math.floor(Math.random() * ml) + 1;
-  if (ml <= 10)
-  {
-    if (Math.random() < 0.5) M *= 10;
-  }
-
-  m = n * M ;
-  N = n * NR;
-  v = n * Vm;
-  switch (Math.floor(Math.random() * 3))
-  {
-    case 1: n /= 10; m /= 10; N /= 10; v /= 10; break;
-    case 2: n *= 10; m *= 10; N *= 10; v *= 10; break;
-  }
-
-  zn = precision0(n);
-  zM = precision0(M);
-  zm = precision0(m);
-  zN = precision0(N);
-  zv = precision0(v);
-
-  d = Math.floor(Math.random() * 2   );
-  p  = Math.floor(Math.random() * kind);
-  switch (p)
-  {
-    case  0: questionAtoB(d, n, N, "mol", "個", zn, zN, 0); break;
-    case  1: questionAtoB(d, n, v, "mol", "L" , zn, zv, 0); break;
-    case  2: questionAtoB(d, n, m, "mol", "g" , zn, zm, M); break;
-    case  3: questionAtoB(d, v, m, "L"  , "g" , zv, zm, M); break;
-    case  4: questionAtoB(d, N, m, "個" , "g" , zN, zm, M); break;
-    default: questionAtoB(d, v, N, "L"  , "個", zv, zN, 0); break;
+    case '4': question4(); break;
+    case '3': question3(); break;
+    case '2': question2(); break;
+    default : question1();
   }
 }
 
@@ -255,11 +370,11 @@ document.body.addEventListener('keydown', event =>
 
   if (event.altKey)
   {
-    if      (event.code === "KeyQ") { lineWidth( 0.5); blur(); }
-    else if (event.code === "KeyW") { lineWidth( 2  ); blur(); }
-    else if (event.code === "KeyZ") { zooming  (-1  ); blur(); }
-    else if (event.code === "KeyX") { zooming  ( 1  ); blur(); }
-    else if (event.code === "KeyC") { zooming  ( 0  ); blur(); }
+    if      (event.code === "KeyQ") { B.lineWidth( 0.5); blur(); }
+    else if (event.code === "KeyW") { B.lineWidth( 2  ); blur(); }
+    else if (event.code === "KeyZ") { B.zooming  (-1  ); blur(); }
+    else if (event.code === "KeyX") { B.zooming  ( 1  ); blur(); }
+    else if (event.code === "KeyC") { B.zooming  ( 0  ); blur(); }
     else if (event.code === "KeyA") { pushAns()  ; blur(); }
     else if (event.code === "KeyR") { pushReset(); blur(); }
   }
@@ -289,77 +404,31 @@ function Display()
   var CQx = '#fa0';
   var i, a, a0, a2, ox;
 
-  CLS('#032');
-  WINDOW(-Px, -Py, 639 - Px, 399 - Py);
-  FONT(1, 0);
+  B.CLS('#032');
+  B.WINDOW(-Px, -Py, 639 - Px, 399 - Py);
+  B.FONT(1, 0);
 
-  LOCATE(0, 1);
-  COLOR('#ff0'); PRINT("答えを入力し");
-  COLOR('#0ff'); PRINT("Enter");
-  COLOR('#ff0'); PRINT(" 次の問題は");
-  COLOR('#0ff'); PRINT("space");
-  COLOR('#0f0'); PRINT(" (Alt+a,r,z,x,c:答,リセット,縮小,拡大,初期)"); CR();
-  CR();
+  B.LOCATE(0, 1);
+  B.COLOR('#ff0'); B.PRINT("答えを入力し");
+  B.COLOR('#0ff'); B.PRINT("Enter");
+  B.COLOR('#ff0'); B.PRINT(" 次の問題は");
+  B.COLOR('#0ff'); B.PRINT("space");
+  B.COLOR('#0f0'); B.PRINT(" (Alt+a,r,z,x,c:答,リセット,縮小,拡大,初期)");
+  B.CR();
+  B.COLOR('#fff');
+  B.PRINTe("(指数入力の例 1.2e-3 は "); B.PRINT("1.2e-3 と入力)");
+  B.CR();
+  B.CR();
 
-  COLOR(CmU);
-  PRINT("原子質量定数　 m");
-  FONT(0.5, 0); PRINT("U"); TAB(-1.0, 0);
-  FONT(1, 0); TAB(1, 0);
-  PRINT(" ≒ "); PRINTe(mU);
-  PRINT(" g ( ");
-  FONT(0.7, -0.4); PRINT("12");
-  FONT(1, 0); PRINT("Cの質量 / 12 )"); CR();
+  B.COLOR(CNA);
+  B.PRINT("水溶液の密度 d "); B.PRINTe("(g/cm^3)"); B.CR();
+  B.CR();
+  B.COLOR(CmU);
+  B.PRINT("モル質量 M (g/mol) ( ≒ 原子量,分子量,式量 )"); B.CR();
+  B.CR();
+  B.CR();
 
-  COLOR(CMu);
-  PRINT("モル質量定数　 M");
-  FONT(0.5, 0); PRINT("U"); TAB(-1.0, 0);
-  FONT(1, 0); TAB(1, 0);
-  PRINT(" ≒ "); PRINT(Mu.toPrecision(11)); PRINT(" g/mol ( ");
-  COLOR(CmU);
-  PRINT("m"); FONT(0.5, 0); PRINT("U");
-  FONT(1, 0);
-  COLOR(CMu);
-  PRINT(" × ");
-  COLOR(CNA);
-  PRINT("N"); FONT(0.7, 0); PRINT("A"); TAB(-1.0, 0);
-  FONT(1, 0); TAB(1, 0);
-  COLOR(CMu);
-  PRINT(" )"); CR();
-
-  TAB(17, 0);
-  PRINT(" ≒ "); PRINT(MR.toFixed(1)); PRINT(" g/mol"); CR();
-
-  COLOR(CNA);
-  PRINT("アボガドロ定数 N");
-  FONT(0.7, 0); PRINT("A"); TAB(-1.0, 0);
-  FONT(1, 0); TAB(1, 0);
-  PRINT(" ＝ "); PRINTe(NA); PRINT(" /mol"); CR();
-  TAB(17, 0);
-  PRINT(" ≒ "); PRINTe(NR); PRINT(" /mol"); CR();
-  COLOR(CmU);
-  PRINT("標準状態(0℃ 1013hPa)での気体の体積 ≒ ");
-  PRINT(Vm); PRINT(" L/mol"); CR();
-
-  COLOR(CM);
-  PRINT("モル質量 M (g/mol) ＝ ");
-  COLOR(CAw);
-  PRINT("分子量など");
-  COLOR(CM);
-  PRINT(" × ");
-  COLOR(CMu);
-  PRINT("M"); FONT(0.5, 0); PRINT("U"); TAB(-1.0, 0);
-  FONT(1, 0); TAB(1, 0);
-  COLOR(CM);
-  PRINT(" ≒ ");
-  COLOR(CAw);
-  PRINT("分子量など");
-
-  COLOR(CAw);
-  PRINT(" ( 基準 ");
-  FONT(0.7, -0.4); PRINT("12");
-  FONT(1, 0); PRINT("C = 12 )"); CR();
-  CR(); 
-
+  B.COLOR(CAw);
   a0 = Ans.toPrecision(Zns);
   a2 = Ans.toPrecision(2);
   a  = Number(Am);
@@ -376,39 +445,39 @@ function Display()
     ox = 2; if (Qn0 != Qn) { Qn0 = Qn; Qx++; }
   }
 
-  COLOR(CQn); PRINT("第 "   + Qn + " 問、");
-  COLOR(CQo); PRINT("正答 " + Qo + " 問");
-  COLOR(CQn); PRINT("、");
-  COLOR(CQx); PRINT("誤答 " + Qx + " 問"); CR();
+  B.COLOR(CQn); B.PRINT("第 "   + Qn + " 問、");
+  B.COLOR(CQo); B.PRINT("正答 " + Qo + " 問");
+  B.COLOR(CQn); B.PRINT("、");
+  B.COLOR(CQx); B.PRINT("誤答 " + Qx + " 問"); B.CR();
 
-  COLOR(CAw);
-  PRINTe("問題 (N_A = 6.0e+23 /mol、答えはそのままか、有効数字2桁とする。)");
-  CR();
-  CR();
-  PRINT(" "); PRINTe(Que); CR();
-  CR();
+  B.COLOR(CAw);
+  B.PRINTe("問題 (答えはそのままか、有効数字2桁とする。)");
+  B.CR();
+  B.CR();
+  B.PRINT(" "); B.PRINTe(Que); B.CR();
+  B.CR();
 
   if (ox == 0) return;
 
-  PRINT(" "); PRINTe(Am); PRINT(" "+Uni); CR();
-  CR();
+  B.PRINT(" "); B.PRINTe(Am); B.PRINT(" "+Uni); B.CR();
+  B.CR();
 
   if (ox == 2)
   {
-    COLOR(CQx);
-    PRINT("答えが合いません。"); CR();
+    B.COLOR(CQx);
+    B.PRINT("答えが合いません。"); B.CR();
     return;
   }
 
-  COLOR(CQo);
-  PRINT("正解です。"); CR();
-  CR();
-  COLOR('#ff0');
-  PRINT("答  "); PRINTe(a0); PRINT(" "+Uni);
-  PRINT(" ( " ); PRINTe(a2); PRINT(" "+Uni+" )"); CR();
-  CR();
+  B.COLOR(CQo);
+  B.PRINT("正解です。"); B.CR();
+  B.CR();
+  B.COLOR('#ff0');
+  B.PRINT("答  "); B.PRINTe(a0); B.PRINT(" "+Uni);
+  B.PRINT(" ( " ); B.PRINTe(a2); B.PRINT(" "+Uni+" )"); B.CR();
+  B.CR();
 
-  COLOR('#fff');
+  B.COLOR('#fff');
 }
 
 //----------------------------------------------------------------------
@@ -416,14 +485,12 @@ function Display()
 //----------------------------------------------------------------------
 function main()
 {
-  ctx.lineWidth = Width;
   Display();
 }
 
 document.getElementById("target")[Lv1].checked = true;
 blur();
-lineWidth(1);
-zooming(0);
+B.lineWidth(1);
 question();
 main();
 

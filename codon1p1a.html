@@ -6,7 +6,7 @@
 
  Alt+(z,x,c, q,w), Enter
 
- (c)Ohtani 2023.9
+ (c)Ohtani 2023.9 - 2025.1
 ------------------------------------------------------------------------
 -->
 <!DOctxYPE html>
@@ -32,13 +32,16 @@
 <input type="button" id="but_omni" value="Evrything" onclick="pushOmni()">
 <input type="button" id="but_rese" value="Reset" onclick="pushReset()">
 <pre></pre>
-<script src="https://sciencemathhub.github.io/html/canlib.js"></script>
+
+<script src="https://sciencemathhub.github.io/html/canlib2.js"></script>
 <script>
 'use strict'
 
 //----------------------------------------------------------------------
 // public variable
 //----------------------------------------------------------------------
+var B = new BASIC();
+
 var CA = '#0f0';  // 緑
 var CG = '#000';  // 黒
 var CC = '#00f';  // 青
@@ -218,8 +221,8 @@ function PrintCodon3(c3)
       case ' ': c = Cq; break;
       default : c = Cq; a = '?';
     }
-    COLOR(c);
-    PRINT(a);
+    B.COLOR(c);
+    B.PRINT(a);
   }
 }
 
@@ -230,7 +233,7 @@ function DispCodon(tb)
 
   for (z = 0; z < 4; z++)
   {
-    TAB(tb, 0);
+    B.TAB(tb, 0);
     for (y = 0; y < 4; y++)
     {
       for (x = 0; x < 4; x++)
@@ -238,12 +241,12 @@ function DispCodon(tb)
         i = x + y * 16 + z * 4;
         c3 = CODON[i][0];
         PrintCodon3(c3);
-        PRINT(' ');
+        B.PRINT(' ');
       }
-      PRINT("  ");
+      B.PRINT("  ");
     }
-    CR();
-    TAB(tb, 0);
+    B.CR();
+    B.TAB(tb, 0);
     for (y = 0; y < 4; y++)
     {
       for (x = 0; x < 4; x++)
@@ -251,14 +254,14 @@ function DispCodon(tb)
         i = x + y * 16 + z * 4;
         a = CODON[i][1];
         DispAmino1(a);
-        PRINT(' ');
+        B.PRINT(' ');
       }
-      PRINT("  ");
+      B.PRINT("  ");
     }
-    CR();
-    CRn(0.5);
+    B.CR();
+    B.CRn(0.5);
   }
-  CRn(0.5);
+  B.CRn(0.5);
 }
 
 //----------------------------------------------------------------------
@@ -294,9 +297,9 @@ function DispAmino1(a, n)
   var c, c3;
 
   c  = ColorAmino1(a);
-  COLOR(c);
+  B.COLOR(c);
   c3 = (n == 1)? a + "  " : Amino1to3(a);
-  PRINT(c3);
+  B.PRINT(c3);
 }
 
 function DispAminos(m, n)
@@ -308,8 +311,8 @@ function DispAminos(m, n)
   for (i = 0; i < len; i++)
   {
     a = m.charAt(i);
-    COLOR(Ch);
-    PRINT(h);
+    B.COLOR(Ch);
+    B.PRINT(h);
     h = (n == 1)? ' ' : '-';
     DispAmino1(a, n);
   }
@@ -325,8 +328,8 @@ function DispmRNA(m)
     c3 = m.substr(i  , 3);
     PrintCodon3(c3);
     h  = m.substr(i+3, 1);
-    COLOR(Ch);
-    PRINT(h);
+    B.COLOR(Ch);
+    B.PRINT(h);
   }
 }
 
@@ -452,18 +455,18 @@ function Display()
   var amino, i;
   var tb = 0.5;
 
-  CLS('#fff');
-  WINDOW(-Px, Py, 639 - Px, Py - 399);
-  LINEB(-Px, Py, 639 - Px, Py - 398, '#000');
-  FONT(1, 0);
+  B.CLS('#fff');
+  B.WINDOW(-Px, Py, 639 - Px, Py - 399);
+  B.LINEB(-Px, Py, 639 - Px, Py - 398, '#000');
+  B.FONT(1, 0);
 
-  LOCATE(0, 1);
-  TAB(tb, 0);
-  COLOR('#000'); PRINT("Standard genetic code(標準コドン表)");
-  COLOR('#000'); PRINT(" 配列");
-  COLOR('#00f'); PRINT("(Enter)");
-  COLOR('#0f0'); PRINT(" (Alt+r,e,z,x,c:空,全,拡大)"); CR();
-  CR();
+  B.LOCATE(0, 1);
+  B.TAB(tb, 0);
+  B.COLOR('#000'); B.PRINT("Standard genetic code(標準コドン表)");
+  B.COLOR('#000'); B.PRINT(" 配列");
+  B.COLOR('#00f'); B.PRINT("(Enter)");
+  B.COLOR('#0f0'); B.PRINT(" (Alt+r,e,z,x,c:空,全,拡大)"); B.CR();
+  B.CR();
 
   DispCodon(tb);
 
@@ -475,20 +478,20 @@ function Display()
   }
   amino = mRNA2Amino(mRNAS[0]);
 
-  TAB(tb, 0);
+  B.TAB(tb, 0);
   DispAminos(amino, 1);
-  CR();
-  TAB(tb, 0);
+  B.CR();
+  B.TAB(tb, 0);
   DispAminos(amino, 3);
-  CR();
+  B.CR();
   for (i= 0; i < mRNAN; i++)
   {
-    TAB(tb, 0);
+    B.TAB(tb, 0);
     DispmRNA(mRNAS[i]);
-    CR();
+    B.CR();
   }
 
-  COLOR('#000');
+  B.COLOR('#000');
 }
 
 //----------------------------------------------------------------------
@@ -506,11 +509,11 @@ document.body.addEventListener('keydown', event =>
 {
   if (event.altKey)
   {
-    if      (event.code === "KeyQ") { lineWidth( 0.5); blur(); }
-    else if (event.code === "KeyW") { lineWidth( 2  ); blur(); }
-    else if (event.code === "KeyZ") { zooming  (-1  ); blur(); }
-    else if (event.code === "KeyX") { zooming  ( 1  ); blur(); }
-    else if (event.code === "KeyC") { zooming  ( 0  ); blur(); }
+    if      (event.code === "KeyQ") { B.lineWidth( 0.5); blur(); }
+    else if (event.code === "KeyW") { B.lineWidth( 2  ); blur(); }
+    else if (event.code === "KeyZ") { B.zooming  (-1  ); blur(); }
+    else if (event.code === "KeyX") { B.zooming  ( 1  ); blur(); }
+    else if (event.code === "KeyC") { B.zooming  ( 0  ); blur(); }
     else if (event.code === "KeyR") { pushReset(); }
     else if (event.code === "KeyE") { pushOmni() ; }
   }
@@ -530,12 +533,10 @@ document.body.addEventListener('keydown', event =>
 //----------------------------------------------------------------------
 function main()
 {
-  ctx.lineWidth = Width;
   Display();
 }
 
-lineWidth(1);
-zooming(0);
+B.lineWidth(1);
 pushReset();
 main();
 
