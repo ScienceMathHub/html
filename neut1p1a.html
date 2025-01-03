@@ -30,7 +30,7 @@
 <input type="button" id = "but_6" value="No.6" onclick="inkey(54)">6
 <pre></pre>
 <input type="button" id = "but_7" value="No.7" onclick="inkey(55)">7<br><br>
-<input type="button" id = "but_d2" value="多滴下" onclick="inkey(38)">↑
+<input type="button" id = "but_d2" value="多滴下" onclick="inkey(40)">↓
 <input type="button" id = "but_d1" value="少滴下" onclick="inkey(39)">→<br><br>
 <input type="button" id = "but_R" value="Reset" onclick="inkey(13)">Enter<br><br>
 <input type="button" id="butWD" value="細"    onclick="inkey( 81)">q
@@ -762,9 +762,9 @@ function inkey(key)
     case 90: B.zooming  (-1  ); break; // 'Z'
     case 88: B.zooming  ( 1  ); break; // 'X'
     case 67: B.zooming  ( 0  ); break; // 'C'
-    case 38: //↑
-      Volume += t * 10; if (Volume > Lv) Volume = Lv; break;
     case 40: //↓
+      Volume += t * 10; if (Volume > Lv) Volume = Lv; break;
+    case 38: //↑
       Volume -= t * 10; if (Volume <  0) Volume =  0; break;
     case 39: //→
       Volume += t     ; if (Volume > Lv) Volume = Lv; break;
