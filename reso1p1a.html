@@ -33,7 +33,7 @@ A<label><input type="range" id ="rangeA1" min="0" max= "1" step="0.1"
 L.<label><input type="range" id ="rangeLe" min="-0.5" max= "0.5"
   step="0.125" value="-0.5">df</label>
 <pre></pre>
-L <label><input type="range" id ="rangeLd" min="1" max= "8" step="1"
+L <label><input type="range" id ="rangeLd" min="0" max= "8" step="1"
   value="3">cv</label>
 <pre></pre>
 <input type="button" id="butS" value="進行/停止" onclick="inkey(32)">Space
@@ -80,11 +80,22 @@ var cLd =  3.0, Ld = cLd; // 筒長
 var cLe = -0.5, Le = cLe; // 筒長
 
 //--------------------------------------------------------------------
+// len = Ld + Le
+//--------------------------------------------------------------------
+function lenf()
+{
+  var len = Ld + Le;
+
+  if (len < 0.125) len = 0.125;
+  return len;
+}
+
+//--------------------------------------------------------------------
 // 関数1 y = f(th)
 //--------------------------------------------------------------------
 function func1(c, px, py, h, a)
 {
-  var len = Ld + Le;
+  var len = lenf();
   var str  = "y = Asin( 2π(x-vt)/λ)  (A = ";
       str += A1.toFixed(1) + " m , λ = " + L1.toFixed(1) + " m";
       str += " , v = "+ Vo.toFixed(1) + " m/s";
@@ -106,7 +117,7 @@ function f2(x)
 {
   var y, d, x1, x2, len;
 
-  len = Ld + Le;
+  len = lenf();
   x1 = x % len;
   x2 = len - x1;
   x += x2 * 2;
@@ -120,7 +131,7 @@ function f3(x)
 {
   var y, d, len;
 
-  len = Ld + Le;
+  len = lenf();
   x += len * 2;
   d = x - Vt;
   if (d > 0) return 0;
@@ -132,7 +143,7 @@ function f4(x)
 {
   var y, d, x1, x2, len;
 
-  len = Ld + Le;
+  len = lenf();
   x += len * 2;
   x1 = x % len;
   x2 = len - x1;
@@ -146,7 +157,7 @@ function fAu(x)
 {
   var y, d, len;
 
-  len = Ld + Le;
+  len = lenf();
   d = 20 * len / L1;
   d %= 10;
   if (isOpen)
@@ -166,7 +177,7 @@ function f12(x)
 {
   var y, d, i, x1, x2, y1, s, a, as, len;
 
-  len = Ld + Le;
+  len = lenf();
   if (x < 0 || x > len) return f1(x);
   x1 = x % len;
   x2 = len - x1;
@@ -206,7 +217,7 @@ function graph(c, px, py, h, m, func, t1, t2)
 
   b = '#48f';
 
-  len = Ld + Le;
+  len = lenf();
   x0 = -1000;
   y0 = -1000;
   n = DisW;
@@ -241,7 +252,7 @@ function longi(c, px, py, h, m, func, t1, t2)
 
   b = c; // '#00f';
 
-  len = Ld + Le;
+  len = lenf();
 
   a = h;
   n = DisW;
@@ -323,7 +334,7 @@ function tube(c, px, py, h, m)
 
   b = '#48f';
 
-  len = Ld + Le;
+  len = lenf();
   n = DisN;
   i = DisW / 10 / n;
   y = h;
@@ -354,7 +365,7 @@ function display()
   B.FONT(1,0);
   B.CLS('#000');
 
-  len = Ld + Le;
+  len = lenf();
 
   s = DisW / DisN;
   h = 32;
@@ -550,7 +561,7 @@ function limitL(x, s)
 }
 function limitD(x, s)
 {
-  var min  = 1;
+  var min  = 0;
   var max  = 8;
   var step = 1;
   
