@@ -81,10 +81,15 @@ class BASIC
     this.winW = (x2 - x1) * 640 / 639;
     this.winH = (y2 - y1) * 400 / 399;
   }
+  LOCATEp(x, y)
+  {
+    if (x != '') this.locX = this.ScrX(x);
+    if (y != '') this.locY = this.ScrY(y);
+  }
   LOCATE(x, y)
   {
-    this.locX = x * this.locW;
-    this.locY = y * this.locH;
+    if (x != '') this.locX = x * this.locW;
+    if (y != '') this.locY = y * this.locH;
   }
   TAB(x, y)
   {
@@ -187,7 +192,7 @@ class BASIC
       {
         i++;
         a = s.substring(i, i+1);
-        this.FONT(0.6, 0.2);
+        this.FONT(0.6, 0.1);
         this.PRINT(a);
         this.FONT(1, 0);
         continue;
@@ -214,11 +219,6 @@ class BASIC
     }
     this.FONT(1, 0);
     return p;
-  }
-  LOCATEp(x, y)
-  {
-    this.locX = this.ScrX(x);
-    this.locY = this.ScrY(y);
   }
   POINT(x, y)
   {
