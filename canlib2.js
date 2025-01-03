@@ -83,18 +83,18 @@ class BASIC
   }
   LOCATEp(x, y)
   {
-    if (x != '') this.locX = this.ScrX(x);
-    if (y != '') this.locY = this.ScrY(y);
+    if (x !== '') this.locX = this.ScrX(x);
+    if (y !== '') this.locY = this.ScrY(y);
   }
   LOCATE(x, y)
   {
-    if (x != '') this.locX = x * this.locW;
-    if (y != '') this.locY = y * this.locH;
+    if (x !== '') this.locX = x * this.locW;
+    if (y !== '') this.locY = y * this.locH;
   }
   TAB(x, y)
   {
-    this.locX += x * this.locW;
-    this.locY += y * this.locH;
+    if (x !== '') this.locX += x * this.locW;
+    if (y !== '') this.locY += y * this.locH;
   }
   CR()
   {
