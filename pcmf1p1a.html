@@ -60,8 +60,7 @@
 //--------------------------------------------------------------------
 var B = new BASIC();
 
-var Sec    =     1; // sec
-var SecW   =   540; // sec表示幅
+var SecN          ; // sec
 var Freq          ; // 440Hz
 var Volume        ; // 音量
 var Time          ; // 発振時間(s)
@@ -142,20 +141,19 @@ function f3(th)
 //--------------------------------------------------------------------
 function graph(c, py, h, func)
 {
-  var x, y, x0, y0, i, s, n, t;
+  var px, x, y, x0, y0, s, n, t;
 
-  B.WINDOW(-60, py, 599, py-359);
+  n  = 1.224;
+  px = -(n-1) / 2;
+  B.WINDOW(px, py, px + n, py-359);
 
-  x0 = -1000;
-  y0 = -1000;
-  n = SecW;
-  i = n / 10;
-  s = n / 1000;
-  for (x = -i * 2; x <= n + i * 2; x += s)
+  x0 = -100;
+  y0 = -100;
+  for (x = -0.2; x <= n; x += 0.001)
   {
-    t = (x / n) * Sec;
+    t = x * SecN;
     y = func(Freq * t) * Volume;
-    if (Math.abs(y0 - y) > 5)
+    if (Math.abs(y0 - y) > 4)
     {
       x0 = x;
       y0 = y;
@@ -171,14 +169,15 @@ function graph(c, py, h, func)
 //--------------------------------------------------------------------
 function scale(c, py, h, m)
 {
-  var t, x, y, i, n;
+  var px, t, x, y, n;
+  
+  n  = 1.224;
+  px = -(n-1) / 2;
+  B.WINDOW(px, py, px + n, py-359);
 
-  B.WINDOW(-60, py, 599, py-359);
   B.COLOR(c);
 
-  n = SecW;
-  i = n / 10;
-  x = i /  7;
+  x = 0.014;
   for (t = 1; t <= m; t++)
   {
     y = h * t;
@@ -187,17 +186,17 @@ function scale(c, py, h, m)
     B.LINE(-x,  y, x,  y, c);
     B.LINE(-x, -y, x, -y, c);
   }
-  B.LINE(-1000,  0, 1000, 0, c);
+  B.LINE(-100,  0, 100, 0, c);
 
   for (t = -2; t <= 10 + 2; t++)
   {
-    x = t * i;
+    x = t * 0.1;
     if      ((t % 10) == 0) { y = h * (m+0.2); }
+    else if ((t %  5) == 0) { y = h *    0.4 ; }
     else                    { y = h *    0.2 ; }
     B.LINE( x, -y,  x, y, c);
   }
-  x = 10 * i / 8 + 6;
-  B.LOCATE(x, 21); B.PRINT(Sec+" s");
+  B.LOCATEp(1, -h*(m-1)); B.TAB(0.6, -0.4); B.PRINT(SecN+" s");
 }
 
 //--------------------------------------------------------------------
@@ -526,12 +525,12 @@ function display()
   Freq = Math.round(Freq * 10) / 10;
   if (Select == 0) if (Freq > 10000) Freq = 10000;
 
-  if      (Freq > 10000) Sec = 0.002;
-  else if (Freq >  6000) Sec = 0.003;
-  else if (Freq >  3000) Sec = 0.005;
-  else if (Freq >   100) Sec = 0.01;
-  else if (Freq >    19) Sec = 0.1;
-  else                   Sec = 1;
+  if      (Freq > 10000) SecN = 0.002;
+  else if (Freq >  6000) SecN = 0.003;
+  else if (Freq >  3000) SecN = 0.005;
+  else if (Freq >   100) SecN = 0.01;
+  else if (Freq >    19) SecN = 0.1;
+  else                   SecN = 1;
 
   switch (Select)
   {
