@@ -197,8 +197,8 @@ function scale(c, px, py, h, m, b)
   x = Math.abs(F1 - F2);
   if (x > 0)
   {
-    x  = 0.5; B.LINE( x, -y,  x, y, b);
-    x += 1  ; B.LINE( x, -y,  x, y, b);
+    x  = 0.5 / x; B.LINE( x, -y,  x, y, b);
+    x += 1      ; B.LINE( x, -y,  x, y, b);
   }
 
   B.LOCATEp(0, 0); B.TAB(0.3, -0.2); B.PRINT("0s");
