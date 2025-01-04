@@ -114,7 +114,7 @@ class BASIC
   }
   FONT(zoom, offs)
   {
-    var h;
+    let h;
 
     zoom = Math.round(this.zoom * zoom / 40 * 8);
     this.locW = zoom;
@@ -136,7 +136,7 @@ class BASIC
   }
   SYMBOL(x, y, text, c)
   {
-    var x1, y1;
+    let x1, y1;
 
     x1 = this.ScrX(x);
     y1 = this.ScrY(y);
@@ -146,7 +146,7 @@ class BASIC
   }
   PRINT(text)
   {
-    var s, n, i, w, x, m, a;
+    let s, n, i, w, x, m, a;
 
     s = String(text);
     n = s.length;
@@ -164,7 +164,7 @@ class BASIC
   }
   PRINTe(s)
   {
-    var i, n, pow, num, a, p;
+    let i, n, pow, num, a, p;
 
     s = String(s);
     p = 0;
@@ -259,7 +259,7 @@ class BASIC
 /*
   LINEB(x1, y1, x2, y2, c)
   {
-    var x, y, w, h;
+    let x, y, w, h;
 
     x = this.ScrX(x1);
     y = this.ScrY(y1);
@@ -273,7 +273,7 @@ class BASIC
 */
   LINEBF(x1, y1, x2, y2, c)
   {
-    var x, y, w, h;
+    let x, y, w, h;
 
     x = this.ScrX(x1);
     y = this.ScrY(y1);
@@ -286,7 +286,7 @@ class BASIC
   }
   CIRCLERF(x, y, r0, c)
   {
-    var x0, y0;
+    let x0, y0;
 
     this.posX = x0 = this.ScrX(x);
     this.posY = y0 = this.ScrY(y);
@@ -325,7 +325,7 @@ class BASIC
   // math func (precision)
   precision(a)
   {
-    var s, i;
+    let s, i;
 
     s = a.toPrecision(12);
     s = s.replace(/[+-]/g, "");
@@ -341,7 +341,7 @@ class BASIC
   }
   precision0(a)
   {
-    var s, i;
+    let s, i;
 
     s = a.toPrecision(12);
     s = s.replace(/[+-]/g, "");
