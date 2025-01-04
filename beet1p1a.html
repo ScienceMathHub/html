@@ -46,8 +46,7 @@ f2<label><input type="range" id ="rangeF2" min="1" max= "9" step="1"
 //--------------------------------------------------------------------
 var B = new BASIC();
 
-var Sec    =    2; // sec
-var SecW   =  560; // sec表示幅
+var SecN    =    2; // sec
 var isBeet =    1; // Beet表示
 var isDup  =    0; // 重ね表示
 
@@ -142,19 +141,16 @@ function f12d(th)
 //--------------------------------------------------------------------
 function graph(c, px, py, h, m, func)
 {
-  var x, y, x0, y0, i, s, n, t;
+  var x, y, x0, y0, n, t;
 
-  B.WINDOW(px, py, px+639, py-399);
+  n = SecN + 0.3;
+  B.WINDOW(px, py, px+n, py-399);
 
-  x0 = -1000;
-  y0 = -1000;
-  n = SecW;
-  i = n / 10;
-  s = n / 1000;
-  for (x = -i * 2; x <= n + i * 2; x += s)
+  x0 = -100;
+  y0 = -100;
+  for (x = -2; x <= n + 2; x += 0.01)
   {
-    t = (x / n) * Sec;
-    y = func(t);
+    y = func(x);
     if (Math.abs(y0 - y) > 5)
     {
       x0 = x;
@@ -171,15 +167,14 @@ function graph(c, px, py, h, m, func)
 //--------------------------------------------------------------------
 function scale(c, px, py, h, m, b)
 {
-  var t, x, y, i, n;
+  var t, x, y, n;
 
   B.COLOR(c);
 
-  B.WINDOW(px, py, px+639, py-399);
+  n = SecN + 0.3;
+  B.WINDOW(px, py, px+n, py-399);
 
-  n = Sec;
-  i = SecW / 10 / n;
-  x = i /  7;
+  x = 0.015;
   for (t = 1; t <= m; t++)
   {
     y = h * t;
@@ -188,11 +183,11 @@ function scale(c, px, py, h, m, b)
     B.LINE(-x,  y, x,  y, c);
     B.LINE(-x, -y, x, -y, c);
   }
-  B.LINE(-1000,  0, 1000, 0, c);
+  B.LINE(-100,  0, 100, 0, c);
 
-  for (t = -2; t <= n * 10 + 2; t++)
+  for (t = -2; t <= n + 20; t++)
   {
-    x = t * i;
+    x = t * 0.1;
     if      ((t % 10) == 0) { y = h * (m  +0.2); }
     else if ((t %  5) == 0) { y = h * (m/4+0.2); }
     else                    { y = h *      0.2 ; }
@@ -202,15 +197,14 @@ function scale(c, px, py, h, m, b)
   x = Math.abs(F1 - F2);
   if (x > 0)
   {
-    x  = i * (5 / x); B.LINE( x, -y,  x, y, b);
-    x += i * 10     ; B.LINE( x, -y,  x, y, b);
+    x  = 0.5; B.LINE( x, -y,  x, y, b);
+    x += 1  ; B.LINE( x, -y,  x, y, b);
   }
 
   B.LOCATEp(0, 0); B.TAB(0.3, -0.2); B.PRINT("0s");
-  x = i * 10;
   for (t = 1; t <= n; t++)
   {
-    B.LOCATEp(t * x, 0); B.TAB(0.3, -0.2); B.PRINT(t + "s");
+    B.LOCATEp(t, 0); B.TAB(0.3, -0.2); B.PRINT(t + "s");
   }
 }
 
@@ -224,7 +218,7 @@ function display()
   B.FONT(1,0);
   B.CLS('#000');
 
-  px = -40;
+  px = -0.15;
   a = 1; h = 32; py =  60;
   func1('#fff', px, py, h, a);
   scale('#ff0', px, py, h, a, '#0ff');

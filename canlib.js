@@ -78,8 +78,8 @@ class BASIC
   {
     this.winX = x1;
     this.winY = y1;
-    this.winW = (x2 - x1) * 640 / 639;
-    this.winH = (y2 - y1) * 400 / 399;
+    this.winW = x2 - x1;
+    this.winH = y2 - y1;
   }
   LOCATEp(x, y)
   {
