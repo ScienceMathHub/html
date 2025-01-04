@@ -31,10 +31,10 @@ A<label><input type="range" id ="rangeA1" min="0" max= "1" step="0.1"
   value="2">er</label>
 <pre></pre>
 L.<label><input type="range" id ="rangeLe" min="-0.5" max= "0.5"
-  step="0.125" value="-0.5">df</label>
+  step="0.125" value="0.5">df</label>
 <pre></pre>
 L <label><input type="range" id ="rangeLd" min="0" max= "8" step="1"
-  value="3">cv</label>
+  value="2">cv</label>
 <pre></pre>
 <input type="button" id="butS" value="進行/停止" onclick="inkey(32)">Space
 <input type="button" id="butM" value="初"    onclick="inkey(77)">m<br><br>
@@ -74,8 +74,8 @@ var cRo =  1  , Ro = cRo; // 開口反射率
 var cVo =  2  , Vo = cVo; // 速度(m/s)
 var cA1 =  1  , A1 = cA1; // 振幅1
 var cL1 =  2  , L1 = cL1; // 波長1
-var cLd =  3.0, Ld = cLd; // 筒長
-var cLe = -0.5, Le = cLe; // 筒長
+var cLd =  2.0, Ld = cLd; // 筒長
+var cLe =  0.5, Le = cLe; // 筒長
 
 var Temp; // debug
 
@@ -280,7 +280,7 @@ function longi(c, px, py, h, m, func, x1, x2)
 //--------------------------------------------------------------------
 function scale(c, px, py, h, m, up, sl, sr)
 { /* dn=0:up 1:dn 2:half scale */
-  var t, x, y, s, n;
+  var t, x, y, s, r, n;
 
   B.COLOR(c);
 
@@ -313,12 +313,14 @@ function scale(c, px, py, h, m, up, sl, sr)
   x = -0.4;
   y =  1.5;
   if (up) y = 0.9 - y;
+  r = 0;
   B.LOCATEp(0, s); B.TAB(x, y); B.PRINT("0m");
   for (t = 1; t < n-1; t++)
   {
-    B.LOCATEp( t, s); B.TAB(x, y); if (sr == '-') B.TAB(-1, 0);
+    if (t >= 10) r = -0.5;
+    B.LOCATEp( t, s); B.TAB(x+r, y); if (sr == '-') B.TAB(-1, 0);
     B.PRINT(sr + t + "m");
-    B.LOCATEp(-t, s); B.TAB(x, y); if (sl == '-') B.TAB(-1, 0);
+    B.LOCATEp(-t, s); B.TAB(x+r, y); if (sl == '-') B.TAB(-1, 0);
     B.PRINT(sl + t + "m");
   }
 }
@@ -409,11 +411,10 @@ function display()
 
   B.WINDOW(px, py, px+639, py-399);
   B.LOCATEp(px, -h*2.2); B.TAB(1, 1); B.COLOR('#0f0');
-  str  = "開口端反射率 = " + Ro + " , 閉口端反射率 = " + Rc;
+  str  =    "開口端反射率 = " + Ro.toFixed(1);
+  str += " , 閉口端反射率 = " + Rc.toFixed(1);
   str += " , 合成回数 = " + Rn;
   B.PRINT(str);
-
-  B.PRINT(" , " + Temp);
 }
 
 //--------------------------------------------------------------------
