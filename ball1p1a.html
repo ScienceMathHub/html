@@ -68,6 +68,7 @@
 
 <script src="https://sciencemathhub.github.io/html/tophys.js"></script>
 <script src="https://sciencemathhub.github.io/html/canlib.js"></script>
+<script src="https://sciencemathhub.github.io/html/moslib.js"></script>
 <script>
 'use strict'
 
@@ -1004,7 +1005,6 @@ document.body.addEventListener('keydown', event =>
 //----------------------------------------------------------------------
 // mouse
 //----------------------------------------------------------------------
-var mouseD =-1;  // 差分r
 var mouseX = 0;  // 差分x
 var mouseY = 0;  // 差分y
 
@@ -1020,25 +1020,29 @@ function winB(mx, my)
   return { x:x, y:y };
 }
 
-function catchB(mx, my, mr)
+function mouseDn(x, y, touch)
 {
-  var x, y, w, r, d, dx, dy;
+  var w, r, d, dx, dy, mr;
 
-  w = winB(mx, my);
+  mr  = MB.r;
+  mr *= (touch)? 10 : 5;
+  w = winB(x, y);
   x = w.x;
   y = w.y;
   mouseX = dx = MB.px - x;
   mouseY = dy = MB.py - y;
   d  = dx*dx + dy*dy;
   r  = mr * mr;
-  mouseD = r - d;
+  w = r - d;
+  if (w < 0) return 0;
+  return 1;
 }
 
-function moveB(mx, my)
+function mouseMv(x, y, touch)
 {
-  var x, y, w;
+  var w;
 
-  w = winB(mx, my);
+  w = winB(x, y);
   x = w.x;
   y = w.y;
 
@@ -1050,74 +1054,9 @@ function moveB(mx, my)
   setB(x, y);
 }
 
-function mouseMv(event)
-{
-  var mx, my;
-
-  if (!isMouse) return;
-  if (mouseD < 0) return;
-  mx = event.clientX;
-  my = event.clientY;
-  moveB(mx, my);
-}
-
-function touchMv(event)
-{
-  var mx, my;
-
-  if (!isTouch) return;
-  if (mouseD < 0) return;
-  event.preventDefault();
-
-  mx = event.changedTouches[0].pageX; //touches[0]
-  my = event.changedTouches[0].pageY; //touches[0]
-  moveB(mx, my);
-}
-
-function mouseDn(event)
-{
-  var mx, my;
-
-  mx = event.clientX;
-  my = event.clientY;
-  catchB(mx, my, MB.r * 5);
-
-  if (mouseD < 0) return;
-  event.preventDefault();
-}
-
-function touchDn(event)
-{
-  var mx, my;
-
-  mx = event.changedTouches[0].pageX; //touches[0]
-  my = event.changedTouches[0].pageY; //touches[0]
-  catchB(mx, my, MB.r * 10);
-}
-
-function mouseUp(event)
-{
-  mouseD = -1;
-}
-
-if(document.addEventListener)
-{
-  document.addEventListener("mousedown" , mouseDn, {passive:false});
-  document.addEventListener("mousemove" , mouseMv, {passive:false});
-  document.addEventListener("mouseup"   , mouseUp);
-  document.addEventListener("touchstart", touchDn, {passive:false});
-  document.addEventListener("touchmove" , touchMv, {passive:false});
-  document.addEventListener("touchend"  , mouseUp);
-}
-else if(document.attachEvent)
-{
-  document.attachEvent("onmousedown" , mouseDn, {passive:false});
-  document.attachEvent("onmousemove" , mouseMv, {passive:false});
-  document.attachEvent("onmouseup"   , mouseUp);
-  document.attachEvent("ontouchstart", touchDn, {passive:false});
-  document.attachEvent("ontouchmove" , touchMv, {passive:false});
-  document.attachEvent("ontouchend"  , mouseUp);
-}
+const M = new MOUSE();
+M.MosDnFunc(mouseDn);
+M.MosMvFunc(mouseMv);
 
 //----------------------------------------------------------------------
 // main

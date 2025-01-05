@@ -53,13 +53,14 @@ L <label><input type="range" id ="rangeLd" min="0" max= "8" step="1"
 
 <script src="https://sciencemathhub.github.io/html/tophys.js"></script>
 <script src="https://sciencemathhub.github.io/html/canlib.js"></script>
+<script src="https://sciencemathhub.github.io/html/moslib.js"></script>
 <script>
 'use strict'
 
 //--------------------------------------------------------------------
 // public letiable
 //--------------------------------------------------------------------
-let B = new BASIC();
+const B = new BASIC();
 
 let DisN   =   10; // 目盛の数(m)
 let isOpen;        // 開放端
@@ -417,6 +418,7 @@ function display()
   str += " , 合成回数 = " + Rn;
   B.PRINT(str);
 
+//  B.CR();B.PRINT(" , " + Temp);
   if (!isCos) return;
 
   B.COLOR(b);
@@ -595,7 +597,6 @@ window.onkeyup   = function(event) { Key[event.keyCode] = 0; }
 //----------------------------------------------------------------------
 // mouse
 //----------------------------------------------------------------------
-let mouseD =-1;  // Down
 let mouseX = 0;  // 差分
 
 function setB(x, y)
@@ -603,8 +604,9 @@ function setB(x, y)
   let r1, r0;
 
   x -= mouseX;
+  r0 = 0.125;
   r1 = DisN - 1.5;
-  if (x < 0) x = 0; else if (x > r1) x = r1;
+  if (x < r0) x = r0; else if (x > r1) x = r1;
   r1 = Math.floor(x);
   r0 = x - r1;
   r0 = Math.floor(r0 * 8) / 8;
@@ -637,103 +639,37 @@ function winB(mx, my)
   return { x:x, y:y };
 }
 
-function catchB(mx, my, sx)
+function mouseDn(x, y, touch)
 {
-  let x, y, w, d, dx, dy, len;
+  let w, d, dx, dy, len;
 
   len = lenf();
 
-  w = winB(mx, my);
+  w = winB(x, y);
   x = w.x;
   y = w.y;
   dx = Math.abs(len - x);
   dy = Math.abs(y);
   Temp = dx + " , " + dy;
-  mouseD = -1;
-  if (dx >  sx) return;
-  if (dy > 199) return;
-  mouseD = 1;
+  if (dx >   2) return 0;
+  if (dy > 199) return 0;
   mouseX = x - len;
+  return 1;
 }
 
-function moveB(mx, my)
+function mouseMv(x, y, touch)
 {
-  let x, y, w;
+  let w;
 
-  w = winB(mx, my);
+  w = winB(x, y);
   x = w.x;
   y = w.y;
   setB(x, y);
 }
 
-function mouseMv(event)
-{
-  let mx, my;
-
- if (mouseD < 0) return;
-  mx = event.clientX;
-  my = event.clientY;
-  moveB(mx, my);
-}
-function mouseDn(event)
-{
-  let mx, my;
-
-  mx = event.clientX;
-  my = event.clientY;
-  catchB(mx, my, 2);
-
-  if (mouseD < 0) return;
-  event.preventDefault();
-}
-function mouseUp(event)
-{
-  mouseD = -1;
-}
-
-function touchMv(event)
-{
-  let mx, my;
-
-  if (mouseD < 0) return;
-  event.preventDefault();
-
-  mx = event.changedTouches[0].pageX; //touches[0]
-  my = event.changedTouches[0].pageY; //touches[0]
-  moveB(mx, my);
-}
-function touchDn(event)
-{
-  let mx, my;
-
-  mx = event.changedTouches[0].pageX; //touches[0]
-  my = event.changedTouches[0].pageY; //touches[0]
-  catchB(mx, my, 2);
-}
-function touchUp(event)
-{
-  mouseD = -1;
-}
-
-if(document.addEventListener)
-{
-  document.addEventListener("mousedown"  , mouseDn, {passive:false});
-  document.addEventListener("mousemove"  , mouseMv, {passive:false});
-  document.addEventListener("mouseup"    , mouseUp);
-
-  document.addEventListener("touchstart" , touchDn, {passive:false});
-  document.addEventListener("touchmove"  , touchMv, {passive:false});
-  document.addEventListener("touchend"   , mouseUp);
-}
-else if(document.attachEvent)
-{
-  document.attachEvent("onmousedown"  , mouseDn, {passive:false});
-  document.attachEvent("onmousemove"  , mouseMv, {passive:false});
-  document.attachEvent("onmouseup"    , mouseUp);
-  document.attachEvent("ontouchstart" , touchDn, {passive:false});
-  document.attachEvent("ontouchmove"  , touchMv, {passive:false});
-  document.attachEvent("ontouchend"   , mouseUp);
-}
+const M = new MOUSE();
+M.MosDnFunc(mouseDn);
+M.MosMvFunc(mouseMv);
 
 //--------------------------------------------------------------------
 // main
