@@ -416,7 +416,18 @@ function display()
   str += " , 合成回数 = " + Rn;
   B.PRINT(str);
 
-//  B.CR(); B.PRINTe("1.2e-34+56 abc^d_ef");
+  B.CR(); B.CR();
+  B.TAB( 1  ,  0  ); B.PRINT("閉口管 L =");
+  B.TAB( 1  , -0.5); B.PRINT("nλ"); B.TAB(-0.3, 0); B.PRINTe("_n");
+  B.TAB(-3.8,  0  ); B.PRINT("____");
+  B.TAB(-2.5,  1.0); B.PRINT("4 ");
+  B.TAB( 0  , -0.5); B.PRINT("  (n = 1, 3, 5, …)");
+
+  B.TAB( 1  ,  0  ); B.PRINT(", 開口管 L =");
+  B.TAB( 1  , -0.5); B.PRINT("nλ"); B.TAB(-0.3, 0); B.PRINTe("_n");
+  B.TAB(-3.8,  0  ); B.PRINT("____");
+  B.TAB(-2.5,  1.0); B.PRINT("2 ");
+  B.TAB( 0  , -0.5); B.PRINT("  (n = 1, 2, 3, …)");
 }
 
 //--------------------------------------------------------------------
@@ -651,7 +662,7 @@ function moveB(mx, my)
   setB(x, y);
 }
 
-function mouse(event)
+function mouseMv(event)
 {
   let mx, my;
 
@@ -673,7 +684,7 @@ function mouseUp(event)
   mouseD = -1;
 }
 
-function touch(event)
+function touchMv(event)
 {
   let mx, my;
 
@@ -681,6 +692,7 @@ function touch(event)
   mx = event.changedTouches[0].pageX; //touches[0]
   my = event.changedTouches[0].pageY; //touches[0]
   moveB(mx, my);
+  return { passive: false };
 }
 function touchDn(event)
 {
@@ -689,10 +701,12 @@ function touchDn(event)
   mx = event.changedTouches[0].pageX; //touches[0]
   my = event.changedTouches[0].pageY; //touches[0]
   catchB(mx, my, 2);
+  return { passive: false };
 }
 function touchUp(event)
 {
   mouseD = -1;
+  return false;
 }
 
 /*
@@ -745,18 +759,25 @@ function touchUp(event)
   }
 }
 */
+/*
+document.oncontextmenu = () =>
+{
+  return false;
+};
+*/
 
 if(document.addEventListener)
 {
   document.addEventListener("mousedown"  , mouseDn);
   document.addEventListener("mouseup"    , mouseUp);
-  document.addEventListener("mousemove"  , mouse  );
-  document.addEventListener("touchmove"  , touch  );
+  document.addEventListener("mousemove"  , mouseMv);
+
+  document.addEventListener("touchmove"  , touchMv);
   document.addEventListener("touchstart" , touchDn);
   document.addEventListener("touchend"   , mouseUp);
 /*
   document.addEventListener('pointerdown', touchDn);
-  document.addEventListener('pointermove', touch  );
+  document.addEventListener('pointermove', touchMv);
   document.addEventListener('pointerup'  , touchUp);
 */
 }
@@ -764,13 +785,13 @@ else if(document.attachEvent)
 {
   document.attachEvent("onmousedown"  , mouseDn);
   document.attachEvent("onmouseup"    , mouseUp);
-  document.attachEvent("onmousemove"  , mouse  );
-  document.attachEvent("ontouchmove"  , touch  );
+  document.attachEvent("onmousemove"  , mouseMv);
+  document.attachEvent("ontouchmove"  , touchMv);
   document.attachEvent("ontouchstart" , touchDn);
   document.attachEvent("ontouchend"   , mouseUp);
 /*
   document.attachEvent('onpointerdown', touchDn);
-  document.attachEvent('onpointermove', touch  );
+  document.attachEvent('onpointermove', touchMv);
   document.attachEvent('onpointerup'  , touchUp);
 */
 }
@@ -778,13 +799,13 @@ else if(document.removeEventListener)
 {
   document.removeEventListener("onmousedown"  , mouseDn);
   document.removeEventListener("onmouseup"    , mouseUp);
-  document.removeEventListener("onmousemove"  , mouse  );
-  document.removeEventListener("ontouchmove"  , touch  );
+  document.removeEventListener("onmousemove"  , mouseMv);
+  document.removeEventListener("ontouchmove"  , touchMv);
   document.removeEventListener("ontouchstart" , touchDn);
   document.removeEventListener("ontouchend"   , touchUp);
 /*
   document.removeEventListener('onpointerdown', touchDn);
-  document.removeEventListener('onpointermove', touch  );
+  document.removeEventListener('onpointermove', touchMv);
   document.removeEventListener('onpointerup'  , touchUp);
 */
 }
