@@ -362,7 +362,7 @@ function tube(c, px, py, h, m)
 //--------------------------------------------------------------------
 function display()
 {
-  let px, py, h, a, str, s, n, len;
+  let px, py, h, a, str, s, n, len, b;
 
   B.FONT(1,0);
   B.CLS('#000');
@@ -390,7 +390,7 @@ function display()
   n = DisN + 1;
   B.WINDOW(px, py, px+n, py-399);
   B.LOCATEp(px, -h*2.2); B.TAB(1, 1);
-  B.COLOR('#fff'); B.PRINT("進行波→  ");
+  B.COLOR('#fff'); B.PRINT("進入波→  ");
   B.COLOR('#ff0'); B.PRINT("反射波←  ");
   B.COLOR('#0f0'); B.PRINT("反射波→  ");
   B.COLOR('#f0f'); B.PRINT("反射波←  ");
@@ -399,10 +399,11 @@ function display()
 
   scale('#0f0', px, py, h, a, 0, '-', '');
 
+  b = '#8ff';
   if (isCos)
   {
-    graph('#48f', px, py, h, a, fAu, 0, len);
-    graph('#48f', px, py, h, a, fAd, 0, len);
+    graph(b, px, py, h, a, fAu, 0, len);
+    graph(b, px, py, h, a, fAd, 0, len);
   }
 
   longi('#8ff', px, py, h, a, f12, 0, len);
@@ -416,6 +417,9 @@ function display()
   str += " , 合成回数 = " + Rn;
   B.PRINT(str);
 
+  if (!isCos) return;
+
+  B.COLOR(b);
   B.CR(); B.CR();
   B.TAB( 1  ,  0  ); B.PRINT("閉口管 L =");
   B.TAB( 1  , -0.5); B.PRINT("nλ"); B.TAB(-0.3, 0); B.PRINTe("_n");
@@ -692,7 +696,8 @@ function touchMv(event)
   mx = event.changedTouches[0].pageX; //touches[0]
   my = event.changedTouches[0].pageY; //touches[0]
   moveB(mx, my);
-  return { passive: false };
+  return false;
+//  return { passive: false };
 }
 function touchDn(event)
 {
@@ -701,7 +706,8 @@ function touchDn(event)
   mx = event.changedTouches[0].pageX; //touches[0]
   my = event.changedTouches[0].pageY; //touches[0]
   catchB(mx, my, 2);
-  return { passive: false };
+  return false;
+//  return { passive: false };
 }
 function touchUp(event)
 {
