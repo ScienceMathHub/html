@@ -1103,19 +1103,19 @@ function mouseUp(event)
 if(document.addEventListener)
 {
   document.addEventListener("mousedown" , mouseDn, {passive:false});
-  document.addEventListener("mouseup"   , mouseUp);
   document.addEventListener("mousemove" , mouseMv, {passive:false});
-  document.addEventListener("touchmove" , touchMv, {passive:false});
+  document.addEventListener("mouseup"   , mouseUp);
   document.addEventListener("touchstart", touchDn, {passive:false});
+  document.addEventListener("touchmove" , touchMv, {passive:false});
   document.addEventListener("touchend"  , mouseUp);
 }
 else if(document.attachEvent)
 {
   document.attachEvent("onmousedown" , mouseDn, {passive:false});
-  document.attachEvent("onmouseup"   , mouseUp);
   document.attachEvent("onmousemove" , mouseMv, {passive:false});
-  document.attachEvent("ontouchmove" , touchMv, {passive:false});
+  document.attachEvent("onmouseup"   , mouseUp);
   document.attachEvent("ontouchstart", touchDn, {passive:false});
+  document.attachEvent("ontouchmove" , touchMv, {passive:false});
   document.attachEvent("ontouchend"  , mouseUp);
 }
 

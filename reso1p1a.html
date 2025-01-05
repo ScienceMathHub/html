@@ -715,39 +715,24 @@ function touchUp(event)
   mouseD = -1;
 }
 
-/*
-document.oncontextmenu = () =>
-{
-  return false;
-};
-*/
-
 if(document.addEventListener)
 {
   document.addEventListener("mousedown"  , mouseDn, {passive:false});
-  document.addEventListener("mouseup"    , mouseUp, {passive:false});
-  document.addEventListener("mousemove"  , mouseMv);
+  document.addEventListener("mousemove"  , mouseMv, {passive:false});
+  document.addEventListener("mouseup"    , mouseUp);
 
-  document.addEventListener("touchmove"  , touchMv, {passive:false});
   document.addEventListener("touchstart" , touchDn, {passive:false});
+  document.addEventListener("touchmove"  , touchMv, {passive:false});
   document.addEventListener("touchend"   , mouseUp);
-
-//  document.addEventListener('pointerdown', touchDn);
-//  document.addEventListener('pointermove', touchMv);
-//  document.addEventListener('pointerup'  , touchUp);
 }
 else if(document.attachEvent)
 {
-  document.attachEvent("onmousedown"  , mouseDn);
+  document.attachEvent("onmousedown"  , mouseDn, {passive:false});
+  document.attachEvent("onmousemove"  , mouseMv, {passive:false});
   document.attachEvent("onmouseup"    , mouseUp);
-  document.attachEvent("onmousemove"  , mouseMv);
-  document.attachEvent("ontouchmove"  , touchMv, {passive:false});
   document.attachEvent("ontouchstart" , touchDn, {passive:false});
+  document.attachEvent("ontouchmove"  , touchMv, {passive:false});
   document.attachEvent("ontouchend"   , mouseUp);
-
-//  document.attachEvent('onpointerdown', touchDn);
-//  document.attachEvent('onpointermove', touchMv);
-//  document.attachEvent('onpointerup'  , touchUp);
 }
 
 //--------------------------------------------------------------------
