@@ -682,6 +682,9 @@ function mouseDn(event)
   mx = event.clientX;
   my = event.clientY;
   catchB(mx, my, 2);
+
+  if (mouseD < 0) return;
+  event.preventDefault();
 }
 function mouseUp(event)
 {
@@ -693,11 +696,11 @@ function touchMv(event)
   let mx, my;
 
   if (mouseD < 0) return;
+  event.preventDefault();
+
   mx = event.changedTouches[0].pageX; //touches[0]
   my = event.changedTouches[0].pageY; //touches[0]
   moveB(mx, my);
-  return false;
-//  return { passive: false };
 }
 function touchDn(event)
 {
@@ -706,65 +709,12 @@ function touchDn(event)
   mx = event.changedTouches[0].pageX; //touches[0]
   my = event.changedTouches[0].pageY; //touches[0]
   catchB(mx, my, 2);
-  return false;
-//  return { passive: false };
 }
 function touchUp(event)
 {
   mouseD = -1;
-  return false;
 }
 
-/*
-let isDrag = false;
-let activePointerId = null;
-function touch(event)
-{
-  if (isDrag && event.pointerId === activePointerId)
-  {
-    {
-      let mx, my;
-
-      if (mouseD < 0) return;
-      mx = event.changedTouches[0].pageX; //touches[0]
-      my = event.changedTouches[0].pageY; //touches[0]
-      moveB(mx, my);
-    }
-    event.preventDefault();
-  }
-}
-function touchDn(event)
-{
-  if (activePointerId === null && event.isPrimary)
-  {
-    document.style.touchAction = 'none';
-       
-    isDrag = true;
-    activePointerId = event.pointerId;
-    {
-      let mx, my;
-
-      mx = event.changedTouches[0].pageX; //touches[0]
-      my = event.changedTouches[0].pageY; //touches[0]
-      catchB(mx, my, 2);
-    }
-    document.setPointerCapture(event.pointerId);
-  }
-}
-function touchUp(event)
-{
-  if (event.pointerId === activePointerId)
-  {
-    {
-      mouseD = -1;
-    }
-    isDrag = false;
-    activePointerId = null;
-    document.releasePointerCapture(event.pointerId);       
-    document.style.touchAction = 'auto';
-  }
-}
-*/
 /*
 document.oncontextmenu = () =>
 {
@@ -774,46 +724,30 @@ document.oncontextmenu = () =>
 
 if(document.addEventListener)
 {
-  document.addEventListener("mousedown"  , mouseDn);
-  document.addEventListener("mouseup"    , mouseUp);
+  document.addEventListener("mousedown"  , mouseDn, {passive:false});
+  document.addEventListener("mouseup"    , mouseUp, {passive:false});
   document.addEventListener("mousemove"  , mouseMv);
 
-  document.addEventListener("touchmove"  , touchMv);
-  document.addEventListener("touchstart" , touchDn);
+  document.addEventListener("touchmove"  , touchMv, {passive:false});
+  document.addEventListener("touchstart" , touchDn, {passive:false});
   document.addEventListener("touchend"   , mouseUp);
-/*
-  document.addEventListener('pointerdown', touchDn);
-  document.addEventListener('pointermove', touchMv);
-  document.addEventListener('pointerup'  , touchUp);
-*/
+
+//  document.addEventListener('pointerdown', touchDn);
+//  document.addEventListener('pointermove', touchMv);
+//  document.addEventListener('pointerup'  , touchUp);
 }
 else if(document.attachEvent)
 {
   document.attachEvent("onmousedown"  , mouseDn);
   document.attachEvent("onmouseup"    , mouseUp);
   document.attachEvent("onmousemove"  , mouseMv);
-  document.attachEvent("ontouchmove"  , touchMv);
-  document.attachEvent("ontouchstart" , touchDn);
+  document.attachEvent("ontouchmove"  , touchMv, {passive:false});
+  document.attachEvent("ontouchstart" , touchDn, {passive:false});
   document.attachEvent("ontouchend"   , mouseUp);
-/*
-  document.attachEvent('onpointerdown', touchDn);
-  document.attachEvent('onpointermove', touchMv);
-  document.attachEvent('onpointerup'  , touchUp);
-*/
-}
-else if(document.removeEventListener)
-{
-  document.removeEventListener("onmousedown"  , mouseDn);
-  document.removeEventListener("onmouseup"    , mouseUp);
-  document.removeEventListener("onmousemove"  , mouseMv);
-  document.removeEventListener("ontouchmove"  , touchMv);
-  document.removeEventListener("ontouchstart" , touchDn);
-  document.removeEventListener("ontouchend"   , touchUp);
-/*
-  document.removeEventListener('onpointerdown', touchDn);
-  document.removeEventListener('onpointermove', touchMv);
-  document.removeEventListener('onpointerup'  , touchUp);
-*/
+
+//  document.attachEvent('onpointerdown', touchDn);
+//  document.attachEvent('onpointermove', touchMv);
+//  document.attachEvent('onpointerup'  , touchUp);
 }
 
 //--------------------------------------------------------------------

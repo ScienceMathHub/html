@@ -1027,12 +1027,11 @@ function catchB(mx, my, mr)
   w = winB(mx, my);
   x = w.x;
   y = w.y;
-  dx = MB.px - x;
-  dy = MB.py - y;
+  mouseX = dx = MB.px - x;
+  mouseY = dy = MB.py - y;
   d  = dx*dx + dy*dy;
   r  = mr * mr;
   mouseD = r - d;
-  if (mouseD < 0) return;
 }
 
 function moveB(mx, my)
@@ -1051,7 +1050,7 @@ function moveB(mx, my)
   setB(x, y);
 }
 
-function mouse(event)
+function mouseMv(event)
 {
   var mx, my;
 
@@ -1062,12 +1061,14 @@ function mouse(event)
   moveB(mx, my);
 }
 
-function touch(event)
+function touchMv(event)
 {
   var mx, my;
 
   if (!isTouch) return;
   if (mouseD < 0) return;
+  event.preventDefault();
+
   mx = event.changedTouches[0].pageX; //touches[0]
   my = event.changedTouches[0].pageY; //touches[0]
   moveB(mx, my);
@@ -1079,7 +1080,10 @@ function mouseDn(event)
 
   mx = event.clientX;
   my = event.clientY;
-  catchB(mx, my, MB.r);
+  catchB(mx, my, MB.r * 5);
+
+  if (mouseD < 0) return;
+  event.preventDefault();
 }
 
 function touchDn(event)
@@ -1088,7 +1092,7 @@ function touchDn(event)
 
   mx = event.changedTouches[0].pageX; //touches[0]
   my = event.changedTouches[0].pageY; //touches[0]
-  catchB(mx, my, MB.r * 2);
+  catchB(mx, my, MB.r * 10);
 }
 
 function mouseUp(event)
@@ -1098,20 +1102,20 @@ function mouseUp(event)
 
 if(document.addEventListener)
 {
-  document.addEventListener("mousedown" , mouseDn);
+  document.addEventListener("mousedown" , mouseDn, {passive:false});
   document.addEventListener("mouseup"   , mouseUp);
-  document.addEventListener("mousemove" , mouse);
-  document.addEventListener("touchmove" , touch);
-  document.addEventListener("touchstart", touchDn);
+  document.addEventListener("mousemove" , mouseMv, {passive:false});
+  document.addEventListener("touchmove" , touchMv, {passive:false});
+  document.addEventListener("touchstart", touchDn, {passive:false});
   document.addEventListener("touchend"  , mouseUp);
 }
 else if(document.attachEvent)
 {
-  document.attachEvent("onmousedown" , mouseDn);
+  document.attachEvent("onmousedown" , mouseDn, {passive:false});
   document.attachEvent("onmouseup"   , mouseUp);
-  document.attachEvent("onmousemove" , mouse);
-  document.attachEvent("ontouchmove" , touch);
-  document.attachEvent("ontouchstart", touchDn);
+  document.attachEvent("onmousemove" , mouseMv, {passive:false});
+  document.attachEvent("ontouchmove" , touchMv, {passive:false});
+  document.attachEvent("ontouchstart", touchDn, {passive:false});
   document.attachEvent("ontouchend"  , mouseUp);
 }
 
