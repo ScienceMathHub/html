@@ -164,6 +164,66 @@ class BASIC
   }
   PRINTe(s)
   {
+    let i, n, num, a, p;
+
+    s = String(s);
+    p = 0;
+    num = 0;
+    n = s.length;
+    for (i = 0; i < n; i++)
+    {
+      a = s.substring(i, i+1);
+      if (a == 'θ')
+      {
+        this.PRINT(a);
+        this.locX -= this.locW / 2;
+        continue;
+      }
+      if (a == '^')
+      {
+        i++;
+        a = s.substring(i, i+1);
+        this.FONT(0.7, -0.3);
+        this.PRINT(a); p++;
+        this.FONT(1, 0);
+        continue;
+      }
+      if (a == '_')
+      {
+        i++;
+        a = s.substring(i, i+1);
+        this.FONT(0.7, 0.1);
+        this.PRINT(a); p++;
+        this.FONT(1, 0);
+        continue;
+      }
+      if (num && (a == 'e' || a == 'E'))
+      {
+        this.PRINT("×10");
+        this.FONT(0.7, -0.4);
+        i++;
+        a = s.substring(i, i+1);
+        if      (a == '+') { i++;                     }
+        else if (a == '-') { i++; this.PRINT(a); p++; }
+        for (;i < n; i++)
+        {
+          a = s.substring(i, i+1);
+          if (!('0' <= a && a <= '9')) { i--; break; }
+          this.PRINT(a); p++;
+        }
+        num = 0;
+        this.FONT(1, 0);
+        continue;
+      }
+      num = ('0' <= a && a <= '9')? 1 : 0;
+      this.PRINT(a);
+    }
+    this.FONT(1, 0);
+    return p;	/* 0.7の数 */
+  }
+/*
+  PRINTe(s)
+  {
     let i, n, pow, num, a, p;
 
     s = String(s);
@@ -220,6 +280,7 @@ class BASIC
     this.FONT(1, 0);
     return p;
   }
+*/
   POINT(x, y)
   {
     this.posX = this.ScrX(x);

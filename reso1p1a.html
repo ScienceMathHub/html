@@ -57,34 +57,34 @@ L <label><input type="range" id ="rangeLd" min="0" max= "8" step="1"
 'use strict'
 
 //--------------------------------------------------------------------
-// public variable
+// public letiable
 //--------------------------------------------------------------------
-var B = new BASIC();
+let B = new BASIC();
 
-var DisN   =   10; // 目盛の数(m)
-var isOpen;        // 開放端
-var Vt;            // 移動距離(m)
-var isVt;          // 移動/停止
-var isCos;         // 包絡線表示
-var isLon;         // 縦波表示
-var Rc;            // 閉口反射率
-var Rn;            // 重合回数
+let DisN   =   10; // 目盛の数(m)
+let isOpen;        // 開放端
+let Vt;            // 移動距離(m)
+let isVt;          // 移動/停止
+let isCos;         // 包絡線表示
+let isLon;         // 縦波表示
+let Rc;            // 閉口反射率
+let Rn;            // 重合回数
 
-var cRo =  1  , Ro = cRo; // 開口反射率
-var cVo =  2  , Vo = cVo; // 速度(m/s)
-var cA1 =  1  , A1 = cA1; // 振幅1
-var cL1 =  2  , L1 = cL1; // 波長1
-var cLd =  2.0, Ld = cLd; // 筒長
-var cLe =  0.5, Le = cLe; // 筒長
+let cRo =  1  , Ro = cRo; // 開口反射率
+let cVo =  2  , Vo = cVo; // 速度(m/s)
+let cA1 =  1  , A1 = cA1; // 振幅1
+let cL1 =  2  , L1 = cL1; // 波長1
+let cLd =  2.0, Ld = cLd; // 筒長
+let cLe =  0.5, Le = cLe; // 筒長
 
-var Temp; // debug
+let Temp; // debug
 
 //--------------------------------------------------------------------
 // len = Ld + Le
 //--------------------------------------------------------------------
 function lenf()
 {
-  var len = Ld + Le;
+  let len = Ld + Le;
 
   if (len < 0.125) len = 0.125;
   return len;
@@ -95,8 +95,8 @@ function lenf()
 //--------------------------------------------------------------------
 function func1(c, px, py, h, a)
 {
-  var len = lenf();
-  var str  = "y = Asin( 2π(x-vt)/λ)  (A = ";
+  let len = lenf();
+  let str  = "y = Asin( 2π(x-vt)/λ)  (A = ";
       str += A1.toFixed(1) + " m , λ = " + L1.toFixed(1) + " m";
       str += " , v = "+ Vo.toFixed(1) + " m/s";
       str += " , L = "+ len.toFixed(3) + " m)";
@@ -106,7 +106,7 @@ function func1(c, px, py, h, a)
 }
 function f1(x)
 {
-  var y, d;
+  let y, d;
 
   d = x - Vt;
   if (d > 0) return 0;
@@ -115,7 +115,7 @@ function f1(x)
 }
 function f2(x)
 {
-  var y, d, x1, x2, len;
+  let y, d, x1, x2, len;
 
   len = lenf();
   x1 = x % len;
@@ -129,7 +129,7 @@ function f2(x)
 }
 function f3(x)
 {
-  var y, d, len;
+  let y, d, len;
 
   len = lenf();
   x += len * 2;
@@ -141,7 +141,7 @@ function f3(x)
 }
 function f4(x)
 {
-  var y, d, x1, x2, len;
+  let y, d, x1, x2, len;
 
   len = lenf();
   x += len * 2;
@@ -159,7 +159,7 @@ function f4(x)
 //--------------------------------------------------------------------
 function f12(x)
 {
-  var y, d, i, x1, x2, y1, a, as, len;
+  let y, d, i, x1, x2, y1, a, as, len;
 
   len = lenf();
   if (x < 0 || x > len) return f1(x);
@@ -194,7 +194,7 @@ function f12(x)
 //--------------------------------------------------------------------
 function fAu(x)
 {
-  var y, d, len;
+  let y, d, len;
 
   len = lenf();
   d = 20 * len / L1;
@@ -218,7 +218,7 @@ function fAd(x)
 //--------------------------------------------------------------------
 function graph(c, px, py, h, m, func, x1, x2)
 {
-  var x, y, x0, y0, n, b, len;
+  let x, y, x0, y0, n, b, len;
 
   n = DisN + 1;
   B.WINDOW(px, py, px+n, py-399);
@@ -249,7 +249,7 @@ function graph(c, px, py, h, m, func, x1, x2)
 //--------------------------------------------------------------------
 function longi(c, px, py, h, m, func, x1, x2)
 {
-  var x, y, x0, y0, n, t, a, b, w, s, len;
+  let x, y, x0, y0, n, t, a, b, w, s, len;
 
   if (!isLon) return;
   n = DisN + 1;
@@ -280,7 +280,7 @@ function longi(c, px, py, h, m, func, x1, x2)
 //--------------------------------------------------------------------
 function scale(c, px, py, h, m, up, sl, sr)
 { /* dn=0:up 1:dn 2:half scale */
-  var t, x, y, s, r, n;
+  let t, x, y, s, r, n;
 
   B.COLOR(c);
 
@@ -330,7 +330,7 @@ function scale(c, px, py, h, m, up, sl, sr)
 //--------------------------------------------------------------------
 function tube(c, px, py, h, m)
 {
-  var w, x, y, n, len, b;
+  let w, x, y, n, len, b;
 
   
   n = DisN + 1;
@@ -362,7 +362,7 @@ function tube(c, px, py, h, m)
 //--------------------------------------------------------------------
 function display()
 {
-  var px, py, h, a, str, s, n, len;
+  let px, py, h, a, str, s, n, len;
 
   B.FONT(1,0);
   B.CLS('#000');
@@ -415,6 +415,8 @@ function display()
   str += " , 閉口端反射率 = " + Rc.toFixed(1);
   str += " , 合成回数 = " + Rn;
   B.PRINT(str);
+
+//  B.CR(); B.PRINTe("1.2e-34+56 abc^d_ef");
 }
 
 //--------------------------------------------------------------------
@@ -439,12 +441,12 @@ function setRn()
   }
 */
 }
-var elemRo = document.getElementById('rangeRo');
-var elemVo = document.getElementById('rangeVo');
-var elemA1 = document.getElementById('rangeA1');
-var elemL1 = document.getElementById('rangeL1');
-var elemLd = document.getElementById('rangeLd');
-var elemLe = document.getElementById('rangeLe');
+let elemRo = document.getElementById('rangeRo');
+let elemVo = document.getElementById('rangeVo');
+let elemA1 = document.getElementById('rangeA1');
+let elemL1 = document.getElementById('rangeL1');
+let elemLd = document.getElementById('rangeLd');
+let elemLe = document.getElementById('rangeLe');
 function blur()
 {
   elemRo.blur();
@@ -562,7 +564,7 @@ function inkey(key)
 }
 document.body.addEventListener('keydown', event =>
 {
-  var key = event.keyCode;
+  let key = event.keyCode;
 
   inkey(key);
 });
@@ -570,20 +572,20 @@ document.body.addEventListener('keydown', event =>
 //--------------------------------------------------------------------
 // Key status
 //--------------------------------------------------------------------
-var Key = new Array(256);
-for (var i = 0; i < 256; i++) Key[i] = 0;
+let Key = new Array(256);
+for (let i = 0; i < 256; i++) Key[i] = 0;
 window.onkeydown = function(event) { Key[event.keyCode] = 1; }
 window.onkeyup   = function(event) { Key[event.keyCode] = 0; }
 
 //----------------------------------------------------------------------
 // mouse
 //----------------------------------------------------------------------
-var mouseD =-1;  // Down
-var mouseX = 0;  // 差分
+let mouseD =-1;  // Down
+let mouseX = 0;  // 差分
 
 function setB(x, y)
 {
-  var r1, r0;
+  let r1, r0;
 
   x -= mouseX;
   r1 = DisN - 1.5;
@@ -607,8 +609,8 @@ function setB(x, y)
 
 function winB(mx, my)
 {
-  var rect = canvas.getBoundingClientRect();
-  var x, y, n, px, py;
+  let rect = canvas.getBoundingClientRect();
+  let x, y, n, px, py;
 
   n = DisN + 1; px = -1.5; py = 200;
   B.WINDOW(px, py, px+n, py-399);
@@ -622,7 +624,7 @@ function winB(mx, my)
 
 function catchB(mx, my, sx)
 {
-  var x, y, w, d, dx, dy, len;
+  let x, y, w, d, dx, dy, len;
 
   len = lenf();
 
@@ -641,7 +643,7 @@ function catchB(mx, my, sx)
 
 function moveB(mx, my)
 {
-  var x, y, w;
+  let x, y, w;
 
   w = winB(mx, my);
   x = w.x;
@@ -651,64 +653,140 @@ function moveB(mx, my)
 
 function mouse(event)
 {
-  var mx, my;
+  let mx, my;
 
-  if (mouseD < 0) return;
+ if (mouseD < 0) return;
   mx = event.clientX;
   my = event.clientY;
   moveB(mx, my);
 }
-
-function touch(event)
-{
-  var mx, my;
-
-  if (mouseD < 0) return;
-  mx = event.changedTouches[0].pageX; //touches[0]
-  my = event.changedTouches[0].pageY; //touches[0]
-  moveB(mx, my);
-}
-
 function mouseDn(event)
 {
-  var mx, my;
+  let mx, my;
 
   mx = event.clientX;
   my = event.clientY;
   catchB(mx, my, 2);
 }
-
-function touchDn(event)
-{
-  var mx, my;
-
-  mx = event.changedTouches[0].pageX; //touches[0]
-  my = event.changedTouches[0].pageY; //touches[0]
-  catchB(mx, my, 2);
-}
-
 function mouseUp(event)
 {
   mouseD = -1;
 }
 
+function touch(event)
+{
+  let mx, my;
+
+  if (mouseD < 0) return;
+  mx = event.changedTouches[0].pageX; //touches[0]
+  my = event.changedTouches[0].pageY; //touches[0]
+  moveB(mx, my);
+}
+function touchDn(event)
+{
+  let mx, my;
+
+  mx = event.changedTouches[0].pageX; //touches[0]
+  my = event.changedTouches[0].pageY; //touches[0]
+  catchB(mx, my, 2);
+}
+function touchUp(event)
+{
+  mouseD = -1;
+}
+
+/*
+let isDrag = false;
+let activePointerId = null;
+function touch(event)
+{
+  if (isDrag && event.pointerId === activePointerId)
+  {
+    {
+      let mx, my;
+
+      if (mouseD < 0) return;
+      mx = event.changedTouches[0].pageX; //touches[0]
+      my = event.changedTouches[0].pageY; //touches[0]
+      moveB(mx, my);
+    }
+    event.preventDefault();
+  }
+}
+function touchDn(event)
+{
+  if (activePointerId === null && event.isPrimary)
+  {
+    document.style.touchAction = 'none';
+       
+    isDrag = true;
+    activePointerId = event.pointerId;
+    {
+      let mx, my;
+
+      mx = event.changedTouches[0].pageX; //touches[0]
+      my = event.changedTouches[0].pageY; //touches[0]
+      catchB(mx, my, 2);
+    }
+    document.setPointerCapture(event.pointerId);
+  }
+}
+function touchUp(event)
+{
+  if (event.pointerId === activePointerId)
+  {
+    {
+      mouseD = -1;
+    }
+    isDrag = false;
+    activePointerId = null;
+    document.releasePointerCapture(event.pointerId);       
+    document.style.touchAction = 'auto';
+  }
+}
+*/
+
 if(document.addEventListener)
 {
-  document.addEventListener("mousedown" , mouseDn);
-  document.addEventListener("mouseup"   , mouseUp);
-  document.addEventListener("mousemove" , mouse);
-  document.addEventListener("touchmove" , touch);
-  document.addEventListener("touchstart", touchDn);
-  document.addEventListener("touchend"  , mouseUp);
+  document.addEventListener("mousedown"  , mouseDn);
+  document.addEventListener("mouseup"    , mouseUp);
+  document.addEventListener("mousemove"  , mouse  );
+  document.addEventListener("touchmove"  , touch  );
+  document.addEventListener("touchstart" , touchDn);
+  document.addEventListener("touchend"   , mouseUp);
+/*
+  document.addEventListener('pointerdown', touchDn);
+  document.addEventListener('pointermove', touch  );
+  document.addEventListener('pointerup'  , touchUp);
+*/
 }
 else if(document.attachEvent)
 {
-  document.attachEvent("onmousedown" , mouseDn);
-  document.attachEvent("onmouseup"   , mouseUp);
-  document.attachEvent("onmousemove" , mouse);
-  document.attachEvent("ontouchmove" , touch);
-  document.attachEvent("ontouchstart", touchDn);
-  document.attachEvent("ontouchend"  , mouseUp);
+  document.attachEvent("onmousedown"  , mouseDn);
+  document.attachEvent("onmouseup"    , mouseUp);
+  document.attachEvent("onmousemove"  , mouse  );
+  document.attachEvent("ontouchmove"  , touch  );
+  document.attachEvent("ontouchstart" , touchDn);
+  document.attachEvent("ontouchend"   , mouseUp);
+/*
+  document.attachEvent('onpointerdown', touchDn);
+  document.attachEvent('onpointermove', touch  );
+  document.attachEvent('onpointerup'  , touchUp);
+*/
+}
+else if(document.removeEventListener)
+{
+  document.removeEventListener("onmousedown"  , mouseDn);
+  document.removeEventListener("onmouseup"    , mouseUp);
+  document.removeEventListener("onmousemove"  , mouse  );
+  document.removeEventListener("ontouchmove"  , touch  );
+  document.removeEventListener("ontouchstart" , touchDn);
+  document.removeEventListener("ontouchend"   , touchUp);
+/*
+  document.removeEventListener('onpointerdown', touchDn);
+  document.removeEventListener('onpointermove', touch  );
+  document.removeEventListener('onpointerup'  , touchUp);
+*/
 }
 
 //--------------------------------------------------------------------
