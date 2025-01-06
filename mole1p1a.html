@@ -36,11 +36,15 @@
 <input type="button" id="but_Am" value="量" onclick="pushAm()" />
 <pre></pre>
 <form id="target">
-  <input type="radio" id="rad_n" name="amount" value="n" /> mol
-  <input type="radio" id="rad_m" name="amount" value="m" /> g
+  <input type="radio" id="rad_n" name="amount" value="n"
+    onclick="pushAm()" /> mol
+  <input type="radio" id="rad_m" name="amount" value="m"
+    onclick="pushAm()" /> g
   <pre></pre>
-  <input type="radio" id="rad_v" name="amount" value="v" /> L
-  <input type="radio" id="rad_N" name="amount" value="N" /> 個
+  <input type="radio" id="rad_v" name="amount" value="v"
+    onclick="pushAm()" /> L
+  <input type="radio" id="rad_N" name="amount" value="N"
+    onclick="pushAm()" /> 個
 </form>
 
 <script src="https://sciencemathhub.github.io/html/tochem.js"></script>
