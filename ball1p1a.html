@@ -22,8 +22,7 @@
 <input type="button" id="but_g0" value="重力加速度" onclick="pushget()">
 <input type="number" id="num_g0" value="9.8"
   min = "-999.9" max="999.9" step = "0.1" />
-</pre>
-<pre></pre>
+<br>
 <input type="button" id="but_v0" value="初速度" onclick="pushget()">
 <input type="number" id="num_v0" value="31.0" min = "0.0" max="99999.9"
   step = "0.1" />
@@ -47,8 +46,8 @@
 <input type="button" id="but_bx" value="的x" onclick="pushget()">
 <input type="number" id="num_bx" value="55.000"
   min = "0.000" max="99999.999" step = "0.001" />
-<pre></pre>
 <input type="button" id="but_by" value="的y" onclick="pushget()">
+<br>
 <input type="number" id="num_by" value="30.000"
   min = "0.000" max="99999.999" step = "0.001" />
 <pre></pre>
@@ -977,6 +976,7 @@ document.body.addEventListener('keydown', event =>
 {
   var key = event.keyCode;
 
+  if (37 <= key && 40 <= key) event.preventDefault();
   switch (key)
   {
     case  13: pushReset(); blur(); break; // Enter

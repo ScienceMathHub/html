@@ -44,6 +44,7 @@
 
 <script src="https://sciencemathhub.github.io/html/tomath.js"></script>
 <script src="https://sciencemathhub.github.io/html/canlib.js"></script>
+<script src="https://sciencemathhub.github.io/html/moslib.js"></script>
 <script>
 'use strict'
 var B = new BASIC();
@@ -354,7 +355,10 @@ function inkey(key)
 }
 document.body.addEventListener('keydown', event =>
 {
-  inkey(event.keyCode);
+  var key = event.keyCode;
+
+  if (37 <= key && 40 <= key) event.preventDefault();
+  inkey(key);
 });
 
 //----------------------------------------------------------------------
