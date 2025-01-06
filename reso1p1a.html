@@ -125,7 +125,7 @@ function f2(x)
   d = x - Vt;
   if (d > 0) return 0;
   y = A1 * Math.sin(2 * Math.PI * d / L1);
-  if (!isOpen) y = -y;
+  y = (isOpen)? y * Ro : -y;
   return y;
 }
 function f3(x)
@@ -137,7 +137,7 @@ function f3(x)
   d = x - Vt;
   if (d > 0) return 0;
   y = A1 * Math.sin(2 * Math.PI * d / L1);
-  if (!isOpen) y = -y;
+  y = (isOpen)? y * Ro * Ro : -y * Ro;
   return y;
 }
 function f4(x)
@@ -152,6 +152,7 @@ function f4(x)
   d = x - Vt;
   if (d > 0) return 0;
   y = A1 * Math.sin(2 * Math.PI * d / L1);
+  y = (isOpen)? y * Ro * Ro * Ro: y * Ro;
   return y;
 }
 
