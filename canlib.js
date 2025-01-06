@@ -42,13 +42,14 @@ class BASIC
     this.LocW   =   8; // テキストMサイズ
     this.LocH   =  16;
     this.OffW   =   0; // テキストSサイズ
-    this.Offh   =   0;
+    this.OffH   =   0;
     this.Zoom0  =  45; // 画面拡大基準値
     this.Zoom   =  45; // 画面拡大
     this.Width0 =   2; // 線幅基準値
     this.Width  =   2; // 線幅
     this.lineWidth(0);
     this.zooming(0);
+    this.FONT(1, 0);
   }
   winX(x)
   {
@@ -117,12 +118,11 @@ class BASIC
     let h;
 
     zoom = Math.round(this.Zoom * zoom / 40 * 8);
-    this.LocW = zoom;
-    h    = zoom * 2;
     offs = Math.round(this.Zoom * offs / 40 * 8);
     this.OffH = offs * 2;
     offs = Math.round(this.Zoom        / 40 * 8);
     this.LocH = offs * 2;
+    h    = zoom * 2;
     ctx.font = h + "px 'ＭＳ ゴシック'";
 //    ctx.font = h + "px 'sans-serif'";
 //    ctx.font = h + "px '游ゴシック'";
