@@ -23,27 +23,32 @@
 <input type="button" id="butA3" value="音"    onclick="inkey( 51)">3
 <input type="button" id="butA0" value="音"    onclick="inkey( 48)">0
 <pre></pre>
-<input type="button" id="butU4" value="高1k"  onclick="inkey(938)">Shift↑
-<input type="button" id="butU2" value="高10"  onclick="inkey( 38)">↑
+k<label><input type="range" id ="rangeH4" min="0" max= "20"
+  step="1"  value="0">Shift</label>
 <pre></pre>
-<input type="button" id="butD4" value="低1k"  onclick="inkey(940)">Shift↓
-<input type="button" id="butD2" value="低10"  onclick="inkey( 40)">↓
+h<label><input type="range" id ="rangeH3" min="0" max= "9"
+  step="1"  value="4">Shift</label>
 <pre></pre>
-<input type="button" id="butU3" value="高1h"  onclick="inkey(939)">Shift→
-<input type="button" id="butU1" value="高1"   onclick="inkey( 39)">→
+d<label><input type="range" id ="rangeH2" min="0" max= "9"
+  step="1"  value="4">↓↑</label>
 <pre></pre>
-<input type="button" id="butD3" value="低1h"  onclick="inkey(937)">Shift←
-<input type="button" id="butD1" value="低1"   onclick="inkey( 37)">←<br><br>
+1<label><input type="range" id ="rangeH1" min="0" max= "9"
+  step="1"  value="0">←→</label>
+<pre></pre>
 <input type="button" id="butSP" value="発音"  onclick="inkey( 32)">Space
-<input type="button" id="butOM" value="全消"  onclick="inkey(191)">/<br><br>
-<input type="button" id="butRE" value="Reset" onclick="inkey( 13)">Enter
-<input type="button" id="butTD" value="短"    onclick="inkey( 86)">v
-<input type="button" id="butTU" value="長"    onclick="inkey( 66)">b
+&nbsp;&nbsp;&nbsp;&nbsp;
+<input type="button" id="butOM" value="全消"  onclick="inkey(191)">/
+<br><br>
+t<label><input type="range" id ="rangeTo" min="0" max= "4"
+  step="1"  value="3">vb</label>
 <pre></pre>
-<input type="button" id="butDV" value="半"    onclick="inkey(188)">,
+A<label><input type="range" id ="rangeVo" min="0" max= "4"
+  step="0.5"  value="1">as</label>
+<pre></pre>
+<input type="button" id="butRE" value="Reset" onclick="inkey( 13)">Enter
+&nbsp; <input type="button" id="butDV" value="半"    onclick="inkey(188)">,
 <input type="button" id="butMU" value="倍"    onclick="inkey(190)">.
-<input type="button" id="butVD" value="小"    onclick="inkey( 65)">a
-<input type="button" id="butVU" value="大"    onclick="inkey( 83)">s<br>
+<pre></pre>
 <input type="button" id="butWD" value="細"    onclick="inkey( 81)">q
 <input type="button" id="butWU" value="太"    onclick="inkey( 87)">w<br>
 <input type="button" id="butZD" value="縮"    onclick="inkey( 90)">z
@@ -61,14 +66,16 @@
 var B = new BASIC();
 
 var SecN          ; // sec
+var H4, H3, H2, H1; // Freq = H4+H3+H2+H1
 var Freq          ; // 440Hz
-var Volume        ; // 音量
+var Vo            ; // 音量
+var To            ; // 時間index
 var Time          ; // 発振時間(s)
 var Select =     1; // 波形
 var Func          ; // 関数
 
 var Octa          ; // Octave
-var Temp   = 48000; // For debug
+var Temp   = 48000; // Sampling frequency(Hz)
 
 //--------------------------------------------------------------------
 // 関数0 y = f(th)
@@ -152,7 +159,7 @@ function graph(c, py, h, func)
   for (x = -0.2; x <= n; x += 0.001)
   {
     t = x * SecN;
-    y = func(Freq * t) * Volume;
+    y = func(Freq * t) * Vo;
     if (Math.abs(y0 - y) > 4)
     {
       x0 = x;
@@ -197,20 +204,6 @@ function scale(c, py, h, m)
     B.LINE( x, -y,  x, y, c);
   }
   B.LOCATEp(1, -h*(m-1)); B.TAB(0.6, -0.4); B.PRINT(SecN+" s");
-}
-
-//--------------------------------------------------------------------
-// Volume
-//--------------------------------------------------------------------
-function voluming(sign)
-{
-  if (sign == 0) { Volume = 1; }
-  else
-  {
-    Volume += sign * 0.5;
-    if      (Volume <  0.5) Volume = 0.5;
-    else if (Volume >  4  ) Volume = 4;
-  }
 }
 
 //--------------------------------------------------------------------
@@ -262,7 +255,7 @@ function audioF(f, time)
     for (var i = 0; i < buffer.length; i++)
     {
       t = time * i / buffer.length;
-      arr[i] = Func(t * f) * Volume / 8;
+      arr[i] = Func(t * f) * Vo / 8;
     }
   }
 
@@ -360,6 +353,13 @@ function keyBd(on, k, f)
 //--------------------------------------------------------------------
 // keyboard
 //--------------------------------------------------------------------
+function setH4321(k)
+{
+  elemH1.value = H1 = k % 10; k = Math.floor(k / 10);
+  elemH2.value = H2 = k % 10; k = Math.floor(k / 10);
+  elemH3.value = H3 = k % 10; k = Math.floor(k / 10);
+  elemH4.value = H4 = k;
+}
 function keyUD(key, on)
 {
   var t, k, f;
@@ -394,8 +394,14 @@ function keyUD(key, on)
   if (k < 0) return 0;
   t = Math.pow(2, Octa - 4);
   f = Kfreq[k] * t;
+
+  k = Math.round(f)
   f = Math.round(f * 10) / 10;
-  if (on) { Freq = f; }
+  if (on)
+  {
+    Freq = f;
+    setH4321(k);
+  }
   keyBd(on, k, f);
   return 1;
 }
@@ -403,26 +409,29 @@ function keyUD(key, on)
 //--------------------------------------------------------------------
 // Input key
 //--------------------------------------------------------------------
+var elemVo = document.getElementById('rangeVo');
+var elemTo = document.getElementById('rangeTo');
+var elemH4 = document.getElementById('rangeH4');
+var elemH3 = document.getElementById('rangeH3');
+var elemH2 = document.getElementById('rangeH2');
+var elemH1 = document.getElementById('rangeH1');
+function blurelem()
+{
+  elemVo.blur();
+  elemTo.blur();
+  elemH4.blur();
+  elemH3.blur();
+  elemH2.blur();
+  elemH1.blur();
+}
 function blur()
 {
   document.getElementById('butA1').blur();
   document.getElementById('butA2').blur();
   document.getElementById('butA3').blur();
   document.getElementById('butA0').blur();
-  document.getElementById('butU4').blur();
-  document.getElementById('butU3').blur();
-  document.getElementById('butU2').blur();
-  document.getElementById('butU1').blur();
-  document.getElementById('butD4').blur();
-  document.getElementById('butD3').blur();
-  document.getElementById('butD2').blur();
-  document.getElementById('butD1').blur();
   document.getElementById('butDV').blur();
   document.getElementById('butMU').blur();
-  document.getElementById('butVD').blur();
-  document.getElementById('butVU').blur();
-  document.getElementById('butTD').blur();
-  document.getElementById('butTU').blur();
   document.getElementById('butSP').blur();
   document.getElementById('butOM').blur();
   document.getElementById('butRE').blur();
@@ -432,78 +441,111 @@ function blur()
   document.getElementById('butZU').blur();
   document.getElementById('butZC').blur();
 }
+function timeUp(t)
+{
+  var times = [ 0.2, 1, 5, 10, 20 ];
 
-function inkey2(t, key)
-{
-  var f, s;
-
-  f = 0;
-  s = 1;
-  if (key >= 900) { key -= 900; s = 100; } // SHIFT
-  if (key ==  38) { f = t * s * 10; Freq += f; } //↑
-  if (key ==  40) { f = t * s * 10; Freq -= f; } //↓
-  if (key ==  39) { f = t * s     ; Freq += f; } //→ 
-  if (key ==  37) { f = t * s     ; Freq -= f; } //←
-  if (key ==  65) { voluming (-1  ); } //'A'
-  if (key ==  83) { voluming ( 1  ); } //'S'
-  if (key == 188) { f = 2; Freq /= f; } //','
-  if (key == 190) { f = 2; Freq *= f; } //'.'
-  if (f > 0 || t == 0)
-  {
-    Freq = Math.round(Freq);
-    if      (Freq <     1) Freq =     1;
-    else if (Freq > 20000) Freq = 20000;
-  }
+  Time = times[t];
+  To = t;
+  return To;
 }
-function timeup()
-{
-  switch (Time)
-  {
-  case 0.2: Time =   1; break;
-  case   1: Time =   5; break;
-  case   5: Time =  10; break;
-  case  10: Time =  20; break;
-  case  20: Time =  20; break;
-  }
+function inputVo()
+{ Vo = Number(elemVo.value); blur();
+  window.requestAnimationFrame(main);
 }
-function timedn()
+function inputTo()
+{ To = Number(elemTo.value); blur();
+  timeUp(To);
+  window.requestAnimationFrame(main);
+}
+function inputH4()
+{ H4 = Number(elemH4.value); blur();
+  Freq = H4*1000 + H3*100 + H2*10 + H1;
+  window.requestAnimationFrame(main);
+}
+function inputH3()
+{ H3 = Number(elemH3.value); blur();
+  Freq = H4*1000 + H3*100 + H2*10 + H1;
+  window.requestAnimationFrame(main);
+}
+function inputH2()
+{ H2 = Number(elemH2.value); blur();
+  Freq = H4*1000 + H3*100 + H2*10 + H1;
+  window.requestAnimationFrame(main);
+}
+function inputH1()
+{ H1 = Number(elemH1.value); blur();
+  Freq = H4*1000 + H3*100 + H2*10 + H1;
+  window.requestAnimationFrame(main);
+}
+elemVo.addEventListener('input', inputVo);
+elemTo.addEventListener('input', inputTo);
+elemH4.addEventListener('input', inputH4);
+elemH3.addEventListener('input', inputH3);
+elemH2.addEventListener('input', inputH2);
+elemH1.addEventListener('input', inputH1);
+function inkeyHz(key)
 {
-  switch (Time)
+  switch (key)
   {
-  case 0.2: Time = 0.2; break;
-  case   1: Time = 0.2; break;
-  case   5: Time =   1; break;
-  case  10: Time =   5; break;
-  case  20: Time =  10; break;
+    case  -1: H4 = 0; H3 = 4; H2 = 4; H1 = 0     ; break; // init
+    case 938: H4++; if (H4 > 20) H4 = 20; break; // ↑shift
+    case 940: H4--; if (H4 <  0) H4 =  0; break; // ↓shift
+    case 939: H3++; if (H3 >  9) H3 =  9; break; // →shift
+    case 937: H3--; if (H3 <  0) H3 =  0; break; // ←shift
+    case  38: H2++; if (H2 >  9) H2 =  9; break; // ↑
+    case  40: H2--; if (H2 <  0) H2 =  0; break; // ↓
+    case  39: H1++; if (H1 >  9) H1 =  9; break; // →
+    case  37: H1--; if (H1 <  0) H1 =  0; break; // ←
+    case 188:
+      Freq = (H4*1000 + H3*100 + H2*10 + H1) / 2;
+      Freq = Math.round(Freq);
+      setH4321(Freq);
+      return; // ','
+    case 190:
+      Freq = (H4*1000 + H3*100 + H2*10 + H1) * 2;
+      if (Freq > 20999) Freq = 20999;
+      setH4321(Freq);
+      return; // '.'
+    default : return;
   }
+  elemH4.value = H4;
+  elemH3.value = H3;
+  elemH2.value = H2;
+  elemH1.value = H1;
+  Freq = H4*1000 + H3*100 + H2*10 + H1;
 }
 function init()
 {
-  Freq = 440; Time = 10; Volume = 1; Octa = 4;
-  inkey2(0, 0); aStop(); keyBdInit();
+  Vo = 1; Octa = 4;
+  timeUp(3);
+  inkeyHz(-1); aStop(); keyBdInit();
 }
 function inkey(key)
 {
+  blurelem();
   blur();
   switch (key)
   {
-    case  13: init()              ; break; // Enter
-    case  32: audio(Freq)         ; break; // Space
-    case 191: aStop(); keyBdInit(); break; // '/'
-    case  81: B.lineWidth( 0.5)   ; break; // 'Q'
-    case  87: B.lineWidth( 2  )   ; break; // 'W'
-    case  90: B.zooming  (-1  )   ; break; // 'Z'
-    case  88: B.zooming  ( 1  )   ; break; // 'X'
-    case  67: B.zooming  ( 0  )   ; break; // 'C'
-    case  86: timedn()            ; break; // 'V'
-    case  66: timeup()            ; break; // 'B'
-    case  48: Select = 0;         ; break; // '0'
-    case  49: Select = 1;         ; break; // '1'
-    case  50: Select = 2;         ; break; // '2'
-    case  51: Select = 3;         ; break; // '3'
-    case  78: if (Octa > 1) Octa--; break; // 'N'
-    case  77: if (Octa < 8) Octa++; break; // 'M'
-    default: inkey2(1, key);
+    case  13: init()                                 ; break; // Enter
+    case  32: audio(Freq)                            ; break; // Space
+    case 191: aStop(); keyBdInit()                   ; break; // '/'
+    case  81: B.lineWidth( 0.5)                      ; break; // 'Q'
+    case  87: B.lineWidth( 2  )                      ; break; // 'W'
+    case  90: B.zooming  (-1  )                      ; break; // 'Z'
+    case  88: B.zooming  ( 1  )                      ; break; // 'X'
+    case  67: B.zooming  ( 0  )                      ; break; // 'C'
+    case  86: if (To > 0) elemTo.value = timeUp(To-1); break; // 'V'
+    case  66: if (To < 4) elemTo.value = timeUp(To+1); break; // 'B'
+    case  48: Select = 0;                            ; break; // '0'
+    case  49: Select = 1;                            ; break; // '1'
+    case  50: Select = 2;                            ; break; // '2'
+    case  51: Select = 3;                            ; break; // '3'
+    case  78: if (Octa > 1) Octa--                   ; break; // 'N'
+    case  77: if (Octa < 8) Octa++                   ; break; // 'M'
+    case  65: if (Vo > 0) elemVo.value = Vo -= 0.5   ; break; // 'A'
+    case  83: if (Vo < 4) elemVo.value = Vo += 0.5   ; break; // 'S'
+    default: inkeyHz(key);
   }
   window.requestAnimationFrame(main);
 }
@@ -581,7 +623,6 @@ function main()
 }
 
 init();
-inkey2(0, 0);
 main();
 
 //--------------------------------------------------------------------

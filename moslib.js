@@ -22,12 +22,17 @@ class MOUSE
 {
   constructor()
   {
+    this.OfsX      =    0;
+    this.OfsY      =    0;
     MOUSEmosX      =    0;
     MOUSEmosY      =    0;
     MOUSEmosD      =    0;
     MOUSEmosDnFunc = null;  // return {true:false} func(x, y, touch)
     MOUSEmosMvFunc = null;
     MOUSEmosUpFunc = null;
+  }
+  add()
+  {
     if(document.addEventListener)
     {
       document.addEventListener("mousedown" , this.mouseDn,
@@ -57,7 +62,7 @@ class MOUSE
       document.attachEvent("ontouchend"  , this.touchUp);
     }
   }
-  Remove()
+  remove()
   {
     if(document.removeEventListener)
     {
@@ -88,18 +93,19 @@ class MOUSE
       document.detachEvent("ontouchend"  , this.mouseUp);
     }
   }
-  MosDnFunc(func)
+  mosDnFunc(func)
   {
     MOUSEmosDnFunc = func;
   }
-  MosMvFunc(func)
+  mosMvFunc(func)
   {
     MOUSEmosMvFunc = func;
   }
-  MosUpFunc(func)
+  mosUpFunc(func)
   {
     this.mosUpFunc = func;
   }
+  // private
   mouseDn(event)
   {
     let x = event.clientX;
@@ -123,7 +129,7 @@ class MOUSE
     if (MOUSEmosDnFunc)
     {
       if (MOUSEmosDnFunc(x, y, 1))
-      { MOUSEmosD = 1; }
+      { MOUSEmosD = 1; event.preventDefault(); }
     }
   }
   mouseMv(event)
@@ -131,6 +137,7 @@ class MOUSE
     let x, y;
 
     if (!MOUSEmosD) return;
+    event.preventDefault();
 
     x = event.clientX;
     y = event.clientY;
@@ -175,12 +182,15 @@ class MOUSE
       MOUSEmosUpFunc(x, y, 1);
     }
   }
-  MosX()
+  // public
+  ofsX(x)
   {
-    return MOUSEmosX;
+    if (x !== '')  this.OfsX = x;
+    return this.OfsX;
   }
-  MosY()
+  ofsY(y)
   {
-    return MOUSEmosY;
+    if (y !== '')  this.OfsY = y;
+    return this.OfsY;
   }
 }

@@ -262,12 +262,15 @@ var elemA1 = document.getElementById('rangeA1');
 var elemF1 = document.getElementById('rangeF1');
 var elemA2 = document.getElementById('rangeA2');
 var elemF2 = document.getElementById('rangeF2');
-function blur()
+function blurelem()
 {
   elemA1.blur();
   elemF1.blur();
   elemA2.blur();
   elemF2.blur();
+}
+function blur()
+{
   document.getElementById('butR').blur();
   document.getElementById('butN').blur();
   document.getElementById('butA').blur();
@@ -362,6 +365,7 @@ function inkey(key)
     case 67: elemF2.value = F2 = limitF(F2, -1); break; // 'C'
     case 86: elemF2.value = F2 = limitF(F2,  1); break; // 'V'
   }
+  blurelem();
   blur();
   window.requestAnimationFrame(main);
 }

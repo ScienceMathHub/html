@@ -1005,18 +1005,14 @@ document.body.addEventListener('keydown', event =>
 //----------------------------------------------------------------------
 // mouse
 //----------------------------------------------------------------------
-var mouseX = 0;  // 差分x
-var mouseY = 0;  // 差分y
-
 function winB(mx, my)
 {
   var rect = canvas.getBoundingClientRect();
-  var x, y;
+  var x  = mx - rect.left;
+  var y  = my - rect.top;
 
-  x  = mx - rect.left;
-  y  = my - rect.top;
-  x = B.WinX(x) * Ps / Pd;
-  y = B.WinY(y) * Ps / Pd;
+  x = B.winX(x) * Ps / Pd;
+  y = B.winY(y) * Ps / Pd;
   return { x:x, y:y };
 }
 
@@ -1029,8 +1025,10 @@ function mouseDn(x, y, touch)
   w = winB(x, y);
   x = w.x;
   y = w.y;
-  mouseX = dx = MB.px - x;
-  mouseY = dy = MB.py - y;
+  dx = MB.px - x;
+  dy = MB.py - y;
+  M.ofsX(dx);
+  M.ofsY(dy);
   d  = dx*dx + dy*dy;
   r  = mr * mr;
   w = r - d;
@@ -1049,14 +1047,15 @@ function mouseMv(x, y, touch)
   if (x < 0) { if (MB.px <= 0) return; x = 0; }
   if (y < 0) { if (MB.py <= 0) return; y = 0; }
 
-  x += mouseX;
-  y += mouseY;
+  x += M.ofsX('');
+  y += M.ofsY('');
   setB(x, y);
 }
 
 const M = new MOUSE();
-M.MosDnFunc(mouseDn);
-M.MosMvFunc(mouseMv);
+M.add();
+M.mosDnFunc(mouseDn);
+M.mosMvFunc(mouseMv);
 
 //----------------------------------------------------------------------
 // main

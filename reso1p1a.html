@@ -464,7 +464,7 @@ let elemA1 = document.getElementById('rangeA1');
 let elemL1 = document.getElementById('rangeL1');
 let elemLd = document.getElementById('rangeLd');
 let elemLe = document.getElementById('rangeLe');
-function blur()
+function blurelem()
 {
   elemRo.blur();
   elemVo.blur();
@@ -472,6 +472,9 @@ function blur()
   elemL1.blur();
   elemLd.blur();
   elemLe.blur();
+}
+function blur()
+{
   document.getElementById('butS').blur();
   document.getElementById('butN').blur();
   document.getElementById('butR').blur();
@@ -576,6 +579,7 @@ function inkey(key)
     case 67: elemLd.value=Ld=lim(Ld,-1, 0  , 8  , 1); break; // 'C'
     case 86: elemLd.value=Ld=lim(Ld, 1, 0  , 8  , 1); break; // 'V'
   }
+  blurelem();
   blur();
   window.requestAnimationFrame(main);
 }
@@ -597,28 +601,22 @@ window.onkeyup   = function(event) { Key[event.keyCode] = 0; }
 //----------------------------------------------------------------------
 // mouse
 //----------------------------------------------------------------------
-let mouseX = 0;  // 差分
-
 function setB(x, y)
 {
   let r1, r0;
 
-  x -= mouseX;
+  x += M.ofsX('');
   r0 = 0.125;
   r1 = DisN - 1.5;
   if (x < r0) x = r0; else if (x > r1) x = r1;
   r1 = Math.floor(x);
   r0 = x - r1;
   r0 = Math.floor(r0 * 8) / 8;
-  if (r0 > 0.5)
-  {
-    r1++;
-    r0--;
-  }
+  if (r0 > 0.5) { r1++; r0--; }
   
   Ld = r1;
   Le = r0;
-  elemLd.value = Ld = lim(Ld, 0, 0  , 8  , 1);
+  elemLd.value = Ld = lim(Ld, 0, 0  , 8  , 1    );
   elemLe.value = Le = lim(Le, 0,-0.5, 0.5, 0.125);
   blur();
   window.requestAnimationFrame(main);
@@ -634,8 +632,8 @@ function winB(mx, my)
 
   x  = mx - rect.left;
   y  = my - rect.top;
-  x = B.WinX(x);
-  y = B.WinY(y);
+  x = B.winX(x);
+  y = B.winY(y);
   return { x:x, y:y };
 }
 
@@ -650,10 +648,9 @@ function mouseDn(x, y, touch)
   y = w.y;
   dx = Math.abs(len - x);
   dy = Math.abs(y);
-  Temp = dx + " , " + dy;
-  if (dx >   2) return 0;
+  if (dx > 1.5) return 0;
   if (dy > 199) return 0;
-  mouseX = x - len;
+  M.ofsX(len - x);
   return 1;
 }
 
@@ -668,8 +665,9 @@ function mouseMv(x, y, touch)
 }
 
 const M = new MOUSE();
-M.MosDnFunc(mouseDn);
-M.MosMvFunc(mouseMv);
+M.add();
+M.mosDnFunc(mouseDn);
+M.mosMvFunc(mouseMv);
 
 //--------------------------------------------------------------------
 // main

@@ -31,80 +31,80 @@ class BASIC
 {
   constructor()
   {
-    this.winX   =   0; //Window座標
-    this.winY   =   0;
-    this.winW   = 640;
-    this.winH   = 400;
-    this.posX   =   0; // グラフィックカレント
-    this.posY   =   0;
-    this.locX   =   0; // テキストカレント
-    this.locY   =   0;
-    this.locW   =   8; // テキストMサイズ
-    this.locH   =  16;
-    this.offW   =   0; // テキストSサイズ
-    this.offh   =   0;
-    this.zoom0  =  45; // 画面拡大基準値
-    this.zoom   =  45; // 画面拡大
-    this.width0 =   2; // 線幅基準値
-    this.width  =   2; // 線幅
+    this.WinX   =   0; //Window座標
+    this.WinY   =   0;
+    this.WinW   = 640;
+    this.WinH   = 400;
+    this.PosX   =   0; // グラフィックカレント
+    this.PosY   =   0;
+    this.LocX   =   0; // テキストカレント
+    this.LocY   =   0;
+    this.LocW   =   8; // テキストMサイズ
+    this.LocH   =  16;
+    this.OffW   =   0; // テキストSサイズ
+    this.Offh   =   0;
+    this.Zoom0  =  45; // 画面拡大基準値
+    this.Zoom   =  45; // 画面拡大
+    this.Width0 =   2; // 線幅基準値
+    this.Width  =   2; // 線幅
     this.lineWidth(0);
     this.zooming(0);
   }
-  WinX(x)
+  winX(x)
   {
-    return (x * this.winW / canvas.width) + this.winX;
+    return (x * this.WinW / canvas.width) + this.WinX;
   }
-  WinY(y)
+  winY(y)
   {
-    return (y * this.winH / canvas.height) + this.winY;
+    return (y * this.WinH / canvas.height) + this.WinY;
   }
-  ScrX(x)
+  scrX(x)
   {
-    return Math.round((x - this.winX) * canvas.width  / this.winW);
+    return Math.round((x - this.WinX) * canvas.width  / this.WinW);
   }
-  ScrY(y)
+  scrY(y)
   {
-    return Math.round((y - this.winY) * canvas.height / this.winH);
+    return Math.round((y - this.WinY) * canvas.height / this.WinH);
   }
-  ScrW(w)
+  scrW(w)
   {
-    return Math.round(w * canvas.width  / this.winW);
+    return Math.round(w * canvas.width  / this.WinW);
   }
-  ScrH(h)
+  scrH(h)
   {
-    return Math.round(h * canvas.height / this.winH);
+    return Math.round(h * canvas.height / this.WinH);
   }
   WINDOW(x1, y1, x2, y2)
   {
-    this.winX = x1;
-    this.winY = y1;
-    this.winW = x2 - x1;
-    this.winH = y2 - y1;
+    this.WinX = x1;
+    this.WinY = y1;
+    this.WinW = x2 - x1;
+    this.WinH = y2 - y1;
   }
   LOCATEp(x, y)
   {
-    if (x !== '') this.locX = this.ScrX(x);
-    if (y !== '') this.locY = this.ScrY(y);
+    if (x !== '') this.LocX = this.scrX(x);
+    if (y !== '') this.LocY = this.scrY(y);
   }
   LOCATE(x, y)
   {
-    if (x !== '') this.locX = x * this.locW;
-    if (y !== '') this.locY = y * this.locH;
+    if (x !== '') this.LocX = x * this.LocW;
+    if (y !== '') this.LocY = y * this.LocH;
   }
   TAB(x, y)
   {
-    if (x !== '') this.locX += x * this.locW;
-    if (y !== '') this.locY += y * this.locH;
+    if (x !== '') this.LocX += x * this.LocW;
+    if (y !== '') this.LocY += y * this.LocH;
   }
   CR()
   {
-    this.locX = 0;
-    this.locY += this.locH;
+    this.LocX = 0;
+    this.LocY += this.LocH;
   }
   CRn(n)
   {
-    this.locX = 0;
-    this.locY += this.locH * n;
+    this.LocX = 0;
+    this.LocY += this.LocH * n;
   }
   CLS(c)
   {
@@ -116,18 +116,18 @@ class BASIC
   {
     let h;
 
-    zoom = Math.round(this.zoom * zoom / 40 * 8);
-    this.locW = zoom;
+    zoom = Math.round(this.Zoom * zoom / 40 * 8);
+    this.LocW = zoom;
     h    = zoom * 2;
-    offs = Math.round(this.zoom * offs / 40 * 8);
-    this.offH = offs * 2;
-    offs = Math.round(this.zoom        / 40 * 8);
-    this.locH = offs * 2;
+    offs = Math.round(this.Zoom * offs / 40 * 8);
+    this.OffH = offs * 2;
+    offs = Math.round(this.Zoom        / 40 * 8);
+    this.LocH = offs * 2;
     ctx.font = h + "px 'ＭＳ ゴシック'";
 //    ctx.font = h + "px 'sans-serif'";
 //    ctx.font = h + "px '游ゴシック'";
 //    ctx.font = h + "px '游明朝'";
-    this.locW = ctx.measureText('あ').width / 2;
+    this.LocW = ctx.measureText('あ').width / 2;
   }
   COLOR(c)
   {
@@ -138,8 +138,8 @@ class BASIC
   {
     let x1, y1;
 
-    x1 = this.ScrX(x);
-    y1 = this.ScrY(y);
+    x1 = this.scrX(x);
+    y1 = this.scrY(y);
     ctx.fillStyle   = c;
     ctx.strokeStyle = c;
     ctx.fillText(text, x1, y1);
@@ -153,13 +153,13 @@ class BASIC
     for (i = 0; i < n; i++)
     {
       a = s.substring(i, i+1);
-      w = this.locW * 2;
-      if (a.match(/[ -~]/)) w = this.locW;
-      if (a.match(/[ｧ-ﾝ]/)) w = this.locW;
+      w = this.LocW * 2;
+      if (a.match(/[ -~]/)) w = this.LocW;
+      if (a.match(/[ｧ-ﾝ]/)) w = this.LocW;
       m = ctx.measureText(a).width;
       x = (w - m) / 2;
-      ctx.fillText(a, this.locX + x, this.locY + this.offH - 1);
-      this.locX += w;
+      ctx.fillText(a, this.LocX + x, this.LocY + this.OffH - 1);
+      this.LocX += w;
     }
   }
   PRINTe(s)
@@ -176,7 +176,7 @@ class BASIC
       if (a == 'θ')
       {
         this.PRINT(a);
-        this.locX -= this.locW / 2;
+        this.LocX -= this.LocW / 2;
         continue;
       }
       if (a == '^')
@@ -223,19 +223,19 @@ class BASIC
   }
   POINT(x, y)
   {
-    this.posX = this.ScrX(x);
-    this.posY = this.ScrY(y);
+    this.PosX = this.scrX(x);
+    this.PosY = this.scrY(y);
   }
   LINE(x1, y1, x2, y2, c)
   {
     ctx.strokeStyle = c;
     ctx.beginPath();
-    this.posX = this.ScrX(x1);
-    this.posY = this.ScrY(y1);
-    ctx.moveTo(this.posX, this.posY);
-    this.posX = this.ScrX(x2);
-    this.posY = this.ScrY(y2);
-    ctx.lineTo(this.posX, this.posY);
+    this.PosX = this.scrX(x1);
+    this.PosY = this.scrY(y1);
+    ctx.moveTo(this.PosX, this.PosY);
+    this.PosX = this.scrX(x2);
+    this.PosY = this.scrY(y2);
+    ctx.lineTo(this.PosX, this.PosY);
     ctx.stroke();
     ctx.closePath();
   }
@@ -243,10 +243,10 @@ class BASIC
   {
     ctx.strokeStyle = c;
     ctx.beginPath();
-    ctx.moveTo(this.posX, this.posY);
-    this.posX = this.ScrX(x2);
-    this.posY = this.ScrY(y2);
-    ctx.lineTo(this.posX, this.posY);
+    ctx.moveTo(this.PosX, this.PosY);
+    this.PosX = this.scrX(x2);
+    this.PosY = this.scrY(y2);
+    ctx.lineTo(this.PosX, this.PosY);
     ctx.stroke();
     ctx.closePath();
   }
@@ -262,12 +262,12 @@ class BASIC
   {
     let x, y, w, h;
 
-    x = this.ScrX(x1);
-    y = this.ScrY(y1);
-    this.posX = this.ScrX(x2);
-    this.posY = this.ScrY(y2);
-    w = this.posX - x + 1;
-    h = this.posY - y + 1;
+    x = this.scrX(x1);
+    y = this.scrY(y1);
+    this.PosX = this.scrX(x2);
+    this.PosY = this.scrY(y2);
+    w = this.PosX - x + 1;
+    h = this.PosY - y + 1;
     ctx.strokeStyle = c;
     ctx.strokeRect(x, y, w, h);
   }
@@ -276,12 +276,12 @@ class BASIC
   {
     let x, y, w, h;
 
-    x = this.ScrX(x1);
-    y = this.ScrY(y1);
-    this.posX = this.ScrX(x2);
-    this.posY = this.ScrY(y2);
-    w = this.posX - x + 1;
-    h = this.posY - y + 1;
+    x = this.scrX(x1);
+    y = this.scrY(y1);
+    this.PosX = this.scrX(x2);
+    this.PosY = this.scrY(y2);
+    w = this.PosX - x + 1;
+    h = this.PosY - y + 1;
     ctx.fillStyle = c;
     ctx.fillRect(x, y, w, h);
   }
@@ -289,8 +289,8 @@ class BASIC
   {
     let x0, y0;
 
-    this.posX = x0 = this.ScrX(x);
-    this.posY = y0 = this.ScrY(y);
+    this.PosX = x0 = this.scrX(x);
+    this.PosY = y0 = this.scrY(y);
 
     ctx.beginPath();
     ctx.arc(x0, y0, r0, 0, Math.PI * 2, true);
@@ -300,28 +300,28 @@ class BASIC
   // window func
   zooming(sign)
   {
-    if (sign == 0) { this.zoom = this.zoom0; }
+    if (sign == 0) { this.Zoom = this.Zoom0; }
     else
     {
-      this.zoom += sign * 5;
-      if      (this.zoom <  20) this.zoom =  20;
-      else if (this.zoom > 120) this.zoom = 120;
+      this.Zoom += sign * 5;
+      if      (this.Zoom <  20) this.Zoom =  20;
+      else if (this.Zoom > 120) this.Zoom = 120;
     }
-    canvas.width  = 16 * this.zoom;
-    canvas.height =  9 * this.zoom;
-    ctx.lineWidth = this.width;
+    canvas.width  = 16 * this.Zoom;
+    canvas.height =  9 * this.Zoom;
+    ctx.lineWidth = this.Width;
     this.FONT(1, 0);
   }
   lineWidth(times)
   {
-    if (times == 1) { this.width = this.width0; }
+    if (times == 1) { this.Width = this.Width0; }
     else
     {
-      this.width *= times;
-      if      (this.width < 1) this.width = 1;
-      else if (this.width > 8) this.width = 8;
+      this.Width *= times;
+      if      (this.Width < 1) this.Width = 1;
+      else if (this.Width > 8) this.Width = 8;
     }
-    ctx.lineWidth = this.width;
+    ctx.lineWidth = this.Width;
   }
   // math func (precision)
   precision(a)

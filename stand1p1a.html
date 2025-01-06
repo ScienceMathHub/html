@@ -339,13 +339,16 @@ var elemA1 = document.getElementById('rangeA1');
 var elemL1 = document.getElementById('rangeL1');
 var elemA2 = document.getElementById('rangeA2');
 var elemL2 = document.getElementById('rangeL2');
-function blur()
+function blurelem()
 {
   elemVo.blur();
   elemA1.blur();
   elemL1.blur();
   elemA2.blur();
   elemL2.blur();
+}
+function blur()
+{
   document.getElementById('butS').blur();
   document.getElementById('butN').blur();
   document.getElementById('butR').blur();
@@ -465,6 +468,7 @@ function inkey(key)
     case 67: elemL2.value = L2 = limitL(L2, -1); break; // 'C'
     case 86: elemL2.value = L2 = limitL(L2,  1); break; // 'V'
   }
+  blurelem();
   blur();
   window.requestAnimationFrame(main);
 }
