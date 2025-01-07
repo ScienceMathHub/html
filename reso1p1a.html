@@ -103,7 +103,7 @@ function func1(c, px, py, h, a)
       str += " , L = "+ len.toFixed(3) + " m)";
   B.WINDOW(px, py, px+639, py-399);
   B.COLOR(c);
-  B.LOCATEp(px, h*a); B.TAB(1, -1.5); B.PRINTe(str);
+  B.LOCATEp(px, h*a); B.TAB(1, -2.5); B.PRINTe(str);
 }
 function f1(x)
 {
@@ -293,8 +293,8 @@ function scale(c, px, py, h, m, up, sl, sr)
   for (t = 1; t <= m; t++)
   {
     y = h * t;
-//    B.LOCATEp(x,  y); B.TAB(-2.5, 0.45); B.PRINT(" "+t);
-//    B.LOCATEp(x, -y); B.TAB(-2.5, 0.45); B.PRINT("-"+t);
+//    B.LOCATEp(x,  y); B.TAB(-2.5, -0.55); B.PRINT(" "+t);
+//    B.LOCATEp(x, -y); B.TAB(-2.5, -0.55); B.PRINT("-"+t);
     B.LINE(-x,  y, x,  y, c);
     B.LINE(-x, -y, x, -y, c);
   }
@@ -313,7 +313,7 @@ function scale(c, px, py, h, m, up, sl, sr)
 
   s = -m * h;
   x = -0.4;
-  y =  1.5;
+  y = 0.5;
   if (up) y = 0.9 - y;
   r = 0;
   B.LOCATEp(0, s); B.TAB(x, y); B.PRINT("0m");
@@ -391,7 +391,7 @@ function display()
 
   n = DisN + 1;
   B.WINDOW(px, py, px+n, py-399);
-  B.LOCATEp(px, -h*2.2); B.TAB(1, 1);
+  B.LOCATEp(px, -h*2.2); B.TAB(1, 0);
   B.COLOR('#fff'); B.PRINT("進入波→  ");
   B.COLOR('#ff0'); B.PRINT("反射波←  ");
   B.COLOR('#0f0'); B.PRINT("反射波→  ");
@@ -413,7 +413,7 @@ function display()
   tube ('#fff', px, py, h, a);
 
   B.WINDOW(px, py, px+639, py-399);
-  B.LOCATEp(px, -h*2.2); B.TAB(1, 1); B.COLOR('#0f0');
+  B.LOCATEp(px, -h*2.2); B.TAB(1, 0); B.COLOR('#0f0');
   str  =    "開口端反射率 = " + Ro.toFixed(1);
   str += " , 閉口端反射率 = " + Rc.toFixed(1);
   str += " , 合成回数 = " + Rn;

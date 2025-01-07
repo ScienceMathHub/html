@@ -188,8 +188,8 @@ function scale(c, py, h, m)
   for (t = 1; t <= m; t++)
   {
     y = h * t;
-    B.LOCATE(4, (py-y)/16+0.5); B.PRINT(" "+t);
-    B.LOCATE(4, (py+y)/16+0.5); B.PRINT("-"+t);
+    B.LOCATEp(0,  y); B.TAB(-3.5, -0.55); B.PRINT(" "+t);
+    B.LOCATEp(0, -y); B.TAB(-3.5, -0.55); B.PRINT("-"+t);
     B.LINE(-x,  y, x,  y, c);
     B.LINE(-x, -y, x, -y, c);
   }
@@ -203,7 +203,7 @@ function scale(c, py, h, m)
     else                    { y = h *    0.2 ; }
     B.LINE( x, -y,  x, y, c);
   }
-  B.LOCATEp(1, -h*(m-1)); B.TAB(0.6, -0.4); B.PRINT(SecN+" s");
+  B.LOCATEp(1, -h*(m-1)); B.TAB(0.6, -1.4); B.PRINT(SecN+"s");
 }
 
 //--------------------------------------------------------------------
@@ -395,12 +395,12 @@ function keyUD(key, on)
   t = Math.pow(2, Octa - 4);
   f = Kfreq[k] * t;
 
-  k = Math.round(f)
+  t = Math.round(f)
   f = Math.round(f * 10) / 10;
   if (on)
   {
     Freq = f;
-    setH4321(k);
+    setH4321(t);
   }
   keyBd(on, k, f);
   return 1;
@@ -554,6 +554,7 @@ document.body.addEventListener('keydown', event =>
 {
   var key = event.keyCode;
   if (Key[ 16]) { key += 900; } // SHIFT
+//  if (37 <= key && 40 <= key) event.preventDefault();
   inkey(key);
 });
 
@@ -586,14 +587,14 @@ function display()
   B.CLS('#000');
 
   B.COLOR('#fff');
-  B.LOCATE(1, 1.1);
+  B.LOCATE(1, 0.1);
   B.PRINT(Time + "s");
   B.PRINT("(" + (AuCt+Aui) + "), ");
   B.PRINT("f = " + Freq + "Hz, ");
   B.PRINT(title);
 
   B.COLOR('#0f0');
-  B.LOCATE(9, 22);
+  B.LOCATE(9, 21);
   B.PRINTe("e^4r^5ty^7u^8i^9op平均律, dfghjkl;純正律");
   B.PRINT (", nm:オクターブ("+Octa+")");
   B.PRINT (" Rate"+Temp/1000+"kHz");

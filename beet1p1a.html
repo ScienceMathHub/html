@@ -64,7 +64,7 @@ function func1(c, px, py, h, a)
       str += A1.toFixed(1) + " m , f_1 = " + F1 + " Hz)";
   B.WINDOW(px, py, px+639, py-399);
   B.COLOR(c);
-  B.LOCATEp(px, h*a); B.TAB(1, -0.55); B.PRINTe(str);
+  B.LOCATEp(px, h*a); B.TAB(1, -1.55); B.PRINTe(str);
 }
 function f1(t)
 {
@@ -77,7 +77,7 @@ function func2(c, px, py, h, a)
       str += A2.toFixed(1) + " m , f_2 = " + F2 + " Hz)";
   B.WINDOW(px, py, px+639, py-399);
   B.COLOR(c);
-  B.LOCATEp(px, h*a); B.TAB(1, -0.55); B.PRINTe(str);
+  B.LOCATEp(px, h*a); B.TAB(1, -1.55); B.PRINTe(str);
 }
 function f2(t)
 {
@@ -97,7 +97,7 @@ function funcAA(c, px, py, h, a, b, d)
   var str;
 
   B.WINDOW(px, py, px+639, py-399);
-  B.LOCATEp(px, -h*a); B.TAB(1, 2.2);
+  B.LOCATEp(px, -h*a); B.TAB(1, 1.2);
   B.COLOR(c); B.PRINTe("y_1+y_2 = ");
   B.COLOR(b); B.PRINTe("2A_1cos( -2π(f_1-f_2)/2 )");
   B.COLOR(d); B.PRINTe("sin( -2π(f_1+f_2)/2 )");
@@ -107,12 +107,12 @@ function func12(c, px, py, h, a, b, d)
   var str;
 
   B.WINDOW(px, py, px+639, py-399);
-  B.LOCATEp(px, -h*a); B.TAB(1, 1.7);
+  B.LOCATEp(px, -h*a); B.TAB(1, 0.7);
   B.COLOR(c); B.PRINTe("y_1+y_2 = ");
   B.COLOR(b); B.PRINTe("√{(A_1-A_2)^2+2^2A_1A_2cos^2β}");
   str = "sin( α+Tan^-^1({(A_1-A_2)sinβ}/{(A_1+A_2)cosβ}) )";
   B.COLOR(d); B.PRINTe(str);
-  B.LOCATEp(px, -h*a); B.TAB(9, 2.7);
+  B.LOCATEp(px, -h*a); B.TAB(9, 1.7);
   str  = "… [ α = -2π(f_1+f_2)/2, β = -2π(f_1-f_2)/2 ]";
   B.COLOR(c); B.PRINTe(str);
 }
@@ -178,8 +178,8 @@ function scale(c, px, py, h, m, b)
   for (t = 1; t <= m; t++)
   {
     y = h * t;
-    B.LOCATEp(x,  y); B.TAB(-3.2, 0.45); B.PRINT(" "+t);
-    B.LOCATEp(x, -y); B.TAB(-3.2, 0.45); B.PRINT("-"+t);
+    B.LOCATEp(x,  y); B.TAB(-3.2, 0.45-1); B.PRINT(" "+t);
+    B.LOCATEp(x, -y); B.TAB(-3.2, 0.45-1); B.PRINT("-"+t);
     B.LINE(-x,  y, x,  y, c);
     B.LINE(-x, -y, x, -y, c);
   }
@@ -201,10 +201,10 @@ function scale(c, px, py, h, m, b)
     x += 1      ; B.LINE( x, -y,  x, y, b);
   }
 
-  B.LOCATEp(0, 0); B.TAB(0.3, -0.2); B.PRINT("0s");
+  B.LOCATEp(0, 0); B.TAB(0.3, -1.2); B.PRINT("0s");
   for (t = 1; t <= n; t++)
   {
-    B.LOCATEp(t, 0); B.TAB(0.3, -0.2); B.PRINT(t + "s");
+    B.LOCATEp(t, 0); B.TAB(0.3, -1.2); B.PRINT(t + "s");
   }
 }
 
@@ -375,14 +375,6 @@ document.body.addEventListener('keydown', event =>
 
   inkey(key);
 });
-
-//--------------------------------------------------------------------
-// Key status
-//--------------------------------------------------------------------
-var Key = new Array(256);
-for (var i = 0; i < 256; i++) Key[i] = 0;
-window.onkeydown = function(event) { Key[event.keyCode] = 1; }
-window.onkeyup   = function(event) { Key[event.keyCode] = 0; }
 
 //--------------------------------------------------------------------
 // main

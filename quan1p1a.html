@@ -231,19 +231,19 @@ function Quan(n)
 
   B.COLOR('#0f0');
   B.FONT(1,0);
-  B.LOCATE(0, 1);
+  B.LOCATE(0, 0);
   i = (Selects > 9)? 0 : Selects;
   B.PRINT("Key1～" + i + ":量子数n  ");
   B.PRINT("(-,^,Enter,zxc,qw:可変,固定,初期化,画面サイズ,線幅)");
   B.COLOR('#fff');
-  B.LOCATE(0, 2);
+  B.LOCATE(0, 1);
   B.PRINT(Atom + '原子 (' + n + 's): ');
   E = Energy(n);
   f = E / e;
   B.PRINTe('E = ' + E.toPrecision(7) + ' J ');
   B.PRINTe('( ' + f.toPrecision(7) + ' eV )');
   B.COLOR('#f0f');
-  B.LOCATE(0, 3);
+  B.LOCATE(0, 2);
   B.COLOR('#0ff');
   B.PRINT('P(r/a)');
   B.COLOR('#fff');
@@ -263,7 +263,7 @@ function Quan(n)
   B.PRINT(', … , ');
   B.COLOR('#0ff');
   B.PRINT(Dw.toFixed(0));
-  B.LOCATE(0, 4);
+  B.LOCATE(0, 3);
 
   c = '#00f';
   for (i = 1; i <= Selects; i++)
@@ -280,42 +280,25 @@ function Quan(n)
 //----------------------------------------------------------------------
 document.body.addEventListener('keydown', event =>
 {
-  var key;
+  var key = event.keyCode;
 
-  switch (event.keyCode)
+  switch (key)
   {
-    case  13: B.lineWidth( 1  ); isDisp = 1; blur(); break; // Enter
+    case  13: B.lineWidth( 1  ); blur(); break; // Enter
     case  81: B.lineWidth( 0.5); blur(); break; // 'Q'
     case  87: B.lineWidth( 2  ); blur(); break; // 'W'
     case  90: B.zooming  (-1  ); blur(); break; // 'Z'
     case  88: B.zooming  ( 1  ); blur(); break; // 'X'
     case  67: B.zooming  ( 0  ); blur(); break; // 'C'
-    case  48: Select = 10      ; blur(); break; // '0'
     case 222: isDisp = 0       ; blur(); break; // '^'
     case 189: isDisp = 1       ; blur(); break; // '-'
-//    case 220:      isDisp = 0; blur(); break; // '|'
-    default :
-    {
-      key = event.keyCode - 48;
-      if (1 <= key && key <= 9)
-      {
-        Select = key;
-//        isDisp = 1;
-        blur();
-      }
-    }
+    case  48: Select = 10      ; blur(); break; // '0'
+    default : key -= 48;
+      if (1 <= key && key <= 9) { Select = key; blur(); }
   }
   if (Select > Selects) Select = Selects;
   window.requestAnimationFrame(main);
 });
-
-//----------------------------------------------------------------------
-// Key status
-//----------------------------------------------------------------------
-var Key = new Array(256);
-for (var i = 0; i < 256; i++) Key[i] = 0;
-window.onkeydown = function(event) { Key[event.keyCode] = 1; }
-window.onkeyup   = function(event) { Key[event.keyCode] = 0; }
 
 //----------------------------------------------------------------------
 // main
@@ -323,7 +306,6 @@ window.onkeyup   = function(event) { Key[event.keyCode] = 0; }
 function main()
 {
   Quan(Select);
-//  window.requestAnimationFrame(main);
 }
 
 B.lineWidth(1);

@@ -460,7 +460,7 @@ function Display()
   B.LINEB(-Px, Py, 639 - Px, Py - 398, '#000');
   B.FONT(1, 0);
 
-  B.LOCATE(0, 1);
+  B.LOCATE(0, 0);
   B.TAB(tb, 0);
   B.COLOR('#000'); B.PRINT("Standard genetic code(標準コドン表)");
   B.COLOR('#000'); B.PRINT(" 配列");
@@ -493,14 +493,6 @@ function Display()
 
   B.COLOR('#000');
 }
-
-//----------------------------------------------------------------------
-// Key status
-//----------------------------------------------------------------------
-var Key = new Array(256);
-for (var i = 0; i < 256; i++) Key[i] = 0;
-window.onkeydown = function(event) { Key[event.keyCode] = 1; }
-window.onkeyup   = function(event) { Key[event.keyCode] = 0; }
 
 //----------------------------------------------------------------------
 // Input key

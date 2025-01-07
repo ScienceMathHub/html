@@ -79,7 +79,7 @@ function func1(c, px, py, h, a)
       str += " , v = "+ Vo.toFixed(1) + " m/s)";
   B.WINDOW(px, py, px+639, py-399);
   B.COLOR(c);
-  B.LOCATEp(px, h*a); B.TAB(1, -1.5); B.PRINTe(str);
+  B.LOCATEp(px, h*a); B.TAB(1, -2.5); B.PRINTe(str);
 }
 function f1(x)
 {
@@ -95,7 +95,7 @@ function func2(c, px, py, h, a)
       str += " , v = "+ Vo.toFixed(1) + " m/s)";
   B.WINDOW(px, py, px+639, py-399);
   B.COLOR(c);
-  B.LOCATEp(px, h*a); B.TAB(1, -1.5); B.PRINTe(str);
+  B.LOCATEp(px, h*a); B.TAB(1, -2.5); B.PRINTe(str);
 }
 function f2(x)
 {
@@ -206,8 +206,8 @@ function scale(c, px, py, h, m, up, sl, sr)
   for (t = 1; t <= m; t++)
   {
     y = h * t;
-    B.LOCATEp(x,  y); B.TAB(-2.5, 0.45); B.PRINT(" "+t);
-    B.LOCATEp(x, -y); B.TAB(-2.5, 0.45); B.PRINT("-"+t);
+    B.LOCATEp(x,  y); B.TAB(-2.5, -0.55); B.PRINT(" "+t);
+    B.LOCATEp(x, -y); B.TAB(-2.5, -0.55); B.PRINT("-"+t);
     B.LINE(-x,  y, x,  y, c);
     B.LINE(-x, -y, x, -y, c);
   }
@@ -228,8 +228,8 @@ function scale(c, px, py, h, m, up, sl, sr)
   {
     s = -m * h;
     x = -0.4;
-    y =  1.25;
-    if (up) { s = -s; y = 0.9 - y; }
+    y =  0.25;
+    if (up) { s = -s; y = -1.1 - y; }
     B.LOCATEp(0, s); B.TAB(x, y); B.PRINT("0m");
     for (t = 1; t <= n; t++)
     {
@@ -244,21 +244,21 @@ function scale(c, px, py, h, m, up, sl, sr)
   r = 0;
   s = m * h;
   x = -0.4;
-  y = 1.25;
+  y = 0.25;
   b = '#fff';
-  B.COLOR(c); B.LOCATEp(0,  s); B.TAB(x, 0.9-y); B.PRINT("0m");
-  B.COLOR(b); B.LOCATEp(0, -s); B.TAB(x,     y); B.PRINT("0m");
+  B.COLOR(c); B.LOCATEp(0,  s); B.TAB(x, -1.1-y); B.PRINT("0m");
+  B.COLOR(b); B.LOCATEp(0, -s); B.TAB(x,      y); B.PRINT("0m");
   for (t = 1; t <= n; t++)
   {
     B.COLOR(c);
-    B.LOCATEp( t,  s); B.TAB(x, 0.9-y); B.PRINT(sr + t   + "m");
-    B.LOCATEp(-t,  s); B.TAB(x, 0.9-y); B.PRINT(sl + t   + "m");
+    B.LOCATEp( t,  s); B.TAB(x, -1.1-y); B.PRINT(sr + t   + "m");
+    B.LOCATEp(-t,  s); B.TAB(x, -1.1-y); B.PRINT(sl + t   + "m");
     if (t*2 >= 10) r = -0.5;
     B.COLOR(b);
-    B.LOCATEp( t, -s); B.TAB(x+r,   y); B.PRINT(sr + t*2 + "m");
-    B.LOCATEp(-t, -s); B.TAB(x+r,   y); B.PRINT(sl + t*2 + "m");
+    B.LOCATEp( t, -s); B.TAB(x+r,    y); B.PRINT(sr + t*2 + "m");
+    B.LOCATEp(-t, -s); B.TAB(x+r,    y); B.PRINT(sl + t*2 + "m");
   }
-  B.COLOR(b); B.LOCATEp(px, -h*m); B.TAB(1, 3.1);
+  B.COLOR(b); B.LOCATEp(px, -h*m); B.TAB(1, 2.1);
   B.PRINT("2波源までの距離差");
 
 //  if (!isCos) return;
@@ -289,7 +289,7 @@ function display()
     px = -1.5;
     func1('#fff', px, py, h, a);
     scale('#ff0', px, py, h, a, 1, '-', '');
-    px = -s * (1.5 + DisX);
+    px = -(1.5 + DisX);
     scale('#ffb', px, py, h, a, 0, '', '-');
     px = -1.5;
     longi('#8ff', px, py, h, a, f1);

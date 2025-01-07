@@ -44,7 +44,6 @@
 
 <script src="https://sciencemathhub.github.io/html/tomath.js"></script>
 <script src="https://sciencemathhub.github.io/html/canlib.js"></script>
-<script src="https://sciencemathhub.github.io/html/moslib.js"></script>
 <script>
 'use strict'
 var B = new BASIC();
@@ -208,8 +207,8 @@ function scale(c, n, m, s)
   x = s * w / 320;
   for (y = 1; y <= m; y++)
   {
-    B.LOCATEp(x,  y); B.TAB(-4.7, 0.47); B.PRINT(" " + y);
-    B.LOCATEp(x, -y); B.TAB(-4.7, 0.47); B.PRINT("-" + y);
+    B.LOCATEp(x,  y); B.TAB(-4.7, 0.47-1); B.PRINT(" " + y);
+    B.LOCATEp(x, -y); B.TAB(-4.7, 0.47-1); B.PRINT("-" + y);
     B.LINE(-x,  y, x,  y, c);
     B.LINE(-x, -y, x, -y, c);
   }
@@ -224,21 +223,21 @@ function scale(c, n, m, s)
     {
       y = k * 3.0;
       str = t / 2 + "π";
-      B.LOCATEp(-x, -y); B.TAB(-2.3, 1.2); B.PRINT("-" + str);
-      B.LOCATEp( x, -y); B.TAB(-2.3, 1.2); B.PRINT(" " + str);
+      B.LOCATEp(-x, -y); B.TAB(-2.3, 0.2); B.PRINT("-" + str);
+      B.LOCATEp( x, -y); B.TAB(-2.3, 0.2); B.PRINT(" " + str);
     }
     else if ((t % 2) == 0)
     {
       if (t == 2)
       {
-        B.LOCATEp(-x, -y); B.TAB(-1.8, 1.2); B.PRINT("-" + "π");
-        B.LOCATEp( x, -y); B.TAB(-1.8, 1.2); B.PRINT(" " + "π");
+        B.LOCATEp(-x, -y); B.TAB(-1.8, 0.2); B.PRINT("-" + "π");
+        B.LOCATEp( x, -y); B.TAB(-1.8, 0.2); B.PRINT(" " + "π");
       }
       else
       {
         str = t / 2 + "π";
-        B.LOCATEp(-x, -y); B.TAB(-2.3, 1.2); B.PRINT("-" + str);
-        B.LOCATEp( x, -y); B.TAB(-2.3, 1.2); B.PRINT(" " + str);
+        B.LOCATEp(-x, -y); B.TAB(-2.3, 0.2); B.PRINT("-" + str);
+        B.LOCATEp( x, -y); B.TAB(-2.3, 0.2); B.PRINT(" " + str);
       }
       y = k * 1.5;
     }
@@ -282,7 +281,7 @@ function selectof(k)
   scale('#ff0', n, m, 10);
 
   B.COLOR('#fff');
-  B.LOCATE(0,1);
+  B.LOCATE(1, 0);
   str = (Select == 0)? "10" : "0" + Select;
   B.PRINT ("[" + Bank + "-" + str + "]  ");
   B.PRINTe(title[i][k]);

@@ -47,9 +47,10 @@ class BASIC
     this.Zoom   =  45; // 画面拡大
     this.Width0 =   2; // 線幅基準値
     this.Width  =   2; // 線幅
-    this.lineWidth(0);
-    this.zooming(0);
-    this.FONT(1, 0);
+    this.lineWidth(0); // 線幅制御
+    this.zooming(0)  ; // 拡大縮小
+    this.FONT(1, 0)  ; // 拡大,オフセット
+    this.c = '#fff'  ; // PRINT COLOR
   }
   winX(x)
   {
@@ -133,6 +134,7 @@ class BASIC
   {
     ctx.fillStyle   = c;
     ctx.strokeStyle = c;
+    this.c = c;
   }
   SYMBOL(x, y, text, c)
   {
@@ -146,7 +148,11 @@ class BASIC
   }
   PRINT(text)
   {
-    let s, n, i, w, x, m, a;
+    let s, n, i, w, x, y, m, a, c;
+
+    c = this.c;
+    ctx.fillStyle   = c;
+    ctx.strokeStyle = c;
 
     s = String(text);
     n = s.length;
@@ -158,7 +164,8 @@ class BASIC
       if (a.match(/[ｧ-ﾝ]/)) w = this.LocW;
       m = ctx.measureText(a).width;
       x = (w - m) / 2;
-      ctx.fillText(a, this.LocX + x, this.LocY + this.OffH - 1);
+      y = this.LocH - 1 + this.OffH;
+      ctx.fillText(a, this.LocX + x, this.LocY + y);
       this.LocX += w;
     }
   }

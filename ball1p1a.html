@@ -129,9 +129,7 @@ var Awu = 0.9;    // 壁反発係数(水平)(仮)
 var Afe = 0.6;    // 床反発係数(垂直)
 var Afu = 0.9;    // 床反発係数(水平)(仮)
 var Afx = 0.9997; // 床反発係数(水平)(仮)
-//--- mouse
-var isMouse = 1;  // mouse sw
-var isTouch = 1;  // touch sw
+
 //--- class
 var Temp;
 class Motion
@@ -666,18 +664,6 @@ function pushg()
   getf();
 }
 
-function pushmo()
-{
-  isMouse = !isMouse;
-  getf();
-}
-
-function pushto()
-{
-  isTouch = !isTouch;
-  getf();
-}
-
 //----------------------------------------------------------------------
 // Axis and grid
 //----------------------------------------------------------------------
@@ -785,7 +771,7 @@ function Frame(t)
   }
   axis();
 
-  B.LOCATE(0, 1);
+  B.LOCATE(0, 0);
   B.TAB(tb, 0);
   B.COLOR('#ff0'); B.PRINT("数値");
   B.COLOR('#0f0'); B.PRINT("(Enterﾘｾｯﾄ)");
@@ -819,9 +805,6 @@ function Frame(t)
   B.PRINT(" m/s ," + Num(MB.vy, Zm) + " m/s ) ");
   B.PRINT("位置("  + Num(MB.px, Zm));
   B.PRINT(" m ,"   + Num(MB.py, Zm) + " m )"); B.CR();
-
-//  B.PRINT((isMouse)? "mouse" : "key m"); B.PRINT(" , ");
-//  B.PRINT((isTouch)? "touch" : "key t"); B.CR();
 
   B.COLOR('#fff');
   B.TAB(tb, 0);
@@ -996,8 +979,6 @@ document.body.addEventListener('keydown', event =>
     case  75: pushm(2); blur(); break; // 'k'
     case  69: pushu(0); blur(); break; // 'e'
     case  82: pushu(1); blur(); break; // 'r'
-//    case  77: pushmo(); blur(); break; // 'm'
-//    case  84: pushto(); blur(); break; // 't'
     default : keyon(key);
   }
 });

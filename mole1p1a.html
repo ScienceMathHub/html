@@ -206,14 +206,6 @@ var Tg = "n" ;  // 物質量
 var Sw =  1  ;  // 分子量/原子量
 
 //----------------------------------------------------------------------
-// Key status
-//----------------------------------------------------------------------
-var Key = new Array(256);
-for (var i = 0; i < 256; i++) Key[i] = 0;
-window.onkeydown = function(event) { Key[event.keyCode] = 1; }
-window.onkeyup   = function(event) { Key[event.keyCode] = 0; }
-
-//----------------------------------------------------------------------
 // search
 //----------------------------------------------------------------------
 function setAn()
@@ -683,7 +675,7 @@ function Display()
   B.WINDOW(-Px, -Py, 639 - Px, 399 - Py);
   B.FONT(1, 0);
 
-  B.LOCATE(0, 1);
+  B.LOCATE(0, 0);
   B.COLOR('#ff0'); B.PRINT("元素記号,原子番号,化学式");
   B.COLOR('#0f0'); B.PRINT("のいずれを入力し");
   B.COLOR('#0ff'); B.PRINT("Enter");

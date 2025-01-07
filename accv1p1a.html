@@ -287,8 +287,8 @@ function Frame(t)
   B.WINDOW(-Px, -Py, 639 - Px, 399 - Py);
   B.FONT(1, 0);
 
-  B.LOCATE(0, 1);
-  B.COLOR('#ff0'); B.PRINT("数値入力し");
+  B.LOCATE(0, 0);
+  B.COLOR('#ff0'); B.PRINT(" 数値入力し");
   B.COLOR('#0f0'); B.PRINT("(Enter後)");
   B.COLOR('#0ff'); B.PRINT("spaceで開始");
   B.COLOR('#0f0'); B.PRINT(" (z,x,c,q,w:縮小,拡大,初期,細,太)");
@@ -297,20 +297,20 @@ function Frame(t)
   B.CR();
 
   B.COLOR('#fff');
-  Infom("加速度   a", ' ', Pa0, "m/s", '2'); B.CR();
-  Infom("初速度   v", '0', Pv0, "m/s", ' '); B.CR();
-  Infom("初期位置 x", '0', Px0, "m", ' ');   B.CR();
+  Infom(" 加速度   a", ' ', Pa0, "m/s", '2'); B.CR();
+  Infom(" 初速度   v", '0', Pv0, "m/s", ' '); B.CR();
+  Infom(" 初期位置 x", '0', Px0, "m", ' ');   B.CR();
 
   v = Fv(t);
   x = Fx(t);
-  Infom("速度     v", ' ', v, "m/s", ' '); funcv(2); B.CR();
-  Infom("位置     x", ' ', x, "m", ' ');   funcx(4); B.CR();
-  Infom("時間 　  t", ' ', t, "s", ' ');
+  Infom(" 速度     v", ' ', v, "m/s", ' '); funcv(2); B.CR();
+  Infom(" 位置     x", ' ', x, "m", ' ');   funcx(4); B.CR();
+  Infom(" 時間 　  t", ' ', t, "s", ' ');
      B.TAB(4, 1); B.PRINT("( ～ " + Pt1 + " s ");
   if (isMv) { B.COLOR('#0ff'); B.PRINT("時間経過中"); }
   else      { B.COLOR('#fff'); B.PRINT("時間停止中"); }
   B.COLOR('#fff'); B.PRINT(" )"); B.CR();
-  B.PRINT("1目盛り " + Ds + " m"); B.CR();
+  B.PRINT(" 1目盛り " + Ds + " m"); B.CR();
 
   axis();
   p = x * Fw / Dw / Ds;
@@ -355,14 +355,6 @@ document.body.addEventListener('keydown', event =>
     case  67: B.zooming  ( 0  ); isMv = 0; getterf(); blur(); break; // 'C'
   }
 });
-
-//----------------------------------------------------------------------
-// Key status
-//----------------------------------------------------------------------
-var Key = new Array(256);
-for (var i = 0; i < 256; i++) Key[i] = 0;
-window.onkeydown = function(event) { Key[event.keyCode] = 1; }
-window.onkeyup   = function(event) { Key[event.keyCode] = 0; }
 
 //----------------------------------------------------------------------
 // main
