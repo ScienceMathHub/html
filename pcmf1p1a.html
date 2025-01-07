@@ -39,11 +39,11 @@ d<label><input type="range" id ="rangeH2" min="0" max= "9"
 &nbsp;&nbsp;&nbsp;&nbsp;
 <input type="button" id="butOM" value="全消"  onclick="inkey(191)">/
 <br><br>
-t<label><input type="range" id ="rangeTo" min="0" max= "4"
-  step="1"  value="3">vb</label>
+t<label><input type="range" id ="rangeTo" min="0" max= "8" step="1"
+  value="10">vb</label>
 <pre></pre>
-A<label><input type="range" id ="rangeVo" min="0" max= "4"
-  step="0.5"  value="1">as</label>
+A<label><input type="range" id ="rangeVo" min="0" max= "4" step="0.5"
+  value="1">as</label>
 <pre></pre>
 <input type="button" id="butRE" value="Reset" onclick="inkey( 13)">Enter
 &nbsp; <input type="button" id="butDV" value="半"    onclick="inkey(188)">,
@@ -269,11 +269,14 @@ function audio(f)
 {
   var au;
 
-  au = audioF(f, 10);//Time);
+  au = audioF(f, 10);
   au[1].loop = true; //false;
   au[1].start(0);
   aPush(au);
-  setTimeout(function() { aPop(); }, Time * 1000);
+  if (Time !== "∞")
+  {
+    setTimeout(function() { aPop(); }, Time * 1000);
+  }
 }
 
 const Kn = 21;
@@ -441,10 +444,11 @@ function blur()
   document.getElementById('butZU').blur();
   document.getElementById('butZC').blur();
 }
-function timeUp(t)
+function timeTo(t)
 {
-  var times = [ 0.2, 1, 5, 10, 20 ];
+  var times = [ 0.1, 0.2, 0.3, 0.5, 1, 2, 3, 5, "∞" ];
 
+  if (t < 0) t = 0; else if (t > 8) t = 8;
   Time = times[t];
   To = t;
   return To;
@@ -455,7 +459,7 @@ function inputVo()
 }
 function inputTo()
 { To = Number(elemTo.value); blur();
-  timeUp(To);
+  timeTo(To);
   window.requestAnimationFrame(main);
 }
 function inputH4()
@@ -518,8 +522,7 @@ function inkeyHz(key)
 function init()
 {
   Vo = 1; Octa = 4;
-  timeUp(3);
-  inkeyHz(-1); aStop(); keyBdInit();
+  timeTo(8); inkeyHz(-1); aStop(); keyBdInit();
 }
 function inkey(key)
 {
@@ -535,8 +538,8 @@ function inkey(key)
     case  90: B.zooming  (-1  )                      ; break; // 'Z'
     case  88: B.zooming  ( 1  )                      ; break; // 'X'
     case  67: B.zooming  ( 0  )                      ; break; // 'C'
-    case  86: if (To > 0) elemTo.value = timeUp(To-1); break; // 'V'
-    case  66: if (To < 4) elemTo.value = timeUp(To+1); break; // 'B'
+    case  86: elemTo.value = timeTo(To - 1)          ; break; // 'V'
+    case  66: elemTo.value = timeTo(To + 1)          ; break; // 'B'
     case  48: Select = 0;                            ; break; // '0'
     case  49: Select = 1;                            ; break; // '1'
     case  50: Select = 2;                            ; break; // '2'
@@ -554,7 +557,7 @@ document.body.addEventListener('keydown', event =>
 {
   var key = event.keyCode;
   if (Key[ 16]) { key += 900; } // SHIFT
-//  if (37 <= key && 40 <= key) event.preventDefault();
+  if (37 <= key && 40 <= key) event.preventDefault();
   inkey(key);
 });
 
@@ -588,7 +591,7 @@ function display()
 
   B.COLOR('#fff');
   B.LOCATE(1, 0.1);
-  B.PRINT(Time + "s");
+  B.PRINT(Time + " s ");
   B.PRINT("(" + (AuCt+Aui) + "), ");
   B.PRINT("f = " + Freq + "Hz, ");
   B.PRINT(title);
