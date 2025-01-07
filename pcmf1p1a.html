@@ -269,7 +269,7 @@ function audio(f)
 {
   var au;
 
-  au = audioF(f, Time);
+  au = audioF(f, 10);//Time);
   au[1].loop = true; //false;
   au[1].start(0);
   aPush(au);
