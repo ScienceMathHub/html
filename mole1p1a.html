@@ -465,19 +465,20 @@ function molecular(cf, select, sn)
     if (a1 == '') return mw;
     AW[0][As] = a1;
     setAs();
-    if (An == 0)
-    { s = "不明"; }
-    else
-    { s = (select == 1)? AW[0][Aw] : AW[0][Ar]; mw += s * n; }
     if (select)
     {
+      if (An == 0)
+      { s = "?"; }
+      else
+      { s = (select == 1)? AW[0][Aw] : AW[0][Ar]; mw += s * n; }
       B.PRINT(sn + s.trim());
       if (n > 1) B.PRINT('×'+n);
       sn = '+';
     }
     else
     {
-      B.PRINT(AW[0][As]);
+       s = (An == 0)? "?" : AW[0][As]; 
+       B.PRINT(s);
       if (n > 1) { B.FONT(0.7, 0.1); B.PRINT(n); B.FONT(1, 0); }
     }
     a1 = cf.substring(0, 1);
