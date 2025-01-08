@@ -299,6 +299,7 @@ function audioF(f, time)
 
   audioctx = new (window.AudioContext || window.webkitAudioContext)();
   rate = audioctx.sampleRate;
+//  const gNode = audioctx.createGain(); gNode.gain.value = 0.5;
 
   Temp = rate;
 
@@ -317,6 +318,7 @@ function audioF(f, time)
   au = audioctx.createBufferSource();
   au.buffer = buffer;
   au.connect(audioctx.destination);
+//  au.connect(gNode).connect(audioctx.destination);
   return [audioctx, au];
 }
 /* suspend */
