@@ -42,7 +42,7 @@ d<label><input type="range" id ="rangeH2" min="0" max= "9"
 t<label><input type="range" id ="rangeTo" min="0" max= "8" step="1"
   value="10">vb</label>
 <pre></pre>
-A<label><input type="range" id ="rangeVo" min="0" max= "4" step="0.5"
+A<label><input type="range" id ="rangeVo" min="0" max= "1" step="0.1"
   value="1">as</label>
 <pre></pre>
 <input type="button" id="butRE" value="Reset" onclick="inkey( 13)">Enter
@@ -80,7 +80,7 @@ var Temp   = 48000; // Sampling frequency(Hz)
 //--------------------------------------------------------------------
 // 関数0 y = f(th)
 //--------------------------------------------------------------------
-var t0 = "y = 0.4sin2πft + 0.2sin4πft + 0.3sin6πft + 0.1sin8πft";
+var t0 = "y = A(0.4sin2πft+0.2sin4πft+0.3sin6πft+0.1sin8πft)";
 function f0(th)
 {
   var y, y1, y2, y3, y4;
@@ -98,7 +98,7 @@ function f0(th)
 //--------------------------------------------------------------------
 // 関数1 y = f(th)
 //--------------------------------------------------------------------
-var t1 = "y = sin(2πft)";
+var t1 = "y = Asin(2πft)";
 function f1(th)
 {
   var y;
@@ -111,7 +111,7 @@ function f1(th)
 //--------------------------------------------------------------------
 // 関数2 y = f(th)
 //--------------------------------------------------------------------
-var t2 = "y = triangle 2πft";
+var t2 = "y = A triangle 2πft";
 function f2(th)
 {
   var y, x;
@@ -131,7 +131,7 @@ function f2(th)
 //--------------------------------------------------------------------
 // 関数3 y = f(th)
 //--------------------------------------------------------------------
-var t3 = "y = square 2πft";
+var t3 = "y = A square 2πft";
 function f3(th)
 {
   var y, x;
@@ -176,7 +176,7 @@ function graph(c, py, h, func)
 //--------------------------------------------------------------------
 function scale(c, py, h, m)
 {
-  var px, t, x, y, n;
+  var px, t, x, y, n, k;
   
   n  = 1.224;
   px = -(n-1) / 2;
@@ -184,14 +184,23 @@ function scale(c, py, h, m)
 
   B.COLOR(c);
 
-  x = 0.014;
-  for (t = 1; t <= m; t++)
+  k = 0.016;
+  for (t = 1; t <= m*10; t++)
   {
-    y = h * t;
-    B.LOCATEp(0,  y); B.TAB(-3.5, -0.55); B.PRINT(" "+t);
-    B.LOCATEp(0, -y); B.TAB(-3.5, -0.55); B.PRINT("-"+t);
-    B.LINE(-x,  y, x,  y, c);
-    B.LINE(-x, -y, x, -y, c);
+    y = h * t / 10;
+    if ((t % 10) == 0)
+    {
+      B.LOCATEp(0,  y); B.TAB(-3.5, -0.55); B.PRINT(" "+t/10);
+      B.LOCATEp(0, -y); B.TAB(-3.5, -0.55); B.PRINT("-"+t/10);
+      x = k;
+    }
+    else if ((t % 5) == 0) { x = k * 0.50; }
+    else                   { x = 0       ; }
+    if (x > 0)
+    {
+      B.LINE(-x,  y, x,  y, c);
+      B.LINE(-x, -y, x, -y, c);
+    }
   }
   B.LINE(-100,  0, 100, 0, c);
 
@@ -203,7 +212,53 @@ function scale(c, py, h, m)
     else                    { y = h *    0.2 ; }
     B.LINE( x, -y,  x, y, c);
   }
-  B.LOCATEp(1, -h*(m-1)); B.TAB(0.6, -1.4); B.PRINT(SecN+"s");
+  B.LOCATEp(0, +h*m); B.TAB(-5.5, -2.5); B.PRINT("A = " + Vo.toFixed(1));
+  B.LOCATEp(1, -h*m); B.TAB(-0.4,  1); B.PRINT(SecN+"s");
+}
+
+//--------------------------------------------------------------------
+// display
+//--------------------------------------------------------------------
+function display()
+{
+  var py, h, title, x, y;
+
+  Freq = Math.round(Freq * 10) / 10;
+  if (Select == 0) if (Freq > 10000) Freq = 10000;
+
+  if      (Freq >=  1000) SecN = 0.001;
+  else if (Freq >=   100) SecN = 0.01;
+  else if (Freq >=    10) SecN = 0.1;
+  else                    SecN = 1;
+
+  switch (Select)
+  {
+    case 0: Func = f0; title = t0; break;
+    case 1: Func = f1; title = t1; break;
+    case 2: Func = f2; title = t2; break;
+    case 3: Func = f3; title = t3; break;
+  }
+
+  B.FONT(1, 0);
+  B.CLS('#000');
+
+  B.COLOR('#fff');
+  B.LOCATE(1, 1);
+  B.PRINT(Time + " s ");
+  B.PRINT("(" + (AuCt+Aui) + "), ");
+  B.PRINT("f = " + Freq + "Hz, ");
+  B.PRINT(title);
+
+  B.COLOR('#0f0');
+  B.LOCATE(9, 19);
+  B.PRINTe("e^4r^5ty^7u^8i^9op平均律, dfghjkl;純正律");
+  B.PRINT (", nm:オクターブ("+Octa+")");
+  B.PRINT (" Rate"+Temp/1000+"kHz");
+
+  py = 176;
+  h  =  80;
+  scale('#ff0', py, h, 1);
+  graph('#fff', py, h, Func);
 }
 
 //--------------------------------------------------------------------
@@ -255,7 +310,7 @@ function audioF(f, time)
     for (var i = 0; i < buffer.length; i++)
     {
       t = time * i / buffer.length;
-      arr[i] = Func(t * f) * Vo / 8;
+      arr[i] = Func(t * f) * Vo;
     }
   }
 
@@ -560,53 +615,6 @@ document.body.addEventListener('keydown', event =>
   if (37 <= key && 40 <= key) event.preventDefault();
   inkey(key);
 });
-
-//--------------------------------------------------------------------
-// display
-//--------------------------------------------------------------------
-function display()
-{
-  var py, h, title, x, y;
-
-  Freq = Math.round(Freq * 10) / 10;
-  if (Select == 0) if (Freq > 10000) Freq = 10000;
-
-  if      (Freq > 10000) SecN = 0.002;
-  else if (Freq >  6000) SecN = 0.003;
-  else if (Freq >  3000) SecN = 0.005;
-  else if (Freq >   100) SecN = 0.01;
-  else if (Freq >    19) SecN = 0.1;
-  else                   SecN = 1;
-
-  switch (Select)
-  {
-    case 0: Func = f0; title = t0; break;
-    case 1: Func = f1; title = t1; break;
-    case 2: Func = f2; title = t2; break;
-    case 3: Func = f3; title = t3; break;
-  }
-
-  B.FONT(1, 0);
-  B.CLS('#000');
-
-  B.COLOR('#fff');
-  B.LOCATE(1, 0.1);
-  B.PRINT(Time + " s ");
-  B.PRINT("(" + (AuCt+Aui) + "), ");
-  B.PRINT("f = " + Freq + "Hz, ");
-  B.PRINT(title);
-
-  B.COLOR('#0f0');
-  B.LOCATE(9, 21);
-  B.PRINTe("e^4r^5ty^7u^8i^9op平均律, dfghjkl;純正律");
-  B.PRINT (", nm:オクターブ("+Octa+")");
-  B.PRINT (" Rate"+Temp/1000+"kHz");
-
-  py = 180;
-  h  = 40;
-  scale('#ff0', py, h, 5);
-  graph('#fff', py, h, Func);
-}
 
 //--------------------------------------------------------------------
 // Key status

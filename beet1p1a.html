@@ -26,9 +26,8 @@ f1<label><input type="range" id ="rangeF1" min="1" max= "9" step="1"
   value="1">df<br><br></label>
 f2<label><input type="range" id ="rangeF2" min="1" max= "9" step="1"
   value="2">cv<br><br></label>
-<input type="button" id="butR" value="Reset" onclick="inkey(13)">Enter<br><br>
-<input type="button" id="butA" value="重"    onclick="inkey(65)">a
-<input type="button" id="butS" value="別"    onclick="inkey(83)">s<br><br>
+<input type="button" id="butR" value="Reset" onclick="inkey(13)">Enter
+　<input type="button" id="butA" value="重/別" onclick="inkey(65)">a<br><br>
 <input type="button" id="butQ" value="細"    onclick="inkey(81)">q
 <input type="button" id="butW" value="太"    onclick="inkey(87)">w
 　 <input type="button" id="butN" value="包絡線"    onclick="inkey(78)">n<br><br>
@@ -274,7 +273,6 @@ function blur()
   document.getElementById('butR').blur();
   document.getElementById('butN').blur();
   document.getElementById('butA').blur();
-  document.getElementById('butS').blur();
   document.getElementById('butQ').blur();
   document.getElementById('butW').blur();
   document.getElementById('butZ').blur();
@@ -349,8 +347,7 @@ function inkey(key)
   {
     case 13: init()               ; break; // 'R' Enter
     case 78: isBeet = !isBeet     ; break; // 'N'
-    case 65: isDup  = 1;          ; break; // 'A'
-    case 83: isDup  = 0;          ; break; // 'S'
+    case 65: isDup  = !isDup      ; break; // 'A'
     case 81: B.lineWidth( 0.5)    ; break; // 'Q'
     case 87: B.lineWidth( 2  )    ; break; // 'W'
     case 90: B.zooming  (-1  )    ; break; // 'Z'

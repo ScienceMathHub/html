@@ -30,15 +30,16 @@ A2<label><input type="range" id ="rangeA2" min="0" max= "1" step="0.1"
 <pre></pre>
 λ2<label><input type="range" id ="rangeL2" min="1" max= "4" step="0.5"
   value="2">cv<br><br></label>
-<input type="button" id="butS" value="進行/停止" onclick="inkey(32)">Space
-<input type="button" id="butM" value="初"    onclick="inkey(77)">m<br><br>
+<input type="button" id="butS" value="進/停" onclick="inkey(32)">Space
+<input type="button" id="butM" value="初"    onclick="inkey(77)">m
+<input type="button" id="butS" value="パ"    onclick="inkey(83)">s
+<br><br>
 <input type="button" id="butR" value="Reset" onclick="inkey(13)">Enter
-<input type="button" id="butA" value="重"    onclick="inkey(65)">a
-<input type="button" id="butS" value="別"    onclick="inkey(83)">s
+　<input type="button" id="butA" value="重/別" onclick="inkey(65)">a
 <pre></pre>
 <input type="button" id="butQ" value="細"    onclick="inkey(81)">q
 <input type="button" id="butW" value="太"    onclick="inkey(87)">w
-　 <input type="button" id="butN" value="包絡線"    onclick="inkey(78)">n
+　<input type="button" id="butN" value="包絡線"    onclick="inkey(78)">n
 <pre></pre>
 <input type="button" id="butZ" value="縮"    onclick="inkey(90)">z 
 <input type="button" id="butX" value="拡"    onclick="inkey(88)">x
@@ -62,6 +63,8 @@ var Vt;            // 移動距離(m)
 var isVt;          // 移動/停止
 var isCos;         // 包絡線表示
 var isLon;         // 縦波表示
+var isPalse;       // パルス波       
+var P2;            // 位相2
 
 var cVo =  1  , Vo = cVo; // 速度(m/s)
 var cA1 =  1  , A1 = cA1; // 振幅1
@@ -85,6 +88,7 @@ function f1(x)
 {
   var y = x - Vt;
   if (y > 0) return 0;
+  if (isPalse) { if (y < -L1) return 0; }
   y = A1 * Math.sin(2 * Math.PI * y / L1);
   return y;
 }
@@ -101,6 +105,8 @@ function f2(x)
 {
   var y = x + Vt;
   if (y < 0) return 0;
+  if (isPalse) { if (y >  L2) return 0; }
+  y -= P2 * L2;
   y = A2 * Math.sin(-2 * Math.PI * y / L2);
   return y;
 }
@@ -132,6 +138,12 @@ function f12u(x)
   x2 = x + a;
   if (x1 > 0) a1 = 0;
   if (x2 < 0) a2 = 0;
+  if (isPalse)
+  {
+    if (x1 < -L1) a1 = 0;
+    if (x2 >  L2) a2 = 0;
+  }
+  x2 -= P2 * L2;
   xs = (x2 / L2 + x1 / L1) * Math.PI;
   a  = Math.cos(xs);
   xs = a1 - a2;
@@ -247,22 +259,32 @@ function scale(c, px, py, h, m, up, sl, sr)
   y = 0.25;
   b = '#fff';
   B.COLOR(c); B.LOCATEp(0,  s); B.TAB(x, -1.1-y); B.PRINT("0m");
-  B.COLOR(b); B.LOCATEp(0, -s); B.TAB(x,      y); B.PRINT("0m");
+  if (P2 == 0)
+  { B.COLOR(b); B.LOCATEp(0, -s); B.TAB(x,      y); B.PRINT("0m"); }
   for (t = 1; t <= n; t++)
   {
     B.COLOR(c);
     B.LOCATEp( t,  s); B.TAB(x, -1.1-y); B.PRINT(sr + t   + "m");
     B.LOCATEp(-t,  s); B.TAB(x, -1.1-y); B.PRINT(sl + t   + "m");
     if (t*2 >= 10) r = -0.5;
+    if (P2 != 0) continue;
     B.COLOR(b);
     B.LOCATEp( t, -s); B.TAB(x+r,    y); B.PRINT(sr + t*2 + "m");
     B.LOCATEp(-t, -s); B.TAB(x+r,    y); B.PRINT(sl + t*2 + "m");
   }
-  B.COLOR(b); B.LOCATEp(px, -h*m); B.TAB(1, 2.1);
+
+  B.COLOR('#0f0'); B.LOCATEp(px, -h*m); B.TAB(1, 1.3);
+  if (isPalse)
+  {
+    B.PRINT((P2 == 0)? "パルス波" : "パルス波(逆位相)");
+  }
+  else { B.PRINT("連続波"); }
+
+  if (P2 != 0) return;
+  B.COLOR(b); B.LOCATEp(px, -h*m); B.TAB(1, 2.4);
   B.PRINT("2波源までの距離差");
 
-//  if (!isCos) return;
-//  B.COLOR('#8ff');
+  B.COLOR('#8ff');
   B.TAB( 1  ,  0  ); B.PRINTe("|L_1-L_2| =");
   B.TAB( 1  , -0.5); B.PRINT ("nλ");
   B.TAB(-3  ,  0  ); B.PRINT ("___");
@@ -399,11 +421,13 @@ function init()
   elemL1.value = L1 = cL1;
   elemA2.value = A2 = cA2;
   elemL2.value = L2 = cL2;
-  isDup  = 0;
-  isVt   = 0;
-  Vt     = 0;
-  isCos  = 0;
-  isLon  = 0;
+  P2 = 0;
+  isDup   = 0;
+  isVt    = 0;
+  Vt      = 0;
+  isCos   = 0;
+  isLon   = 0;
+  isPalse = 0;
   blur();
   window.requestAnimationFrame(main);
 }
@@ -445,28 +469,34 @@ function inkey(key)
 {
   switch (key)
   {
-    case 13: init()               ; break; // 'R' Enter
-    case 32: isVt = (isVt)? 0 : -1; break; // ' '
-    case 77: Vt = 0; isVt = 0     ; break; // 'm'
-    case 78: isCos = !isCos       ; break; // 'n'
-    case 74: isLon = !isLon       ; break; // 'j'
-    case 65: isDup = 1            ; break; // 'A'
-    case 83: isDup = 0            ; break; // 'S'
-    case 81: B.lineWidth( 0.5)    ; break; // 'Q'
-    case 87: B.lineWidth( 2  )    ; break; // 'W'
-    case 90: B.zooming  (-1  )    ; break; // 'Z'
-    case 88: B.zooming  ( 1  )    ; break; // 'X'
-    case 66: B.zooming  ( 0  )    ; break; // 'B'
-    case 49: elemVo.value = Vo = limitV(Vo, -1); break; // '1'
-    case 50: elemVo.value = Vo = limitV(Vo,  1); break; // '2'
-    case 51: elemA1.value = A1 = limitA(A1, -1); break; // '3'
-    case 52: elemA1.value = A1 = limitA(A1,  1); break; // '4'
-    case 69: elemA2.value = A2 = limitA(A2, -1); break; // 'E'
-    case 82: elemA2.value = A2 = limitA(A2,  1); break; // 'R'
-    case 68: elemL1.value = L1 = limitL(L1, -1); break; // 'D'
-    case 70: elemL1.value = L1 = limitL(L1,  1); break; // 'F'
-    case 67: elemL2.value = L2 = limitL(L2, -1); break; // 'C'
-    case 86: elemL2.value = L2 = limitL(L2,  1); break; // 'V'
+    case  13: init()               ; break; // 'R' Enter
+    case  32: isVt = (isVt)? 0 : -1; break; // ' '
+    case  77: Vt = 0; isVt = 0     ; break; // 'm'
+    case  78: isCos   = !isCos     ; break; // 'n'
+    case  74: isLon   = !isLon     ; break; // 'j'
+    case  65: isDup   = !isDup     ; break; // 'A'
+    case  83:
+     if (isPalse)
+     {
+       if (P2 != 0) { P2 = 0; isPalse = 0; } else { P2 = 0.5; }
+     }
+     else { isPalse = 1; }
+     break; // 'S'
+    case  81: B.lineWidth( 0.5)    ; break; // 'Q'
+    case  87: B.lineWidth( 2  )    ; break; // 'W'
+    case  90: B.zooming  (-1  )    ; break; // 'Z'
+    case  88: B.zooming  ( 1  )    ; break; // 'X'
+    case  66: B.zooming  ( 0  )    ; break; // 'B'
+    case  49: elemVo.value = Vo = limitV(Vo, -1); break; // '1'
+    case  50: elemVo.value = Vo = limitV(Vo,  1); break; // '2'
+    case  51: elemA1.value = A1 = limitA(A1, -1); break; // '3'
+    case  52: elemA1.value = A1 = limitA(A1,  1); break; // '4'
+    case  69: elemA2.value = A2 = limitA(A2, -1); break; // 'E'
+    case  82: elemA2.value = A2 = limitA(A2,  1); break; // 'R'
+    case  68: elemL1.value = L1 = limitL(L1, -1); break; // 'D'
+    case  70: elemL1.value = L1 = limitL(L1,  1); break; // 'F'
+    case  67: elemL2.value = L2 = limitL(L2, -1); break; // 'C'
+    case  86: elemL2.value = L2 = limitL(L2,  1); break; // 'V'
   }
   blurelem();
   blur();
