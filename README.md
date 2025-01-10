@@ -1,6 +1,6 @@
-# html
-Copyright 2021-2024 Ohtani
+html
+Copyright 2021-2025 Ohtani
 
-ç„¡æ–­è»¢è¼‰ã€ç„¡æ–­ä½¿ç”¨ãªã©ä¸€åˆ‡ç¦æ­¢ã§ã™
+–³’f“]ÚA–³’fg—p‚È‚ÇˆêØ‹Ö~‚Å‚·
 
 Unauthorized reproduction or use is strictly prohibited.

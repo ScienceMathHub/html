@@ -481,10 +481,11 @@ class MOUSE
         return;
       }
       MOUSEmosW++;
-      setTimeout(function () { MOUSEmosW = 0; }, 800);
+      setTimeout(function () { MOUSEmosW = 0; }, 500);
       return;
     }
 
+    MOUSEmosW = 0;
     MOUSEmosX = x;
     MOUSEmosY = y;
     if (MOUSEmosDnFunc)
@@ -511,10 +512,11 @@ class MOUSE
         return;
       }
       MOUSEmosW++;
-      setTimeout(function () { MOUSEmosW = 0; }, 800);
+      setTimeout(function () { MOUSEmosW = 0; }, 500);
       return;
     }
 
+    MOUSEmosW = 0;
     MOUSEmosX = x;
     MOUSEmosY = y;
 
