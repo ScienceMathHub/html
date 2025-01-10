@@ -67,7 +67,6 @@
 
 <script src="https://sciencemathhub.github.io/html/tophys.js"></script>
 <script src="https://sciencemathhub.github.io/html/canlib.js"></script>
-<script src="https://sciencemathhub.github.io/html/moslib.js"></script>
 <script>
 'use strict'
 
@@ -986,12 +985,8 @@ document.body.addEventListener('keydown', event =>
 //----------------------------------------------------------------------
 // mouse
 //----------------------------------------------------------------------
-function winB(mx, my)
+function winB(x, y)
 {
-  var rect = canvas.getBoundingClientRect();
-  var x  = mx - rect.left;
-  var y  = my - rect.top;
-
   x = B.winX(x) * Ps / Pd;
   y = B.winY(y) * Ps / Pd;
   return { x:x, y:y };

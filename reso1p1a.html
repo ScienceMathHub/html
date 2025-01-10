@@ -53,7 +53,6 @@ L <label><input type="range" id ="rangeLd" min="0" max= "8" step="1"
 
 <script src="https://sciencemathhub.github.io/html/tophys.js"></script>
 <script src="https://sciencemathhub.github.io/html/canlib.js"></script>
-<script src="https://sciencemathhub.github.io/html/moslib.js"></script>
 <script>
 'use strict'
 
@@ -420,6 +419,7 @@ function display()
   B.PRINT(str);
 
 //  B.CR();B.PRINT(" , " + Temp);
+
   if (!isCos) return;
 
   B.COLOR(b);
@@ -623,16 +623,13 @@ function setB(x, y)
   window.requestAnimationFrame(main);
 }
 
-function winB(mx, my)
+function winB(x, y)
 {
-  let rect = canvas.getBoundingClientRect();
-  let x, y, n, px, py;
+  let n, px, py;
 
   n = DisN + 1; px = -1.5; py = 200;
   B.WINDOW(px, py, px+n, py-399);
 
-  x  = mx - rect.left;
-  y  = my - rect.top;
   x = B.winX(x);
   y = B.winY(y);
   return { x:x, y:y };

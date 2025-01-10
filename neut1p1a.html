@@ -775,7 +775,6 @@ function inkey(key)
       Volume -= t     ; if (Volume <  0) Volume =  0; break;
     default: selectof(key - 48);
   }
-  window.requestAnimationFrame(main);
   blur();
   window.requestAnimationFrame(main);
 }
@@ -794,6 +793,13 @@ var Key = new Array(256);
 for (var i = 0; i < 256; i++) Key[i] = 0;
 window.onkeydown = function(event) { Key[event.keyCode] = 1; }
 window.onkeyup   = function(event) { Key[event.keyCode] = 0; }
+
+//----------------------------------------------------------------------
+// Mouse
+//----------------------------------------------------------------------
+const M = new MOUSE();
+M.add();
+
 
 //----------------------------------------------------------------------
 // main
