@@ -754,6 +754,8 @@ function inkey(key)
 {
   var t = Dv;
 
+//  if (37 <= key && 40 <= key) event.preventDefault();
+  event.preventDefault();
   if (Key[ 16]) { t = t * 4; } // SHIFT
   switch (key)
   {
@@ -782,7 +784,6 @@ document.body.addEventListener('keydown', event =>
 {
   var key = event.keyCode;
 
-  if (37 <= key && 40 <= key) event.preventDefault();
   inkey(key);
 });
 
