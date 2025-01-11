@@ -468,10 +468,13 @@ class MOUSE
     let x = event.clientX;
     let y = event.clientY;
     let rect = canvas.getBoundingClientRect();
+//    let w = rect.right - rect.left;
+//    let h = rect.bottom - rect.top;
 
     x -= rect.left;
     y -= rect.top;
 
+//    if (x < 0 || x > w || y < 0)
     if (x < 0 || y < 0)
     {
       if (MOUSEmosW)
@@ -499,10 +502,13 @@ class MOUSE
     let x = event.changedTouches[0].pageX;
     let y = event.changedTouches[0].pageY;
     let rect = canvas.getBoundingClientRect();
+//    let w = rect.right - rect.left;
+//    let h = rect.bottom - rect.top;
 
     x -= rect.left;
     y -= rect.top;
  
+//    if (x < 0 || x > w || y < 0)
     if (x < 0 || y < 0)
     {
       if (MOUSEmosW)

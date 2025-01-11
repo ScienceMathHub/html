@@ -311,7 +311,7 @@ function audioF(f, time)
     for (var i = 0; i < buffer.length; i++)
     {
       t = time * i / buffer.length;
-      arr[i] = Func(t * f) * Vo * 0.8;
+      arr[i] = Func(t * f) * Vo * 0.5;
     }
   }
 
