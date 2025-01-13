@@ -745,10 +745,10 @@ function Ball(a, c)
 
   x = a.px * Pd / Ps;
   y = a.py * Pd / Ps;
-  B.CIRCLERF(x, y, Pr ,  c    );
+  B.CIRCLEF(x, y, Pr ,  c    );
   x += Prx;
   y += Pry;
-  B.CIRCLERF(x, y, Prr, '#fff');
+  B.CIRCLEF(x, y, Prr, '#fff');
 }
 
 function Frame(t)
