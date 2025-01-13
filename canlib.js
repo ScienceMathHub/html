@@ -62,19 +62,19 @@ class BASIC
   }
   scrX(x)
   {
-    return Math.round((x - this.WinX) * canvas.width  / this.WinW);
+    return (x - this.WinX) * canvas.width  / this.WinW;
   }
   scrY(y)
   {
-    return Math.round((y - this.WinY) * canvas.height / this.WinH);
+    return (y - this.WinY) * canvas.height / this.WinH;
   }
   scrW(w)
   {
-    return Math.round(w * canvas.width  / this.WinW);
+    return w * canvas.width  / this.WinW;
   }
   scrH(h)
   {
-    return Math.round(h * canvas.height / this.WinH);
+    return h * canvas.height / this.WinH;
   }
   WINDOW(x1, y1, x2, y2)
   {
@@ -292,12 +292,13 @@ class BASIC
     ctx.fillStyle = c;
     ctx.fillRect(x, y, w, h);
   }
-  CIRCLERF(x, y, r0, c)
+  CIRCLEF(x, y, r, c)
   {
-    let x0, y0;
+    let x0, y0, r0;
 
     this.PosX = x0 = this.scrX(x);
     this.PosY = y0 = this.scrY(y);
+    r0 = Math.abs(this.scrH(r));
 
     ctx.beginPath();
     ctx.arc(x0, y0, r0, 0, Math.PI * 2, true);
