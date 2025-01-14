@@ -1,6 +1,6 @@
 <!--
 ----------------------------------------------------------------------
- 惑星の軌道
+ 天体の軌道
 
  HTML(JavaScript, canvas)
 
@@ -13,10 +13,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <head>
   <meta charset="utf-8">
-  <title>日付</title>
+  <title>天体の軌道</title>
 </head>
 <body>
-<p id="Date"></p>
+<p id="Star"></p>
 <div style='float:left;'>
 年k<label><input type="range" id ="rangeY4" min="-10" max= "10" step="1"
   value="0"></label>
@@ -30,8 +30,9 @@
 年1<label><input type="range" id ="rangeY1" min="-10" max= "10" step="1"
   value="0"></label>
 <pre></pre>
-<input type="button" id="butR" value="Reset" onclick="inkey(13)">Enter
+<input type="button" id="butR" value="今日" onclick="inkey(13)">Ent
 <input type="button" id="butN" value="Zero" onclick="inkey(78)">n
+<input type="button" id="butM" value="近"    onclick="inkey(77)">m
 <pre></pre>
 月<label><input type="range" id ="rangeM1" min="1" max= "12" step="1"
   value="1"></label>
@@ -55,11 +56,10 @@
 <pre></pre>
 <input type="button" id="butZ" value="縮"    onclick="inkey(90)">z 
 <input type="button" id="butX" value="拡"    onclick="inkey(88)">x
-<input type="button" id="butC" value="初"    onclick="inkey(67)">c
+<input type="button" id="butC" value="初"    onclick="inkey(67)">c　
 
+<script src="https://sciencemathhub.github.io/html/toappe.js"></script>
 <script src="https://sciencemathhub.github.io/html/canlib.js"></script>
-<script src="https://sciencemathhub.github.io/html/datlib.js"></script>
-<script src="https://sciencemathhub.github.io/html/matlib.js"></script>
 <script src="https://sciencemathhub.github.io/html/obtlib.js"></script>
 <script>
 'use strict'
@@ -85,6 +85,7 @@ const Orbit =
 [
 //        d:元期No.
 //     c ,d, a(q)  , e     , i    , Ω+ω , Ω,   , Mo    ,  P      , name
+  ['#fff',0, 0     , 0     , 0    ,  0    ,  0    ,  0    ,  0      , "太陽"    ],
   ['#cee',0, 0.3871, 0.2056, 7.004, 77.489, 48.305,183.661,  0.24085, "水星"    ],
   ['#ff0',0, 0.7233, 0.0068, 3.394,131.565, 76.622, 75.525,  0.61520, "金星"    ],
   ['#8ff',0, 1.0000, 0.0167, 0.003,103.006,174.823,342.791,  1.00002, "地球"    ],
@@ -209,6 +210,29 @@ function neutral()
 //------------------------------------------------------------------------------
 // 軌道
 //------------------------------------------------------------------------------
+let isQ = 0; // 近日点表示
+
+function colorSub(c, dc)
+{
+  let r, g, b, dr, dg, db;
+
+  r  =  c.substring(1, 2); r  = parseInt(r , 16);
+  g  =  c.substring(2, 3); g  = parseInt(g , 16);
+  b  =  c.substring(3, 4); b  = parseInt(b , 16);
+  dr = dc.substring(1, 2); dr = parseInt(dr, 16);
+  dg = dc.substring(2, 3); dg = parseInt(dg, 16);
+  db = dc.substring(3, 4); db = parseInt(db, 16);
+  c = 6;
+  r -= dr; if (r < c) r = c;
+  g -= dg; if (g < c) g = c;
+  b -= db; if (b < c) b = c;
+  r = r.toString(16);
+  g = g.toString(16);
+  b = b.toString(16);
+  r = '#'+r+g+b;
+  return r;
+}
+
 function orbitPoint(jd)
 {
   let x, y, z, r, c, p, dt, f, r0;
@@ -218,22 +242,55 @@ function orbitPoint(jd)
   B.WINDOW(-x, y, x, -y);
   r0 = Math.sqrt(x*x + y*y) * 1.1;
 
-  r *= 0.01;
-  B.CIRCLEF(0, 0, 5 * r, '#fff');
-
- for (let i = O.orbits(); --i >= 0;)
+  for (let i = O.orbits(); --i >= 1;)
   {
     if (O.A[i] > r0) continue;
     O.orbitRotatei(i, -X1.value, 1, 0, 0);
+  }
+  if ((isQ & 2))
+  {
+    for (let i = O.orbits(); --i >= 1;)
+    {
+      if (O.A[i] > r0) continue;
+      c = colorSub(O.color(i), '#666')
+      p = O.orbitMi(i, 0);
+      B.LINE(0, 0, p.x, p.y, c);
+    }
+  }
+
+  r *= 0.01;
+  B.CIRCLEF(0, 0, 5 * r, O.color(0));
+
+  if ((isQ & 1))
+  {
+    c = '#888'
+    B.COLOR('#aaa');
+    p = O.orbitOoi(3, 0);
+    B.LINE(0, 0, p.x, p.y, c);
+    B.LOCATEp(p.x, p.y); B.TAB(-1.8,  0.1); B.PRINT("秋分");
+    p = O.orbitOoi(3, Math.PI/2);
+    B.LINE(0, 0, p.x, p.y, c);
+    B.LOCATEp(p.x, p.y); B.TAB( 0.5, -0.7); B.PRINT("冬至");
+    p = O.orbitOoi(3, Math.PI);
+    B.LINE(0, 0, p.x, p.y, c);
+    B.LOCATEp(p.x, p.y); B.TAB(-1.8, -1.3); B.PRINT("春分");
+    p = O.orbitOoi(3, Math.PI*3/2);
+    B.LINE(0, 0, p.x, p.y, c);
+    B.LOCATEp(p.x, p.y); B.TAB(-4.5, -0.7); B.PRINT("夏至");
+  }
+
+  for (let i = O.orbits(); --i >= 1;)
+  {
+    if (O.A[i] > r0) continue;
     c = O.color(i);
-    f = 1;
+
+    p = O.orbitMi(i, 0);
+    B.POINT(p.x, p.y);
     dt = Math.PI / 90;
-    for (let t = -Math.PI; t < Math.PI + dt; t += dt)
+    for (let t = dt; t < Math.PI*2 + dt; t += dt)
     {
       p = O.orbitMi(i, t);
-      x = p.x; y = p.y;
-      if (f) { B.POINT(x, y); f = 0; }
-      else   { B.LINE2(x, y, c);     }      
+      B.LINE2(p.x, p.y, c);
     }
     p = O.orbitJDi(i, jd);
     x = p.x;
@@ -321,6 +378,7 @@ function blur()
   document.getElementById('butZ').blur();
   document.getElementById('butX').blur();
   document.getElementById('butC').blur();
+  document.getElementById('butM').blur();
 }
 
 function range()
@@ -360,6 +418,7 @@ function inkey(key)
   {
     case 13: init()                ; break; // 'R' Enter
     case 78: neutral()             ; break; // 'N' Neutral
+    case 77: isQ = (isQ+1) % 4     ; break; // 'M'
     case 86: if (--Era < 0) Era = 7; break; // 'V'
     case 66: if (++Era > 7) Era = 0; break; // 'B'
     case 81: B.lineWidth( 0.5)     ; break; // 'Q'
