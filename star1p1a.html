@@ -1,0 +1,410 @@
+<!--
+----------------------------------------------------------------------
+ 惑星の軌道
+
+ HTML(JavaScript, canvas)
+
+ Physics (c) Ohtani 2025.1
+----------------------------------------------------------------------
+-->
+<!DOctxYPE html>
+<html lang="ja">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<head>
+  <meta charset="utf-8">
+  <title>日付</title>
+</head>
+<body>
+<p id="Date"></p>
+<div style='float:left;'>
+年k<label><input type="range" id ="rangeY4" min="-10" max= "10" step="1"
+  value="0"></label>
+<pre></pre>
+年h<label><input type="range" id ="rangeY3" min="-10" max= "10" step="1"
+  value="0"></label>
+<pre></pre>
+年d<label><input type="range" id ="rangeY2" min="-10" max= "10" step="1"
+  value="0"></label>
+<pre></pre>
+年1<label><input type="range" id ="rangeY1" min="-10" max= "10" step="1"
+  value="0"></label>
+<pre></pre>
+<input type="button" id="butR" value="Reset" onclick="inkey(13)">Enter
+<input type="button" id="butN" value="Zero" onclick="inkey(78)">n
+<pre></pre>
+月<label><input type="range" id ="rangeM1" min="1" max= "12" step="1"
+  value="1"></label>
+<pre></pre>
+日<label><input type="range" id ="rangeD1" min="1" max= "31" step="1"
+  value="1"></label>
+<pre></pre>
+進<label><input type="range" id ="rangeD2" min="0" max= "366" step="1"
+  value="0"></label>
+<pre></pre>
+範<label><input type="range" id ="rangeW1" min="0" max= "1" step="0.05"
+  value="20"></label>
+<pre></pre>
+軸<label><input type="range" id ="rangeX1" min="0" max= "90" step="5"
+  value="0"></label>
+<pre></pre>
+<input type="button" id="butQ" value="細"    onclick="inkey(81)">q
+<input type="button" id="butW" value="太"    onclick="inkey(87)">w
+<input type="button" id="butV" value="元"    onclick="inkey(86)">
+<input type="button" id="butB" value="号"    onclick="inkey(66)">vb
+<pre></pre>
+<input type="button" id="butZ" value="縮"    onclick="inkey(90)">z 
+<input type="button" id="butX" value="拡"    onclick="inkey(88)">x
+<input type="button" id="butC" value="初"    onclick="inkey(67)">c
+
+<script src="https://sciencemathhub.github.io/html/canlib.js"></script>
+<script src="https://sciencemathhub.github.io/html/datlib.js"></script>
+<script src="https://sciencemathhub.github.io/html/matlib.js"></script>
+<script src="https://sciencemathhub.github.io/html/obtlib.js"></script>
+<script>
+'use strict'
+
+//--------------------------------------------------------------------
+// public letiable
+//--------------------------------------------------------------------
+const B = new BASIC();
+const D = new DATE();
+
+let Temp; // debug
+
+//------------------------------------------------------------------------------
+// 軌道要素
+//------------------------------------------------------------------------------
+const Day =
+[
+  { y:2020, m:12, d:17.0    }, // 元期1(Mo惑星)
+  { y:2019, m: 4, d:27.0    }, // 元期2(Mo準惑星,小惑星)
+  { y:2011, m: 8, d:27.0    }  // 元期3(Mo準惑星)
+];
+const Orbit =
+[
+//        d:元期No.
+//     c ,d, a(q)  , e     , i    , Ω+ω , Ω,   , Mo    ,  P      , name
+  ['#cee',0, 0.3871, 0.2056, 7.004, 77.489, 48.305,183.661,  0.24085, "水星"    ],
+  ['#ff0',0, 0.7233, 0.0068, 3.394,131.565, 76.622, 75.525,  0.61520, "金星"    ],
+  ['#8ff',0, 1.0000, 0.0167, 0.003,103.006,174.823,342.791,  1.00002, "地球"    ],
+  ['#f80',0, 1.5237, 0.0934, 1.848,336.153, 49.496, 71.013,  1.88085, "火星"    ],
+  ['#fd0',0, 5.2026, 0.0485, 1.303, 14.377,100.503,296.080, 11.8620 , "木星"    ],
+  ['#df8',0, 9.5549, 0.0554, 2.489, 93.176,113.611,213.052, 29.4572 , "土星"    ],
+  ['#0fc',0,19.2184, 0.0463, 0.773,163.024, 74.022,230.836, 84.0205 , "天王星"  ],
+  ['#0cf',0,30.1104, 0.0090, 1.770, 48.127,131.781,302.014,164.7701 , "海王星"  ],
+//     c ,d, a(q)  , e     , i    , Ω+ω , Ω    , Mo    ,  P      , name
+  ['#88c',1,39.846 , 0.254 ,17.1  ,225.3  ,110.3  , 41.5  ,  0      , "冥王星"  ],
+  ['#448',2,42.973 , 0.198 ,28.2  ,  2.4  ,122    ,204.7  ,  0      , "ハウメア"],
+  ['#208',2,45.368 , 0.163 ,29    , 15.5  , 79.3  ,153.6  ,  0      , "マケマケ"],
+  ['#888',2,68.072 , 0.434 ,43.8  ,187.1  , 36.1  ,201.6  ,  0      , "エリス"  ],
+  ['#880',1, 1.190 , 0.190 , 5.9  ,463.1  ,251.6  ,249.8  ,  0      , "竜宮"    ],
+  ['#886',1, 1.324 , 0.280 , 1.6  ,231.9  , 69.1  ,288.9  ,  0      , "糸川"    ],
+];
+const O = new ORBIT();
+function orbitInit()
+{
+  let jds = [];
+  let i, jd;
+
+  for (i = 0; i < Day.length; i++)
+  {
+    jds[i] = D.JD(Day[i]);
+  }
+  for (i = 0; i < Orbit.length; i++)
+  {
+    O.setOrbiti(i, Orbit[i], jds);
+  }
+  for (i = 0; i < Orbit.length; i++)
+  {
+    O.orbitPlanei(i, 3);  // 上記で3を定義してから
+  }
+}
+orbitInit();
+
+//--------------------------------------------------------------------
+// 元号
+//--------------------------------------------------------------------
+let Era = 1;
+function eraName(y)
+{
+  switch (Era)
+  {
+  case 1: B.PRINT(D.EraStr(" 令和 ", " 年 ", 2019, y, " 令和紀元前 "));
+    break;
+  case 2: B.PRINT(D.EraStr(" 平成 ", " 年 ", 1989, y, " 平成紀元前 "));
+    break;
+  case 3: B.PRINT(D.EraStr(" 昭和 ", " 年 ", 1926, y, " 昭和紀元前 "));
+    break;
+  case 4: B.PRINT(D.EraStr(" 大正 ", " 年 ", 1912, y, " 大正紀元前 "));
+    break;
+  case 5: B.PRINT(D.EraStr(" 明治 ", " 年 ", 1868, y, " 明治紀元前 "));
+    break;
+  case 6: B.PRINT(D.EraStr(" 皇紀 ", " 年 ", -659, y, " 皇紀紀元前 "));
+    break;
+  case 7: B.PRINT(D.EraStr(" 西暦 ", " 年 ",    1, y, " 西暦紀元前 "));
+    break;
+  }
+}
+
+//--------------------------------------------------------------------
+// JD
+//--------------------------------------------------------------------
+let YY = 0;
+//let MM = 0
+//let DD = 0;
+
+let Y4 = document.getElementById('rangeY4');
+let Y3 = document.getElementById('rangeY3');
+let Y2 = document.getElementById('rangeY2');
+let Y1 = document.getElementById('rangeY1');
+let M1 = document.getElementById('rangeM1');
+let D1 = document.getElementById('rangeD1');
+let D2 = document.getElementById('rangeD2');
+let X1 = document.getElementById('rangeX1');
+let W1 = document.getElementById('rangeW1');
+
+function blurelem()
+{
+  Y4.blur();
+  Y3.blur();
+  Y2.blur();
+  Y1.blur();
+  M1.blur();
+  D1.blur();
+  D2.blur();
+  X1.blur();
+  W1.blur();
+}
+
+function setDate(d)
+{
+  YY = d.y;
+  Y4.value = Y3.value = Y2.value = Y1.value = 0;
+  M1.value = d.m; D1.value = d.d;
+  D2.value = 0;
+}
+
+function getDate()
+{
+  let y, m, d;
+
+  y  = YY;
+  y += Number(Y4.value)*1000;
+  y += Number(Y3.value)*100;
+  y += Number(Y2.value)*10;
+  y += Number(Y1.value);
+  m  = Number(M1.value);
+  d  = Number(D1.value);
+  d += Number(D2.value);
+
+  return D.Date(D.JD({ y:y, m:m, d:d }));
+}
+
+function neutral()
+{
+  setDate(getDate());
+}
+
+//------------------------------------------------------------------------------
+// 軌道
+//------------------------------------------------------------------------------
+function orbitPoint(jd)
+{
+  let x, y, z, r, c, p, dt, f, r0;
+
+  r = Math.pow(50, 1-W1.value);
+  x = 1.6 * 2 * r; y = 2 * r;
+  B.WINDOW(-x, y, x, -y);
+  r0 = Math.sqrt(x*x + y*y) * 1.1;
+
+  r *= 0.01;
+  B.CIRCLEF(0, 0, 5 * r, '#fff');
+
+ for (let i = O.orbits(); --i >= 0;)
+  {
+    if (O.A[i] > r0) continue;
+    O.orbitRotatei(i, -X1.value, 1, 0, 0);
+    c = O.color(i);
+    f = 1;
+    dt = Math.PI / 90;
+    for (let t = -Math.PI; t < Math.PI + dt; t += dt)
+    {
+      p = O.orbitMi(i, t);
+      x = p.x; y = p.y;
+      if (f) { B.POINT(x, y); f = 0; }
+      else   { B.LINE2(x, y, c);     }      
+    }
+    p = O.orbitJDi(i, jd);
+    x = p.x;
+    y = p.y;
+//    B.PRINT(O.Temp); B.CR();
+//    B.PRINT(x+","+y); B.CR();
+    z = (1 + p.z) * 3;
+    if (z < 2) z = 2; else if (z > 4) z = 4;
+    B.CIRCLEF(x, y, z * r, c);
+    B.LOCATEp(x, y); B.COLOR(c); B.TAB(0.4, -1.2); B.PRINT(O.name(i));
+  }
+}
+
+//--------------------------------------------------------------------
+// screen
+//--------------------------------------------------------------------
+let JDs0 = null;
+function display()
+{
+  let i, jd0, jd, d, d0, t0, h, m, s, y, str, str0;
+
+  t0 = D.TimeNow();
+  i = Math.floor(t0.s);
+  if (JDs0 === i)
+  {
+    window.requestAnimationFrame(display);
+    return;
+  }
+  JDs0 = i;
+
+  B.FONT(1,0);
+  B.CLS('#000');
+
+  d  = getDate();
+  y  = d.y;
+  jd = D.JD(d);
+
+  orbitPoint(jd);
+  B.LOCATE(0, 0); B.COLOR('#fff');
+
+  d  = D.DateStr(d, 5);
+  str = "目標 " + d;
+  str += "(" + D.WeekJP(D.Week(jd)) + ")";
+
+  d = D.DateNow();
+  jd0 = D.JD(d);
+  d0  = D.DateStr(d, 5);
+
+  i = jd - jd0;
+  s = D.Tsec(t0);
+  if (i < 0 || (i == 0 && s > 0))
+  {
+    i = -i;
+    d = D.TimeStr(t0       , 0) + '" 前';
+  }
+  else
+  {
+    if (s > 0) { s = 24 * 3600 - s; i--; }
+    d = D.TimeStr(D.Time(s), 0) + '" 後';
+  }
+  str += " は " + i + " 日 と " + d + " ( JD" + jd + " )";
+  i = String(i).length + 11;
+
+  str0 = "現在 " + d0 + "(" + D.WeekJP(D.Week(jd0)) + ")";
+  B.TAB(1, 0); B.PRINT(str0);
+  B.TAB(i, 0); B.PRINT(D.TimeStr(t0, 0) + '"    ( JD' + jd0 + " )");
+  B.CR();
+
+  B.TAB(1, 0); B.PRINT(str);
+  B.CR();
+
+  eraName(y);
+
+  window.requestAnimationFrame(display);
+}
+
+//--------------------------------------------------------------------
+// input
+//--------------------------------------------------------------------
+function blur()
+{
+  document.getElementById('butR').blur();
+  document.getElementById('butQ').blur();
+  document.getElementById('butW').blur();
+  document.getElementById('butZ').blur();
+  document.getElementById('butX').blur();
+  document.getElementById('butC').blur();
+}
+
+function range()
+{
+  blur();
+  window.requestAnimationFrame(main);
+}
+Y4.addEventListener('input', range);
+Y3.addEventListener('input', range);
+Y2.addEventListener('input', range);
+Y1.addEventListener('input', range);
+M1.addEventListener('input', range);
+D1.addEventListener('input', range);
+D2.addEventListener('input', range);
+X1.addEventListener('input', range);
+W1.addEventListener('input', range);
+
+//--------------------------------------------------------------------
+// init
+//--------------------------------------------------------------------
+function init()
+{
+  let jd;
+
+  jd = D.JD(D.DateNow());
+  setDate(D.Date(jd + 0));
+  blur();
+  window.requestAnimationFrame(main);
+}
+
+//--------------------------------------------------------------------
+// Input key
+//--------------------------------------------------------------------
+function inkey(key)
+{
+  switch (key)
+  {
+    case 13: init()                ; break; // 'R' Enter
+    case 78: neutral()             ; break; // 'N' Neutral
+    case 86: if (--Era < 0) Era = 7; break; // 'V'
+    case 66: if (++Era > 7) Era = 0; break; // 'B'
+    case 81: B.lineWidth( 0.5)     ; break; // 'Q'
+    case 87: B.lineWidth( 2  )     ; break; // 'W'
+    case 90: B.zooming  (-1  )     ; break; // 'Z'
+    case 88: B.zooming  ( 1  )     ; break; // 'X'
+    case 67: B.zooming  ( 0  )     ; break; // 'C'
+  }
+  blurelem();
+  blur();
+  window.requestAnimationFrame(main);
+}
+document.body.addEventListener('keydown', event =>
+{
+  let key = event.keyCode;
+
+  inkey(key);
+});
+
+//--------------------------------------------------------------------
+// Key status
+//--------------------------------------------------------------------
+let Key = new Array(256);
+for (let i = 0; i < 256; i++) Key[i] = 0;
+window.onkeydown = function(event) { Key[event.keyCode] = 1; }
+window.onkeyup   = function(event) { Key[event.keyCode] = 0; }
+
+//--------------------------------------------------------------------
+// Mouse
+//--------------------------------------------------------------------
+const M = new MOUSE();
+M.add();
+
+//--------------------------------------------------------------------
+// main
+//--------------------------------------------------------------------
+function main()
+{
+  JDs0 = null;
+  display();
+}
+
+init();
+
+//--------------------------------------------------------------------
+</script>
+</body>
+</html>

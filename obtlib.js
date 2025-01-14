@@ -173,7 +173,7 @@ class ORBIT extends MATRIX
   { // 元期 [ jd, … }
     this.Jos = ds;
   }
-  #i2matrix(i)
+  #orbitInclinationi(i)
   {
     let t   = this.I[i];
     let o   = this.O[i];
@@ -184,21 +184,24 @@ class ORBIT extends MATRIX
     super.mode(0); // model mode
     super.identity();
     super.rotate(this.toDeg(t), x, y, z); // iを傾ける
-
-/*
-    super.mode(1); // view mode
-    t = -this.I[3];
-    o = this.O[3];
-    x = Math.cos(o);
-    y = Math.sin(o);
-    z = 0;
-    super.rotate(this.toDeg(t), x, y, z); // 黄道面真上から見る
-*/
-
-    super.mode(0); // model mode
-
     super.get(this.Mat0[i]);
     super.get(this.Mat[i]);
+    super.mode(0); // model mode
+  }
+  orbitPlanei(i, k)
+  {
+    let t   = this.I[k];
+    let o   = this.O[k];
+    let x   = Math.cos(o);
+    let y   = Math.sin(o);
+    let z   = 0;
+
+    super.mode(1); // model mode
+    super.load(this.Mat0[i]);
+    super.rotate(this.toDeg(-t), x, y, z); // kの黄道面真上から見る
+    super.get(this.Mat0[i]);
+    super.get(this.Mat[i]);
+    super.mode(0); // model mode
   }
   // c ,d, a(q)  , e     , i    , Ω+ω , Ω,   , Mo    ,  P      , name
   setOrbiti(i, orbit, jds)
@@ -245,7 +248,7 @@ class ORBIT extends MATRIX
     this.N[i] = n / 365.25;  // ユリウス年を日に変換
     this.Mat0[i] = [];
     this.Mat[i] = [];
-    this.#i2matrix(i);
+    this.#orbitInclinationi(i);
   }
   orbitRotatei(i, deg, x, y, z)
   {
@@ -254,13 +257,6 @@ class ORBIT extends MATRIX
     super.rotate(deg, x, y, z);
     super.get(this.Mat[i]);
     super.mode(0); // model mode
-  }
-  orbitRotate(deg, x, y, z)
-  {
-    for (let i = 0; i < this.Count; i++)
-    {
-      this.orbitRotatei(i, deg, x, y, z);
-    }
   }
   #orbitMxy0i(i, M)
   {

@@ -16,8 +16,8 @@ class MATRIX
 {
   constructor()
   {
-    this.M = new Array(16);
-    this.Mode = 0; // View
+    this.M = [];
+    this.Mode = 0; // 0:model 1:view
     this.identity();
     this.Temp0 = 0; // debug
   }
@@ -87,7 +87,7 @@ class MATRIX
   }
   translate(x, y, z)
   {
-    let A = new Array(16);
+    let A = [];
 
     A[0] = 1; A[4] = 0; A[ 8] = 0; A[12] = x;
     A[1] = 0; A[5] = 1; A[ 9] = 0; A[13] = y;
