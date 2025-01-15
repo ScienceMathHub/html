@@ -77,9 +77,9 @@ let Temp; // debug
 //------------------------------------------------------------------------------
 const Day =
 [
-  { y:2020, m:12, d:17.0    }, // 元期1(Mo惑星)
-  { y:2019, m: 4, d:27.0    }, // 元期2(Mo準惑星,小惑星)
-  { y:2011, m: 8, d:27.0    }  // 元期3(Mo準惑星)
+  { y:2020, m:12, d:17.0 }, // 元期1(Mo惑星)
+  { y:2019, m: 4, d:27.0 }, // 元期2(Mo準惑星,小惑星)
+  { y:2011, m: 8, d:27.0 }  // 元期3(Mo準惑星)
 ];
 const Orbit =
 [
@@ -247,6 +247,7 @@ function orbitPoint(jd)
     if (O.A[i] > r0) continue;
     O.orbitRotatei(i, -X1.value, 1, 0, 0);
   }
+
   if ((isQ & 2))
   {
     for (let i = O.orbits(); --i >= 1;)
@@ -257,10 +258,6 @@ function orbitPoint(jd)
       B.LINE(0, 0, p.x, p.y, c);
     }
   }
-
-  r *= 0.01;
-  B.CIRCLEF(0, 0, 5 * r, O.color(0));
-
   if ((isQ & 1))
   {
     c = '#888'
@@ -278,6 +275,9 @@ function orbitPoint(jd)
     B.LINE(0, 0, p.x, p.y, c);
     B.LOCATEp(p.x, p.y); B.TAB(-4.5, -0.7); B.PRINT("夏至");
   }
+
+  r *= 0.01;
+  B.CIRCLEF(0, 0, 5 * r, O.color(0));
 
   for (let i = O.orbits(); --i >= 1;)
   {
