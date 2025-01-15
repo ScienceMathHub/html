@@ -456,8 +456,8 @@ function mouseDn(x, y, touch)
   if (!(0 <= x && x <= 1)) return 0;
   if (!(0 <= y && y <= 1)) return 0;
 
-  x *=   1 * 2;
-  y *= -90 * 2;
+  x *=   1 * 1.8;
+  y *= -90 * 3;
   M.ofsX(W1.value - x);
   M.ofsY(X1.value - y);
   return 1;
@@ -465,20 +465,25 @@ function mouseDn(x, y, touch)
 
 function mouseMv(x, y, touch)
 {
+  let x1, y1;
+
   x /= canvas.width;
   y /= canvas.height;
   if (!(0 <= x && x <= 1)) return;
   if (!(0 <= y && y <= 1)) return;
 
-  x *=   1 * 2;
-  y *= -90 * 2;
-  x += M.ofsX('');
-  y += M.ofsY('');
+  x *=   1 * 1.8;
+  y *= -90 * 3;
+  x1 = x + M.ofsX('');
+  y1 = y + M.ofsY('');
 
-  if (x < 0) x = 0; else if (x >  1) x =  1;
-  if (y < 0) y = 0; else if (y > 90) y = 90;
-  W1.value = x;
-  X1.value = y;
+  if      (x1 <  0) { x1 =  0; M.ofsX(W1.value - x); M.ofsY(X1.value - y); }
+  else if (x1 >  1) { x1 =  1; M.ofsX(W1.value - x); M.ofsY(X1.value - y); }
+  if      (y1 <  0) { y1 =  0; M.ofsX(W1.value - x); M.ofsY(X1.value - y); }
+  else if (y1 > 90) { y1 = 90; M.ofsX(W1.value - x); M.ofsY(X1.value - y); }
+
+  W1.value = x1;
+  X1.value = y1;
 
   blur();
   window.requestAnimationFrame(main);
