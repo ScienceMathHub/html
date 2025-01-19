@@ -1,0 +1,623 @@
+<!--
+----------------------------------------------------------------------
+ 離散フーリエ変換(Discrete Fourier Transform)
+ [フーリエ級数展開(Fourier series expansion)]
+
+ HTML(JavaScript, canvas)
+
+ Physics (c) Ohtani 2025.1
+----------------------------------------------------------------------
+-->
+<!DOctxYPE html>
+<html lang="ja">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<head>
+  <meta charset="utf-8">
+  <title>離散フーリエ級数</title>
+</head>
+<body>
+<p id="DFT"></p>
+<div style='float:left;'>
+a1<label><input type="range" id ="rangeA1" min="-1" max= "1" step="0.1"
+  value="0"></label>
+<input type="button" id="butH1" value="H" onclick="lowhigh(1, 800)">
+<input type="button" id="butC1" value="c" onclick="cossin(1, 0)"><br>
+f1<label><input type="range" id ="rangeF1" min="200" max= "1000"
+  step="20"  value="0"></label>
+<input type="button" id="butL1" value="L" onclick="lowhigh(1, 0)">
+<input type="button" id="butS1" value="s" onclick="cossin(1, 1)">
+<pre></pre>
+a2<label><input type="range" id ="rangeA2" min="-1" max= "1" step="0.1"
+  value="0"></label>
+<input type="button" id="butH2" value="H" onclick="lowhigh(2, 800)">
+<input type="button" id="butC2" value="c" onclick="cossin(2, 0)"><br>
+f2<label><input type="range" id ="rangeF2" min="200" max= "1000"
+  step="20"  value="0"></label>
+<input type="button" id="butL2" value="L" onclick="lowhigh(2, 0)">
+<input type="button" id="butS2" value="s" onclick="cossin(2, 1)">
+<pre></pre>
+a3<label><input type="range" id ="rangeA3" min="-1" max= "1" step="0.1"
+  value="0"></label>
+<input type="button" id="butH3" value="H" onclick="lowhigh(3, 800)">
+<input type="button" id="butC3" value="c" onclick="cossin(3, 0)"><br>
+f3<label><input type="range" id ="rangeF3" min="200" max= "1000"
+  step="20"  value="0"></label>
+<input type="button" id="butL3" value="L" onclick="lowhigh(3, 0)">
+<input type="button" id="butS3" value="s" onclick="cossin(3, 1)">
+<pre></pre>
+a4<label><input type="range" id ="rangeA4" min="-1" max= "1" step="0.1"
+  value="0"></label>
+<input type="button" id="butH4" value="H" onclick="lowhigh(4, 800)">
+<input type="button" id="butC4" value="c" onclick="cossin(4, 0)"><br>
+f4<label><input type="range" id ="rangeF4" min="200" max= "1000"
+  step="20"  value="0"></label>
+<input type="button" id="butL4" value="L" onclick="lowhigh(4, 0)">
+<input type="button" id="butS4" value="s" onclick="cossin(4, 1)">
+<pre></pre>
+<input type="button" id="butR" value="Reset" onclick="inkey(13)">Enter
+<input type="button" id="butS" value="音" onclick="inkey(32)">Space
+<pre></pre>
+V<label><input type="range" id ="rangeV0" min="0" max= "1"
+  step="0.1"  value="1"></label>
+<pre></pre>
+<input type="button" id="butQ" value="細" onclick="inkey(81)">q
+<input type="button" id="butW" value="太" onclick="inkey(87)">w
+<input type="button" id="but1" value="1"  onclick="inkey(49)">1
+<input type="button" id="but2" value="2"  onclick="inkey(50)">2
+<input type="button" id="but3" value="3"  onclick="inkey(51)">3
+<pre></pre>
+<input type="button" id="butZ" value="縮" onclick="inkey(90)">z 
+<input type="button" id="butX" value="拡" onclick="inkey(88)">x
+<input type="button" id="butC" value="初" onclick="inkey(67)">c　
+
+<script src="https://sciencemathhub.github.io/html/toappe.js"></script>
+<script src="https://sciencemathhub.github.io/html/canlib.js"></script>
+<script>
+'use strict'
+
+//--------------------------------------------------------------------
+// Fourier
+//--------------------------------------------------------------------
+class Fourier
+{
+  constructor()
+  {
+    this.T =  0.1;  // Sampling time  T[s]
+    this.N =  128;  // Sampling count N[個]
+    this.Y =   [];  // y(k)
+  }
+  setT(t)
+  {
+    this.T = t;
+  }
+  setN(n)
+  {
+    this.N = n;
+  }
+  setY(k, y)
+  {
+    if (!(0 <= k && k < this.N)) return;
+    this.Y[k] = y;
+  }
+  getF(n)
+  {
+    return n / this.T;
+  }
+  getA(n)
+  {
+    let fc = -Math.PI * 2 * n / this.N;
+    let an = 0;
+    let bn = 0;
+
+    for (let k = 0; k < this.N; k++)
+    {
+      let y = this.Y[k];
+      let x = fc * k;
+
+      an += y * Math.cos(x);
+      bn += y * Math.sin(x);
+    }
+    fc = 2 / this.N;
+    an *=  fc;
+    bn *= -fc;
+    return { a:an, b:bn };
+  }
+}
+
+//--------------------------------------------------------------------
+// public letiable
+//--------------------------------------------------------------------
+const B = new BASIC();
+const D = new DATE();
+const F = new Fourier();
+F.setN(512);
+F.setT(0.1);
+
+const DisN = 10;
+let FuncD;  // 表示
+let FuncY;  // 関数
+let H1, H2, H3, H4;
+let C1, C2, C3, C4;
+let Temp; // debug
+
+//--------------------------------------------------------------------
+// y(t)
+//--------------------------------------------------------------------
+let A1 = document.getElementById('rangeA1');
+let F1 = document.getElementById('rangeF1');
+let A2 = document.getElementById('rangeA2');
+let F2 = document.getElementById('rangeF2');
+let A3 = document.getElementById('rangeA3');
+let F3 = document.getElementById('rangeF3');
+let A4 = document.getElementById('rangeA4');
+let F4 = document.getElementById('rangeF4');
+let V0 = document.getElementById('rangeV0');
+
+function blurelem()
+{
+  A1.blur();
+  F1.blur();
+  A2.blur();
+  F2.blur();
+  A3.blur();
+  F3.blur();
+  A4.blur();
+  F4.blur();
+  V0.blur();
+}
+
+//--------------------------------------------------------------------
+// 関数1
+//--------------------------------------------------------------------
+function fd1()
+{
+  let a1 = Number(A1.value).toFixed(1);
+  let f1 = Number(F1.value) + H1;
+  let a2 = Number(A2.value).toFixed(1);
+  let f2 = Number(F2.value) + H2;
+  let a3 = Number(A3.value).toFixed(1);
+  let f3 = Number(F3.value) + H3;
+  let a4 = Number(A4.value).toFixed(1);
+  let f4 = Number(F4.value) + H4;
+  let str;
+
+  str  = "y = ";
+  str += a1 + ((C1)? "sin" : "cos") + "(2π"+f1+"t) + ";
+  str += a2 + ((C2)? "sin" : "cos") + "(2π"+f2+"t) + ";
+  str += a3 + ((C3)? "sin" : "cos") + "(2π"+f3+"t) + ";
+  str += a4 + ((C4)? "sin" : "cos") + "(2π"+f4+"t)";
+  return str;
+}
+function fy1(t)
+{
+  let p2 = Math.PI * 2;
+  let pt = p2 * t;
+  let a1 = Number(A1.value);
+  let w1 = (Number(F1.value) + H1) * pt;
+  let a2 = Number(A2.value);
+  let w2 = (Number(F2.value) + H2) * pt;
+  let a3 = Number(A3.value);
+  let w3 = (Number(F3.value) + H3) * pt;
+  let a4 = Number(A4.value);
+  let w4 = (Number(F4.value) + H4) * pt;
+  let y;
+
+  w1 = (C1)? Math.sin(w1) : Math.cos(w1);
+  w2 = (C2)? Math.sin(w2) : Math.cos(w2);
+  w3 = (C3)? Math.sin(w3) : Math.cos(w3);
+  w4 = (C4)? Math.sin(w4) : Math.cos(w4);
+  y  = a1 * w1 + a2 * w2 + a3 * w3 + a4 * w4;
+  return y;
+}
+
+//--------------------------------------------------------------------
+// 関数2
+//--------------------------------------------------------------------
+function fd2() { return "200Hz Square wave"; }
+function fy2(t)
+{
+  let a = 1;
+  let f = 200;
+  let w = 1/f;
+  let x = t * 2 / w;
+
+  x -= Math.floor(x / 2) * 2;
+  return (x < 1)? a : -a;
+}
+
+//--------------------------------------------------------------------
+// 関数3
+//--------------------------------------------------------------------
+function fd3() { return "200Hz Triangle wave"; }
+function fy3(t)
+{
+  let a = 1;
+  let f = 200;
+  let w = 1/f;
+  let x = t * 4 / w;
+
+  x -= Math.floor(x / 4) * 4;
+  if (x <= 1) return a * x;
+  x -= 1;
+  if (x <= 1) return a * (1 - x);
+  x -= 1;
+  if (x <= 1) return -a * x;
+  x -= 1;
+  return a * (x - 1);
+}
+
+//--------------------------------------------------------------------
+// 関数 select
+//--------------------------------------------------------------------
+function selectF(f)
+{
+  switch (f)
+  {
+    case  2: FuncD = fd2; FuncY = fy2; break;
+    case  3: FuncD = fd3; FuncY = fy3; break;
+    default: FuncD = fd1; FuncY = fy1; break;
+  }
+}
+
+//--------------------------------------------------------------------
+// Audio
+//--------------------------------------------------------------------
+let Audio = null;
+function audioF(f, time, func, v)
+{
+  var rate, buffer, ch, arr, t, au, audioctx;
+
+  audioctx = new (window.AudioContext || window.webkitAudioContext)();
+  rate = audioctx.sampleRate;
+//  const gNode = audioctx.createGain(); gNode.gain.value = 0.5;
+
+  Temp = rate;
+
+  buffer = audioctx.createBuffer(2, rate * time, rate);
+
+  for (var ch = 0; ch < buffer.numberOfChannels; ch++)
+  {
+    arr = buffer.getChannelData(ch);
+    for (var i = 0; i < buffer.length; i++)
+    {
+      t = time * i / buffer.length;
+      arr[i] = func(t * f) * v * 0.5;
+    }
+  }
+
+  au = audioctx.createBufferSource();
+  au.buffer = buffer;
+  au.connect(audioctx.destination);
+//  au.connect(gNode).connect(audioctx.destination);
+  return [audioctx, au];
+}
+function aStop()
+{
+  if (Audio == null) return;
+  Audio[1].disconnect();
+  Audio[1].buffer = null;
+  Audio[0].close();
+  Audio = null;
+}
+function audio(f, func)
+{
+  let t = 3;
+  Audio = audioF(f, t, func, Number(V0.value));
+  Audio[1].loop = true;
+  Audio[1].start(0);
+  setTimeout(function() { aStop(); }, t * 1000);
+}
+function space(func)
+{
+  if (Audio) aStop();
+  else       audio(1, func);
+}
+
+//--------------------------------------------------------------------
+// sampling
+//--------------------------------------------------------------------
+function sampling(func)
+{
+  let dt = F.T / F.N;
+
+  for (let k = 0; k < F.N; k++)
+  {
+    let t = k * dt;
+    let y = func(t);
+
+    F.setY(k, y);
+  }  
+}
+
+//--------------------------------------------------------------------
+// spectrum
+//--------------------------------------------------------------------
+function spect(c, px, py, h, times, func)
+{
+  let df, r, n, x, y, dx, dw, cl;
+  let b = '#ff0';
+
+  sampling(func);
+
+  n = DisN;
+  B.WINDOW(px, py, n+1, py-399);
+
+  times *= F.T;
+  df = 1 / times / F.T;
+  dx = df / 2;
+  dw = (n+1-px) / 640;
+  for (n = 0; n <= times; n += times / 100)
+  {
+    let a = F.getA(n);
+//    let r = Math.sqrt(a.a*a.a + a.b*a.b);
+
+    x = n   * df;
+    y = a.a * h ;    
+    B.LINEBF(x-dx-dw, 0, x, y, b);
+    y = a.b * h ;
+    B.LINEBF(x, 0, x+dx, y, c);
+  }
+}
+
+//--------------------------------------------------------------------
+// グラフ
+//--------------------------------------------------------------------
+function graph(c, px, py, h, times, func)
+{
+  let t, x, y, x0, y0, n, dt, dx;
+
+  n = DisN;
+  B.WINDOW(px, py, n+1, py-399);
+
+  x0 = -100;
+  y0 = -100;
+  dx = n * 1e+3 / times;
+  dt = times * 1e-6;
+  for (t = -0.01*times; t < (n + 2)*1e-4*times; t += dt)
+  {
+    y = func(t);
+    x = t * dx;
+
+    B.LINE(x0, y0*h, x, y*h, c);
+    x0 = x;
+    y0 = y;
+  }
+}
+
+//--------------------------------------------------------------------
+// 目盛り
+//--------------------------------------------------------------------
+function scale(c, px, py, h, times, unit, m, up, d)
+{ /* dn=0:up 1:dn 2:half scale */
+  let t, x, y, s, r, n;
+
+  times /= 10;
+  B.COLOR(c);
+
+  n = DisN + 1;
+  B.WINDOW(px, py, n, py-399);
+
+  x = 0.05;
+  for (t = 1; t <= m; t++)
+  {
+    y = h * t;
+//    if (!up)
+    {
+      B.LOCATEp(x,  y); B.TAB(-2.5, -0.55); B.PRINT(" "+t);
+    }
+    B.LINE(-x,  y, x,  y, c);
+//    if (!up)
+    {
+      B.LOCATEp(x, -y); B.TAB(-2.5, -0.55); B.PRINT("-"+t);
+    }
+    B.LINE(-x, -y, x, -y, c);
+  }
+  B.LINE(-100,  0, 100, 0, c);
+
+//  s = (up)?  h * (1-0.1) * d : h * (m  +0.4);
+  s = h * (m  +0.4);
+  for (t = -20; t <= n*10+20; t++)
+  {
+    x = t * 0.1;
+    if      ( t == 0 || t == 100) { y = h * (m  +0.2)          ; }
+    else if ((t % 10) == 0      ) { y = h * (1/2+0.2) * 0.5 * d; }
+    else if ((t %  5) == 0      ) { y = h * (1/4+0.2) * 0.5 * d; }
+    else                          { y = h *      0.2  * 0.7 * d; }
+    r = (y < s)? y : s;
+    B.LINE( x, -r,  x, y, c);
+  }
+
+  s = 0; //s = -m * h;
+  x = -0.9;
+  y = 0.5; // y = 0.9 - y;
+  r = 1.1;
+  B.LOCATEp(0, s); B.TAB(x+r, y); B.PRINT("0" + unit);
+  r = 0;
+  for (t = 1; t < n; t++)
+  {
+    if (t >= 10) r = 1.1;
+    B.LOCATEp( t, s); B.TAB(x+r  , y);
+    B.PRINT(t*times + unit);
+  }
+}
+
+//--------------------------------------------------------------------
+// screen
+//--------------------------------------------------------------------
+function display()
+{
+  let px, py, h, m, s, n, len, b;
+
+  B.FONT(1,0);
+  B.CLS('#000');
+
+  B.COLOR('#fff'); B.LOCATE(1, 0); B.PRINT(FuncD()); B.CR();
+
+  h = 16+8;
+  py = 64+32+4;
+  px = -0.6;
+  scale('#ff0', px, py, h,   20, "ms", 3, 0, 1.0);
+  graph('#fff', px, py, h,   20, FuncY);
+
+  h = 32*2;
+  py += 128+32;
+  scale('#fff', px, py, h, 2000, "Hz", 1, 1, 1/2);
+  spect('#0ff', px, py, h, 2000, FuncY);
+
+  B.COLOR('#fff');
+  B.LOCATE(1, 19);
+  B.PRINT("Sampling(time = " + F.T.toFixed(1));
+  B.PRINT("s, data = " + F.N + "parts) ");
+  B.PRINT("DFT(Discrete Fourier Transform)");
+}
+
+//--------------------------------------------------------------------
+// input
+//--------------------------------------------------------------------
+function blur()
+{
+  document.getElementById('butR').blur();
+  document.getElementById('butS').blur();
+  document.getElementById('but1').blur();
+  document.getElementById('but2').blur();
+  document.getElementById('but3').blur();
+  document.getElementById('butQ').blur();
+  document.getElementById('butW').blur();
+  document.getElementById('butZ').blur();
+  document.getElementById('butX').blur();
+  document.getElementById('butC').blur();
+  document.getElementById('butC1').blur();
+  document.getElementById('butS1').blur();
+  document.getElementById('butC2').blur();
+  document.getElementById('butS2').blur();
+  document.getElementById('butC3').blur();
+  document.getElementById('butS3').blur();
+  document.getElementById('butC4').blur();
+  document.getElementById('butS4').blur();
+  document.getElementById('butH1').blur();
+  document.getElementById('butL1').blur();
+  document.getElementById('butH2').blur();
+  document.getElementById('butL2').blur();
+  document.getElementById('butH3').blur();
+  document.getElementById('butL3').blur();
+  document.getElementById('butH4').blur();
+  document.getElementById('butL4').blur();
+}
+
+function range()
+{
+  blur();
+  window.requestAnimationFrame(main);
+}
+A1.addEventListener('input', range);
+F1.addEventListener('input', range);
+A2.addEventListener('input', range);
+F2.addEventListener('input', range);
+A3.addEventListener('input', range);
+F3.addEventListener('input', range);
+A4.addEventListener('input', range);
+F4.addEventListener('input', range);
+V0.addEventListener('input', range);
+
+function lowhigh(n, h)
+{
+  switch(n)
+  {
+    case  1: H1 = h; break;
+    case  2: H2 = h; break;
+    case  3: H3 = h; break;
+    case  4: H4 = h; break;
+  }
+  blur();
+  window.requestAnimationFrame(main);
+}
+
+function cossin(n, c)
+{
+  switch(n)
+  {
+    case  1: C1 = c; break;
+    case  2: C2 = c; break;
+    case  3: C3 = c; break;
+    case  4: C4 = c; break;
+    default: C1 = C2 = C3 = C4 = c;
+  }
+  blur();
+  window.requestAnimationFrame(main);
+}
+
+//--------------------------------------------------------------------
+// init
+//--------------------------------------------------------------------
+function init()
+{
+  A1.value =  1.0;
+  F1.value =  200; H1 = 0;
+  A2.value =  0.3;
+  F2.value =  600; H2 = 0;
+  A3.value =  0.2;
+  F3.value = 1000; H3 = 0;
+  A4.value =  0.1;
+  F4.value =  600; H4 = 800;
+  selectF(1);
+  cossin(0, 1);
+}
+
+//--------------------------------------------------------------------
+// Input key
+//--------------------------------------------------------------------
+function inkey(key)
+{
+  switch (key)
+  {
+    case 13: init()                ; break; // 'R' Enter
+    case 32: space(FuncY)          ; break; // 'S' Space
+    case 49: selectF(1)            ; break; // '1'
+    case 50: selectF(2)            ; break; // '2'
+    case 51: selectF(3)            ; break; // '3'
+    case 81: B.lineWidth( 0.5)     ; break; // 'Q'
+    case 87: B.lineWidth( 2  )     ; break; // 'W'
+    case 90: B.zooming  (-1  )     ; break; // 'Z'
+    case 88: B.zooming  ( 1  )     ; break; // 'X'
+    case 67: B.zooming  ( 0  )     ; break; // 'C'
+  }
+  blurelem();
+  blur();
+  window.requestAnimationFrame(main);
+}
+document.body.addEventListener('keydown', event =>
+{
+  let key = event.keyCode;
+
+  inkey(key);
+});
+
+//--------------------------------------------------------------------
+// Key status
+//--------------------------------------------------------------------
+let Key = new Array(256);
+for (let i = 0; i < 256; i++) Key[i] = 0;
+window.onkeydown = function(event) { Key[event.keyCode] = 1; }
+window.onkeyup   = function(event) { Key[event.keyCode] = 0; }
+
+//----------------------------------------------------------------------
+// mouse
+//----------------------------------------------------------------------
+const M = new MOUSE();
+M.add();
+
+//--------------------------------------------------------------------
+// main
+//--------------------------------------------------------------------
+function main()
+{
+  display();
+}
+
+init();
+
+//--------------------------------------------------------------------
+</script>
+</body>
+</html>
