@@ -59,7 +59,7 @@ f4<label><input type="range" id ="rangeF4" min="200" max= "1000"
 <input type="button" id="butS" value="音" onclick="inkey(32)">Space
 <pre></pre>
 V<label><input type="range" id ="rangeV0" min="0" max= "1"
-  step="0.1"  value="1"></label>
+  step="0.1"  value="1"></label>as
 <pre></pre>
 <input type="button" id="butQ" value="細" onclick="inkey(81)">q
 <input type="button" id="butW" value="太" onclick="inkey(87)">w
@@ -73,6 +73,7 @@ V<label><input type="range" id ="rangeV0" min="0" max= "1"
 
 <script src="https://sciencemathhub.github.io/html/toappe.js"></script>
 <script src="https://sciencemathhub.github.io/html/canlib.js"></script>
+<script src="https://sciencemathhub.github.io/html/audlib.js"></script>
 <script>
 'use strict'
 
@@ -129,6 +130,9 @@ class Fourier
 // public letiable
 //--------------------------------------------------------------------
 const B = new BASIC();
+const A = new AUDIO();
+let Freq = 200;
+A.setBase(Freq);
 const F = new Fourier();
 F.setN(512);
 F.setT(0.1);
@@ -136,8 +140,11 @@ F.setT(0.1);
 const DisN = 10;
 let FuncD;  // 表示
 let FuncY;  // 関数
+let Select; // 関数選択
+let Octa;   // Octave
 let H1, H2, H3, H4;
 let C1, C2, C3, C4;
+let Volume = 1;
 let Temp; // debug
 
 //--------------------------------------------------------------------
@@ -257,60 +264,7 @@ function selectF(f)
     case  3: FuncD = fd3; FuncY = fy3; break;
     default: FuncD = fd1; FuncY = fy1; break;
   }
-}
-
-//--------------------------------------------------------------------
-// Audio
-//--------------------------------------------------------------------
-let Audio = null;
-function audioF(f, time, func, v)
-{
-  var rate, buffer, ch, arr, t, au, audioctx;
-
-  audioctx = new (window.AudioContext || window.webkitAudioContext)();
-  rate = audioctx.sampleRate;
-//  const gNode = audioctx.createGain(); gNode.gain.value = 0.5;
-
-  Temp = rate;
-
-  buffer = audioctx.createBuffer(2, rate * time, rate);
-
-  for (var ch = 0; ch < buffer.numberOfChannels; ch++)
-  {
-    arr = buffer.getChannelData(ch);
-    for (var i = 0; i < buffer.length; i++)
-    {
-      t = time * i / buffer.length;
-      arr[i] = func(t * f) * v * 0.5;
-    }
-  }
-
-  au = audioctx.createBufferSource();
-  au.buffer = buffer;
-  au.connect(audioctx.destination);
-//  au.connect(gNode).connect(audioctx.destination);
-  return [audioctx, au];
-}
-function aStop()
-{
-  if (Audio == null) return;
-  Audio[1].disconnect();
-  Audio[1].buffer = null;
-  Audio[0].close();
-  Audio = null;
-}
-function audio(f, func)
-{
-  let t = 3;
-  Audio = audioF(f, t, func, Number(V0.value));
-  Audio[1].loop = true;
-  Audio[1].start(0);
-  setTimeout(function() { aStop(); }, t * 1000);
-}
-function space(func)
-{
-  if (Audio) aStop();
-  else       audio(1, func);
+  Select = f;
 }
 
 //--------------------------------------------------------------------
@@ -444,6 +398,20 @@ function scale(c, px, py, h, times, unit, m, up, d)
 //--------------------------------------------------------------------
 // screen
 //--------------------------------------------------------------------
+function infomation()
+{
+  let y = 18 * 20.5;
+
+  B.WINDOW(0, 0, 640, 400);
+  B.LINEBF(0, y, 640, y + 18, '#000');
+  B.LOCATEp(0, y);
+  B.COLOR('#0f0');
+  B.TAB(1, 0);
+  B.PRINTe("e^4r^5ty^7u^8i^9op平均律, dfghjkl;純正律");
+  B.PRINT (", nm:オクターブ(" + Octa + ")");
+  B.PRINT (" Rate" +  A.getRate()/1000 + "kHz");
+  B.PRINT (" (" + A.getCount() + ") f = " + Freq + "Hz");
+}
 function display()
 {
   let px, py, h, m, s, n, len, b;
@@ -469,6 +437,8 @@ function display()
   B.PRINT("Sampling(time = " + F.T.toFixed(1));
   B.PRINT("s, data = " + F.N + "parts) ");
   B.PRINT("DFT(Discrete Fourier Transform)");
+
+  infomation();
 }
 
 //--------------------------------------------------------------------
@@ -547,6 +517,55 @@ function cossin(n, c)
 }
 
 //--------------------------------------------------------------------
+// keyboard
+//--------------------------------------------------------------------
+function keyUD(key, on)
+{
+  var k, f;
+
+  k = -1;
+  switch(key)
+  {
+    // 平均律
+    case  69: k =  0; break; // 'E'
+    case  52: k =  1; break; // '4'
+    case  82: k =  2; break; // 'R'
+    case  53: k =  3; break; // '5'
+    case  84: k =  4; break; // 'T'
+    case  89: k =  5; break; // 'Y'
+    case  55: k =  6; break; // '7'
+    case  85: k =  7; break; // 'U'
+    case  56: k =  8; break; // '8'
+    case  73: k =  9; break; // 'I'
+    case  57: k = 10; break; // '9'
+    case  79: k = 11; break; // 'O'
+    case  80: k = 12; break; // 'P'
+    // 純正律
+    case  68: k = 13; break; // 'D'
+    case  70: k = 14; break; // 'F'
+    case  71: k = 15; break; // 'G'
+    case  72: k = 16; break; // 'H'
+    case  74: k = 17; break; // 'J'
+    case  75: k = 18; break; // 'K'
+    case  76: k = 19; break; // 'L'
+    case 187: k = 20; break; // ';'
+  }
+  if (k < 0) return 0;
+
+  A.setVolume(Volume);
+  A.setOcta(Octa);
+  A.keyboard(on, k, FuncY, Select);
+  if (on)
+  {
+    f = A.getFreq();
+    f = Math.round(f * 10) / 10;
+    Freq = f;
+  }
+  window.requestAnimationFrame(infomation);
+  return 1;
+}
+
+//--------------------------------------------------------------------
 // init
 //--------------------------------------------------------------------
 function init()
@@ -561,6 +580,34 @@ function init()
   F4.value =  600; H4 = 800;
   selectF(1);
   cossin(0, 1);
+
+  Octa = 4;
+  A.setOcta(Octa);
+  A.setSec(1);
+  Audio = 0;
+  A.stop();
+}
+function volume(dv)
+{
+  Volume += dv;
+  if (Volume < 0) Volume = 0; else if (Volume > 1) Volume = 1;
+  Volume = Math.round(Volume * 10) / 10;
+  V0.value = Volume;
+}
+let Audio = 0;
+function pop()
+{
+  A.pop();
+  Audio = 0;
+  window.requestAnimationFrame(main);
+}
+function space(func)
+{
+  A.setVolume(Number(V0.value));
+  if (Audio) { A.stop(); Audio = 0; return; }
+  Audio = 1;
+  A.audioOn(200, func);
+  setTimeout(function() { pop(); }, 1000); // msec
 }
 
 //--------------------------------------------------------------------
@@ -580,6 +627,11 @@ function inkey(key)
     case 90: B.zooming  (-1  )     ; break; // 'Z'
     case 88: B.zooming  ( 1  )     ; break; // 'X'
     case 67: B.zooming  ( 0  )     ; break; // 'C'
+    case 78: if (Octa > 1) Octa--  ; break; // 'N'
+    case 77: if (Octa < 8) Octa++  ; break; // 'M'
+    case 65: volume(-0.1)          ; break; // 'A'
+    case 83: volume( 0.1)          ; break; // 'S'
+    default: return;
   }
   blurelem();
   blur();
@@ -588,17 +640,20 @@ function inkey(key)
 document.body.addEventListener('keydown', event =>
 {
   let key = event.keyCode;
-
+//  if (Key[ 16]) { key += 900; } // SHIFT
+//  if (37 <= key && 40 <= key) event.preventDefault();
   inkey(key);
 });
 
 //--------------------------------------------------------------------
 // Key status
 //--------------------------------------------------------------------
-let Key = new Array(256);
+var Key = new Array(256);
 for (let i = 0; i < 256; i++) Key[i] = 0;
-window.onkeydown = function(event) { Key[event.keyCode] = 1; }
-window.onkeyup   = function(event) { Key[event.keyCode] = 0; }
+window.onkeydown = function(event)
+{ let k = event.keyCode; Key[k] = 1; keyUD(k, 1); return; }
+window.onkeyup   = function(event)
+{ let k = event.keyCode; Key[k] = 0; keyUD(k, 0); return; }
 
 //----------------------------------------------------------------------
 // mouse

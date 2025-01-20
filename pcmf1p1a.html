@@ -57,25 +57,27 @@ A<label><input type="range" id ="rangeVo" min="0" max= "1" step="0.1"
 
 <script src="https://sciencemathhub.github.io/html/tophys.js"></script>
 <script src="https://sciencemathhub.github.io/html/canlib.js"></script>
+<script src="https://sciencemathhub.github.io/html/audlib.js"></script>
 <script>
 'use strict'
 
 //--------------------------------------------------------------------
 // public variable
 //--------------------------------------------------------------------
-var B = new BASIC();
+const B = new BASIC();
+const A = new AUDIO();
 
-var SecN          ; // sec
-var H4, H3, H2, H1; // Freq = H4+H3+H2+H1
-var Freq          ; // 440Hz
-var Vo            ; // 音量
-var To            ; // 時間index
-var Time          ; // 発振時間(s)
-var Select =     1; // 波形
-var Func          ; // 関数
-
-var Octa          ; // Octave
-var Temp   = 48000; // Sampling frequency(Hz)
+let SecN          ; // sec
+let H4, H3, H2, H1; // Freq = H4+H3+H2+H1
+let Freq          ; // 440Hz
+let Vo = 1        ; // 音量
+let To            ; // 時間index
+let Time          ; // 発振時間(s)
+let Select =     1; // 波形
+let Func          ; // 関数
+let Octa          ; // Octave
+let Temp   = 48000; // Sampling frequency(Hz)
+A.setVolume(Vo);
 
 //--------------------------------------------------------------------
 // 関数0 y = f(th)
@@ -93,7 +95,6 @@ function f0(th)
 
   return y;
 }
-
 
 //--------------------------------------------------------------------
 // 関数1 y = f(th)
@@ -245,169 +246,20 @@ function display()
   B.COLOR('#fff');
   B.LOCATE(1, 1);
   B.PRINT(Time + " s ");
-  B.PRINT("(" + (AuCt+Aui) + "), ");
+  B.PRINT("(" + A.getCount() + "), ");
   B.PRINT("f = " + Freq + "Hz, ");
   B.PRINT(title);
 
   B.COLOR('#0f0');
   B.LOCATE(9, 19);
   B.PRINTe("e^4r^5ty^7u^8i^9op平均律, dfghjkl;純正律");
-  B.PRINT (", nm:オクターブ("+Octa+")");
-  B.PRINT (" Rate"+Temp/1000+"kHz");
+  B.PRINT (", nm:オクターブ(" + Octa + ")");
+  B.PRINT (" Rate" +  A.getRate()/1000 + "kHz");
 
   py = 176;
   h  =  80;
   scale('#ff0', py, h, 1);
   graph('#fff', py, h, Func);
-}
-
-//--------------------------------------------------------------------
-// Audio
-//--------------------------------------------------------------------
-const Aun = 128;
-var Aup = new Array(Aun);
-var Auw = 0;
-var Aur = 0;
-var Aui = 0;
-function aPop()
-{
-  if (Aui <= 0) return 0;
-  Aur = (Aur + 1) % Aun;
-  Aup[Aur][1].disconnect();
-  Aup[Aur][1].buffer = null;
-  Aup[Aur][0].close();
-  Aui--;
-  keyBdInit();
-  display();
-  return 1;
-}
-function aPush(a)
-{
-  if (Aui >= 128) { aPop() };
-  Auw = (Auw + 1) % Aun;
-  Aup[Auw] = a;
-  Aui++;
-  display();
-}
-function aStop()
-{
-  while (aPop());
-}
-function audioF(f, time)
-{
-  var rate, buffer, ch, arr, t, au, audioctx;
-
-  audioctx = new (window.AudioContext || window.webkitAudioContext)();
-  rate = audioctx.sampleRate;
-//  const gNode = audioctx.createGain(); gNode.gain.value = 0.5;
-
-  Temp = rate;
-
-  buffer = audioctx.createBuffer(2, rate * time, rate);
-
-  for (var ch = 0; ch < buffer.numberOfChannels; ch++)
-  {
-    arr = buffer.getChannelData(ch);
-    for (var i = 0; i < buffer.length; i++)
-    {
-      t = time * i / buffer.length;
-      arr[i] = Func(t * f) * Vo * 0.5;
-    }
-  }
-
-  au = audioctx.createBufferSource();
-  au.buffer = buffer;
-  au.connect(audioctx.destination);
-//  au.connect(gNode).connect(audioctx.destination);
-  return [audioctx, au];
-}
-/* suspend */
-function audio(f)
-{
-  var au;
-
-  au = audioF(f, 10);
-  au[1].loop = true; //false;
-  au[1].start(0);
-  aPush(au);
-  if (Time !== "∞")
-  {
-    setTimeout(function() { aPop(); }, Time * 1000);
-  }
-}
-
-const Kn = 21;
-var AuBd = new Array(Kn);
-var AuOn = new Array(Kn);
-var AuCt = 0;
-for (var i = 0; i < Kn; i++) { AuBd[i] = 0; }
-const Kfreq =
-[ /* 平均律 */
-  261.626, 277.183, 293.665, 311.127, 329.628, 349.228,
-  369.994, 391.995, 415.305, 440.000, 466.164, 493.883, 523.251,
-  /* 純正律 */
-  264    , 297    , 330    , 352    ,
-  396    , 440    , 495    , 528
-/* ピタゴラス音階
-  260.7  , 293.3  , 330    , 347.7  ,
-  391.1  , 440    , 495    , 521.5
-*/
-];
-function keyBdInit()
-{
-  var au;
-
-  for (var i = 0; i < Kn; i++)
-  {
-    AuOn[i] = 0;
-    au = AuBd[i];
-    if (au != 0)
-    {
-      au[1].disconnect();
-      au[1].buffer = null;
-      au[0].close();
-      AuBd[i] = 0;
-    }
-  }
-  AuCt = 0;
-}
-function keyBd(on, k, f)
-{
-  var au, i;
-
-  au = AuBd[k];
-  if (on)
-  {
-    if (AuOn[k] != 0) return;
-    AuCt++;
-    i = Select * 10 + Octa;
-    if (au != 0 && AuOn[k] == i)
-    {
-      au[0].resume();
-    }
-    else
-    {
-      if (au != 0)
-      {
-        au[1].disconnect();
-        au[1].buffer = null;
-        au[0].close();
-      }
-      au = audioF(f, 10);
-      au[1].loop = true;
-      au[1].start(0);
-      AuBd[k] = au;
-    }
-    AuOn[k] = i;
-    display();
-    return;
-  }
-  if (AuOn[k] == 0 || au == 0) return;
-  AuOn[k] = 0;
-  AuCt--;
-//  au[0].close(); AuBd[k] = 0;
-  au[0].suspend();
-  display();
 }
 
 //--------------------------------------------------------------------
@@ -452,17 +304,19 @@ function keyUD(key, on)
     case 187: k = 20; break; // ';'
   }
   if (k < 0) return 0;
-  t = Math.pow(2, Octa - 4);
-  f = Kfreq[k] * t;
 
-  t = Math.round(f)
-  f = Math.round(f * 10) / 10;
+  A.setVolume(Vo);
+  A.setOcta(Octa);
+  A.keyboard(on, k, Func, Select);
   if (on)
   {
+    f = A.getFreq();
+    t = Math.round(f)
+    f = Math.round(f * 10) / 10;
     Freq = f;
     setH4321(t);
   }
-  keyBd(on, k, f);
+  window.requestAnimationFrame(main);
   return 1;
 }
 
@@ -568,18 +422,45 @@ function inkeyHz(key)
       if (Freq > 20999) Freq = 20999;
       setH4321(Freq);
       return; // '.'
-    default : return;
+    default : return 0;
   }
   elemH4.value = H4;
   elemH3.value = H3;
   elemH2.value = H2;
   elemH1.value = H1;
   Freq = H4*1000 + H3*100 + H2*10 + H1;
+  return 1;
 }
 function init()
 {
-  Vo = 1; Octa = 4;
-  timeTo(8); inkeyHz(-1); aStop(); keyBdInit();
+  Octa = 4;
+  A.setOcta(Octa);
+  A.stop();
+  A.setSec(10);
+  timeTo(8);
+  inkeyHz(-1);
+}
+function volume(dv)
+{
+  Vo += dv;
+  if (Vo < 0) Vo = 0; else if (Vo > 1) Vo = 1;
+  Vo = Math.round(Vo * 10) / 10;
+  elemVo.value = Vo;
+}
+function pop()
+{
+  A.pop();
+  window.requestAnimationFrame(main);
+}
+function space()
+{
+  A.setVolume(Vo);
+  A.setOcta(Octa);
+  A.audioOn(Freq, Func);
+  if (Time !== "∞")
+  {
+    setTimeout(function() { pop(); }, Time * 1000);
+  }
 }
 function inkey(key)
 {
@@ -588,8 +469,8 @@ function inkey(key)
   switch (key)
   {
     case  13: init()                                 ; break; // Enter
-    case  32: audio(Freq)                            ; break; // Space
-    case 191: aStop(); keyBdInit()                   ; break; // '/'
+    case  32: space()                                ; break; // Space
+    case 191: A.stop()                               ; break; // '/'
     case  81: B.lineWidth( 0.5)                      ; break; // 'Q'
     case  87: B.lineWidth( 2  )                      ; break; // 'W'
     case  90: B.zooming  (-1  )                      ; break; // 'Z'
@@ -603,16 +484,16 @@ function inkey(key)
     case  51: Select = 3;                            ; break; // '3'
     case  78: if (Octa > 1) Octa--                   ; break; // 'N'
     case  77: if (Octa < 8) Octa++                   ; break; // 'M'
-    case  65: if (Vo > 0) elemVo.value = Vo -= 0.5   ; break; // 'A'
-    case  83: if (Vo < 4) elemVo.value = Vo += 0.5   ; break; // 'S'
-    default: inkeyHz(key);
+    case  65: volume(-0.1)                           ; break; // 'A'
+    case  83: volume( 0.1)                           ; break; // 'S'
+    default: if (!inkeyHz(key)) return;
   }
   window.requestAnimationFrame(main);
 }
 
 document.body.addEventListener('keydown', event =>
 {
-  var key = event.keyCode;
+  let key = event.keyCode;
   if (Key[ 16]) { key += 900; } // SHIFT
   if (37 <= key && 40 <= key) event.preventDefault();
   inkey(key);
@@ -622,11 +503,11 @@ document.body.addEventListener('keydown', event =>
 // Key status
 //--------------------------------------------------------------------
 var Key = new Array(256);
-for (var i = 0; i < 256; i++) Key[i] = 0;
+for (let i = 0; i < 256; i++) Key[i] = 0;
 window.onkeydown = function(event)
-{ var k = event.keyCode; Key[k] = 1; keyUD(k, 1); return; }
+{ let k = event.keyCode; Key[k] = 1; keyUD(k, 1); return; }
 window.onkeyup   = function(event)
-{ var k = event.keyCode; Key[k] = 0; keyUD(k, 0); return; }
+{ let k = event.keyCode; Key[k] = 0; keyUD(k, 0); return; }
 
 //--------------------------------------------------------------------
 // main
