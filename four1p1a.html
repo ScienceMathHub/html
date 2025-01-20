@@ -19,57 +19,81 @@
 <body>
 <p id="DFT"></p>
 <div style='float:left;'>
+<form id="butCS1">
 a1<label><input type="range" id ="rangeA1" min="-1" max= "1" step="0.1"
   value="0"></label>
-<input type="button" id="butH1" value="H" onclick="lowhigh(1, 800)">
-<input type="button" id="butC1" value="c" onclick="cossin(1, 0)"><br>
+  c<input type="radio" id="butC1" name="CS1" value="C"
+    onclick="cossin(1,   0)" />
+  s<input type="radio" id="butS1" name="CS1" value="S"
+    onclick="cossin(1,   1)" /><br>
 f1<label><input type="range" id ="rangeF1" min="200" max= "1000"
   step="20"  value="0"></label>
-<input type="button" id="butL1" value="L" onclick="lowhigh(1, 0)">
-<input type="button" id="butS1" value="s" onclick="cossin(1, 1)">
-<pre></pre>
+  L<input type="radio" id="butL1" name="LH1" value="L"
+    onclick="lowhigh(1,   0)" />
+  H<input type="radio" id="butH1" name="LH1" value="H"
+    onclick="lowhigh(1, 800)" />
+</form>
+<form id="butCS2">
 a2<label><input type="range" id ="rangeA2" min="-1" max= "1" step="0.1"
   value="0"></label>
-<input type="button" id="butH2" value="H" onclick="lowhigh(2, 800)">
-<input type="button" id="butC2" value="c" onclick="cossin(2, 0)"><br>
-f2<label><input type="range" id ="rangeF2" min="200" max= "1000"
+  c<input type="radio" id="butC2" name="CS2" value="C"
+    onclick="cossin(2,   0)" />
+  s<input type="radio" id="butS2" name="CS2" value="S"
+    onclick="cossin(2,   1)" /><br>
+f2<label><input type="range" id ="rangeF2" min="200" max= "2000"
   step="20"  value="0"></label>
-<input type="button" id="butL2" value="L" onclick="lowhigh(2, 0)">
-<input type="button" id="butS2" value="s" onclick="cossin(2, 1)">
-<pre></pre>
+  L<input type="radio" id="butL2" name="LH2" value="L"
+    onclick="lowhigh(2,   0)" />
+  H<input type="radio" id="butH2" name="LH2" value="H"
+    onclick="lowhigh(2, 800)" />
+</form>
+<form id="butCS3">
 a3<label><input type="range" id ="rangeA3" min="-1" max= "1" step="0.1"
   value="0"></label>
-<input type="button" id="butH3" value="H" onclick="lowhigh(3, 800)">
-<input type="button" id="butC3" value="c" onclick="cossin(3, 0)"><br>
+  c<input type="radio" id="butC3" name="CS3" value="C"
+    onclick="cossin(3,   0)" />
+  s<input type="radio" id="butS3" name="CS3" value="S"
+    onclick="cossin(3,   1)" /><br>
 f3<label><input type="range" id ="rangeF3" min="200" max= "1000"
   step="20"  value="0"></label>
-<input type="button" id="butL3" value="L" onclick="lowhigh(3, 0)">
-<input type="button" id="butS3" value="s" onclick="cossin(3, 1)">
-<pre></pre>
+  L<input type="radio" id="butL3" name="LH3" value="L"
+    onclick="lowhigh(3,   0)" />
+  H<input type="radio" id="butH3" name="LH3" value="H"
+    onclick="lowhigh(3, 800)" />
+</form>
+<form id="butCS4">
 a4<label><input type="range" id ="rangeA4" min="-1" max= "1" step="0.1"
   value="0"></label>
-<input type="button" id="butH4" value="H" onclick="lowhigh(4, 800)">
-<input type="button" id="butC4" value="c" onclick="cossin(4, 0)"><br>
+  c<input type="radio" id="butC4" name="CS4" value="C"
+    onclick="cossin(4,   0)" />
+  s<input type="radio" id="butS4" name="CS4" value="S"
+    onclick="cossin(4,   1)" /><br>
 f4<label><input type="range" id ="rangeF4" min="200" max= "1000"
   step="20"  value="0"></label>
-<input type="button" id="butL4" value="L" onclick="lowhigh(4, 0)">
-<input type="button" id="butS4" value="s" onclick="cossin(4, 1)">
-<pre></pre>
-<input type="button" id="butR" value="Reset" onclick="inkey(13)">Enter
-<input type="button" id="butS" value="音" onclick="inkey(32)">Space
-<pre></pre>
+  L<input type="radio" id="butL4" name="LH4" value="L"
+    onclick="lowhigh(4,   0)" />
+  H<input type="radio" id="butH4" name="LH4" value="H"
+    onclick="lowhigh(4, 800)" />
+</form>
+<form id="but123">
+  <input type="radio" id="but1" name="123" value="1"
+    onclick="inkey(49)" />1
+  <input type="radio" id="but2" name="123" value="2"
+    onclick="inkey(50)" />2
+  <input type="radio" id="but3" name="123" value="3"
+    onclick="inkey(51)" />3
+<input type="button" id="butR" value="決" onclick="inkey(13)">Ent
+<input type="button" id="butS" value="音" onclick="inkey(32)">SP
+</form>
 V<label><input type="range" id ="rangeV0" min="0" max= "1"
   step="0.1"  value="1"></label>as
 <pre></pre>
 <input type="button" id="butQ" value="細" onclick="inkey(81)">q
 <input type="button" id="butW" value="太" onclick="inkey(87)">w
-<input type="button" id="but1" value="1"  onclick="inkey(49)">1
-<input type="button" id="but2" value="2"  onclick="inkey(50)">2
-<input type="button" id="but3" value="3"  onclick="inkey(51)">3
-<pre></pre>
 <input type="button" id="butZ" value="縮" onclick="inkey(90)">z 
 <input type="button" id="butX" value="拡" onclick="inkey(88)">x
 <input type="button" id="butC" value="初" onclick="inkey(67)">c　
+<pre></pre>
 
 <script src="https://sciencemathhub.github.io/html/toappe.js"></script>
 <script src="https://sciencemathhub.github.io/html/canlib.js"></script>
@@ -131,8 +155,12 @@ class Fourier
 //--------------------------------------------------------------------
 const B = new BASIC();
 const A = new AUDIO();
+A.setSec(1);
 let Freq = 200;
 A.setBase(Freq);
+let Octa = 4;
+A.setOcta(Octa);
+
 const F = new Fourier();
 F.setN(512);
 F.setT(0.1);
@@ -141,7 +169,6 @@ const DisN = 10;
 let FuncD;  // 表示
 let FuncY;  // 関数
 let Select; // 関数選択
-let Octa;   // Octave
 let H1, H2, H3, H4;
 let C1, C2, C3, C4;
 let Volume = 1;
@@ -178,20 +205,24 @@ function blurelem()
 //--------------------------------------------------------------------
 function fd1()
 {
-  let a1 = Number(A1.value).toFixed(1);
+  let a1 = Number(A1.value);
   let f1 = Number(F1.value) + H1;
-  let a2 = Number(A2.value).toFixed(1);
+  let a2 = Number(A2.value);
   let f2 = Number(F2.value) + H2;
-  let a3 = Number(A3.value).toFixed(1);
+  let a3 = Number(A3.value);
   let f3 = Number(F3.value) + H3;
-  let a4 = Number(A4.value).toFixed(1);
+  let a4 = Number(A4.value);
   let f4 = Number(F4.value) + H4;
   let str;
 
+  a1 = a1.toFixed(1);
+  a2 = (a2 < 0)? " - " + (-a2).toFixed(1) : " + " + a2.toFixed(1);
+  a3 = (a3 < 0)? " - " + (-a3).toFixed(1) : " + " + a3.toFixed(1);
+  a4 = (a4 < 0)? " - " + (-a4).toFixed(1) : " + " + a4.toFixed(1);
   str  = "y = ";
-  str += a1 + ((C1)? "sin" : "cos") + "(2π"+f1+"t) + ";
-  str += a2 + ((C2)? "sin" : "cos") + "(2π"+f2+"t) + ";
-  str += a3 + ((C3)? "sin" : "cos") + "(2π"+f3+"t) + ";
+  str += a1 + ((C1)? "sin" : "cos") + "(2π"+f1+"t)";
+  str += a2 + ((C2)? "sin" : "cos") + "(2π"+f2+"t)";
+  str += a3 + ((C3)? "sin" : "cos") + "(2π"+f3+"t)";
   str += a4 + ((C4)? "sin" : "cos") + "(2π"+f4+"t)";
   return str;
 }
@@ -220,7 +251,7 @@ function fy1(t)
 //--------------------------------------------------------------------
 // 関数2
 //--------------------------------------------------------------------
-function fd2() { return "200Hz Square wave"; }
+function fd2() { return "200Hz 矩形波 (Square wave)"; }
 function fy2(t)
 {
   let a = 1;
@@ -235,7 +266,7 @@ function fy2(t)
 //--------------------------------------------------------------------
 // 関数3
 //--------------------------------------------------------------------
-function fd3() { return "200Hz Triangle wave"; }
+function fd3() { return "200Hz 三角波 (Triangle wave)"; }
 function fy3(t)
 {
   let a = 1;
@@ -251,20 +282,6 @@ function fy3(t)
   if (x <= 1) return -a * x;
   x -= 1;
   return a * (x - 1);
-}
-
-//--------------------------------------------------------------------
-// 関数 select
-//--------------------------------------------------------------------
-function selectF(f)
-{
-  switch (f)
-  {
-    case  2: FuncD = fd2; FuncY = fy2; break;
-    case  3: FuncD = fd3; FuncY = fy3; break;
-    default: FuncD = fd1; FuncY = fy1; break;
-  }
-  Select = f;
 }
 
 //--------------------------------------------------------------------
@@ -400,17 +417,21 @@ function scale(c, px, py, h, times, unit, m, up, d)
 //--------------------------------------------------------------------
 function infomation()
 {
-  let y = 18 * 20.5;
+  let y = 18 * 20.3;
+  let v = Math.round(Number(V0.value) * 10);
 
+  v = (v < 10)? "0"+v : v;
   B.WINDOW(0, 0, 640, 400);
   B.LINEBF(0, y, 640, y + 18, '#000');
   B.LOCATEp(0, y);
   B.COLOR('#0f0');
   B.TAB(1, 0);
   B.PRINTe("e^4r^5ty^7u^8i^9op平均律, dfghjkl;純正律");
-  B.PRINT (", nm:オクターブ(" + Octa + ")");
+  B.PRINT (", nm:Octave(" + Octa + ")");
   B.PRINT (" Rate" +  A.getRate()/1000 + "kHz");
-  B.PRINT (" (" + A.getCount() + ") f = " + Freq + "Hz");
+  B.PRINT (" (v" + v + ") ");
+  B.PRINT (Freq + "Hz");
+  B.PRINT (" (" + A.getCount() + ")");
 }
 function display()
 {
@@ -441,80 +462,6 @@ function display()
   infomation();
 }
 
-//--------------------------------------------------------------------
-// input
-//--------------------------------------------------------------------
-function blur()
-{
-  document.getElementById('butR').blur();
-  document.getElementById('butS').blur();
-  document.getElementById('but1').blur();
-  document.getElementById('but2').blur();
-  document.getElementById('but3').blur();
-  document.getElementById('butQ').blur();
-  document.getElementById('butW').blur();
-  document.getElementById('butZ').blur();
-  document.getElementById('butX').blur();
-  document.getElementById('butC').blur();
-  document.getElementById('butC1').blur();
-  document.getElementById('butS1').blur();
-  document.getElementById('butC2').blur();
-  document.getElementById('butS2').blur();
-  document.getElementById('butC3').blur();
-  document.getElementById('butS3').blur();
-  document.getElementById('butC4').blur();
-  document.getElementById('butS4').blur();
-  document.getElementById('butH1').blur();
-  document.getElementById('butL1').blur();
-  document.getElementById('butH2').blur();
-  document.getElementById('butL2').blur();
-  document.getElementById('butH3').blur();
-  document.getElementById('butL3').blur();
-  document.getElementById('butH4').blur();
-  document.getElementById('butL4').blur();
-}
-
-function range()
-{
-  blur();
-  window.requestAnimationFrame(main);
-}
-A1.addEventListener('input', range);
-F1.addEventListener('input', range);
-A2.addEventListener('input', range);
-F2.addEventListener('input', range);
-A3.addEventListener('input', range);
-F3.addEventListener('input', range);
-A4.addEventListener('input', range);
-F4.addEventListener('input', range);
-V0.addEventListener('input', range);
-
-function lowhigh(n, h)
-{
-  switch(n)
-  {
-    case  1: H1 = h; break;
-    case  2: H2 = h; break;
-    case  3: H3 = h; break;
-    case  4: H4 = h; break;
-  }
-  blur();
-  window.requestAnimationFrame(main);
-}
-
-function cossin(n, c)
-{
-  switch(n)
-  {
-    case  1: C1 = c; break;
-    case  2: C2 = c; break;
-    case  3: C3 = c; break;
-    case  4: C4 = c; break;
-    default: C1 = C2 = C3 = C4 = c;
-  }
-  blur();
-  window.requestAnimationFrame(main);
-}
 
 //--------------------------------------------------------------------
 // keyboard
@@ -566,24 +513,133 @@ function keyUD(key, on)
 }
 
 //--------------------------------------------------------------------
+// input
+//--------------------------------------------------------------------
+function blur()
+{
+  document.getElementById('butR').blur();
+  document.getElementById('butS').blur();
+  document.getElementById('but1').blur();
+  document.getElementById('but2').blur();
+  document.getElementById('but3').blur();
+  document.getElementById('butQ').blur();
+  document.getElementById('butW').blur();
+  document.getElementById('butZ').blur();
+  document.getElementById('butX').blur();
+  document.getElementById('butC').blur();
+  document.getElementById('butCS1').blur();
+  document.getElementById('butCS2').blur();
+  document.getElementById('butCS3').blur();
+  document.getElementById('butCS4').blur();
+  document.getElementById('but123').blur();
+}
+
+function range()
+{
+  blur();
+  window.requestAnimationFrame(main);
+}
+A1.addEventListener('input', range);
+F1.addEventListener('input', range);
+A2.addEventListener('input', range);
+F2.addEventListener('input', range);
+A3.addEventListener('input', range);
+F3.addEventListener('input', range);
+A4.addEventListener('input', range);
+F4.addEventListener('input', range);
+V0.addEventListener('input', range);
+
+function selectF(f)
+{
+  let i = f - 1;
+
+  switch (f)
+  {
+    case  1: FuncD = fd1; FuncY = fy1; break;
+    case  2: FuncD = fd2; FuncY = fy2; break;
+    case  3: FuncD = fd3; FuncY = fy3; break;
+    default: return;
+  }
+  Select = f;
+  document.getElementById("but123")[i].checked = true;
+}
+
+function lowhigf(n, h)
+{
+  let id;
+  let i = (h)? 5 : 4;
+
+  switch(n)
+  {
+    case  1: H1 = h; id = "butCS1"; break;
+    case  2: H2 = h; id = "butCS2"; break;
+    case  3: H3 = h; id = "butCS3"; break;
+    case  4: H4 = h; id = "butCS4"; break;
+    default: return;
+  }
+  document.getElementById(id)[i].checked = true;
+}
+
+function cossinf(n, c)
+{
+  let id;
+  let i = c + 1;
+
+  switch(n)
+  {
+    case  1: C1 = c; id = "butCS1"; break;
+    case  2: C2 = c; id = "butCS2"; break;
+    case  3: C3 = c; id = "butCS3"; break;
+    case  4: C4 = c; id = "butCS4"; break;
+    default: return;
+  }
+  document.getElementById(id)[i].checked = true;
+}
+
+function lowhigh(n, h)
+{
+  lowhigf(n, h);
+  blur();
+  window.requestAnimationFrame(main);
+}
+
+function cossin(n, c)
+{
+  cossinf(n, c);
+  blur();
+  window.requestAnimationFrame(main);
+}
+
+//--------------------------------------------------------------------
 // init
 //--------------------------------------------------------------------
-function init()
+function init(i)
 {
-  A1.value =  1.0;
-  F1.value =  200; H1 = 0;
-  A2.value =  0.3;
-  F2.value =  600; H2 = 0;
-  A3.value =  0.2;
-  F3.value = 1000; H3 = 0;
-  A4.value =  0.1;
-  F4.value =  600; H4 = 800;
+  const funcs =
+  [
+    [ [0.5, 200, 1], [ 0.3, 400, 1], [0.1,  800, 1], [0.3, 1600, 1] ],
+    [ [1.0, 200, 1], [ 0.3, 600, 1], [0.2, 1000, 1], [0.1, 1400, 1] ],
+    [ [0.8, 200, 1], [-0.1, 600, 1], [0.0, 1000, 1], [0.0, 1400, 1] ]
+  ]
+  const func = funcs[i-1];
+  let   f, h;
+  
   selectF(1);
-  cossin(0, 1);
+
+  A1.value =  func[0][0]; cossinf(1, func[0][2]);
+  f = func[0][1]; h = 0; if (f > 1000) { h = 800; f -= h; } 
+  F1.value =  f         ; lowhigf(1, h);
+  A2.value =  func[1][0]; cossinf(2, func[1][2]);
+  f = func[1][1]; h = 0; if (f > 1000) { h = 800; f -= h; } 
+  F2.value =  f         ; lowhigf(2, h);
+  A3.value =  func[2][0]; cossinf(3, func[2][2]);
+  f = func[2][1]; h = 0; if (f > 1000) { h = 800; f -= h; } 
+  F3.value =  f         ; lowhigf(3, h);
+  A4.value =  func[3][0]; cossinf(4, func[3][2]);
+  f = func[3][1]; h = 0; if (f > 1000) { h = 800; f -= h; } 
+  F4.value =  f         ; lowhigf(4, h);
 
   Octa = 4;
-  A.setOcta(Octa);
-  A.setSec(1);
   Audio = 0;
   A.stop();
 }
@@ -617,7 +673,7 @@ function inkey(key)
 {
   switch (key)
   {
-    case 13: init()                ; break; // 'R' Enter
+    case 13: init(Select)          ; break; // 'R' Enter
     case 32: space(FuncY)          ; break; // 'S' Space
     case 49: selectF(1)            ; break; // '1'
     case 50: selectF(2)            ; break; // '2'
@@ -669,7 +725,8 @@ function main()
   display();
 }
 
-init();
+init(1);
+main();
 
 //--------------------------------------------------------------------
 </script>
