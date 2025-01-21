@@ -85,8 +85,8 @@ f4<label><input type="range" id ="rangeF4" min="200" max= "1000"
 <input type="button" id="butR" value="決" onclick="inkey(13)">Ent
 <input type="button" id="butS" value="音" onclick="inkey(32)">SP
 </form>
-グラフ<label><input type="range" id ="rangeP0" min="0" max= "2"
-  step="1"  value="1"></label>vb&nbsp;<br>
+グラフ<label><input type="range" id ="rangeP0" min="0" max= "6"
+  step="1"  value="5"></label>vb&nbsp;<br>
 V<label><input type="range" id ="rangeV0" min="0" max= "1"
   step="0.1"  value="1"></label>as&nbsp;<br>
 <input type="button" id="butQ" value="細" onclick="inkey(81)">q
@@ -532,14 +532,16 @@ function display()
   px = -0.6;
   scale('#bb0', px, py, h,   20, "ms", 1.5, 0, 1/t);
   s = Number(P0.value);
-  if (Select == 1 && s < 2)
+  if (Select == 1)
   {
-    graph(C4, px, py, h,   20, fy14);
-    graph(C3, px, py, h,   20, fy13);
-    graph(C2, px, py, h,   20, fy12);
-    graph(C1, px, py, h,   20, fy11);
+    let f = (s == 4 || s == 5)? 1 : 0;
+
+    if (s == 3 || f) graph(C4, px, py, h,   20, fy14);
+    if (s == 2 || f) graph(C3, px, py, h,   20, fy13);
+    if (s == 1 || f) graph(C2, px, py, h,   20, fy12);
+    if (s == 0 || f) graph(C1, px, py, h,   20, fy11);
   }
-  if (Select != 1 || s > 0)
+  if (Select != 1 || s >= 5)
   {
     graph(C0, px, py, h,   20, FuncY);
   }
@@ -748,7 +750,7 @@ function volume(dv)
 function dispf(dp)
 {
   let d = Number(P0.value) + dp;
-  if (d < 0) d = 0; else if (d > 2) d = 2;
+  if (d < 0) d = 0; else if (d > 6) d = 6;
   P0.value = d;
 }
 let Audio = 0;
