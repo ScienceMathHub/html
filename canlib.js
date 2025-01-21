@@ -264,21 +264,6 @@ class BASIC
     this.LINE(x1, y1, x2, y1, c);
     this.LINE(x1, y2, x2, y2, c);
   }
-/*
-  LINEB(x1, y1, x2, y2, c)
-  {
-    let x, y, w, h;
-
-    x = this.scrX(x1);
-    y = this.scrY(y1);
-    this.PosX = this.scrX(x2);
-    this.PosY = this.scrY(y2);
-    w = this.PosX - x + 1;
-    h = this.PosY - y + 1;
-    ctx.strokeStyle = c;
-    ctx.strokeRect(x, y, w, h);
-  }
-*/
   LINEBF(x1, y1, x2, y2, c)
   {
     let x, y, w, h;
@@ -291,6 +276,7 @@ class BASIC
     h = this.PosY - y + 1;
     ctx.fillStyle = c;
     ctx.fillRect(x, y, w, h);
+    this.LINEB(x1, y1, x2, y2, c)
   }
   CIRCLEF(x, y, r, c)
   {

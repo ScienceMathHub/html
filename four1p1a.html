@@ -81,13 +81,14 @@ f4<label><input type="range" id ="rangeF4" min="200" max= "1000"
   <input type="radio" id="but2" name="123" value="2"
     onclick="inkey(50)" />2
   <input type="radio" id="but3" name="123" value="3"
-    onclick="inkey(51)" />3
+    onclick="inkey(51)" />3&nbsp;
 <input type="button" id="butR" value="決" onclick="inkey(13)">Ent
 <input type="button" id="butS" value="音" onclick="inkey(32)">SP
 </form>
+グラフ<label><input type="range" id ="rangeP0" min="0" max= "2"
+  step="1"  value="1"></label>vb&nbsp;<br>
 V<label><input type="range" id ="rangeV0" min="0" max= "1"
-  step="0.1"  value="1"></label>as
-<pre></pre>
+  step="0.1"  value="1"></label>as&nbsp;<br>
 <input type="button" id="butQ" value="細" onclick="inkey(81)">q
 <input type="button" id="butW" value="太" onclick="inkey(87)">w
 <input type="button" id="butZ" value="縮" onclick="inkey(90)">z 
@@ -100,6 +101,59 @@ V<label><input type="range" id ="rangeV0" min="0" max= "1"
 <script src="https://sciencemathhub.github.io/html/audlib.js"></script>
 <script>
 'use strict'
+
+//--------------------------------------------------------------------
+// public letiable
+//--------------------------------------------------------------------
+const B = new BASIC();
+const A = new AUDIO();
+A.setSec(1);
+let Freq = 200;
+A.setBase(Freq);
+let Octa = 4;
+A.setOcta(Octa);
+
+const DisN = 10;
+let FuncD;  // 表示
+let FuncY;  // 関数
+let Select; // 関数選択
+let H1, H2, H3, H4;
+let S1, S2, S3, S4;
+let Volume = 1;
+let C0 = '#fff';
+let C1 = '#f00';
+let C2 = '#0f0';
+let C3 = '#0ff';
+let C4 = '#f6f';
+let Temp; // debug
+
+//--------------------------------------------------------------------
+// y(t)
+//--------------------------------------------------------------------
+let A1 = document.getElementById('rangeA1');
+let F1 = document.getElementById('rangeF1');
+let A2 = document.getElementById('rangeA2');
+let F2 = document.getElementById('rangeF2');
+let A3 = document.getElementById('rangeA3');
+let F3 = document.getElementById('rangeF3');
+let A4 = document.getElementById('rangeA4');
+let F4 = document.getElementById('rangeF4');
+let V0 = document.getElementById('rangeV0');
+let P0 = document.getElementById('rangeP0');
+
+function blurelem()
+{
+  A1.blur();
+  F1.blur();
+  A2.blur();
+  F2.blur();
+  A3.blur();
+  F3.blur();
+  A4.blur();
+  F4.blur();
+  V0.blur();
+  P0.blur();
+}
 
 //--------------------------------------------------------------------
 // Fourier
@@ -150,54 +204,63 @@ class Fourier
   }
 }
 
-//--------------------------------------------------------------------
-// public letiable
-//--------------------------------------------------------------------
-const B = new BASIC();
-const A = new AUDIO();
-A.setSec(1);
-let Freq = 200;
-A.setBase(Freq);
-let Octa = 4;
-A.setOcta(Octa);
-
 const F = new Fourier();
-F.setN(1024);
+F.setN(512);
 F.setT(0.1);
 
-const DisN = 10;
-let FuncD;  // 表示
-let FuncY;  // 関数
-let Select; // 関数選択
-let H1, H2, H3, H4;
-let C1, C2, C3, C4;
-let Volume = 1;
-let Temp; // debug
-
 //--------------------------------------------------------------------
-// y(t)
+// 正弦波
 //--------------------------------------------------------------------
-let A1 = document.getElementById('rangeA1');
-let F1 = document.getElementById('rangeF1');
-let A2 = document.getElementById('rangeA2');
-let F2 = document.getElementById('rangeF2');
-let A3 = document.getElementById('rangeA3');
-let F3 = document.getElementById('rangeF3');
-let A4 = document.getElementById('rangeA4');
-let F4 = document.getElementById('rangeF4');
-let V0 = document.getElementById('rangeV0');
-
-function blurelem()
+function fy11(t)
 {
-  A1.blur();
-  F1.blur();
-  A2.blur();
-  F2.blur();
-  A3.blur();
-  F3.blur();
-  A4.blur();
-  F4.blur();
-  V0.blur();
+  let p2 = Math.PI * 2;
+  let pt = p2 * t;
+  let a  = Number(A1.value);
+  let w  = (Number(F1.value) + H1) * pt;
+  let y;
+
+  w = (S1)? Math.sin(w) : Math.cos(w);
+  y  = a * w;
+  return y;
+}
+
+function fy12(t)
+{
+  let p2 = Math.PI * 2;
+  let pt = p2 * t;
+  let a  = Number(A2.value);
+  let w  = (Number(F2.value) + H2) * pt;
+  let y;
+
+  w = (S2)? Math.sin(w) : Math.cos(w);
+  y  = a * w;
+  return y;
+}
+
+function fy13(t)
+{
+  let p2 = Math.PI * 2;
+  let pt = p2 * t;
+  let a  = Number(A3.value);
+  let w  = (Number(F3.value) + H3) * pt;
+  let y;
+
+  w = (S3)? Math.sin(w) : Math.cos(w);
+  y  = a * w;
+  return y;
+}
+
+function fy14(t)
+{
+  let p2 = Math.PI * 2;
+  let pt = p2 * t;
+  let a  = Number(A4.value);
+  let w  = (Number(F4.value) + H4) * pt;
+  let y;
+
+  w = (S4)? Math.sin(w) : Math.cos(w);
+  y  = a * w;
+  return y;
 }
 
 //--------------------------------------------------------------------
@@ -213,18 +276,28 @@ function fd1()
   let f3 = Number(F3.value) + H3;
   let a4 = Number(A4.value);
   let f4 = Number(F4.value) + H4;
-  let str;
+  let a, b;
 
-  a1 = a1.toFixed(1);
-  a2 = (a2 < 0)? " - " + (-a2).toFixed(1) : " + " + a2.toFixed(1);
-  a3 = (a3 < 0)? " - " + (-a3).toFixed(1) : " + " + a3.toFixed(1);
-  a4 = (a4 < 0)? " - " + (-a4).toFixed(1) : " + " + a4.toFixed(1);
-  str  = "y = ";
-  str += a1 + ((C1)? "sin" : "cos") + "(2π"+f1+"t)";
-  str += a2 + ((C2)? "sin" : "cos") + "(2π"+f2+"t)";
-  str += a3 + ((C3)? "sin" : "cos") + "(2π"+f3+"t)";
-  str += a4 + ((C4)? "sin" : "cos") + "(2π"+f4+"t)";
-  return str;
+  a1 = (a1 < 0)? a1.toFixed(1) : " " + a1.toFixed(1);
+  a2 = (a2 < 0)? a2.toFixed(1) : "+" + a2.toFixed(1);
+  a3 = (a3 < 0)? a3.toFixed(1) : "+" + a3.toFixed(1);
+  a4 = (a4 < 0)? a4.toFixed(1) : "+" + a4.toFixed(1);
+  B.COLOR(C0); B.PRINT("y ="); B.TAB(0.5, 0);
+  B.COLOR(C1); B.PRINT(a1 + ((S1)? "sin" : "cos") + "(2π");
+  if (f1 < 1000) { a = 0.8; b = 1 - a; } else { a = -0.2; b = -a; }
+  B.TAB(a, 0); B.PRINT(f1); B.TAB(b, 0); B.PRINT("t)");
+
+  B.COLOR(C2); B.PRINT(a2 + ((S2)? "sin" : "cos") + "(2π");
+  if (f2 < 1000) { a = 0.8; b = 1 - a; } else { a = -0.2; b = -a; }
+  B.TAB(a, 0); B.PRINT(f2); B.TAB(b, 0); B.PRINT("t)");
+
+  B.COLOR(C3); B.PRINT(a3 + ((S3)? "sin" : "cos") + "(2π");
+  if (f3 < 1000) { a = 0.8; b = 1 - a; } else { a = -0.2; b = -a; }
+  B.TAB(a, 0); B.PRINT(f3); B.TAB(b, 0); B.PRINT("t)");
+
+  B.COLOR(C4); B.PRINT(a4 + ((S4)? "sin" : "cos") + "(2π");
+  if (f4 < 1000) { a = 0.8; b = 1 - a; } else { a = -0.2; b = -a; }
+  B.TAB(a, 0); B.PRINT(f4); B.TAB(b, 0); B.PRINT("t)");
 }
 function fy1(t)
 {
@@ -240,10 +313,10 @@ function fy1(t)
   let w4 = (Number(F4.value) + H4) * pt;
   let y;
 
-  w1 = (C1)? Math.sin(w1) : Math.cos(w1);
-  w2 = (C2)? Math.sin(w2) : Math.cos(w2);
-  w3 = (C3)? Math.sin(w3) : Math.cos(w3);
-  w4 = (C4)? Math.sin(w4) : Math.cos(w4);
+  w1 = (S1)? Math.sin(w1) : Math.cos(w1);
+  w2 = (S2)? Math.sin(w2) : Math.cos(w2);
+  w3 = (S3)? Math.sin(w3) : Math.cos(w3);
+  w4 = (S4)? Math.sin(w4) : Math.cos(w4);
   y  = a1 * w1 + a2 * w2 + a3 * w3 + a4 * w4;
   return y;
 }
@@ -251,7 +324,10 @@ function fy1(t)
 //--------------------------------------------------------------------
 // 関数2
 //--------------------------------------------------------------------
-function fd2() { return "200Hz 矩形波 (Square wave)"; }
+function fd2()
+{
+  B.COLOR(C0); B.PRINT("200Hz 矩形波 (Square wave)");
+}
 function fy2(t)
 {
   let a = 1;
@@ -266,7 +342,10 @@ function fy2(t)
 //--------------------------------------------------------------------
 // 関数3
 //--------------------------------------------------------------------
-function fd3() { return "200Hz 三角波 (Triangle wave)"; }
+function fd3()
+{
+  B.COLOR(C0); B.PRINT("200Hz 三角波 (Triangle wave)");
+}
 function fy3(t)
 {
   let a = 1;
@@ -324,9 +403,9 @@ function spect(c, px, py, h, times, func)
 
     x = n   * df;
     y = a.a * h ;    
-    B.LINEBF(x-dx-dw, 0, x, y, b);
+    B.LINEBF(x-dx-dw, 0, x, y+1, b);
     y = a.b * h ;
-    B.LINEBF(x, 0, x+dx, y, c);
+    B.LINEBF(x, 0, x+dx, y+1, c);
   }
 }
 
@@ -359,7 +438,7 @@ function graph(c, px, py, h, times, func)
 // 目盛り
 //--------------------------------------------------------------------
 function scale(c, px, py, h, times, unit, m, up, d)
-{ /* dn=0:up 1:dn 2:half scale */
+{ // dn=0:up 1:dn 2:half scale
   let t, x, y, s, r, n;
 
   times /= 10;
@@ -368,45 +447,47 @@ function scale(c, px, py, h, times, unit, m, up, d)
   n = DisN + 1;
   B.WINDOW(px, py, n, py-399);
 
-  x = 0.05;
-  for (t = 1; t <= m; t++)
+  r = 0.04;
+  s = Math.floor(m) * 10;
+  for (t = 1; t <= s; t++)
   {
-    y = h * t;
-//    if (!up)
+    y = h * t * 0.1;
+    if ((t % 10) == 0)
     {
-      B.LOCATEp(x,  y); B.TAB(-2.5, -0.55); B.PRINT(" "+t);
+      x = r * 3;
+      B.LOCATEp(-x,  y); B.TAB(-1.9, -0.56); B.PRINT(" "+t/10);
+      B.LOCATEp(-x, -y); B.TAB(-1.9, -0.56); B.PRINT("-"+t/10);
     }
-    B.LINE(-x,  y, x,  y, c);
-//    if (!up)
-    {
-      B.LOCATEp(x, -y); B.TAB(-2.5, -0.55); B.PRINT("-"+t);
-    }
+    else if ((t % 5) == 0) { x = r * 2; }
+    else                   { x = r    ; }
+
     B.LINE(-x, -y, x, -y, c);
+    B.LINE(-x,  y, x,  y, c);
   }
   B.LINE(-100,  0, 100, 0, c);
 
-//  s = (up)?  h * (1-0.1) * d : h * (m  +0.4);
-  s = h * (m  +0.4);
+  r = Math.floor(m);
   for (t = -20; t <= n*10+20; t++)
   {
     x = t * 0.1;
-    if      ( t == 0 || t == 100) { y = h * (m  +0.2)          ; }
-    else if ((t % 10) == 0      ) { y = h * (1/2+0.2) * 0.5 * d; }
-    else if ((t %  5) == 0      ) { y = h * (1/4+0.2) * 0.5 * d; }
-    else                          { y = h *      0.2  * 0.7 * d; }
-    r = (y < s)? y : s;
-    B.LINE( x, -r,  x, y, c);
+    if      ( t == 0      ) { y = h *  m                 ; }
+    else if ( t == 100    ) { y = h *  r                 ; }
+    else if ((t % 10) == 0) { y = h * (1/2+0.2) * 0.5 * d; }
+    else if ((t %  5) == 0) { y = h * (1/4+0.2) * 0.5 * d; }
+    else                    { y = h *      0.2  * 0.7 * d; }
+    B.LINE( x, -y,  x, y, c);
   }
 
   s = 0; //s = -m * h;
   x = -0.9;
-  y = 0.5; // y = 0.9 - y;
-  r = 1.1;
+  y = 0.5
+  if (up) y = -1 - y;
+  r = 1.2;
   B.LOCATEp(0, s); B.TAB(x+r, y); B.PRINT("0" + unit);
   r = 0;
   for (t = 1; t < n; t++)
   {
-    if (t >= 10) r = 1.1;
+    if (t >= 10) r = 1.2;
     B.LOCATEp( t, s); B.TAB(x+r  , y);
     B.PRINT(t*times + unit);
   }
@@ -415,51 +496,61 @@ function scale(c, px, py, h, times, unit, m, up, d)
 //--------------------------------------------------------------------
 // screen
 //--------------------------------------------------------------------
-function infomation()
+function information()
 {
-  let y = 18 * 20.3;
+  let y = 18 * 21;
   let v = Math.round(Number(V0.value) * 10);
 
-  v = (v < 10)? "0"+v : v;
+  v = (v < 10)? "0" + v : v;
   B.WINDOW(0, 0, 640, 400);
-  B.LINEBF(0, y, 640, y + 18, '#000');
+  B.LINEBF(3.8 * 8-1, y, 640, y + 18, '#000');
   B.LOCATEp(0, y);
+  B.TAB(3.8, 0);
+
+  B.COLOR('#fff');
+  B.PRINT("DFT(" + F.N + "/" + F.T.toFixed(1) + "s) ");
+
   B.COLOR('#0f0');
-  B.TAB(1, 0);
-  B.PRINTe("e^4r^5ty^7u^8i^9op平均律, dfghjkl;純正律");
-  B.PRINT (", nm:Octave(" + Octa + ")");
-  B.PRINT (" Rate" +  A.getRate()/1000 + "kHz");
-  B.PRINT (" (v" + v + ") ");
+  B.PRINTe("e^4r^5ty^7u^8i^9op平均律 dfghjkl;純正律");
+  B.PRINT (" nm:o" + Octa);
+  B.PRINT (" as:v" + v + " " + A.getCount() + " ");
   B.PRINT (Freq + "Hz");
-  B.PRINT (" (" + A.getCount() + ")");
+  B.PRINT ("/" + A.getRate()/1000 + "kHz");
 }
 function display()
 {
-  let px, py, h, m, s, n, len, b;
+  let px, py, h, m, t, s;
 
   B.FONT(1,0);
   B.CLS('#000');
 
-  B.COLOR('#fff'); B.LOCATE(1, 0); B.PRINT(FuncD()); B.CR();
+  B.LOCATE(3.8, 0); FuncD(); B.CR();
 
-  h = 16+8;
-  py = 64+32+4;
+  t = 2;
+  h = 32*t;
+  py = 64+32+16+8;
   px = -0.6;
-  scale('#ff0', px, py, h,   20, "ms", 3, 0, 1.0);
-  graph('#fff', px, py, h,   20, FuncY);
+  scale('#bb0', px, py, h,   20, "ms", 1.5, 0, 1/t);
+  s = Number(P0.value);
+  if (Select == 1 && s < 2)
+  {
+    graph(C4, px, py, h,   20, fy14);
+    graph(C3, px, py, h,   20, fy13);
+    graph(C2, px, py, h,   20, fy12);
+    graph(C1, px, py, h,   20, fy11);
+  }
+  if (Select != 1 || s > 0)
+  {
+    graph(C0, px, py, h,   20, FuncY);
+  }
 
-  h = 32*2;
-  py += 128+32;
-  scale('#fff', px, py, h, 2000, "Hz", 1, 1, 1/2);
+  t = 2;
+  h = 32*t;
+  py += 128+32+16+2;
+  scale('#fff', px, py, h, 2000, "Hz", 1.2, 0, 1/t);
   spect('#0ff', px, py, h, 2000, FuncY);
 
-  B.COLOR('#fff');
-  B.LOCATE(1, 19);
-  B.PRINT("Sampling(time = " + F.T.toFixed(1));
-  B.PRINT("s, data = " + F.N + "parts) ");
-  B.PRINT("DFT(Discrete Fourier Transform)");
-
-  infomation();
+  information();
 }
 
 
@@ -508,7 +599,7 @@ function keyUD(key, on)
     f = Math.round(f * 10) / 10;
     Freq = f;
   }
-  window.requestAnimationFrame(infomation);
+  window.requestAnimationFrame(information);
   return 1;
 }
 
@@ -548,6 +639,7 @@ F3.addEventListener('input', range);
 A4.addEventListener('input', range);
 F4.addEventListener('input', range);
 V0.addEventListener('input', range);
+P0.addEventListener('input', range);
 
 function selectF(f)
 {
@@ -580,17 +672,17 @@ function lowhigf(n, h)
   document.getElementById(id)[i].checked = true;
 }
 
-function cossinf(n, c)
+function cossinf(n, s)
 {
   let id;
-  let i = c + 1;
+  let i = s + 1;
 
   switch(n)
   {
-    case  1: C1 = c; id = "butCS1"; break;
-    case  2: C2 = c; id = "butCS2"; break;
-    case  3: C3 = c; id = "butCS3"; break;
-    case  4: C4 = c; id = "butCS4"; break;
+    case  1: S1 = s; id = "butCS1"; break;
+    case  2: S2 = s; id = "butCS2"; break;
+    case  3: S3 = s; id = "butCS3"; break;
+    case  4: S4 = s; id = "butCS4"; break;
     default: return;
   }
   document.getElementById(id)[i].checked = true;
@@ -649,21 +741,36 @@ function volume(dv)
   if (Volume < 0) Volume = 0; else if (Volume > 1) Volume = 1;
   Volume = Math.round(Volume * 10) / 10;
   V0.value = Volume;
+  blurelem();
+  blur();
+  window.requestAnimationFrame(information);
+}
+function dispf(dp)
+{
+  let d = Number(P0.value) + dp;
+  if (d < 0) d = 0; else if (d > 2) d = 2;
+  P0.value = d;
 }
 let Audio = 0;
 function pop()
 {
   A.pop();
   Audio = 0;
-  window.requestAnimationFrame(main);
+  blurelem();
+  blur();
+  window.requestAnimationFrame(information);
 }
 function space(func)
 {
   A.setVolume(Number(V0.value));
   if (Audio) { A.stop(); Audio = 0; return; }
   Audio = 1;
-  A.audioOn(200, func);
+  Freq = 200;
+  A.audioOn(Freq, func);
   setTimeout(function() { pop(); }, 1000); // msec
+  blurelem();
+  blur();
+  window.requestAnimationFrame(information);
 }
 
 //--------------------------------------------------------------------
@@ -673,20 +780,22 @@ function inkey(key)
 {
   switch (key)
   {
-    case 13: init(Select)          ; break; // 'R' Enter
-    case 32: space(FuncY)          ; break; // 'S' Space
-    case 49: selectF(1)            ; break; // '1'
-    case 50: selectF(2)            ; break; // '2'
-    case 51: selectF(3)            ; break; // '3'
-    case 81: B.lineWidth( 0.5)     ; break; // 'Q'
-    case 87: B.lineWidth( 2  )     ; break; // 'W'
-    case 90: B.zooming  (-1  )     ; break; // 'Z'
-    case 88: B.zooming  ( 1  )     ; break; // 'X'
-    case 67: B.zooming  ( 0  )     ; break; // 'C'
-    case 78: if (Octa > 1) Octa--  ; break; // 'N'
-    case 77: if (Octa < 8) Octa++  ; break; // 'M'
-    case 65: volume(-0.1)          ; break; // 'A'
-    case 83: volume( 0.1)          ; break; // 'S'
+    case 32: space(FuncY)           ; return; // 'S' Space
+    case 65: volume(-0.1)           ; return; // 'A'
+    case 83: volume( 0.1)           ; return; // 'S'
+    case 13: init(Select)           ; break; // 'R' Enter
+    case 49: selectF(1)             ; break; // '1'
+    case 50: selectF(2)             ; break; // '2'
+    case 51: selectF(3)             ; break; // '3'
+    case 81: B.lineWidth( 0.5)      ; break; // 'Q'
+    case 87: B.lineWidth( 2  )      ; break; // 'W'
+    case 90: B.zooming  (-1  )      ; break; // 'Z'
+    case 88: B.zooming  ( 1  )      ; break; // 'X'
+    case 67: B.zooming  ( 0  )      ; break; // 'C'
+    case 78: if (Octa > 1) Octa--   ; break; // 'N'
+    case 77: if (Octa < 8) Octa++   ; break; // 'M'
+    case 86: dispf(-1)              ; break; // 'V'
+    case 66: dispf( 1)              ; break; // 'B'
     default: return;
   }
   blurelem();
