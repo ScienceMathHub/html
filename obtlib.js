@@ -388,7 +388,6 @@ class ORBIT extends MATRIX
   {
     let d;
 
-    M = this.fmod(M, Math.PI*2);
     d = Math.abs( (3 / (2*Math.sqrt(2)) ) * M );
     d = Math.pow(Math.sqrt(d*d + 1) + d, 1/3);
     d = Math.atan(d - 1/d) * 2;
@@ -402,7 +401,6 @@ class ORBIT extends MATRIX
   {
     let u, d;
 
-    M = this.fmod(M, Math.PI*2);
     u = e * Math.sinh(M) - M;
     do
     {
@@ -416,7 +414,7 @@ class ORBIT extends MATRIX
     } while (Math.abs(d) > 1e-12);
 
     d = ( Math.sqrt(e*e - 1) / (e - 1) ) * Math.tanh(u/2);
-    return Math.atan(d) * 2.0;
+    return Math.atan(d) * 2;
   }
   #orbitF(M, e)
   {
