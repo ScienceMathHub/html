@@ -54,30 +54,30 @@ A2<label><input type="range" id ="rangeA2" min="0" max= "1" step="0.1"
 //--------------------------------------------------------------------
 // public variable
 //--------------------------------------------------------------------
-var B = new BASIC();
+const B = new BASIC();
 
-var DisN   =   10; // 目盛の数(m)
-var DisX   =    8; // 2点間距離(m)
-var isDup;         // 重ね表示
-var Vt;            // 移動距離(m)
-var isVt;          // 移動/停止
-var isCos;         // 包絡線表示
-var isLon;         // 縦波表示
-var isPalse;       // パルス波       
-var P2;            // 位相2
+let DisN   =   10; // 目盛の数(m)
+let DisX   =    8; // 2点間距離(m)
+let isDup;         // 重ね表示
+let Vt;            // 移動距離(m)
+let isVt;          // 移動/停止
+let isCos;         // 包絡線表示
+let isLon;         // 縦波表示
+let isPalse;       // パルス波       
+let P2;            // 位相2
 
-var cVo =  1  , Vo = cVo; // 速度(m/s)
-var cA1 =  1  , A1 = cA1; // 振幅1
-var cL1 =  2  , L1 = cL1; // 波長1
-var cA2 =  1  , A2 = cA2; // 振幅2
-var cL2 =  2  , L2 = cL2; // 波長2
+let cVo =  1  , Vo = cVo; // 速度(m/s)
+let cA1 =  1  , A1 = cA1; // 振幅1
+let cL1 =  2  , L1 = cL1; // 波長1
+let cA2 =  1  , A2 = cA2; // 振幅2
+let cL2 =  2  , L2 = cL2; // 波長2
 
 //--------------------------------------------------------------------
 // 関数1 y = f(th)
 //--------------------------------------------------------------------
 function func1(c, px, py, h, a)
 {
-  var str  = "y_1 = A_1sin( 2π(x-vt)/λ_1)  (A_1 = ";
+  let str  = "y_1 = A_1sin( 2π(x-vt)/λ_1)  (A_1 = ";
       str += A1.toFixed(1) + " m , λ_1 = " + L1.toFixed(1) + " m";
       str += " , v = "+ Vo.toFixed(1) + " m/s)";
   B.WINDOW(px, py, px+639, py-399);
@@ -86,7 +86,7 @@ function func1(c, px, py, h, a)
 }
 function f1(x)
 {
-  var y = x - Vt;
+  let y = x - Vt;
   if (y > 0) return 0;
   if (isPalse) { if (y < -L1) return 0; }
   y = A1 * Math.sin(2 * Math.PI * y / L1);
@@ -94,7 +94,7 @@ function f1(x)
 }
 function func2(c, px, py, h, a)
 {
-  var str  = "y_2 = A_2sin(-2π(x+vt)/λ_2)  (A_2 = ";
+  let str  = "y_2 = A_2sin(-2π(x+vt)/λ_2)  (A_2 = ";
       str += A2.toFixed(1) + " m , λ_2 = " + L2.toFixed(1) + " m";
       str += " , v = "+ Vo.toFixed(1) + " m/s)";
   B.WINDOW(px, py, px+639, py-399);
@@ -103,7 +103,7 @@ function func2(c, px, py, h, a)
 }
 function f2(x)
 {
-  var y = x + Vt;
+  let y = x + Vt;
   if (y < 0) return 0;
   if (isPalse) { if (y >  L2) return 0; }
   y -= P2 * L2;
@@ -116,7 +116,7 @@ function f2(x)
 //--------------------------------------------------------------------
 function f12(x)
 {
-  var y = f1(x + DisX / 2) + f2(x - DisX / 2);
+  let y = f1(x + DisX / 2) + f2(x - DisX / 2);
   return y;
 }
 function fAu(x)
@@ -129,7 +129,7 @@ function fAd(x)
 }
 function f12u(x)
 {
-  var a, xs, a1, a2, x1, x2;
+  let a, xs, a1, a2, x1, x2;
 
   a1 = A1;  
   a2 = A2;  
@@ -160,7 +160,7 @@ function f12d(x)
 //--------------------------------------------------------------------
 function graph(c, px, py, h, m, func)
 {
-  var x, y, x0, y0, n, t;
+  let x, y, x0, y0, n, t;
 
   n = DisN + 1;
   B.WINDOW(px, py, px+n, py-399);
@@ -186,7 +186,7 @@ function graph(c, px, py, h, m, func)
 //--------------------------------------------------------------------
 function longi(c, px, py, h, m, func)
 {
-  var x, y, w, s, n, t, a;
+  let x, y, w, s, n, t, a;
 
   if (!isLon) return;
   n = DisN + 1;
@@ -207,7 +207,7 @@ function longi(c, px, py, h, m, func)
 //--------------------------------------------------------------------
 function scale(c, px, py, h, m, up, sl, sr)
 { /* dn=0:up 1:dn 2:half scale */
-  var t, x, y, n, k, r, s, b;
+  let t, x, y, n, k, r, s, b;
 
   B.COLOR(c);
 
@@ -298,7 +298,7 @@ function scale(c, px, py, h, m, up, sl, sr)
 //--------------------------------------------------------------------
 function display()
 {
-  var px, py, h, a, str;
+  let px, py, h, a, str;
 
   B.FONT(1,0);
   B.CLS('#000');
@@ -437,9 +437,9 @@ function init()
 //--------------------------------------------------------------------
 function limitV(x, s)
 {
-  var min  = 0.1;
-  var max  = 8;
-  var step = 0.1;
+  let min  = 0.1;
+  let max  = 8;
+  let step = 0.1;
   
   x += (s < 0)? -step : step;
   if (x < min) x = min; else if (x > max) x = max;
@@ -447,9 +447,9 @@ function limitV(x, s)
 }
 function limitA(x, s)
 {
-  var min  = 0;
-  var max  = 1;
-  var step = 0.1;
+  let min  = 0;
+  let max  = 1;
+  let step = 0.1;
   
   x += (s < 0)? -step : step;
   if (x < min) x = min; else if (x > max) x = max;
@@ -457,9 +457,9 @@ function limitA(x, s)
 }
 function limitL(x, s)
 {
-  var min  = 1;
-  var max  = 4;
-  var step = 0.5;
+  let min  = 1;
+  let max  = 4;
+  let step = 0.5;
   
   x += (s < 0)? -step : step;
   if (x < min) x = min; else if (x > max) x = max;
@@ -476,12 +476,12 @@ function inkey(key)
     case  74: isLon   = !isLon     ; break; // 'j'
     case  65: isDup   = !isDup     ; break; // 'A'
     case  83:
-     if (isPalse)
-     {
-       if (P2 != 0) { P2 = 0; isPalse = 0; } else { P2 = 0.5; }
-     }
-     else { isPalse = 1; }
-     break; // 'S'
+      if (isPalse)
+      {
+        if (P2 != 0) { P2 = 0; isPalse = 0; } else { P2 = 0.5; }
+      }
+      else { isPalse = 1; }
+      break; // 'S'
     case  81: B.lineWidth( 0.5)    ; break; // 'Q'
     case  87: B.lineWidth( 2  )    ; break; // 'W'
     case  90: B.zooming  (-1  )    ; break; // 'Z'
@@ -504,7 +504,7 @@ function inkey(key)
 }
 document.body.addEventListener('keydown', event =>
 {
-  var key = event.keyCode;
+  let key = event.keyCode;
 
   inkey(key);
 });
@@ -512,8 +512,8 @@ document.body.addEventListener('keydown', event =>
 //--------------------------------------------------------------------
 // Key status
 //--------------------------------------------------------------------
-var Key = new Array(256);
-for (var i = 0; i < 256; i++) Key[i] = 0;
+let Key = new Array(256);
+for (let i = 0; i < 256; i++) Key[i] = 0;
 window.onkeydown = function(event) { Key[event.keyCode] = 1; }
 window.onkeyup   = function(event) { Key[event.keyCode] = 0; }
 
