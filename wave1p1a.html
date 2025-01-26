@@ -1,0 +1,445 @@
+<!--
+----------------------------------------------------------------------
+ 正弦波
+
+ HTML(JavaScript, canvas)
+
+ Physics (c) Ohtani 2024.12 - 2025.1
+----------------------------------------------------------------------
+-->
+<!DOctxYPE html>
+<html lang="ja">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<head>
+  <meta charset="utf-8">
+  <title>正弦波</title>
+</head>
+<body>
+<p id="Sine wave"></p>
+<div style='float:left;'>
+A<label><input type="range" id ="rangeA" min="0" max= "2" step="0.2"
+  value="0"></label>
+<pre></pre>
+λ<label><input type="range" id ="rangeL" min="0" max= "4" step="0.5"
+  value="0"></label>
+<pre></pre>
+v<label><input type="range" id ="rangeV" min="0" max= "4" step="0.5"
+  value="0"></label>
+<pre></pre>
+f<label><input type="range" id ="rangeF" min="0" max= "4" step="0.5"
+  value="0"></label>
+<pre></pre>
+T<label><input type="range" id ="rangeT" min="0" max= "4" step="0.5"
+  value="0"></label>
+<pre></pre>
+<input type="button" id="butS" value="動画"   onclick="inkey(32)">Spc
+<input type="button" id="butR" value="答える" onclick="inkey(13)">Ent&nbsp;
+<pre></pre>
+x<label><input type="range" id ="rangeX" min="0.1" max= "1" step="0.1"
+  value="0.2"></label>
+<pre></pre>
+<input type="button" id="butA" value="答"     onclick="inkey(65)">a
+<input type="button" id="butN" value="次の問" onclick="inkey(78)">n
+<input type="button" id="butJ" value="縦波"   onclick="inkey(74)">j
+<pre></pre>
+<input type="button" id="butQ" value="細"    onclick="inkey(81)">q
+<input type="button" id="butW" value="太"    onclick="inkey(87)">w
+<pre></pre>
+<input type="button" id="butZ" value="縮"    onclick="inkey(90)">z 
+<input type="button" id="butX" value="拡"    onclick="inkey(88)">x
+<input type="button" id="butC" value="初"    onclick="inkey(67)">b
+
+<script src="https://sciencemathhub.github.io/html/tophys.js"></script>
+<script src="https://sciencemathhub.github.io/html/canlib.js"></script>
+<script>
+'use strict'
+
+//--------------------------------------------------------------------
+// public variable
+//--------------------------------------------------------------------
+const B = new BASIC();
+
+let  A,  L,  V,  F,  T,  S;
+let aA, aL, aV, aF, aT, aS;
+let isS;           // Timer
+let isA;           // Answer
+let isLon = 0;     // 縦波表示
+let Temp;          // Debug
+
+//--------------------------------------------------------------------
+// y(t)
+//--------------------------------------------------------------------
+let rA = document.getElementById('rangeA');
+let rL = document.getElementById('rangeL');
+let rV = document.getElementById('rangeV');
+let rF = document.getElementById('rangeF');
+let rT = document.getElementById('rangeT');
+let rX = document.getElementById('rangeX');
+
+function blurelem()
+{
+  rA.blur();
+  rL.blur();
+  rV.blur();
+  rF.blur();
+  rT.blur();
+  rX.blur();
+}
+
+//--------------------------------------------------------------------
+// 関数1 y = f(th)
+//--------------------------------------------------------------------
+function func1(c, px, py, h, n)
+{
+  let str  = "y = Asin(2πx/λ)"
+  str += "    破線は t = "   + S + "s後";
+  str += "    (動画x" + rX.value + ")";
+  B.WINDOW(px, py, px+n, py-399);
+  B.COLOR(c);
+  B.LOCATEp(0, h); B.TAB(-0.5, -1.5); B.PRINT(str);
+}
+function f1(x)
+{
+  let y = Math.sin(2 * Math.PI * x / L);
+  return y;
+}
+function f2(x)
+{
+  let y = x - V * S;
+  y = Math.sin(2 * Math.PI * y / L);
+  return y;
+}
+function f3(x)
+{
+  let y = x - V * isS;
+  y = Math.sin(2 * Math.PI * y / L);
+  return y;
+}
+function funct(c, px, py, h, n)
+{
+  let str  = "y = Asin(-2πft)";
+  B.WINDOW(px, py, px+n, py-399);
+  B.COLOR(c);
+  B.LOCATEp(0, h); B.TAB(-0.5, -1.5); B.PRINT(str);
+}
+function ft1(t)
+{
+  let y = -F * t;
+  y = Math.sin(2 * Math.PI * y);
+  return y;
+}
+function ft3(t)
+{
+  let y;
+  if (!(0 <= t && t <= isS)) return -100;
+  y = -F * t;
+  y = Math.sin(2 * Math.PI * y);
+  return y;
+}
+
+//--------------------------------------------------------------------
+// グラフ
+//--------------------------------------------------------------------
+function graph(c, px, py, h, n, func, d, b)
+{
+  let x, y, x0, y0, t;
+
+  B.WINDOW(px, py, px+n, py-399);
+
+  x0 = -100;
+  y0 = -100;
+  for (x = -(n + 2); x <= n + 2; x += 0.01)
+  {
+    y = func(x);
+    if (Math.abs(y0 - y) > 1)
+    {
+      x0 = x;
+      y0 = y;
+    }
+    if (d == 0 || (Math.floor(x / d) % 2))
+    {
+      B.LINE(x0, y0*h, x, y*h, c);
+    }
+    x0 = x;
+    y0 = y;
+  }
+  if (b !== '')
+  {
+    x = V * isS;
+    B.LINE(0, 0, 0, func(0)*h, c);
+    B.LINE(x, -h, x, h, b);
+  }
+}
+
+//--------------------------------------------------------------------
+// longitudinal wave
+//--------------------------------------------------------------------
+function longi(c, px, py, h, n, func)
+{
+  let x, y, w, s, t, a;
+
+  if (!isLon) return;
+  B.WINDOW(px, py, px+n, py-399);
+
+  a = h;
+  s = 1 / 16;
+  for (x = -(n + 2); x <= n + 2; x += s)
+  {
+    y = func(x);
+    w = x + y * s * 1.4; //0.7;
+    B.LINE(w, a, w, -a, c);
+  }
+}
+
+//--------------------------------------------------------------------
+// 目盛り
+//--------------------------------------------------------------------
+function scale(c, px, py, h, n, a, s, u)
+{
+  let t, x, y, k, r, b;
+
+  b = '#f0f';
+  B.COLOR(c);
+
+  B.WINDOW(px, py, px+n, py-399);
+
+  B.LINE(-100,  0, 100,  0, c);
+  B.LINE(   0,  h, 100,  h, b);
+  B.LINE(   0, -h, 100, -h, b);
+  x = 0.04;
+  y = h;
+  B.LOCATEp(x,  y); B.TAB(-5.5, -0.55); B.PRINT(" " + a);
+  B.LOCATEp(x, -y); B.TAB(-5.5, -0.55); B.PRINT("-" + a);
+  B.LINE(-x,  y, x,  y, c);
+  B.LINE(-x, -y, x, -y, c);
+
+  for (t = -(n + 2)*10; t < (n + 2)*10; t++)
+  {
+    x = t * 0.1;
+    if      ( t == 0      ) { y = h * (1  +0.2); }
+    else if ((t % 10) == 0) { y = h * (1/2+0.2) * s; }
+    else if ((t %  5) == 0) { y = h * (1/4+0.2) * s; }
+    else                    { y = h *      0.2  * s; }
+    B.LINE( x, -y,  x, y, c);
+  }
+
+  y =  0.25;
+  x = -1.4;
+  B.LOCATEp(0, -h); B.TAB(x, y); B.PRINT(' 0' + u);
+  for (t = 1; t <= n; t++)
+  {
+    B.LOCATEp( t, -h); B.TAB(x    , y);
+    B.PRINT(' ' + t + u);
+    B.LOCATEp(-t, -h); B.TAB(x - 1, y);
+    B.PRINT('-' + t + u);
+  }
+}
+
+//--------------------------------------------------------------------
+// screen
+//--------------------------------------------------------------------
+function getnum()
+{
+  aA = rA.value;
+  aL = rL.value;
+  aV = rV.value;
+  aF = rF.value;
+  aT = rT.value;
+}
+function clrnum()
+{
+  rA.value = 0;
+  rL.value = 0;
+  rV.value = 0;
+  rF.value = 0;
+  rT.value = 0;
+  aA = aL = aV = aF = aT = -1;
+}
+function question()
+{
+  let y = 0.1, x = 1, dx = 15;
+  B.COLOR('#fff');
+  B.LOCATE(x, y); x += dx  ; B.PRINT("振幅A = "   + rA.value + "m");
+  B.LOCATE(x, y); x += dx  ; B.PRINT("波長λ= "   + rL.value + "m");
+  B.LOCATE(x, y); x += dx+2; B.PRINT("速さv = "   + rV.value + "m/s");
+  B.LOCATE(x, y); x += dx+3; B.PRINT("振動数f = " + rF.value + "Hz");
+  B.LOCATE(x, y); x += dx  ; B.PRINT("周期T = "   + rT.value + "s");
+}
+function answer()
+{
+  let y = 1.1, x = 1, dx = 15;
+  let c, b;
+  b = '#f00';
+  c = (isA)? b : '#0ff';
+  B.LOCATE(x, y); x += dx  ;
+  if (aA == A || isA) { B.COLOR(c); B.PRINT("振幅A = "   + A + "m"); }
+  else if (aA >= 0)   { B.COLOR(b); B.PRINT("間違いです"); }
+  B.LOCATE(x, y); x += dx  ;
+  if (aL == L || isA) { B.COLOR(c); B.PRINT("波長λ= "   + L + "m"); }
+  else if (aL >= 0)   { B.COLOR(b); B.PRINT("間違いです"); }
+  B.LOCATE(x, y); x += dx+2;
+  if (aV == V || isA) { B.COLOR(c); B.PRINT("速さv = "   + V + "m/s"); }
+  else if (aV >= 0)   { B.COLOR(b); B.PRINT("間違いです"); }
+  B.LOCATE(x, y); x += dx+3;
+  if (aF == F || isA) { B.COLOR(c); B.PRINT("振動数f = " + F + "Hz"); }
+  else if (aF >= 0)   { B.COLOR(b); B.PRINT("間違いです"); }
+  B.LOCATE(x, y); x += dx  ;
+  if (aT == T || isA) { B.COLOR(c); B.PRINT("周期T = "   + T + "s"); }
+  else if (aT >= 0)   { B.COLOR(b); B.PRINT("間違いです"); }
+
+//  B.PRINT(Temp);
+}
+function display()
+{
+  let px, py, h, a, n, str;
+
+  B.FONT(1,0);
+  B.CLS('#000');
+
+  h = 32;
+  a = A.toFixed(1);
+  n = 4;
+  py =  64+32+8;
+  px = -0.5;
+  func1('#fff', px, py, h, n);
+  scale('#ff0', px, py, h, n, a, 0.5, 'm');
+  graph('#f0f', px, py, h, n, f1, 0    , '');
+  graph('#fff', px, py, h, n, f2, 0.025, '');
+  py += 64+32+8;
+  scale('#ff0', px, py, h, n, a, 0.5, 'm');
+  longi('#8ff', px, py, h, n, f3);
+  graph('#f0f', px, py, h, n, f1, 0    , ''    );
+  graph('#fff', px, py, h, n, f3, 0.025, '#f0f');
+  py += 128-8;
+  px = -0.5;
+  funct('#fff', px, py, h, n);
+  scale('#0f0', px, py, h, n, a, 0.5, 's');
+  graph('#f0f', px, py, h, n, ft1, 0, '');
+  graph('#fff', px, py, h, n, ft3, 0, '');
+
+  question();  
+  answer();
+}
+
+//--------------------------------------------------------------------
+// input
+//--------------------------------------------------------------------
+function blur()
+{
+  document.getElementById('butR').blur();
+  document.getElementById('butS').blur();
+  document.getElementById('butQ').blur();
+  document.getElementById('butW').blur();
+  document.getElementById('butZ').blur();
+  document.getElementById('butX').blur();
+  document.getElementById('butC').blur();
+  document.getElementById('butJ').blur();
+}
+function range()
+{
+  blur();
+  window.requestAnimationFrame(main);
+}
+rA.addEventListener('input', range);
+rL.addEventListener('input', range);
+rV.addEventListener('input', range);
+rF.addEventListener('input', range);
+rT.addEventListener('input', range);
+rX.addEventListener('input', range);
+
+//--------------------------------------------------------------------
+// init
+//--------------------------------------------------------------------
+function enter()
+{
+  getnum();
+  blur();
+  window.requestAnimationFrame(main);
+}
+function init()
+{
+  const QT = [ 0.5, 1, 2 ];
+  const QL = [ 1  , 2, 4 ];
+  let i;
+
+  A = (Math.floor(Math.random()*(10-1)) + 1) / 5;
+  T = QT[Math.floor(Math.random()*QT.length)];
+  F = 1 / T;
+  L = QL[Math.floor(Math.random()*QL.length)];
+  V = F * L;
+
+  if (L > 1)
+  {
+    i = Math.floor(Math.random()*3) + 1;
+    S = Math.floor(1000/4 * L * i / V) / 1000;
+  }
+  else
+  {
+    S = Math.floor(1000/2 * L / V) / 1000;
+  }
+  isS = 0;
+  isA = 0;
+  clrnum();
+  blurelem();
+  blur();
+  window.requestAnimationFrame(main);
+}
+
+//--------------------------------------------------------------------
+// Input key
+//--------------------------------------------------------------------
+function inkey(key)
+{
+  switch (key)
+  {
+    case  13: enter()              ; return; // 'R' Enter
+    case  32: isS   = 0            ; break; // ' '
+    case  65: isA   = !isA         ; break; // 'A'
+    case  78: init()               ; return; // 'N'
+    case  74: isLon = !isLon       ; break; // 'J'
+    case  81: B.lineWidth( 0.5)    ; break; // 'Q'
+    case  87: B.lineWidth( 2  )    ; break; // 'W'
+    case  90: B.zooming  (-1  )    ; break; // 'Z'
+    case  88: B.zooming  ( 1  )    ; break; // 'X'
+    case  66: B.zooming  ( 0  )    ; break; // 'B'
+    default : return;
+  }
+  blurelem();
+  blur();
+  event.preventDefault();
+  window.requestAnimationFrame(main);
+}
+document.body.addEventListener('keydown', event =>
+{
+  let key = event.keyCode;
+
+  inkey(key);
+});
+
+//--------------------------------------------------------------------
+// Key status
+//--------------------------------------------------------------------
+let Key = new Array(256);
+for (let i = 0; i < 256; i++) Key[i] = 0;
+window.onkeydown = function(event) { Key[event.keyCode] = 1; }
+window.onkeyup   = function(event) { Key[event.keyCode] = 0; }
+
+//--------------------------------------------------------------------
+// main
+//--------------------------------------------------------------------
+function main()
+{
+  display();
+  if (isS == S) return;
+  isS += rX.value / 60;
+  if (isS > S) { isS = S; }
+  window.requestAnimationFrame(main);
+}
+
+init();
+
+//--------------------------------------------------------------------
+</script>
+</body>
+</html>
