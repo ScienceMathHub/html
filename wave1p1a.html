@@ -199,7 +199,7 @@ function scale(c, px, py, h, n, a, s, u)
 {
   let t, x, y, k, r, b;
 
-  b = '#f0f';
+  b = '#c0c';
   B.COLOR(c);
 
   B.WINDOW(px, py, px+n, py-399);
@@ -304,18 +304,18 @@ function display()
   px = -0.5;
   func1('#fff', px, py, h, n);
   scale('#ff0', px, py, h, n, a, 0.5, 'm');
-  graph('#f0f', px, py, h, n, f1, 0    , '');
+  graph('#f0c', px, py, h, n, f1, 0    , '');
   graph('#fff', px, py, h, n, f2, 0.025, '');
   py += 64+32+8;
   scale('#ff0', px, py, h, n, a, 0.5, 'm');
   longi('#8ff', px, py, h, n, f3);
-  graph('#f0f', px, py, h, n, f1, 0    , ''    );
-  graph('#fff', px, py, h, n, f3, 0.025, '#f0f');
+  graph('#f0c', px, py, h, n, f1, 0    , ''    );
+  graph('#fff', px, py, h, n, f3, 0.025, '#c0c');
   py += 128-8;
   px = -0.5;
   funct('#fff', px, py, h, n);
   scale('#0f0', px, py, h, n, a, 0.5, 's');
-  graph('#f0f', px, py, h, n, ft1, 0, '');
+  graph('#f0c', px, py, h, n, ft1, 0, '');
   graph('#fff', px, py, h, n, ft3, 0, '');
 
   question();  
