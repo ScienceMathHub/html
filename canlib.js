@@ -302,7 +302,7 @@ class BASIC
       else if (this.Zoom > 120) this.Zoom = 120;
     }
     canvas.width  = 16 * this.Zoom;
-    canvas.height =  9 * this.Zoom;
+    canvas.height = 10 * this.Zoom;
     ctx.lineWidth = this.Width;
     this.FONT(1, 0);
   }
