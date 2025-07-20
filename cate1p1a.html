@@ -1,0 +1,377 @@
+<!--
+----------------------------------------------------------------------
+ 懸垂線
+
+ HTML(JavaScript, canvas)
+
+ Physics (c) Ohtani 2025.7
+----------------------------------------------------------------------
+-->
+<!DOctxYPE html>
+<html lang="ja">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<head>
+  <meta charset="utf-8">
+  <title>懸垂線</title>
+</head>
+<body>
+<p id="Catenary"></p>
+<div style='float:left;'>
+<input type="number" id="num_g0" value="9.8"
+  min = "0" max="999.999" step = "0.001" />
+<input type="button" id="but_g0" value="重力加速度g" onclick="pushget()">
+<br>
+<input type="number" id="num_ro" value="0.1"
+  min = "0.001" max="999.999" step = "0.001" />
+<input type="button" id="but_ro" value="線密度ρ" onclick="pushget()">
+<br>
+<input type="number" id="num_L0" value="0.1"
+  min = "0.001" max="999.999" step = "0.001" />
+<input type="button" id="but_L0" value="紐の長さL" onclick="pushget()">
+<br>
+g <label><input type="range" id ="rangeG0" min="-9" max= "9" step="1"
+  value="0"></label>
+<pre></pre>
+ρ<label><input type="range" id ="rangeRo" min="0.01" max= "1" step="0.01"
+  value="1"></label>
+<pre></pre>
+L <label><input type="range" id ="rangeL0" min="-10" max= "10" step="1"
+  value="0"></label>
+<pre></pre>
+年1<label><input type="range" id ="rangeY1" min="-10" max= "10" step="1"
+  value="0"></label>
+<pre></pre>
+<input type="button" id="butR" value="今日" onclick="inkey(13)">Ent
+<input type="button" id="butN" value="Zero" onclick="inkey(78)">n
+<input type="button" id="butM" value="近"    onclick="inkey(77)">m
+<pre></pre>
+<input type="button" id="butQ" value="細"    onclick="inkey(81)">q
+<input type="button" id="butW" value="太"    onclick="inkey(87)">w
+<input type="button" id="butV" value="元"    onclick="inkey(86)">
+<input type="button" id="butB" value="号"    onclick="inkey(66)">vb
+<pre></pre>
+<input type="button" id="butZ" value="縮"    onclick="inkey(90)">z 
+<input type="button" id="butX" value="拡"    onclick="inkey(88)">x
+<input type="button" id="butC" value="初"    onclick="inkey(67)">c　
+
+<script src="https://sciencemathhub.github.io/html/tophys.js"></script>
+<script src="https://sciencemathhub.github.io/html/canlib.js"></script>
+<script>
+'use strict'
+
+//--------------------------------------------------------------------
+// public letiable
+//--------------------------------------------------------------------
+const B = new BASIC();
+
+let Temp; // debug
+
+//------------------------------------------------------------------------------
+// 変数
+//------------------------------------------------------------------------------
+class CATENARY
+{
+  constructor()
+  {
+    this.g  =  9.8;     // 重力加速度[m/s^2]
+    this.r  =  0.001;   // 紐の線密度[kg/m]ρ
+    this.L  = 10;       // 紐の長さ[m] (0 < √(x12 + y12) < L)
+    this.x1 =  5;       // 紐の両端間の水平距離[m]
+    this.y1 =  5;       // 紐の左端に対する右端の高さ[m]
+
+    this.H  =  1;       // 水平張力[N] (紐の頂点での張力)
+    this.x0 = 10;       // 左端から紐の底までの水平距離[m]
+    this.y  =  0;       // 紐の高さ[m] (紐の左端を原点とするxの関数)
+  }
+  setg(g)
+  {
+    if (g <=     0) g =   0.001;
+    if (g >=  1000) g = 999.999;
+    this.g = g;
+    return this.g;
+  }
+  getg()
+  {
+    return this.g;
+  }
+  setr(r)
+  {
+    if (r <=     0) r =   0.001;
+    if (r >=  1000) r = 999.999;
+    this.r = r;
+    return this.r;
+  }
+  getr()
+  {
+    return this.r;
+  }
+  setL(L)
+  {
+    let d;
+
+    if (L < this.x1) this.x1 = L * 0.9; 
+    d = Math.sqrt(this.L * this.L - this.x1 * this.x1);
+    if (d >= L) this.y1 = d * 0.9;
+    this.L = L;
+    return this.L;
+  }
+  getL()
+  {
+    return this.L;
+  }
+  setx1(x1)
+  {
+    let d = Math.sqrt(this.L*this.L - this.y1 * this.y1);
+    if (x1 >= d) x1 = d * 0.9;
+    this.x1 = x1;
+    return this.x1
+  }
+  getx1()
+  {
+    return this.x1;
+  }
+  sety1(y1)
+  {
+    let d = Math.sqrt(this.L*this.L - this.x1 * this.x1);
+    if (y1 >= d) y1 = d * 0.9;
+    this.y1 = y1;
+    return this.y1
+  }
+  gety1()
+  {
+    return this.y1;
+  }
+/*
+λ = ρg/H と置く
+α = log{(1 + y1/L)/(1 - y1/L)}と置く  … (αにHは含まれていない)
+β = (1/L)cosh(α/2)と置く             … (βにHは含まれていない)
+f(H) = 2βsinh(λx1/2) - λ = 0        … (λのみにHが含まれる)
+となるHを求める
+近似式H ≒ x1ρg/[2√{6/(βx1) - 6}]
+|λx1/2|が大きいほど、Hが小さいほど誤差が大くなる
+
+Hをニュートン法で求める
+f(H) = 2βsinh(λx1/2) - λ           … (λのみにHが含まれる)
+f'(H) = (λ/H){1 - βx1cosh(λx1/2)}
+
+初期値H0 = x1ρg/[2√{6/(βx1) - 6}]  … 近似式
+ΔHn = f(Hn)/f'(Hn)
+Hn+1 = Hn - ΔHn 
+H = Hn+1 (if |ΔHn| < ε)
+以上により誤差ε程度で H を求めることができる
+*/
+/*
+  getH()
+  {
+    let b;
+    let a, f;
+
+    b = this.y1 / this.L;
+    b = Math.log((1 + b)/(1 - b));
+    b = Math.cosh(b/2) / this.L;
+    a = this.r * this.g / H;
+    f = 2 * b * Math.sinh(a * this.x1 / 2) - a;
+    fd = a/H*(1 - b*this.x1*Math.cosh(a*this.x1/2));
+  }
+*/
+/*
+λ = ρg/H と置く
+α = log{(1 + y1/L)/(1 - y1/L)}と置く  … (αにHは含まれていない)
+x0 = (1/2)(x1 - α/λ)  calx0()
+*/
+/*
+  calx0()
+  {
+    let x0, A, g, H;
+
+    this.x0 = x0;
+    return this.x0;
+  }
+*/
+}
+const C = new CATENARY();
+
+//--------------------------------------------------------------------
+// Get
+//--------------------------------------------------------------------
+let G0 = document.getElementById('rangeG0');
+let Ro = document.getElementById('rangeRo');
+let L0 = document.getElementById('rangeL0');
+
+function pushget()
+{
+  G0 = document.getElementById('num_g0');
+  Ro = document.getElementById('num_ro');
+  L0 = document.getElementById('num_L0');
+  window.requestAnimationFrame(display);
+}
+
+function blurelem()
+{
+  G0.blur();
+  Ro.blur();
+  L0.blur();
+}
+
+//--------------------------------------------------------------------
+// screen
+//--------------------------------------------------------------------
+function display()
+{
+  let g, r, L;
+
+  g = Number(G0.value);
+  C.setg(g);
+  r = Number(Ro.value);
+  C.setr(r);
+  L = Number(L0.value);
+  C.setr(L);
+  
+  B.FONT(1,0);
+  B.CLS('#000');
+  B.LOCATE(0, 0); B.COLOR('#fff');
+
+  B.TAB(1, 0); B.PRINT("懸垂線"); B.CR();
+  B.TAB(1, 0); B.PRINT(g); B.CR();
+  B.TAB(1, 0); B.PRINT(r); B.CR();
+  B.TAB(1, 0); B.PRINT(L); B.CR();
+//  window.requestAnimationFrame(display);
+}
+
+//--------------------------------------------------------------------
+// input
+//--------------------------------------------------------------------
+function blur()
+{
+  document.getElementById('butR').blur();
+  document.getElementById('butM').blur();
+  document.getElementById('butN').blur();
+  document.getElementById('butV').blur();
+  document.getElementById('butB').blur();
+  document.getElementById('butQ').blur();
+  document.getElementById('butW').blur();
+  document.getElementById('butZ').blur();
+  document.getElementById('butX').blur();
+  document.getElementById('butC').blur();
+}
+
+function range()
+{
+  blur();
+  window.requestAnimationFrame(main);
+}
+G0.addEventListener('input', range);
+Ro.addEventListener('input', range);
+L0.addEventListener('input', range);
+
+//--------------------------------------------------------------------
+// init
+//--------------------------------------------------------------------
+function init()
+{
+  blur();
+  pushget();
+  window.requestAnimationFrame(main);
+}
+
+//--------------------------------------------------------------------
+// Input key
+//--------------------------------------------------------------------
+function inkey(key)
+{
+  switch (key)
+  {
+    case  13: init()                ; break; // 'R' Enter
+/*
+    case  78: neutral()             ; break; // 'N' Neutral
+    case  77: isQ = (isQ+1) % 4     ; break; // 'M'
+    case  86: if (--Era < 0) Era = 7; break; // 'V'
+    case  66: if (++Era > 7) Era = 0; break; // 'B'
+*/
+    case  81: B.lineWidth( 0.5)     ; break; // 'Q'
+    case  87: B.lineWidth( 2  )     ; break; // 'W'
+    case  90: B.zooming  (-1  )     ; break; // 'Z'
+    case  88: B.zooming  ( 1  )     ; break; // 'X'
+    case  67: B.zooming  ( 0  )     ; break; // 'C'
+    case 191: Secret = !Secret      ; break; // '/'
+  }
+  blurelem();
+  blur();
+  window.requestAnimationFrame(main);
+}
+document.body.addEventListener('keydown', event =>
+{
+  let key = event.keyCode;
+
+  inkey(key);
+});
+
+//--------------------------------------------------------------------
+// Key status
+//--------------------------------------------------------------------
+let Key = new Array(256);
+for (let i = 0; i < 256; i++) Key[i] = 0;
+window.onkeydown = function(event) { Key[event.keyCode] = 1; }
+window.onkeyup   = function(event) { Key[event.keyCode] = 0; }
+
+//----------------------------------------------------------------------
+// mouse
+//----------------------------------------------------------------------
+function mouseDn(x, y, touch)
+{
+  x /= canvas.width;
+  y /= canvas.height;
+  if (!(0 <= x && x <= 1)) return 0;
+  if (!(0 <= y && y <= 1)) return 0;
+
+  x *=   1 * 1.8;
+  y *= -90 * 3;
+  M.ofsX(W1.value - x);
+  M.ofsY(X1.value - y);
+  return 1;
+}
+
+function mouseMv(x, y, touch)
+{
+  let x1, y1;
+
+  x /= canvas.width;
+  y /= canvas.height;
+
+  x *=   1 * 1.8;
+  y *= -90 * 3;
+  x1 = x + M.ofsX('');
+  y1 = y + M.ofsY('');
+
+  if      (x1 <  0) { x1 =  0; M.ofsX(W1.value - x); M.ofsY(X1.value - y); }
+  else if (x1 >  1) { x1 =  1; M.ofsX(W1.value - x); M.ofsY(X1.value - y); }
+  if      (y1 <  0) { y1 =  0; M.ofsX(W1.value - x); M.ofsY(X1.value - y); }
+  else if (y1 > 90) { y1 = 90; M.ofsX(W1.value - x); M.ofsY(X1.value - y); }
+
+  W1.value = x1;
+  X1.value = y1;
+
+  blur();
+  window.requestAnimationFrame(main);
+}
+
+const M = new MOUSE();
+M.add();
+M.mosDnFunc(mouseDn);
+M.mosMvFunc(mouseMv);
+
+//--------------------------------------------------------------------
+// main
+//--------------------------------------------------------------------
+function main()
+{
+  display();
+}
+
+init();
+
+//--------------------------------------------------------------------
+</script>
+</body>
+</html>
