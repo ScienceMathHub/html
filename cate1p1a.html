@@ -18,44 +18,40 @@
 <body>
 <p id="Catenary"></p>
 <div style='float:left;'>
-<input type="number" id="num_g0" value="9.8"
+<input type="number" id="num_g0" value="0"
   min = "0" max="999.999" step = "0.001" />
 <input type="button" id="but_g0" value="重力加速度g" onclick="pushget()">
-<br>
-<input type="number" id="num_ro" value="0.1"
+<pre></pre>
+<input type="number" id="num_ro" value="0"
   min = "0.001" max="999.999" step = "0.001" />
 <input type="button" id="but_ro" value="線密度ρ" onclick="pushget()">
-<br>
-<input type="number" id="num_L0" value="0.1"
+<pre></pre>
+<input type="number" id="num_L0" value="0"
   min = "0.001" max="999.999" step = "0.001" />
 <input type="button" id="but_L0" value="紐の長さL" onclick="pushget()">
+<pre></pre>
+<input type="number" id="num_x1" value="0"
+  min = "0.001" max="999.999" step = "0.001" />
+<input type="button" id="but_x1" value="右端x1" onclick="pushget()">
+<pre></pre>
+<input type="number" id="num_y1" value="0"
+  min = "0.001" max="999.999" step = "0.001" />
+<input type="button" id="but_y1" value="右端y1" onclick="pushget()">
 <br>
-g <label><input type="range" id ="rangeG0" min="-9" max= "9" step="1"
-  value="0"></label>
+矢印+Shift/Ctrl/Alt
 <pre></pre>
-ρ<label><input type="range" id ="rangeRo" min="0.01" max= "1" step="0.01"
-  value="1"></label>
+<input type="button" id="butR" value="リセット" onclick="inkey(32)">Space
 <pre></pre>
-L <label><input type="range" id ="rangeL0" min="-10" max= "10" step="1"
-  value="0"></label>
-<pre></pre>
-年1<label><input type="range" id ="rangeY1" min="-10" max= "10" step="1"
-  value="0"></label>
-<pre></pre>
-<input type="button" id="butR" value="今日" onclick="inkey(13)">Ent
-<input type="button" id="butN" value="Zero" onclick="inkey(78)">n
-<input type="button" id="butM" value="近"    onclick="inkey(77)">m
 <pre></pre>
 <input type="button" id="butQ" value="細"    onclick="inkey(81)">q
 <input type="button" id="butW" value="太"    onclick="inkey(87)">w
-<input type="button" id="butV" value="元"    onclick="inkey(86)">
-<input type="button" id="butB" value="号"    onclick="inkey(66)">vb
 <pre></pre>
 <input type="button" id="butZ" value="縮"    onclick="inkey(90)">z 
 <input type="button" id="butX" value="拡"    onclick="inkey(88)">x
 <input type="button" id="butC" value="初"    onclick="inkey(67)">c　
+<br>
 
-<script src="https://sciencemathhub.github.io/html/tophys.js"></script>
+<script src="https://sciencemathhub.github.io/html/toappe.js"></script>
 <script src="https://sciencemathhub.github.io/html/canlib.js"></script>
 <script>
 'use strict'
@@ -74,20 +70,43 @@ class CATENARY
 {
   constructor()
   {
-    this.g  =  9.8;     // 重力加速度[m/s^2]
-    this.r  =  0.001;   // 紐の線密度[kg/m]ρ
-    this.L  = 10;       // 紐の長さ[m] (0 < √(x12 + y12) < L)
-    this.x1 =  5;       // 紐の両端間の水平距離[m]
-    this.y1 =  5;       // 紐の左端に対する右端の高さ[m]
+    this.g  =  this.r  =  this.L  =  this.x1 =  this.y1 =  0;
+    this.n  =  this.e  =  this.d  =  this.H  =  this.x0 =  0;
+  }
+  init()
+  {
+    this.g  =  9.807;   // 重力加速度[m/s^2](9.80665)
+    this.r  =  0.1;     // 紐の線密度[kg/m]ρ
+    this.L  =  1;       // 紐の長さ[m] (0 < √(x12 + y12) < L)
+    this.x1 =  0.5;     // 紐の両端間の水平距離[m]
+    this.y1 =  0;       // 紐の左端に対する右端の高さ[m]
 
-    this.H  =  1;       // 水平張力[N] (紐の頂点での張力)
-    this.x0 = 10;       // 左端から紐の底までの水平距離[m]
-    this.y  =  0;       // 紐の高さ[m] (紐の左端を原点とするxの関数)
+    this.n  =  9;       // 内部表示桁数
+    this.e  =  1e-9;    // ε
+    this.d  =  0.95;    // x1,y1,Lの補正用
+    this.H  =  0;       // 水平張力[N] (紐の頂点での張力)
+    this.x0 =  0;       // 左端から紐の底までの水平距離[m]
+  }
+  #fix(x)
+  {
+    let a;
+
+    a = x.toFixed(3);
+    return Number(a);
+  }
+  #fixn(x)
+  {
+    let a;
+
+    a = x.toFixed(this.n)
+    return Number(a);
+    return x;
   }
   setg(g)
   {
     if (g <=     0) g =   0.001;
     if (g >=  1000) g = 999.999;
+    g = this.#fix(g);
     this.g = g;
     return this.g;
   }
@@ -99,6 +118,7 @@ class CATENARY
   {
     if (r <=     0) r =   0.001;
     if (r >=  1000) r = 999.999;
+    r = this.#fix(r);
     this.r = r;
     return this.r;
   }
@@ -110,9 +130,10 @@ class CATENARY
   {
     let d;
 
-    if (L < this.x1) this.x1 = L * 0.9; 
+    if (L < this.x1) this.x1 = L * this.d;
     d = Math.sqrt(this.L * this.L - this.x1 * this.x1);
-    if (d >= L) this.y1 = d * 0.9;
+    if (d >= L) this.y1 = d * this.d;
+    L = this.#fix(L);
     this.L = L;
     return this.L;
   }
@@ -123,9 +144,11 @@ class CATENARY
   setx1(x1)
   {
     let d = Math.sqrt(this.L*this.L - this.y1 * this.y1);
-    if (x1 >= d) x1 = d * 0.9;
+
+    if (x1 <= 0 || x1 >= d) return this.x1;
+    x1 = this.#fix(x1);
     this.x1 = x1;
-    return this.x1
+    return this.x1;
   }
   getx1()
   {
@@ -134,84 +157,108 @@ class CATENARY
   sety1(y1)
   {
     let d = Math.sqrt(this.L*this.L - this.x1 * this.x1);
-    if (y1 >= d) y1 = d * 0.9;
+    if (Math.abs(y1) >=  d) return this.y1;
+    y1 = this.#fix(y1);
     this.y1 = y1;
-    return this.y1
+    return this.y1;
   }
   gety1()
   {
     return this.y1;
   }
-/*
-λ = ρg/H と置く
-α = log{(1 + y1/L)/(1 - y1/L)}と置く  … (αにHは含まれていない)
-β = (1/L)cosh(α/2)と置く             … (βにHは含まれていない)
-f(H) = 2βsinh(λx1/2) - λ = 0        … (λのみにHが含まれる)
-となるHを求める
-近似式H ≒ x1ρg/[2√{6/(βx1) - 6}]
-|λx1/2|が大きいほど、Hが小さいほど誤差が大くなる
-
-Hをニュートン法で求める
-f(H) = 2βsinh(λx1/2) - λ           … (λのみにHが含まれる)
-f'(H) = (λ/H){1 - βx1cosh(λx1/2)}
-
-初期値H0 = x1ρg/[2√{6/(βx1) - 6}]  … 近似式
-ΔHn = f(Hn)/f'(Hn)
-Hn+1 = Hn - ΔHn 
-H = Hn+1 (if |ΔHn| < ε)
-以上により誤差ε程度で H を求めることができる
-*/
-/*
-  getH()
+  setH()
   {
-    let b;
-    let a, f;
+    let a, b, t, f, g, H, e, d;
 
     b = this.y1 / this.L;
-    b = Math.log((1 + b)/(1 - b));
-    b = Math.cosh(b/2) / this.L;
-    a = this.r * this.g / H;
-    f = 2 * b * Math.sinh(a * this.x1 / 2) - a;
-    fd = a/H*(1 - b*this.x1*Math.cosh(a*this.x1/2));
-  }
-*/
-/*
-λ = ρg/H と置く
-α = log{(1 + y1/L)/(1 - y1/L)}と置く  … (αにHは含まれていない)
-x0 = (1/2)(x1 - α/λ)  calx0()
-*/
-/*
-  calx0()
-  {
-    let x0, A, g, H;
+    b = Math.log((1 + b)/(1 - b));      // α = log{(1 + y1/L)/(1 - y1/L)}
+    b = Math.cosh(b/2) / this.L;        // β = (1/L)cosh(α/2)
 
-    this.x0 = x0;
-    return this.x0;
+    t = 2 * Math.sqrt(6/(b * this.x1) - 6)
+    H = this.x1 * this.r * this.g / t;  // 初期値H0 = x1ρg/[2√{6/(βx1) - 6}]
+
+    e = this.e;
+    d = 1.0;
+    while (Math.abs(d) >= e)            //  H = Hn+1 (if |ΔHn| < ε)
+    {
+      a = this.r * this.g / H;          // λ = ρg/H
+      t = a * this.x1 / 2;
+      f = 2 * b * Math.sinh(t) - a;     // f(H) = 2βsinh(λx1/2) - λ
+      g = b * this.x1 * Math.cosh(t);
+      g = a / H * (1 - g);              // f'(H) = (λ/H){1 - βx1cosh(λx1/2)}
+      d = f / g;                        // ΔHn = f(Hn)/f'(Hn)
+      H = H - d;                        // Hn+1 = Hn - ΔHn 
+    }
+    this.H = H;
+    return this.#fixn(this.H);
   }
-*/
+  getH()
+  {
+    return this.#fixn(this.H);
+  }
+  setx0()
+  {
+    let x0, r, a, t;
+
+    r = this.r * this.g / this.H;       // λ = ρg/H と置く
+    t = this.y1 / this.L;
+    a = Math.log((1 + t) / (1 - t));    // α = log{(1 + y1/L)/(1 - y1/L)}
+    x0 = (this.x1 - a / r) / 2;         // x0 = (1/2)(x1 - α/λ)
+    this.x0 = x0;
+    return this.#fixn(this.x0);
+  }
+  getx0()
+  {
+    return this.#fixn(this.x0);
+  }
+  gety(x)
+  {
+    let y, r, rx, rx0;
+
+    r   = this.r * this.g / this.H;   // λ = ρg/H
+    rx  = r * x;// y(x) = (1/λ){cosh(λx - λx0) - cosh(λx0)}
+    rx0 = r * this.x0;
+    y   = (Math.cosh(rx - rx0) - Math.cosh(rx0)) / r;
+    return this.#fixn(y);
+  }
 }
 const C = new CATENARY();
 
 //--------------------------------------------------------------------
-// Get
+// catenary
 //--------------------------------------------------------------------
-let G0 = document.getElementById('rangeG0');
-let Ro = document.getElementById('rangeRo');
-let L0 = document.getElementById('rangeL0');
-
-function pushget()
+function catenary(x1, y1, c)
 {
-  G0 = document.getElementById('num_g0');
-  Ro = document.getElementById('num_ro');
-  L0 = document.getElementById('num_L0');
-  window.requestAnimationFrame(display);
+  let x, y, dx;
+
+  B.POINT(0, 0);
+
+  dx = x1 / 100;
+  for (x = 0; x < x1; x += dx)
+  {
+    y = C.gety(x);
+    B.LINE2(x, y, c);
+  }
+  B.LINE2(x1, y1, c);
 }
 
-function blurelem()
+//--------------------------------------------------------------------
+// value
+//--------------------------------------------------------------------
+function value(x, n)
 {
-  G0.blur();
-  Ro.blur();
-  L0.blur();
+  let a;
+
+  a = Math.floor(x);
+  a = String(a).length;
+  a = 4 - a;
+  if (a > 0) B.TAB(a, 0);
+  B.PRINT(x.toFixed(n));
+}
+
+function print(a, x, b, n)
+{
+  B.TAB(1, 0); B.PRINTe(a); value(x, n); B.PRINTe(b); B.CR();
 }
 
 //--------------------------------------------------------------------
@@ -219,36 +266,93 @@ function blurelem()
 //--------------------------------------------------------------------
 function display()
 {
-  let g, r, L;
+  let g, r, L, x1, y1, x0, y0, H, w, h, d;
 
-  g = Number(G0.value);
-  C.setg(g);
-  r = Number(Ro.value);
-  C.setr(r);
-  L = Number(L0.value);
-  C.setr(L);
-  
+  g  = C.getg();
+  r  = C.getr();
+  L  = C.getL();
+  x1 = C.getx1();
+  y1 = C.gety1();
+  H  = C.setH();
+  x0 = C.setx0();
+  y0 = C.gety(x0);
+
+  h = L;
+  w = h * 16 / 10;
+  d = w * 0.6;
+  B.WINDOW(-d, h, w * 2 - d, -h);
   B.FONT(1,0);
   B.CLS('#000');
+  B.LINE(-w, 0, w * 2, 0, '#ff0');
+  B.LINE(0, -h, 0    , h, '#ff0');
+  catenary(x1, y1, '#fff');
+
   B.LOCATE(0, 0); B.COLOR('#fff');
 
   B.TAB(1, 0); B.PRINT("懸垂線"); B.CR();
-  B.TAB(1, 0); B.PRINT(g); B.CR();
-  B.TAB(1, 0); B.PRINT(r); B.CR();
-  B.TAB(1, 0); B.PRINT(L); B.CR();
-//  window.requestAnimationFrame(display);
+  B.CR();
+  B.COLOR('#0f0');
+  d = 3;
+  print("g_  = ", g , " m/s^2", d);
+  print("ρ_ = ", r , " kg/m" , d);
+  print("L_  = ", L , " m"    , d);
+  print("x_1 = ", x1, " m"    , d);
+  print("y_1 = ", y1, " m"    , d);
+  B.CR();
+  B.COLOR('#0ff');
+  d = 6;
+  print("x_0 = ", x0, " m"    , d);
+  print("y_0 = ", y0, " m"    , d);
+  print("H_  = ", H , " N"    , d);
+  B.CR();
+//  B.TAB(1, 0); B.PRINT(Temp); B.CR();
 }
 
 //--------------------------------------------------------------------
 // input
 //--------------------------------------------------------------------
+function pushinit()
+{
+  let v, a;
+
+  v = document.getElementById('num_g0');
+  a = C.getg(a) ; v.value = a;
+  v = document.getElementById('num_ro');
+  a = C.getr(a) ; v.value = a;
+  v = document.getElementById('num_L0');
+  a = C.getL(a) ; v.value = a;
+  v = document.getElementById('num_x1');
+  a = C.getx1(a); v.value = a;
+  v = document.getElementById('num_y1');
+  a = C.gety1(a); v.value = a;
+}
+
+function pushget()
+{
+  let v, a;
+
+  v = document.getElementById('num_g0');
+  a = Number(v.value); a = C.setg(a) ; v.value = a; v.blur();
+  v = document.getElementById('num_ro');
+  a = Number(v.value); a = C.setr(a) ; v.value = a; v.blur();
+  v = document.getElementById('num_L0');
+  a = Number(v.value); a = C.setL(a) ; v.value = a; v.blur();
+  v = document.getElementById('num_x1');
+  a = Number(v.value); a = C.setx1(a); v.value = a; v.blur();
+  v = document.getElementById('num_y1');
+  a = Number(v.value); a = C.sety1(a); v.value = a; v.blur();
+  window.requestAnimationFrame(display);
+}
+
 function blur()
 {
+  document.getElementById('but_g0').blur();
+  document.getElementById('but_ro').blur();
+  document.getElementById('but_L0').blur();
+  document.getElementById('but_x1').blur();
+  document.getElementById('but_y1').blur();
+
   document.getElementById('butR').blur();
-  document.getElementById('butM').blur();
-  document.getElementById('butN').blur();
-  document.getElementById('butV').blur();
-  document.getElementById('butB').blur();
   document.getElementById('butQ').blur();
   document.getElementById('butW').blur();
   document.getElementById('butZ').blur();
@@ -256,47 +360,96 @@ function blur()
   document.getElementById('butC').blur();
 }
 
-function range()
+function focus()
 {
-  blur();
-  window.requestAnimationFrame(main);
+  var doc = document.activeElement;
+
+  if (doc === document.getElementById("num_g0")) return 1;
+  if (doc === document.getElementById("num_ro")) return 1;
+  if (doc === document.getElementById("num_L0")) return 1;
+  if (doc === document.getElementById("num_x1")) return 1;
+  if (doc === document.getElementById("num_y1")) return 1;
+  return 0;
 }
-G0.addEventListener('input', range);
-Ro.addEventListener('input', range);
-L0.addEventListener('input', range);
+
+function setx1y1(x, y)
+{
+  let v;
+
+  v = document.getElementById('num_x1'); v.value = x;
+  v = document.getElementById('num_y1'); v.value = y;
+}
 
 //--------------------------------------------------------------------
 // init
 //--------------------------------------------------------------------
 function init()
 {
+  C.init();
+  pushinit();
   blur();
-  pushget();
   window.requestAnimationFrame(main);
 }
 
 //--------------------------------------------------------------------
 // Input key
 //--------------------------------------------------------------------
+function keyon(key)
+{
+  let s, f, x, y;
+
+  if (focus()) return 0;
+
+  f = 0;
+
+  // SHIFT16 CTRL17 ALT18
+  if      (Key[ 16]) { s = 10;    }
+  else if (Key[ 17]) { s =  0.1;  }
+  else if (Key[ 18]) { s =  0.01; }
+  else               { s =  1;    }
+  s *= C.getL() * 1e-2;
+
+  x = C.getx1();
+  y = C.gety1();
+
+  if (Key[ 38] || key == 38) //↑
+  {
+    y += s; f = 1;
+  }
+  else if (Key[ 40] || key == 40) //↓
+  {
+    y -= s; f = 1;
+  } 
+  else if (Key[ 39] || key == 39) //→
+  {
+    x += s; f = 1;
+  } 
+  else if (Key[ 37] || key == 37) //←
+  {
+    x -= s; f = 1;
+  }
+  if (f == 0) return 0;
+  x = C.setx1(x);
+  y = C.sety1(y);
+  setx1y1(x, y);
+  return 1;
+}
+
 function inkey(key)
 {
   switch (key)
   {
-    case  13: init()                ; break; // 'R' Enter
-/*
-    case  78: neutral()             ; break; // 'N' Neutral
-    case  77: isQ = (isQ+1) % 4     ; break; // 'M'
-    case  86: if (--Era < 0) Era = 7; break; // 'V'
-    case  66: if (++Era > 7) Era = 0; break; // 'B'
-*/
-    case  81: B.lineWidth( 0.5)     ; break; // 'Q'
-    case  87: B.lineWidth( 2  )     ; break; // 'W'
-    case  90: B.zooming  (-1  )     ; break; // 'Z'
-    case  88: B.zooming  ( 1  )     ; break; // 'X'
-    case  67: B.zooming  ( 0  )     ; break; // 'C'
-    case 191: Secret = !Secret      ; break; // '/'
+    case  13: pushget()             ; key = 0; break; // 'R' Enter
+    case  32: init()                ; key = 0; break; // ' ' Space
+    case  81: B.lineWidth( 0.5)     ; key = 0; break; // 'Q'
+    case  87: B.lineWidth( 2  )     ; key = 0; break; // 'W'
+    case  90: B.zooming  (-1  )     ; key = 0; break; // 'Z'
+    case  88: B.zooming  ( 1  )     ; key = 0; break; // 'X'
+    case  67: B.zooming  ( 0  )     ; key = 0; break; // 'C'
+    case 191: Secret = !Secret      ; key = 0; break; // '/'
+    default : if (keyon(key))         key = 0;
   }
-  blurelem();
+  if (key) return;
   blur();
   window.requestAnimationFrame(main);
 }
@@ -320,15 +473,24 @@ window.onkeyup   = function(event) { Key[event.keyCode] = 0; }
 //----------------------------------------------------------------------
 function mouseDn(x, y, touch)
 {
-  x /= canvas.width;
-  y /= canvas.height;
-  if (!(0 <= x && x <= 1)) return 0;
-  if (!(0 <= y && y <= 1)) return 0;
+  let x1, y1, x0, y0, d;
 
-  x *=   1 * 1.8;
-  y *= -90 * 3;
-  M.ofsX(W1.value - x);
-  M.ofsY(X1.value - y);
+  if (!(0 <= x && x <= canvas.width )) return 0;
+  if (!(0 <= y && y <= canvas.height)) return 0;
+
+  x1 = C.getx1();
+  y1 = C.gety1();
+  x0 = B.scrX(x1);
+  y0 = B.scrY(y1);
+  x0 -= x;
+  y0 -= y;
+  d = Math.sqrt(x0*x0 + y0*y0);
+  if (d > 16*3) return 0;
+  x0 = B.winX(x);
+  y0 = B.winY(y);
+
+  M.ofsX(x1 - x0);
+  M.ofsY(y1 - y0);
   return 1;
 }
 
@@ -336,22 +498,14 @@ function mouseMv(x, y, touch)
 {
   let x1, y1;
 
-  x /= canvas.width;
-  y /= canvas.height;
+  x1 = B.winX(x);
+  y1 = B.winY(y);
+  x1 += M.ofsX('');
+  y1 += M.ofsY('');
 
-  x *=   1 * 1.8;
-  y *= -90 * 3;
-  x1 = x + M.ofsX('');
-  y1 = y + M.ofsY('');
-
-  if      (x1 <  0) { x1 =  0; M.ofsX(W1.value - x); M.ofsY(X1.value - y); }
-  else if (x1 >  1) { x1 =  1; M.ofsX(W1.value - x); M.ofsY(X1.value - y); }
-  if      (y1 <  0) { y1 =  0; M.ofsX(W1.value - x); M.ofsY(X1.value - y); }
-  else if (y1 > 90) { y1 = 90; M.ofsX(W1.value - x); M.ofsY(X1.value - y); }
-
-  W1.value = x1;
-  X1.value = y1;
-
+  x1 = C.setx1(x1);
+  y1 = C.sety1(y1);
+  setx1y1(x1, y1);
   blur();
   window.requestAnimationFrame(main);
 }
