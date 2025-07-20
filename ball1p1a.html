@@ -30,24 +30,24 @@
 <input type="button" id="but_d0" value="仰角" onclick="pushd(0)">
 <input type="number" id="num_d0" min = "0.0" max="90.0" step = "0.1" />
 <pre></pre>
-<input type="button" id="but_d1" value="θ1" onclick="pushd(1)">
-<input type="button" id="but_d2" value="θ2" onclick="pushd(2)">
-<input type="button" id="but_d3" value="θ3" onclick="pushd(3)">
-<input type="button" id="but_fx" value="落"  onclick="pushf()">
-<input type="button" id="but_gx" value="線"  onclick="pushg()">
+<input type="button" id="but_d1" value="θ1" onclick="pushd(1)">a
+<input type="button" id="but_d2" value="θ2" onclick="pushd(2)">s
+<input type="button" id="but_d3" value="θ3" onclick="pushd(3)">d
+<input type="button" id="but_fx" value="落"  onclick="pushf()">f
+<input type="button" id="but_gx" value="線"  onclick="pushg()">g
 <pre></pre>
 <input type="button" id="but_ds" value="１目盛り" onclick="pushget()">
 <input type="number" id="num_ds" min = "0.0" max="99999.9" value = "1"
   step = "0.1" />
 <pre></pre>
-<input type="button" id="but_re" value="リセット " onclick="pushReset()">
-<input type="button" id="but_st" value="開始/停止" onclick="pushStart()">
+<input type="button" id="but_re" value="リセット " onclick="pushReset()">Ret
+<input type="button" id="but_st" value="開始/停止" onclick="pushStart()">Spc
 <pre></pre>
 <input type="button" id="but_bx" value="的x" onclick="pushget()">
 <input type="number" id="num_bx" value="55.000"
   min = "0.000" max="99999.999" step = "0.001" />
-<input type="button" id="but_by" value="的y" onclick="pushget()">
 <br>
+<input type="button" id="but_by" value="的y" onclick="pushget()">
 <input type="number" id="num_by" value="30.000"
   min = "0.000" max="99999.999" step = "0.001" />
 <pre></pre>
@@ -55,11 +55,11 @@
 <input type="number" id="num_ae" min = "0.0" max="1.0" value = "0.9"
   step = "0.1" />
 <pre></pre>
-<input type="button" id="but_m0" value="軽" onclick="pushm(0)">
-<input type="button" id="but_m1" value="等" onclick="pushm(1)">
-<input type="button" id="but_m2" value="重" onclick="pushm(2)">
-<input type="button" id="but_u0" value="衰" onclick="pushu(0)">
-<input type="button" id="but_u1" value="慣" onclick="pushu(1)">
+<input type="button" id="but_m0" value="軽" onclick="pushm(0)">h
+<input type="button" id="but_m1" value="等" onclick="pushm(1)">j
+<input type="button" id="but_m2" value="重" onclick="pushm(2)">k
+<input type="button" id="but_u0" value="衰" onclick="pushu(0)">e
+<input type="button" id="but_u1" value="慣" onclick="pushu(1)">r
 <pre></pre>
 <input type="button" id="but_t1" value="最終時間" onclick="pushget()">
 <input type="number" id="num_t1" value="300.0" min = "0" max="9999.9"
@@ -772,10 +772,13 @@ function Frame(t)
 
   B.LOCATE(0, 0);
   B.TAB(tb, 0);
+  B.COLOR('#0f0'); B.PRINT("的(タッチ,矢印+Shift/Ctrl/Alt),拡大(zxc),線幅(qw)");
+/*
   B.COLOR('#ff0'); B.PRINT("数値");
   B.COLOR('#0f0'); B.PRINT("(Enterﾘｾｯﾄ)");
   B.COLOR('#0ff'); B.PRINT("space開始");
   B.COLOR('#0f0'); B.PRINT(" (asd角f落g線hjk重er慣,矢印+S/C/A的,zxc拡qw線)");
+*/
   B.PRINT((Fr < 10)? "  " : " ");
   B.PRINT(Fr + "f"); B.CR();
   Fr = (Fr + 1) % 60;
@@ -920,7 +923,7 @@ function keyon(key)
 
   f = 0;
 
-  // SHIFT16 CTRL17 ALT18]
+  // SHIFT16 CTRL17 ALT18
   if      (Key[ 16]) { s = 1;     }
   else if (Key[ 17]) { s = 0.01;  }
   else if (Key[ 18]) { s = 0.001; }
@@ -958,7 +961,10 @@ document.body.addEventListener('keydown', event =>
 {
   var key = event.keyCode;
 
-  if (37 <= key && 40 <= key) event.preventDefault();
+  if (focus() == 0)
+  {
+    if (37 <= key && 40 <= key) event.preventDefault();
+  }
   switch (key)
   {
     case  13: pushReset(); blur(); break; // Enter
