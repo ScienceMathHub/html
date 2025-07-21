@@ -4,7 +4,7 @@
 
  HTML(JavaScript, canvas)
 
- (c)Ohtani 2024.4 - 2025.1
+ (c)Ohtani 2024.4 - 2025.7
 ------------------------------------------------------------------------
 */
 'use strict'
@@ -67,6 +67,14 @@ class BASIC
   scrY(y)
   {
     return (y - this.WinY) * canvas.height / this.WinH;
+  }
+  winW(w)
+  {
+    return w * this.WinW / canvas.width;
+  }
+  winH(h)
+  {
+    return h * this.WinH / canvas.height;
   }
   scrW(w)
   {

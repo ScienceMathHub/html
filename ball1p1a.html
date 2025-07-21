@@ -71,66 +71,66 @@
 'use strict'
 
 //----------------------------------------------------------------------
-// public variable
+// public letiable
 //----------------------------------------------------------------------
-var B = new BASIC();
+let B = new BASIC();
 
-var Cg = '#00f';  // graph
-var Ca = '#f00';  // 質点A
-var Cb = '#0f0';  // 質点B
-var Cx = '#0b0';  // x軸
-var Cy = '#0bb';  // y軸
+let Cg = '#00f';  // graph
+let Ca = '#f00';  // 質点A
+let Cb = '#0f0';  // 質点B
+let Cx = '#0b0';  // x軸
+let Cy = '#0bb';  // y軸
 //---
-var Pd =   9;     // dot/目盛り
-var Pr =   6;     // 質点の大きさ/2
-var Prr =  2.5;   // specularの大きさ
-var Prx =  1.5;   // specularのoffset x
-var Pry =  1.5;   // specularのoffset y
-var Px =  Pr;     // 表示位置x
-var Py = 397-Pr;  // 表示位置y
-var Pw = 634-Pr;  // 幅
-var Ph = 400-Pr;  // 高さ
-var P1 =   4;     //  1目盛り長さ
-var P5 =   6;     //  5目盛り長さ
-var P0 =   8;     // 10目盛り長さ
-var Pt  =  0;     // 時間
-var Pdt = 1/60;   // 1/60(s)
-var Pf  =  1;     // 落下(fall)
+let Pd =   9;     // dot/目盛り
+let Pr =   6;     // 質点の大きさ/2
+let Prr =  2.5;   // specularの大きさ
+let Prx =  1.5;   // specularのoffset x
+let Pry =  1.5;   // specularのoffset y
+let Px =  Pr;     // 表示位置x
+let Py = 397-Pr;  // 表示位置y
+let Pw = 634-Pr;  // 幅
+let Ph = 400-Pr;  // 高さ
+let P1 =   4;     //  1目盛り長さ
+let P5 =   6;     //  5目盛り長さ
+let P0 =   8;     // 10目盛り長さ
+let Pt  =  0;     // 時間
+let Pdt = 1/60;   // 1/60(s)
+let Pf  =  1;     // 落下(fall)
 //---
-var isMv = 0; // 動画スイッチ
-var Fr = 0;       // Frame counter
-var Zm = 1;       // 小数桁(m)
-var Zb = 3;       // 小数桁(m)B
-var Zt = 1;       // 小数桁(s)
-var Zd = 1;       // 小数桁(ﾟ)
-var ZD = 1;       // 小数桁(ﾟ)θ1～3
-var Ze = 1;       // 小数桁(係数)
+let isMv = 0; // 動画スイッチ
+let Fr = 0;       // Frame counter
+let Zm = 1;       // 小数桁(m)
+let Zb = 3;       // 小数桁(m)B
+let Zt = 1;       // 小数桁(s)
+let Zd = 1;       // 小数桁(ﾟ)
+let ZD = 1;       // 小数桁(ﾟ)θ1～3
+let Ze = 1;       // 小数桁(係数)
 //--- 上記inputで設定
-var Pg0;      // 重力加速度
-var Pv0;      // 初速度
-var Pd0;      // 仰角
-var Pd3 = 0;  // 仰角上
-var Pd2 = 0;  // 仰角中
-var Pd1 = 0;  // 仰角下
-var Pdi = 1;  // 仰角i
-var Ps  = 1;  // 1目盛り(m)
-var Pt1;      // 最終時間
-var Vo;       // 初速度
-var Bx;       // 初期位置(m)
-var By;       // 初期位置(m)
-var isDp = 1; // グラフ表示
+let Pg0;      // 重力加速度
+let Pv0;      // 初速度
+let Pd0;      // 仰角
+let Pd3 = 0;  // 仰角上
+let Pd2 = 0;  // 仰角中
+let Pd1 = 0;  // 仰角下
+let Pdi = 1;  // 仰角i
+let Ps  = 1;  // 1目盛り(m)
+let Pt1;      // 最終時間
+let Vo;       // 初速度
+let Bx;       // 初期位置(m)
+let By;       // 初期位置(m)
+let isDp = 1; // グラフ表示
 //---
-var Bm  = 1;      // 質量(倍)
-var Ae  = 0.9;    // 反発係数(垂直)
-var Au  = 1  ;    // 反発係数(水平)(仮)
-var Awe = 0.8;    // 壁反発係数(垂直)
-var Awu = 0.9;    // 壁反発係数(水平)(仮)
-var Afe = 0.6;    // 床反発係数(垂直)
-var Afu = 0.9;    // 床反発係数(水平)(仮)
-var Afx = 0.9997; // 床反発係数(水平)(仮)
+let Bm  = 1;      // 質量(倍)
+let Ae  = 0.9;    // 反発係数(垂直)
+let Au  = 1  ;    // 反発係数(水平)(仮)
+let Awe = 0.8;    // 壁反発係数(垂直)
+let Awu = 0.9;    // 壁反発係数(水平)(仮)
+let Afe = 0.6;    // 床反発係数(垂直)
+let Afu = 0.9;    // 床反発係数(水平)(仮)
+let Afx = 0.9997; // 床反発係数(水平)(仮)
 
 //--- class
-var Temp;
+let Temp;
 class Motion
 {
   constructor()
@@ -158,7 +158,7 @@ class Motion
   }
   distance(that)
   {
-    var dx, dy, r;
+    let dx, dy, r;
 
     dx = that.px - this.px;
     dy = that.py - this.py;
@@ -167,7 +167,7 @@ class Motion
   }
   #contact(that)
   {
-    var nx, ny, d, r;
+    let nx, ny, d, r;
 
     nx = that.px - this.px;
     ny = that.py - this.py;
@@ -179,7 +179,7 @@ class Motion
   }
   #radiustouch(that, dt)
   {
-    var nx, ny, d, r, x, y;
+    let nx, ny, d, r, x, y;
 
     nx = that.px - this.px;
     ny = that.py - this.py;
@@ -211,7 +211,7 @@ class Motion
   }
   #touch(that, dt)
   {
-    var x, y, d, r;
+    let x, y, d, r;
 
     this.px += this.vx * dt + (this.ax / 2) * dt * dt; // 速度
     this.py += this.vy * dt + (this.ay / 2) * dt * dt; // 速度
@@ -225,9 +225,9 @@ class Motion
   }
   #rebound(that)
   {
-    var nx, ny, v1, v2, u1, u2, m1, m2, m, e, u;
-    var x1, x2, y1, y2, tx1, ty1, tx2, ty2, tx, ty;
-    var d, r, c;
+    let nx, ny, v1, v2, u1, u2, m1, m2, m, e, u;
+    let x1, x2, y1, y2, tx1, ty1, tx2, ty2, tx, ty;
+    let d, r, c;
 
     m1 = this.m;
     m2 = that.m;
@@ -292,7 +292,7 @@ class Motion
   }
   #veloctiy() // 速度
   {
-    var dx, dy, d;
+    let dx, dy, d;
 
     dx  = this.vx;
     dy  = this.vy
@@ -301,7 +301,7 @@ class Motion
   }
   #way() // 移動距離
   {
-    var dx, dy, d;
+    let dx, dy, d;
 
     dx  = this.px - this.dx;
     dy  = this.py - this.dy;
@@ -312,7 +312,7 @@ class Motion
   }
   motion(dt, that, touchf)
   {
-    var d, i, e, u;
+    let d, i, e, u;
 
     d = 0;
 
@@ -381,14 +381,14 @@ class Motion
   }
   velocity0(v0, d)
   {
-    var t = d * Math.PI / 180;
+    let t = d * Math.PI / 180;
 
     this.vx = v0 * Math.cos(t);
     this.vy = v0 * Math.sin(t);
   }
   degree1(that)
   {
-    var x, y, d, t;
+    let x, y, d, t;
 
     x = that.px - this.px;
     y = that.py - this.py;
@@ -400,7 +400,7 @@ class Motion
   }
   degree3(that)
   {
-    var x, y, vx, vy, g, v0, t, d;
+    let x, y, vx, vy, g, v0, t, d;
 
     g = -this.ay;
     v0 = Math.sqrt(this.vx*this.vx + this.vy*this.vy);
@@ -419,7 +419,7 @@ class Motion
   }
   degree2(that)
   {
-    var x, y, vx, vy, g, v0, t, d;
+    let x, y, vx, vy, g, v0, t, d;
 
     g = -this.ay;
     v0 = Math.sqrt(this.vx*this.vx + this.vy*this.vy);
@@ -437,15 +437,15 @@ class Motion
     return d;
   }
 }
-var MA = new Motion();
-var MB = new Motion();
+let MA = new Motion();
+let MB = new Motion();
 
 //----------------------------------------------------------------------
 // touch
 //----------------------------------------------------------------------
 function focus()
 {
-  var doc = document.activeElement;
+  let doc = document.activeElement;
 
   if (doc === document.getElementById("num_g0")) return 1;
   if (doc === document.getElementById("num_v0")) return 1;
@@ -511,7 +511,7 @@ function getter()
   const x = document.getElementById("num_bx");
   const y = document.getElementById("num_by");
   const a = document.getElementById("num_ae");
-  var r, ps, d0, d1, d2, d3;
+  let r, ps, d0, d1, d2, d3;
 
   MA.e = MB.e = Number(a.value);
 
@@ -602,9 +602,9 @@ function pushm(n)
   getf();
 }
 
-var Vy  = By;
-var Vd0 = Pd0;
-var Vdi = Pdi;
+let Vy  = By;
+let Vd0 = Pd0;
+let Vdi = Pdi;
 function pushu(n)
 {
   const a = document.getElementById("num_ae");
@@ -668,7 +668,7 @@ function pushg()
 //----------------------------------------------------------------------
 function axis()
 {
-  var i, x, y, s;
+  let i, x, y, s;
 
   for (i = 1; i <=  Ph / Pd; i++)
   {
@@ -693,7 +693,7 @@ function axis()
 //----------------------------------------------------------------------
 function graph0(d, c)
 {
-  var r, t, x, y;
+  let r, t, x, y;
 
   x = Pw;
   t = d * Math.PI / 180;
@@ -703,7 +703,7 @@ function graph0(d, c)
 
 function graph1(d, c)
 {
-  var g, t, v0, vx, vy, i, x, y, s;
+  let g, t, v0, vx, vy, i, x, y, s;
 
   g  = Pg0;
   v0 = Pv0;
@@ -731,7 +731,7 @@ function graph1(d, c)
 //----------------------------------------------------------------------
 function Num(a, z)
 {
-   var s;
+   let s;
 
    s = a.toFixed(z);
    if (a >= 0) s = ' ' + s;
@@ -741,7 +741,7 @@ function Num(a, z)
 
 function Ball(a, c)
 {
-  var x, y;
+  let x, y;
 
   x = a.px * Pd / Ps;
   y = a.py * Pd / Ps;
@@ -753,8 +753,8 @@ function Ball(a, c)
 
 function Frame(t)
 {
-  var tb = 2;
-  var C0, C1;
+  let tb = 2;
+  let C0, C1;
 
   B.CLS('#032');
   B.WINDOW(-Px, Py, 639 - Px, Py - 399);
@@ -850,7 +850,7 @@ function Frame(t)
 //--------------------------------------------------------------------
 function Display()
 {
-  var ds, dt, i, k, pdt;
+  let ds, dt, i, k, pdt;
 
   if (isMv)
   {
@@ -876,8 +876,8 @@ function Display()
 //----------------------------------------------------------------------
 // Key status
 //----------------------------------------------------------------------
-var Key = new Array(256);
-for (var i = 0; i < 256; i++) Key[i] = 0;
+let Key = new Array(256);
+for (let i = 0; i < 256; i++) Key[i] = 0;
 window.onkeydown = function(event) { Key[event.keyCode] = 1; }
 window.onkeyup   = function(event) { Key[event.keyCode] = 0; }
 
@@ -886,7 +886,7 @@ window.onkeyup   = function(event) { Key[event.keyCode] = 0; }
 //--------------------------------------------------------------------
 function setB(x, y)
 {
-   var d;
+   let d;
 
    if (Pt <= 0)
    {
@@ -917,7 +917,7 @@ function setB(x, y)
 
 function keyon(key)
 {
-  var s, f, x, y;
+  let s, f, x, y;
 
   if (focus()) return;
 
@@ -959,7 +959,7 @@ function keyon(key)
 //----------------------------------------------------------------------
 document.body.addEventListener('keydown', event =>
 {
-  var key = event.keyCode;
+  let key = event.keyCode;
 
   if (focus() == 0)
   {
@@ -1000,7 +1000,7 @@ function winB(x, y)
 
 function mouseDn(x, y, touch)
 {
-  var w, r, d, dx, dy, mr;
+  let w, r, d, dx, dy, mr;
 
   mr  = MB.r;
   mr *= (touch)? 10 : 5;
@@ -1020,7 +1020,7 @@ function mouseDn(x, y, touch)
 
 function mouseMv(x, y, touch)
 {
-  var w;
+  let w;
 
   w = winB(x, y);
   x = w.x;
