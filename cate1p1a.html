@@ -71,11 +71,11 @@ class CATENARY
   constructor()
   {
     this.g  =  this.r  =  this.L  =  this.x1 =  this.y1 =  0;
-    this.n  =  this.e  =  this.d  =  this.H  =  this.x0 =  0;
+    this.n  =  this.e  =  this.d  =  this.A  =  this.x0 =  0;
   }
   init()
   {
-    this.g  =  9.807;   // 重力加速度[m/s^2](9.80665)
+    this.g  =  9.8;     // 重力加速度[m/s^2](9.80665, 9.79708)
     this.r  =  0.1;     // 紐の線密度[kg/m]ρ
     this.L  =  1;       // 紐の長さ[m] (0 < √(x12 + y12) < L)
     this.x1 =  0.5;     // 紐の両端間の水平距離[m]
@@ -84,7 +84,7 @@ class CATENARY
     this.n  =  9;       // 内部表示桁数
     this.e  =  1e-9;    // ε
     this.d  =  0.95;    // x1,y1,Lの補正用
-    this.H  =  0;       // 水平張力[N] (紐の頂点での張力)
+    this.A  =  0;       // λ = ρg/H[m]]
     this.x0 =  0;       // 左端から紐の底までの水平距離[m]
   }
   #fix(x)
@@ -145,7 +145,8 @@ class CATENARY
   {
     let d = Math.sqrt(this.L*this.L - this.y1 * this.y1);
 
-    if (x1 <= 0 || x1 >= d) return this.x1;
+    if (x1 <= -d || x1 >= d) return this.x1;
+//    if (x1 <= 0 || x1 >= d) return this.x1;
     x1 = this.#fix(x1);
     this.x1 = x1;
     return this.x1;
@@ -166,45 +167,50 @@ class CATENARY
   {
     return this.y1;
   }
-  setH()
+  setA()
   {
-    let a, b, t, f, g, H, e, d;
+    let a, b, t, f, g, A, e, d, x1;
 
+    x1 = Math.abs(this.x1);
     b = this.y1 / this.L;
     b = Math.log((1 + b)/(1 - b));      // α = log{(1 + y1/L)/(1 - y1/L)}
     b = Math.cosh(b/2) / this.L;        // β = (1/L)cosh(α/2)
 
-    t = 2 * Math.sqrt(6/(b * this.x1) - 6)
-    H = this.x1 * this.r * this.g / t;  // 初期値H0 = x1ρg/[2√{6/(βx1) - 6}]
+    A = 2 * Math.sqrt(6/(b * x1) - 6);
+    A = x1 / A;                         // 初期値λ0 = x1/[2√{6/(βx1) - 6}]
 
     e = this.e;
-    d = 1.0;
-    while (Math.abs(d) >= e)            //  H = Hn+1 (if |ΔHn| < ε)
+    d = e * 2;
+    while (Math.abs(d) >= e)            // λ = λn+1 (if |Δλn| < ε)
     {
-      a = this.r * this.g / H;          // λ = ρg/H
-      t = a * this.x1 / 2;
-      f = 2 * b * Math.sinh(t) - a;     // f(H) = 2βsinh(λx1/2) - λ
-      g = b * this.x1 * Math.cosh(t);
-      g = a / H * (1 - g);              // f'(H) = (λ/H){1 - βx1cosh(λx1/2)}
-      d = f / g;                        // ΔHn = f(Hn)/f'(Hn)
-      H = H - d;                        // Hn+1 = Hn - ΔHn 
+      t = x1 / (2*A);
+      f = 2 * b * Math.sinh(t) - 1/A;   // f(λ) = 2βsinh(x1/(2λ)) - 1/λ = 0
+      g = (1 - b*x1*Math.cosh(t))/A/A;  // f'(λ) = (1/λ^2){1 - βx1cosh(x1/(2λ))}
+      d = f / g;                        // Δλn = f(λn)/f'(λn)
+      A = A - d;                        // λn+1 = λn - Δλn 
     }
-    this.H = H;
-    return this.#fixn(this.H);
+    this.A = A;
+    return this.#fixn(this.A);
+  }
+  getA()
+  {
+    return this.#fixn(this.A);
   }
   getH()
   {
-    return this.#fixn(this.H);
+    let H = this.r * this.g * this.A;    // H = ρgλ (λ = H/ρg)
+    return this.#fixn(H);
   }
   setx0()
   {
-    let x0, r, a, t;
+    let x0, A, a, t, x1;
 
-    r = this.r * this.g / this.H;       // λ = ρg/H と置く
+    x1 = Math.abs(this.x1);
+    A = this.A;                       // λ
     t = this.y1 / this.L;
-    a = Math.log((1 + t) / (1 - t));    // α = log{(1 + y1/L)/(1 - y1/L)}
-    x0 = (this.x1 - a / r) / 2;         // x0 = (1/2)(x1 - α/λ)
-    this.x0 = x0;
+    a = Math.log((1 + t) / (1 - t));  // α = log{(1 + y1/L)/(1 - y1/L)}
+    x0 = (x1 - A * a) / 2;            // x0 = (1/2)(x1 - λα)
+    this.x0 = (this.x1 >= 0)? x0 : -x0;
     return this.#fixn(this.x0);
   }
   getx0()
@@ -213,16 +219,49 @@ class CATENARY
   }
   gety(x)
   {
-    let y, r, rx, rx0;
+    let y, A, b, a;
 
-    r   = this.r * this.g / this.H;   // λ = ρg/H
-    rx  = r * x;// y(x) = (1/λ){cosh(λx - λx0) - cosh(λx0)}
-    rx0 = r * this.x0;
-    y   = (Math.cosh(rx - rx0) - Math.cosh(rx0)) / r;
+    A = this.A;
+    b = (x - this.x0) / A;  // y(x) = λ{cosh(x/λ - x0/λ) - cosh(x0/λ)}
+    a = this.x0 / A;
+    y = A * (Math.cosh(b) - Math.cosh(a));
     return this.#fixn(y);
   }
 }
 const C = new CATENARY();
+
+//--------------------------------------------------------------------
+// coodinate
+//--------------------------------------------------------------------
+function coodinate(x0, y0, x1, y1, c, b)
+{
+  let i, k, s, d;
+
+  B.LINE(x0,  0, x1,  0, c);
+  B.LINE( 0, y0,  0, y1, c);
+
+  s = Math.floor(Math.log10(y0));
+  s = Math.pow(10, s) / 10;
+  for (i = 1; i <= 100; i++)
+  {
+    if      ((i % 10) == 0) d = B.winH(11);
+    else if ((i %  5) == 0) d = B.winH( 8);
+    else                    d = B.winH( 5);
+    k = i * s;
+    B.LINE( k, d,  k, -d, b);
+    B.LINE(-k, d, -k, -d, b);
+  }
+  for (i = 1; i <= 30; i++)
+  {
+    if      ((i % 10) == 0) d = B.winW(11);
+    else if ((i %  5) == 0) d = B.winW( 8);
+    else                    d = B.winW( 5);
+    k = i * s;
+    B.LINE( d,  k, -d,  k, b);
+    B.LINE( d, -k, -d, -k, b);
+  }
+  return s;
+}
 
 //--------------------------------------------------------------------
 // catenary
@@ -234,10 +273,21 @@ function catenary(x1, y1, c)
   B.POINT(0, 0);
 
   dx = x1 / 100;
-  for (x = 0; x < x1; x += dx)
+  if (x1 >= 0)
   {
-    y = C.gety(x);
-    B.LINE2(x, y, c);
+    for (x = 0; x < x1; x += dx)
+    {
+      y = C.gety(x);
+      B.LINE2(x, y, c);
+    }
+  }
+  else
+  {
+    for (x = 0; x > x1; x += dx)
+    {
+      y = C.gety(x);
+      B.LINE2(x, y, c);
+    }
   }
   B.LINE2(x1, y1, c);
 }
@@ -256,9 +306,9 @@ function value(x, n)
   B.PRINT(x.toFixed(n));
 }
 
-function print(a, x, b, n)
+function print(t, a, x, b, n)
 {
-  B.TAB(1, 0); B.PRINTe(a); value(x, n); B.PRINTe(b); B.CR();
+  B.TAB(t, 0); B.PRINTe(a); value(x, n); B.PRINTe(b); B.CR();
 }
 
 //--------------------------------------------------------------------
@@ -266,46 +316,58 @@ function print(a, x, b, n)
 //--------------------------------------------------------------------
 function display()
 {
-  let g, r, L, x1, y1, x0, y0, H, w, h, d;
+  let g, r, L, x1, y1, x0, y0, A, H, w, h, d, s, t;
 
   g  = C.getg();
   r  = C.getr();
   L  = C.getL();
   x1 = C.getx1();
   y1 = C.gety1();
-  H  = C.setH();
+  A  = C.setA();
   x0 = C.setx0();
   y0 = C.gety(x0);
+  H  = C.getH();
 
-  h = L;
+  h = L * 1.05;
   w = h * 16 / 10;
-  d = w * 0.6;
+  d = h;
   B.WINDOW(-d, h, w * 2 - d, -h);
   B.FONT(1,0);
   B.CLS('#000');
-  B.LINE(-w, 0, w * 2, 0, '#ff0');
-  B.LINE(0, -h, 0    , h, '#ff0');
+  s = coodinate(-d, h, w * 2 - d, -h, '#ff0', '#ff0');
   catenary(x1, y1, '#fff');
 
   B.LOCATE(0, 0); B.COLOR('#fff');
 
   B.TAB(1, 0); B.PRINT("懸垂線"); B.CR();
-  B.CR();
+  B.LOCATE(0, 0);
   B.COLOR('#0f0');
+  t = 56;
   d = 3;
-  print("g_  = ", g , " m/s^2", d);
-  print("ρ_ = ", r , " kg/m" , d);
-  print("L_  = ", L , " m"    , d);
-  print("x_1 = ", x1, " m"    , d);
-  print("y_1 = ", y1, " m"    , d);
+  print(t, "g_  = ", g , " m/s^2", d);
+  print(t, "ρ_ = ", r , " kg/m" , d);
+  print(t, "L_  = ", L , " m"    , d);
+  print(t, "x_1 = ", x1, " m"    , d);
+  print(t, "y_1 = ", y1, " m"    , d);
   B.CR();
   B.COLOR('#0ff');
   d = 6;
-  print("x_0 = ", x0, " m"    , d);
-  print("y_0 = ", y0, " m"    , d);
-  print("H_  = ", H , " N"    , d);
+  print(t, "x_0 = ", x0, " m"    , d);
+  print(t, "y_0 = ", y0, " m"    , d);
+  print(t, "H_  = ", H , " N"    , d);
   B.CR();
-//  B.TAB(1, 0); B.PRINT(Temp); B.CR();
+  B.COLOR('#f0f');
+  B.TAB(t-1, -0.5); B.PRINT (" H ");
+  B.TAB(-3 ,  0  ); B.PRINT ("___");
+  B.TAB(-3 ,  1.0); B.PRINT ("ρg");
+  B.TAB(-3 , -0.5  );
+  print(0  , "_    = ", A , " m"    , d);
+  B.CR();
+  B.CR();
+  B.CR();
+  B.COLOR('#ff0');
+  B.TAB(t, 0); B.PRINT("1目盛 = " + s + " m"); B.CR();
+//  B.TAB(t, 0); B.PRINT(Temp); B.CR();
 }
 
 //--------------------------------------------------------------------
@@ -362,7 +424,7 @@ function blur()
 
 function focus()
 {
-  var doc = document.activeElement;
+  let doc = document.activeElement;
 
   if (doc === document.getElementById("num_g0")) return 1;
   if (doc === document.getElementById("num_ro")) return 1;
@@ -439,6 +501,7 @@ function inkey(key)
 {
   switch (key)
   {
+//    case  13: if (focus()) pushget(); else init(); key = 0; break; // ' ' Space
     case  13: pushget()             ; key = 0; break; // 'R' Enter
     case  32: init()                ; key = 0; break; // ' ' Space
     case  81: B.lineWidth( 0.5)     ; key = 0; break; // 'Q'
@@ -485,7 +548,7 @@ function mouseDn(x, y, touch)
   x0 -= x;
   y0 -= y;
   d = Math.sqrt(x0*x0 + y0*y0);
-  if (d > 16*3) return 0;
+  if (d > 110) return 0;
   x0 = B.winX(x);
   y0 = B.winY(y);
 

@@ -1,0 +1,700 @@
+<!--
+----------------------------------------------------------------------
+ 傾斜面
+
+ HTML(JavaScript, canvas)
+
+ Physics (c) Ohtani 2025.7
+----------------------------------------------------------------------
+-->
+<!DOctxYPE html>
+<html lang="ja">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<head>
+  <meta charset="utf-8">
+  <title>傾斜面</title>
+</head>
+<body>
+<p id="Slope"></p>
+<div style='float:left;'>
+<input type="number" id="num_g" value="0"
+  min = "0" max="999.9" step = "0.1" />
+<input type="button" id="but_g" value="重力加速度g" onclick="pushget()">
+<pre></pre>
+<input type="number" id="num_m" value="0"
+  min = "0.1" max="999.9" step = "0.1" />
+<input type="button" id="but_m" value="質量m" onclick="pushget()">
+<pre></pre>
+<input type="number" id="num_d" value="0"
+  min = "-360" max="360" step = "0.1" />
+<input type="button" id="but_d" value="角度θ" onclick="pushget()">
+<br>
+矢印+Shift/Ctrl/Alt
+<br>
+<form id="target">
+  <input type="radio" id="rad_2" name="amount" value="2" /> 0～180°
+<pre></pre>
+  <input type="radio" id="rad_1" name="amount" value="1" /> 0～90°
+<pre></pre>
+</form>
+<pre></pre>
+<input type="button" id="butR" value="Reset" onclick="inkey(13)">Enter
+<pre></pre>
+<input type="button" id="butS" value="初期化" onclick="inkey(32)">Space
+<pre></pre>
+<br>
+<input type="button" id="butQ" value="細"    onclick="inkey(81)">q
+<input type="button" id="butW" value="太"    onclick="inkey(87)">w
+<pre></pre>
+<input type="button" id="butZ" value="縮"    onclick="inkey(90)">z 
+<input type="button" id="butX" value="拡"    onclick="inkey(88)">x
+<input type="button" id="butC" value="初"    onclick="inkey(67)">c　
+<pre></pre>
+
+<script src="https://sciencemathhub.github.io/html/toappe.js"></script>
+<script src="https://sciencemathhub.github.io/html/canlib.js"></script>
+<script>
+'use strict'
+
+//--------------------------------------------------------------------
+// public letiable
+//--------------------------------------------------------------------
+const B = new BASIC();
+
+let Temp; // debug
+
+//------------------------------------------------------------------------------
+// 変数
+//------------------------------------------------------------------------------
+class SLOPE
+{
+  constructor()
+  {
+    this.g   = this.m   = this.d   = this.s   = 0;
+    this.mg  = this.mgx = this.a   = this.mgy = 0;
+  }
+  init()
+  {
+    this.g  =   9.8;    // 重力加速度[m/s^2](9.80665, 9.79708)
+    this.m  =  10;      // 質量[kg]
+    this.d  =   0;      // 傾斜角[°]
+    this.s  =   2;      // 1:90 2:180 3:360[°]
+  }
+  #fix(x)
+  {
+    let a;
+
+    a = x.toFixed(1);
+    return Number(a);
+  }
+  #fixn(x)
+  {
+    let a;
+
+    a = x.toFixed(4);
+    return Number(a);
+    return x;
+  }
+  setg(g)
+  {
+    if (g <=     0) g =   0.001;
+    if (g >=  1000) g = 999.999;
+    g = this.#fix(g);
+    this.g = g;
+    return this.g;
+  }
+  getg()
+  {
+    return this.g;
+  }
+  setm(m)
+  {
+    if (m <=     0) m =   0.001;
+    if (m >=  1000) m = 999.999;
+    m = this.#fix(m);
+    this.m = m;
+    return this.m;
+  }
+  getm()
+  {
+    return this.m;
+  }
+  setd(d)
+  {
+    switch (this.s)
+    {
+      case 1:
+        if (d < -90) d = -90; else if (d > 90) d = 90;
+        break;
+    }
+    while (d < -180) d += 360;
+    while (d >  180) d -= 360;
+    d = this.#fix(d);
+    this.d = d;
+    return this.d;
+  }
+  getd()
+  {
+    return this.d;
+  }
+  sets(s)
+  {
+    if      (s < 1) s = 1;
+    else if (s > 3) s = 3;
+    s = Math.round(s);
+    this.s = s;
+    return this.s;
+  }
+  gets()
+  {
+    return this.s;
+  }
+  setmg()
+  {
+    let mg = this.m * this.g;
+
+    this.mg = this.#fixn(mg);
+    return this.mg;
+  }
+  getmg()
+  {
+    return this.mg;
+  }
+  setmgx(d)
+  {
+    let t = d * Math.PI / 180;
+
+    t = this.m * this.g * Math.sin(t);
+    this.mgx = this.#fixn(t);
+    return this.mgx;
+  }
+  getmgx()
+  {
+    return this.mgx;
+  }
+  seta(d)
+  {
+    let t = d * Math.PI / 180;
+
+    t = this.g * Math.sin(t);
+    this.a = this.#fixn(t);
+    return this.a;
+  }
+  geta()
+  {
+    return this.a;
+  }
+  setmgy(d)
+  {
+    let t = d * Math.PI / 180;
+
+    t = this.m * this.g * Math.cos(t);
+    this.mgy = this.#fixn(t);
+    return this.mgy;
+  }
+  getmgy()
+  {
+    return this.mgy;
+  }
+}
+const S = new SLOPE();
+
+//--------------------------------------------------------------------
+// polygon
+//--------------------------------------------------------------------
+function polygon(xn, yn, d, c, loop)
+{
+  let i, x0, y0, x1, y1, x, y, t, co, si;
+
+  t  = d * Math.PI / 180;
+  co = Math.cos(t);
+  si = Math.sin(t);
+
+  t = 1;
+  x0 = y0 = 0;
+  B.POINT(0, 0);
+  for (i = 0; i < xn.length; i++)
+  {
+    x1 = xn[i]; y1 = yn[i];
+    x  = x1 * co - y1 * si;
+    y  = x1 * si + y1 * co;
+    if (t) { B.POINT(x, y); x0 = x; y0 = y; t = 0; }
+    else   { B.LINE2(x, y, c);                     }    
+  }
+  if (loop) B.LINE2(x0, y0, c);
+}
+
+//--------------------------------------------------------------------
+// arrow
+//--------------------------------------------------------------------
+function arrow(h, r, b, d, c)
+{
+  let x, y, a, xn, yn;
+
+  a = h * 2;
+  if (r < a) { a = 0; } else { a = r - a; }
+  x = r - b;
+  a = a - b;
+  y = h / 2;
+  xn = [-b, a, a, x,  a,  a, -b];
+  yn = [ y, y, h, 0, -h, -y, -y];
+  polygon(xn, yn, d, c, true);
+}
+
+
+//--------------------------------------------------------------------
+// drawing
+//--------------------------------------------------------------------
+function drawing(d)
+{
+  let x, y, xn, yn, r, dx, dy, t, w, x0, y0;
+
+  x = 400;
+  y =  26;
+  xn = [-x,  x];
+  yn = [-y, -y];
+  polygon(xn, yn, d, '#ff0', false);
+
+  x =  50;
+  y =  25;
+  xn = [ x, x, -x, -x];
+  yn = [-y, y,  y, -y];
+  polygon(xn, yn, d, '#fff', true);
+
+  r = 150;
+  arrow(5, r, 0,  - 90, '#0ff');
+  t  = -90 * Math.PI / 180;
+  x0 = r * Math.cos(t);
+  y0 = r * Math.sin(t);
+
+  t  = S.getmg();
+  dx = S.getmgx() / t;
+  dy = S.getmgy() / t;
+
+  if (dy > 0)
+  {
+    w = r * Math.abs(dy);
+    t = (dy < 0)? d+90: d-90;
+    arrow(15, w, y, t+180, '#ff0');
+    arrow(10, w, 0, t    , '#0f0');
+    t = t * Math.PI / 180;
+    B.LINE(x0, y0, w * Math.cos(t), w * Math.sin(t), '#00f');
+
+    w = r * Math.abs(dx);
+    t = (dx < 0)? d: d+180;
+  }
+  else
+  {
+    w = r;
+    t = -90;
+  }
+  arrow(10, w, 0, t, '#fff');
+  t = t * Math.PI / 180;
+  B.LINE(x0, y0, w * Math.cos(t), w * Math.sin(t), '#00f');
+}
+
+//--------------------------------------------------------------------
+// value
+//--------------------------------------------------------------------
+function value(x, n)
+{
+  let a;
+
+  if (Math.abs(x) > 1e+4)
+  {
+    B.TAB(2, 0);
+    B.PRINT("なし");
+    return;
+  }
+  a = Math.floor(x);
+  a = String(a).length;
+  a = 4 - a;
+  if (a > 0) B.TAB(a, 0);
+  B.PRINT(x.toFixed(n));
+}
+
+function print(t, a, x, b, n)
+{
+  B.TAB(t, 0); B.PRINT(a); value(x, n); B.PRINTe(b);
+}
+
+//--------------------------------------------------------------------
+// 分数(1桁/1桁)
+//--------------------------------------------------------------------
+function fraction(s, ra, a, rb, b)
+{
+  let ta, tb, c;
+
+  B.PRINT(" = ");
+
+  if (b != 0) { B.TAB(2, -0.5); }
+  else        { B.TAB(2,  0  ); }
+
+  if (ra)
+  {
+    B.TAB(0.35, 0); B.PRINT("√"); B.TAB(-1, 0); B.PRINT(a);
+    B.TAB(0.65, 0);
+  }
+  else
+  { B.TAB(1, 0); B.PRINT(a); B.TAB(1, 0); }
+  B.TAB(-5, 0);
+
+  c = (s < 0)? "_ " : "  ";
+  if (b != 0) { B.PRINT(c + "___"); B.TAB(-3, 1); }
+  else        { B.TAB(0,-0.5); B.PRINT(c); B.TAB(3, 0.5); return;  }
+
+  if (rb)
+  {
+    B.TAB(0.35, 0); B.PRINT("√"); B.TAB(-1, 0); B.PRINT(b);
+    B.TAB(0.65, 0);
+  }
+  else
+  { B.TAB(1, 0); B.PRINT(b); B.TAB(1, 0); }
+  B.TAB(0, -0.5);
+}
+
+function sinfrac(d)
+{
+  let s;
+
+  if      (   0 <= d && d <  90) s =  1;
+  else if (  90 <= d && d < 180) s =  1;
+  else if (-180 <= d && d < -90) s = -1;
+  else if ( -90 <= d && d <   0) s = -1;
+  d = Math.abs(d);
+  if (d > 90) d = 180 - d;
+  if (d ==  0) { fraction(1, 0, 0, 0, 0); return; }
+  if (d == 30) { fraction(s, 0, 1, 0, 2); return; }
+  if (d == 45) { fraction(s, 0, 1, 1, 2); return; }
+  if (d == 60) { fraction(s, 1, 3, 0, 2); return; }
+  if (d == 90) { fraction(s, 0, 1, 0, 0); return; }
+}
+
+function cosfrac(d)
+{
+  let s;
+
+  if      (   0 <= d && d <  90) s =  1;
+  else if (  90 <= d && d < 180) s = -1;
+  else if (-180 <= d && d < -90) s = -1;
+  else if ( -90 <= d && d <   0) s =  1;
+  d = Math.abs(d);
+  if (d > 90) d = 180 - d;
+  if (d ==  0) { fraction(s, 0, 1, 0, 0); return; }
+  if (d == 30) { fraction(s, 1, 3, 0, 2); return; }
+  if (d == 45) { fraction(s, 0, 1, 1, 2); return; }
+  if (d == 60) { fraction(s, 0, 1, 0, 2); return; }
+  if (d == 90) { fraction(1, 0, 0, 0, 0); return; }
+}
+
+function tanfrac(d)
+{
+  let s;
+
+  if      (   0 <= d && d <  90) s =  1;
+  else if (  90 <= d && d < 180) s = -1;
+  else if (-180 <= d && d < -90) s =  1;
+  else if ( -90 <= d && d <   0) s = -1;
+  d = Math.abs(d);
+  if (d > 90) d = 180 - d;
+  if (d ==  0) { fraction(1, 0, 0, 0, 0); return; }
+  if (d == 30) { fraction(s, 0, 1, 1, 3); return; }
+  if (d == 45) { fraction(s, 0, 1, 0, 0); return; }
+  if (d == 60) { fraction(s, 1, 3, 0, 0); return; }
+}
+
+//--------------------------------------------------------------------
+// screen
+//--------------------------------------------------------------------
+function display()
+{
+  let g, m, d, t, q, mg, mgx, mgy, x, y, a;
+
+  g   = S.getg();
+  m   = S.getm();
+  d   = S.getd();
+  mg  = S.setmg();
+  mgx = S.setmgx(d);
+  a   = S.seta(d);
+  mgy = S.setmgy(d);
+
+  B.WINDOW(-320, 200, 319, -199);
+  B.FONT(1,0);
+  B.CLS('#000');
+  drawing(d);
+
+  B.LOCATE(0, 0); B.COLOR('#fff');
+
+  t = d;
+  d = Math.abs(d);
+  x = mgx = Math.abs(mgx);
+  a = Math.abs(a);
+  y = mgy;
+  if (mgy < 0) { x = mg; a = g; y = 0; }
+  q = 1;
+  B.COLOR('#0ff'); print(1, "重力加速度g  = ", g, " m/s^2", q); B.CR();
+  B.COLOR('#fff'); print(1, "物質の質量m  = ", m, " kg"   , q); B.CR();
+  B.COLOR('#ff0'); print(1, "斜面傾斜角θ = ", d, " °"   , q); B.CR();
+  B.CR();
+  q = 4;
+  B.COLOR('#0ff'); print(1, "重力 W=mg  = ", mg , " N"    , q); B.CR();
+  B.COLOR('#fff'); print(1, "   mgsinθ = ", mgx, " N"    , q); B.CR();
+  B.COLOR('#0f0'); print(1, "   mgcosθ = ", mgy, " N"    , q); B.CR();
+  B.CR();
+  B.COLOR('#fff'); print(1, "  a=gsinθ = ", a  , " m/s^2", q); B.CR();
+  B.CR();
+  B.COLOR('#fff'); print(1, "水平成分Wx = ", x  , " N"    , q); B.CR();
+  B.COLOR('#0f0'); print(1, "垂直成分Wy = ", y  , " N"    , q); B.CR();
+  B.COLOR('#ff0'); print(1, "垂直抗力N  = ", y  , " N"    , q); B.CR();
+  B.CR();
+  B.CR();
+  B.COLOR('#fff'); print(1, "   θ = ",          t , "", q);
+  B.CR(); B.CR();
+  d = t;
+  t = d * Math.PI / 180;
+  B.COLOR('#fff'); print(1, "sinθ = ", Math.sin(t), "", q);
+  sinfrac(d);
+  B.CR(); B.CR();
+  B.COLOR('#fff'); print(1, "cosθ = ", Math.cos(t), "", q);
+  cosfrac(d);
+  B.CR(); B.CR();
+  B.COLOR('#fff'); print(1, "tanθ = ", Math.tan(t), "", q);
+  tanfrac(d);
+  B.CR(); B.CR();
+  B.COLOR('#ff0');
+  B.CR();
+//  B.TAB(t, 0); B.PRINT(Temp); B.CR();
+}
+
+//--------------------------------------------------------------------
+// input
+//--------------------------------------------------------------------
+function pushinit()
+{
+  let v, a, i;
+
+  v = document.getElementById('num_g');
+  a = S.getg(a) ; v.value = a;
+  v = document.getElementById('num_m');
+  a = S.getm(a) ; v.value = a;
+  v = document.getElementById('num_d');
+  a = S.getd(a) ; v.value = a;
+  v = document.getElementById("target");
+  for (i = 0; i < v.length; i++)
+  {
+    v[i].checked = false;
+  }
+  v[0].checked = true;
+}
+
+function pushget()
+{
+  let v, a, i;
+
+  v = document.getElementById('num_g');
+  a = Number(v.value); a = S.setg(a) ; v.value = a; v.blur();
+  v = document.getElementById('num_m');
+  a = Number(v.value); a = S.setm(a) ; v.value = a; v.blur();
+  v = document.getElementById('num_d');
+  a = Number(v.value); a = S.setd(a) ; v.value = a; v.blur();
+  v = document.getElementById("target");
+  for (i = 0; i < v.length; i++)
+  {
+    if (v[i].checked) { S.sets(2-i); break; }
+  }
+  window.requestAnimationFrame(display);
+}
+
+function blur()
+{
+  document.getElementById('but_g').blur();
+  document.getElementById('but_m').blur();
+  document.getElementById('but_d').blur();
+
+  document.getElementById('rad_2').blur();
+  document.getElementById('rad_1').blur();
+
+  document.getElementById('butR').blur();
+  document.getElementById('butS').blur();
+  document.getElementById('butQ').blur();
+  document.getElementById('butW').blur();
+  document.getElementById('butZ').blur();
+  document.getElementById('butX').blur();
+  document.getElementById('butC').blur();
+}
+
+function focus()
+{
+  let doc = document.activeElement;
+
+  if (doc === document.getElementById("num_g")) return 1;
+  if (doc === document.getElementById("num_m")) return 1;
+  if (doc === document.getElementById("num_d")) return 1;
+  return 0;
+}
+
+function setd(d)
+{
+  let v;
+
+  v = document.getElementById('num_d');
+  v.value = d;
+}
+
+function pushrad()
+{
+  let v, a, i;
+
+  v = document.getElementById("target");
+  for (i = 0; i < v.length; i++)
+  {
+    if (v[i].checked) { S.sets(2-i); break; }
+  }
+  v = document.getElementById('num_d');
+  a = Number(v.value); a = S.setd(a) ; v.value = a; v.blur();
+  blur();
+  window.requestAnimationFrame(display);
+}
+
+document.getElementById("target").addEventListener('input', pushrad);
+
+//--------------------------------------------------------------------
+// init
+//--------------------------------------------------------------------
+function init()
+{
+  S.init();
+  pushinit();
+  blur();
+  window.requestAnimationFrame(main);
+}
+
+//--------------------------------------------------------------------
+// Input key
+//--------------------------------------------------------------------
+function keyon(key)
+{
+  let s, f, d;
+
+  if (focus()) return 0;
+
+  f = 0;
+
+  // SHIFT16 CTRL17 ALT18
+  if      (Key[ 16]) { s = 0.1; }
+  else               { s =   1; }
+  d = S.getd();
+
+  if      (Key[ 38] || key == 38) //↑
+  {
+    d += s * 15; f = 1;
+  }
+  else if (Key[ 40] || key == 40) //↓
+  {
+    d -= s * 15; f = 1;
+  } 
+  else if (Key[ 39] || key == 39) //→
+  {
+    d += s * 1; f = 1;
+  } 
+  else if (Key[ 37] || key == 37) //←
+  {
+    d -= s * 1; f = 1;
+  }
+  if (f == 0) return 0;
+  d = S.setd(d);
+  setd(d);
+  return 1;
+}
+
+function inkey(key)
+{
+  switch (key)
+  {
+    case  13: if (focus()) pushget(); else  { setd(0); S.setd(0); }
+                                      key = 0; break; // 'R' Enter
+    case  32: init()                ; key = 0; break; // ' ' Space
+    case  81: B.lineWidth( 0.5)     ; key = 0; break; // 'Q'
+    case  87: B.lineWidth( 2  )     ; key = 0; break; // 'W'
+    case  90: B.zooming  (-1  )     ; key = 0; break; // 'Z'
+    case  88: B.zooming  ( 1  )     ; key = 0; break; // 'X'
+    case  67: B.zooming  ( 0  )     ; key = 0; break; // 'C'
+    case 191: Secret = !Secret      ; key = 0; break; // '/'
+    default : if (keyon(key))         key = 0;
+  }
+  if (key) return;
+  blur();
+  window.requestAnimationFrame(main);
+}
+document.body.addEventListener('keydown', event =>
+{
+  let key = event.keyCode;
+
+  inkey(key);
+});
+
+//--------------------------------------------------------------------
+// Key status
+//--------------------------------------------------------------------
+let Key = new Array(256);
+for (let i = 0; i < 256; i++) Key[i] = 0;
+window.onkeydown = function(event) { Key[event.keyCode] = 1; }
+window.onkeyup   = function(event) { Key[event.keyCode] = 0; }
+
+//----------------------------------------------------------------------
+// mouse
+//----------------------------------------------------------------------
+function mouseDn(x, y, touch)
+{
+  let x1, y1, d, d1;
+
+  if (!(0 <= x && x <= canvas.width )) return 0;
+  if (!(0 <= y && y <= canvas.height)) return 0;
+
+  x1 = B.winX(x);
+  y1 = B.winY(y);
+  d  = Math.atan2(y1, x1);
+  d  = d  * 180 / Math.PI;
+  d  = d - S.getd();
+
+  M.ofsX(d);
+  return 1;
+}
+
+function mouseMv(x, y, touch)
+{
+  let x1, y1, d, d1;
+
+  d1 = M.ofsX('');
+  x1 = B.winX(x);
+  y1 = B.winY(y);
+  d  = Math.atan2(y1, x1);
+  d  = d  * 180 / Math.PI;
+  d -= d1;
+  d  = Math.round(d);
+  d  = S.setd(d);
+  setd(d);
+  blur();
+  window.requestAnimationFrame(main);
+}
+
+const M = new MOUSE();
+M.add();
+M.mosDnFunc(mouseDn);
+M.mosMvFunc(mouseMv);
+
+//--------------------------------------------------------------------
+// main
+//--------------------------------------------------------------------
+function main()
+{
+  display();
+}
+
+init();
+
+//--------------------------------------------------------------------
+</script>
+</body>
+</html>
