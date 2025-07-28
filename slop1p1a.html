@@ -276,8 +276,8 @@ class SLOPE
     t = this.g * Math.sin(t);
     if (this.s2)
     {
-      if (this.f > this.f0) t -= this.fd / this.m;
-      else                  t  = 0;
+      if      (this.f > this.f0) t -= this.fd / this.m;
+      else if (this.f > 0      ) t  = 0;
     }
     this.a = this.#fixn(t);
     return this.a;
@@ -602,8 +602,10 @@ function display()
     { B.COLOR('#f0f'); print(1, "a = gsinθ - f/m = " , a  , " m/s^2", 4); }
     else if (fd > 0)
     { B.COLOR('#f00'); print(1, "a = gsinθ - f'/m = ", a  , " m/s^2", 4); }
+    else if (d <= 90)
+    { B.COLOR('#fff'); print(1, "a = gsinθ = "       , a  , " m/s^2", 4); }
     else
-    { B.COLOR('#fff'); print(1, "a = gsinθ = " , a  , " m/s^2", 4); }
+    { B.COLOR('#fff'); print(1, "a = g = "            , a  , " m/s^2", 4); }
     B.CR();
     B.CR();
     B.COLOR('#00f'); printe(1, "静止摩擦係数μ_  = ", u , ""  , 4); B.CR();
@@ -614,7 +616,11 @@ function display()
   }
   else
   {
-    B.COLOR('#fff'); print(1, "a = gsinθ = ", a  , " m/s^2", 4); B.CR();
+    if (d <= 90)
+    { B.COLOR('#fff'); print(1, "a = gsinθ = ", a  , " m/s^2", 4); }
+    else
+    { B.COLOR('#fff'); print(1, "a = g = "     , a  , " m/s^2", 4); }
+    B.CR();
     B.TAB(0, 6);
   }
   B.TAB(0, 5);
