@@ -19,7 +19,7 @@
 <p id="Slope"></p>
 <div style='float:left;'>
 <input type="number" id="num_g" value="0"
-  min = "0" max="999.9" step = "0.1" />
+  min = "0.1" max="999.9" step = "0.1" />
 <input type="button" id="but_g" value="重力加速度g" onclick="pushget()">
 <pre></pre>
 <input type="number" id="num_m" value="0"
@@ -35,8 +35,8 @@
 <form id="target">
 重力表示
   <input type="radio" id="rad_0" name="amount" value="0" />e
-　非表示
-  <input type="radio" id="rad_1" name="amount" value="1" />r
+　隠す
+  <input type="radio" id="rad_1" name="amount" value="1" />r　
 <pre></pre>
 </form>
 <pre></pre>
@@ -52,12 +52,12 @@
 摩擦なし
   <input type="radio" id="fri_0" name="amount" value="0" />d
 　あり
-  <input type="radio" id="fri_1" name="amount" value="1" />f
+  <input type="radio" id="fri_1" name="amount" value="1" />f　
 <pre></pre>
 </form>
 <pre></pre>
 <input type="button" id="butR" value="Reset" onclick="inkey(13)">Enter
-<input type="button" id="butS" value="初期化" onclick="inkey(32)">Spc
+<input type="button" id="butS" value="初期化" onclick="inkey(32)">Space
 <pre></pre>
 <input type="button" id="butQ" value="細"    onclick="inkey(81)">q
 <input type="button" id="butW" value="太"    onclick="inkey(87)">w
