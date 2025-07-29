@@ -1,6 +1,6 @@
 <!--
 ----------------------------------------------------------------------
- 傾斜面
+ 斜面
 
  HTML(JavaScript, canvas)
 
@@ -13,7 +13,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <head>
   <meta charset="utf-8">
-  <title>傾斜面</title>
+  <title>斜面</title>
 </head>
 <body>
 <p id="Slope"></p>
@@ -33,9 +33,10 @@
 矢印+Shift
 <br>
 <form id="target">
-重力
-  <input type="radio" id="rad_0" name="amount" value="0" />e表示
-  <input type="radio" id="rad_1" name="amount" value="1" />r非表示
+重力表示
+  <input type="radio" id="rad_0" name="amount" value="0" />e
+　非表示
+  <input type="radio" id="rad_1" name="amount" value="1" />r
 <pre></pre>
 </form>
 <pre></pre>
@@ -48,9 +49,10 @@
 <input type="button" id="but_ud" value="動摩擦係数μ'" onclick="pushget()">
 <pre></pre>
 <form id="target2">
-摩擦
-  <input type="radio" id="fri_0" name="amount" value="0" />dなし
-  <input type="radio" id="fri_1" name="amount" value="1" />fあり
+摩擦なし
+  <input type="radio" id="fri_0" name="amount" value="0" />d
+　あり
+  <input type="radio" id="fri_1" name="amount" value="1" />f
 <pre></pre>
 </form>
 <pre></pre>
@@ -419,7 +421,7 @@ function drawing(d)
     a = (d < 0)? y : -y;
     if (f <= f0)
     {
-      box  (10, f0*dr, 0, a, t+180, '#00f');
+      box  (10, f0*dr, 0, a, t+180, '#07f');
       arrow(10, f *dr, 0, a, t+180, '#f0f');
     }
     else
@@ -553,11 +555,31 @@ function tanfrac(d)
 }
 
 //--------------------------------------------------------------------
+// a
+//--------------------------------------------------------------------
+function acceldisp(e, c, g, b, a)
+{
+  B.COLOR(e); B.PRINT ("a = "); B.COLOR('#fff'); B.PRINT (g);
+  B.COLOR(c); B.PRINTe(b);
+  B.COLOR(e); printe(0, " = ", a  , " m/s^2", 4);
+}
+
+function accel(t, f, fd, d, a)
+{
+  B.TAB(t, 0);
+  if      (f  >  0) acceldisp('#f8f', '#f0f', "gsinθ", " - f_` _`/m", a);
+  else if (fd >  0) acceldisp('#f88', '#f00', "gsinθ", " - f_`'_`/m", a);
+  else if (d <= 90) acceldisp('#fff', '#fff', "gsinθ", "      "        , a);
+  else              acceldisp('#fff', '#fff', "g     ", "      "        , a);
+}
+
+
+//--------------------------------------------------------------------
 // screen
 //--------------------------------------------------------------------
 function display()
 {
-  let g, m, d, t, mg, mgx, mgy, x, y, a, u, ud, f, fd, f0;
+  let g, m, d, t, mg, mgx, mgy, x, y, a, u, ud, f, fd, f0, du;
 
   g   = S.getg();
   m   = S.getm();
@@ -583,47 +605,45 @@ function display()
   x = mgx;
   y = mgy;
   if (d > 90) { x = mg; a = g; y = 0; }
-  B.COLOR('#0ff'); print(1, "重力加速度g  = ", g  , " m/s^2", 1);
-  B.COLOR('#0ff'); print(2, "重力W = mg = "  , mg , " N"    , 4);
-  B.COLOR('#ff0'); print(2, "垂直抗力N = "   , y  , " N"    , 4); B.CR();
-  B.COLOR('#fff'); print(1, "物質の質量m  = ", m  , " kg^  ", 1);
-  B.COLOR('#fff'); print(2, "水平成分Wx = "  , x  , " N"    , 4);
-  B.COLOR('#fff'); print(2, "mgsinθ   = "   , mgx, " N"    , 4); B.CR();
-  B.COLOR('#ff0'); print(1, "斜面傾斜角θ = ", d  , " °^  ", 1);
-  B.COLOR('#0f0'); print(2, "垂直成分Wy = "  , y  , " N"    , 4);
-  B.COLOR('#0f0'); print(2, "mgcosθ   = "   , mgy, " N"    , 4); B.CR();
-  B.CR();
 
+  B.COLOR('#0ff'); printe(1  , "重力加速度g  = "  , g  , " m/s^2^'", 1);
+  B.COLOR('#0ff'); print (1.5, "重力W = mg = "    , mg , " N"      , 4);
+  B.COLOR('#ff0'); print (2  , "垂直抗力N = "     , y  , " N"      , 4); B.CR();
+  B.COLOR('#fff'); printe(1  , "物質の質量m  = "  , m  , " kg  "   , 1);
+  B.COLOR('#fff'); print (1.5, "水平成分Wx = "    , x  , " N"      , 4);
+  B.COLOR('#fff'); print (2  , "mgsinθ   = "     , mgx, " N"      , 4); B.CR();
+  B.COLOR('#ff0'); printe(1  , "斜面傾斜角θ_' = ", d  , " °  "   , 1);
+  B.COLOR('#0f0'); print (1.5, "垂直成分Wy = "    , y  , " N"      , 4);
+  B.COLOR('#0f0'); print (2  , "mgcosθ   = "     , mgy, " N"      , 4); B.CR();
   if (S.gets2())
   {
     if (f > f0) { f = 0; } else { fd = 0; }
     if (d > 90) { f0 = f = fd = 0; }
-    if (f > 0)
-    { B.COLOR('#f0f'); print(1, "a = gsinθ - f/m = " , a  , " m/s^2", 4); }
-    else if (fd > 0)
-    { B.COLOR('#f00'); print(1, "a = gsinθ - f'/m = ", a  , " m/s^2", 4); }
-    else if (d <= 90)
-    { B.COLOR('#fff'); print(1, "a = gsinθ = "       , a  , " m/s^2", 4); }
-    else
-    { B.COLOR('#fff'); print(1, "a = g = "            , a  , " m/s^2", 4); }
+
+    du = S.deg(Math.atan(u));
+    B.COLOR('#88f'); printe(1, "摩擦角    θ_0^'_'= ", du, "°", 4); B.CR();
+    B.CR();
+    accel(1, f, fd, d, a);
     B.CR();
     B.CR();
-    B.COLOR('#00f'); printe(1, "静止摩擦係数μ_  = ", u , ""  , 4); B.CR();
-    B.COLOR('#f00'); printe(1, "動摩擦係数  μ'_ = ", ud, ""  , 4); B.CR();
-    B.COLOR('#00f'); printe(1, "最大摩擦力  f_0  = ", f0, " N", 4); B.CR();
-    B.COLOR('#f0f'); printe(1, "静止摩擦力  f_   = ", f , " N", 4); B.CR();
-    B.COLOR('#f00'); printe(1, "動摩擦力    f'_  = ", fd, " N", 4); B.CR();
+
+    B.COLOR('#08f'); printe(1, "最大摩擦力f_0^'=μN = "      , f0, " N", 4); B.CR();
+    B.COLOR('#f0f'); printe(1, "静止摩擦力f      = "         , f , " N", 4); B.CR();
+    B.COLOR('#f00'); printe(1, "動摩擦力  f_`'_'=μ_`_`'N = ", fd, " N", 4); B.CR();
+    B.COLOR('#08f'); B.TAB(1, 0); B.PRINT("μ=tan");
+    B.COLOR('#88f'); B.PRINTe("θ_0^'_'");
+    B.COLOR('#08f'); printe(0, "= "                          , u , ""  , 4); B.CR();
+    B.COLOR('#f00'); printe(1, "μ_`_`'       = "            , ud, ""  , 4); B.CR();
+    B.CR();
   }
   else
   {
-    if (d <= 90)
-    { B.COLOR('#fff'); print(1, "a = gsinθ = ", a  , " m/s^2", 4); }
-    else
-    { B.COLOR('#fff'); print(1, "a = g = "     , a  , " m/s^2", 4); }
     B.CR();
-    B.TAB(0, 6);
+    accel(1, 0, 0, d, a);
+    B.CR();
+    B.TAB(0, 8);
   }
-  B.TAB(0, 5);
+  B.TAB(0, 4);
   B.COLOR('#fff'); print0(1, "   θ ",          t , "", 4);
   B.CR(); B.CR();
   t = S.rad(d);

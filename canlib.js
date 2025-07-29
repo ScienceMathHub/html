@@ -191,13 +191,23 @@ class BASIC
       if (a == 'θ')
       {
         this.PRINT(a);
-        this.LocX -= this.LocW / 2;
+        this.LocX -= this.LocW * 0.5;
         continue;
       }
       if (a == '^')
       {
         i++;
         a = s.substring(i, i+1);
+        if (a == "'")
+        {
+          this.LocX += this.LocW * 0.3;
+          continue;
+        }
+        if (a == "`")
+        {
+          this.LocX -= this.LocW * 0.3;
+          continue;
+        }
         this.FONT(0.7, -0.3);
         this.PRINT(a); p++;
         this.FONT(1, 0);
@@ -207,6 +217,16 @@ class BASIC
       {
         i++;
         a = s.substring(i, i+1);
+        if (a == "'")
+        {
+          this.LocX += this.LocW * 0.5;
+          continue;
+        }
+        if (a == "`")
+        {
+          this.LocX -= this.LocW * 0.5;
+          continue;
+        }
         this.FONT(0.7, 0.1);
         this.PRINT(a); p++;
         this.FONT(1, 0);
