@@ -567,8 +567,8 @@ function acceldisp(e, c, g, b, a)
 function accel(t, f, fd, d, a)
 {
   B.TAB(t, 0);
-  if      (f  >  0) acceldisp('#f8f', '#f0f', "gsinθ", " - f_` _`/m", a);
-  else if (fd >  0) acceldisp('#f88', '#f00', "gsinθ", " - f_`'_`/m", a);
+  if      (f  >  0) acceldisp('#f8f', '#f0f', "gsinθ", " - F_` _`/m", a);
+  else if (fd >  0) acceldisp('#f88', '#f00', "gsinθ", " - F_`'_`/m", a);
   else if (d <= 90) acceldisp('#fff', '#fff', "gsinθ", "      "        , a);
   else              acceldisp('#fff', '#fff', "g     ", "      "        , a);
 }
@@ -627,9 +627,9 @@ function display()
     B.CR();
     B.CR();
 
-    B.COLOR('#08f'); printe(1, "最大摩擦力f_0^'=μN = "      , f0, " N", 4); B.CR();
-    B.COLOR('#f0f'); printe(1, "静止摩擦力f      = "         , f , " N", 4); B.CR();
-    B.COLOR('#f00'); printe(1, "動摩擦力  f_`'_'=μ_`_`'N = ", fd, " N", 4); B.CR();
+    B.COLOR('#08f'); printe(1, "最大摩擦力F_0^'=μN = "      , f0, " N", 4); B.CR();
+    B.COLOR('#f0f'); printe(1, "静止摩擦力F      = "         , f , " N", 4); B.CR();
+    B.COLOR('#f00'); printe(1, "動摩擦力  F_`'_'=μ_`_`'N = ", fd, " N", 4); B.CR();
     B.COLOR('#08f'); B.TAB(1, 0); B.PRINT("μ=tan");
     B.COLOR('#88f'); B.PRINTe("θ_0^'_'");
     B.COLOR('#08f'); printe(0, "= "                          , u , ""  , 4); B.CR();
