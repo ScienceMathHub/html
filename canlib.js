@@ -306,6 +306,45 @@ class BASIC
     ctx.fillRect(x, y, w, h);
     this.LINEB(x1, y1, x2, y2, c)
   }
+  ARC(x, y, r, c, t0, t1, dir)
+  {
+    let x0, y0, r0;
+
+    this.PosX = x0 = this.scrX(x);
+    this.PosY = y0 = this.scrY(y);
+    r0 = Math.abs(this.scrH(r));
+
+    ctx.beginPath();
+    ctx.arc(x0, y0, r0, t0, t1, dir);
+    ctx.strokeStyle = c;
+    ctx.stroke();
+  }
+  ARCF(x, y, r, c, t0, t1, dir)
+  {
+    let x0, y0, r0;
+
+    this.PosX = x0 = this.scrX(x);
+    this.PosY = y0 = this.scrY(y);
+    r0 = Math.abs(this.scrH(r));
+
+    ctx.beginPath();
+    ctx.arc(x0, y0, r0, t0, t1, dir);
+    ctx.fillStyle = c; // ctx.strokeStyle = c;
+    ctx.fill();        // ctx.stroke();
+  }
+  CIRCLE(x, y, r, c)
+  {
+    let x0, y0, r0;
+
+    this.PosX = x0 = this.scrX(x);
+    this.PosY = y0 = this.scrY(y);
+    r0 = Math.abs(this.scrH(r));
+
+    ctx.beginPath();
+    ctx.arc(x0, y0, r0, 0, Math.PI * 2, true);
+    ctx.strokeStyle = c;
+    ctx.stroke();
+  }
   CIRCLEF(x, y, r, c)
   {
     let x0, y0, r0;

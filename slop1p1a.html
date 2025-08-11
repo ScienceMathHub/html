@@ -573,7 +573,6 @@ function accel(t, f, fd, d, a)
   else              acceldisp('#fff', '#fff', "g     ", "      "        , a);
 }
 
-
 //--------------------------------------------------------------------
 // screen
 //--------------------------------------------------------------------
@@ -716,7 +715,7 @@ function pushget()
   {
     if (v[i].checked) { S.sets2(i); break; }
   }
-  window.requestAnimationFrame(display);
+  window.requestAnimationFrame(main);
 }
 
 function blur()
@@ -771,7 +770,7 @@ function pushrad()
     if (v[i].checked) { S.sets(i); break; }
   }
   blur();
-  window.requestAnimationFrame(display);
+  window.requestAnimationFrame(main);
 }
 
 function pushfri()
@@ -784,7 +783,7 @@ function pushfri()
     if (v[i].checked) { S.sets2(i); break; }
   }
   blur();
-  window.requestAnimationFrame(display);
+  window.requestAnimationFrame(main);
 }
 
 document.getElementById("target" ).addEventListener('input', pushrad);

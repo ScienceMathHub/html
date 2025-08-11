@@ -1,0 +1,892 @@
+<!--
+----------------------------------------------------------------------
+ 三角関数
+
+ HTML(JavaScript, canvas)
+
+ Physics (c) Ohtani 2025.8
+----------------------------------------------------------------------
+-->
+<!DOctxYPE html>
+<html lang="ja">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<head>
+  <meta charset="utf-8">
+  <title>三角関数</title>
+</head>
+<body>
+<p id="Circular"></p>
+<div style='float:left;'>
+<input type="number" id="num_r" value="0"
+  min = "0.1" max="999.9" step = "0.1" />
+<input type="button" id="but_r" value="半径r" onclick="pushget()">
+<pre></pre>
+<input type="number" id="num_d" value="0"
+  min = "-360" max="360" step = "0.1" />
+<input type="button" id="but_d" value="角度θ" onclick="pushget()">
+<br>
+矢印+Shift
+<br>
+&nbsp;1&nbsp;&nbsp;　3&nbsp;　5&nbsp;&nbsp;&nbsp;0.1 ⊿θ
+<form id="target">
+  <input type="radio" id="rad_0" name="amount" value="0" />e 
+  <input type="radio" id="rad_1" name="amount" value="1" />r 
+  <input type="radio" id="rad_2" name="amount" value="2" />d 
+  <input type="radio" id="rad_3" name="amount" value="3" />f 
+<pre></pre>
+</form>
+sin&nbsp; cos&nbsp; tan&nbsp; cos
+<form id="target2">
+  <input type="radio" id="sin_0" name="amount" value="0" />t 
+  <input type="radio" id="sin_1" name="amount" value="1" />g 
+  <input type="radio" id="sin_2" name="amount" value="2" />b 
+  <input type="radio" id="sin_3" name="amount" value="3" />v 
+<pre></pre>
+</form>
+<pre></pre>
+<input type="button" id="butM" value="移動/静止" onclick="inkey(77)">m
+<pre></pre>
+<input type="button" id="butR" value="Reset" onclick="inkey(13)">Enter
+<pre></pre>
+<input type="button" id="butS" value="初期化" onclick="inkey(32)">Space
+<pre></pre>
+<input type="button" id="butQ" value="細"    onclick="inkey(81)">q
+<input type="button" id="butW" value="太"    onclick="inkey(87)">w
+<pre></pre>
+<input type="button" id="butZ" value="縮"    onclick="inkey(90)">z 
+<input type="button" id="butX" value="拡"    onclick="inkey(88)">x
+<input type="button" id="butC" value="初"    onclick="inkey(67)">c　
+<pre></pre>
+
+<script src="https://sciencemathhub.github.io/html/tophys.js"></script>
+<script src="https://sciencemathhub.github.io/html/canlib.js"></script>
+<script>
+'use strict'
+
+//--------------------------------------------------------------------
+// public letiable
+//--------------------------------------------------------------------
+const B = new BASIC();
+const C0 = '#000'
+const C1 = '#4af'
+const C2 = '#f88'
+const C3 = '#f8f'
+const C4 = '#8f8'
+const C5 = '#8ff'
+const C6 = '#ff8'
+const C7 = '#fff'
+
+let Temp; // debug
+
+//------------------------------------------------------------------------------
+// 変数
+//------------------------------------------------------------------------------
+class CIRCULAR
+{
+  constructor()
+  {
+    this.r  = this.d = this.s = this.dd = this.m = 0;
+    this.s2 = 0;
+  }
+  init()
+  {
+    this.r  =   1;      // 半径r[m]
+    this.d  =   0;      // 角度θ[°]
+    this.s  =   0;      // select  dθ
+    this.s2 =   0;      // select2 sin/cos/tan
+    this.dd =   1;      // dθ
+    this.m  =   0;      // 0:静止 1:移動
+  }
+  #fix(x)
+  {
+    let a;
+
+    a = x.toFixed(1);
+    return Number(a);
+  }
+  #fixn(x)
+  {
+    let a;
+
+    a = x.toFixed(4);
+    return Number(a);
+    return x;
+  }
+  rad(d)
+  {
+    return d * Math.PI / 180;
+  }
+  deg(t)
+  {
+    return t * 180 / Math.PI;
+  }
+  setr(r)
+  {
+    if (r <=     0) r =   0.001;
+    if (r >=  1000) r = 999.999;
+    r = this.#fix(r);
+    this.r = r;
+    return this.r;
+  }
+  getr()
+  {
+    return this.r;
+  }
+  setd(d)
+  {
+    while (d <    0) d += 360;
+    while (d >= 360) d -= 360;
+    d = this.#fix(d);
+    this.d = d;
+    return this.d;
+  }
+  getd()
+  {
+    return this.d;
+  }
+  sets(s)
+  {
+    s = Math.round(s);
+    this.s = s;
+    return this.s;
+  }
+  gets()
+  {
+    return this.s;
+  }
+  sets2(s2)
+  {
+    s2 = Math.round(s2);
+    this.s2 = s2;
+    return this.s2;
+  }
+  gets2()
+  {
+    return this.s2;
+  }
+  setm(m)
+  {
+    if (m < 0) m = !this.m;
+    this.m = m;
+    return this.m;
+  }
+  getm()
+  {
+    return this.m;
+  }
+  setdd()
+  {
+    let dd = 1;
+
+    switch(this.s)
+    {
+      case 1: dd = 3  ; break;
+      case 2: dd = 5  ; break;
+      case 3: dd = 0.1; break;
+    }
+    this.dd = dd;
+    return this.dd;
+  }
+  getdd()
+  {
+    return this.dd;
+  }
+}
+const C = new CIRCULAR();
+
+//--------------------------------------------------------------------
+// value
+//--------------------------------------------------------------------
+function value(x, n)
+{
+  let a;
+
+  if (Math.abs(x) > 1e+4)
+  {
+    B.TAB(4+1+n, 0);
+    return;
+  }
+  a = Math.floor(x);
+  a = String(a).length;
+  a = 4 - a;
+  if (a > 0) B.TAB(a, 0);
+  B.PRINT(x.toFixed(n));
+}
+
+function print(t, a, x, b, n)
+{
+  B.TAB(t, 0); B.PRINT(a); value(x, n); B.PRINTe(b);
+}
+
+function printe(t, a, x, b, n)
+{
+  B.TAB(t, 0); B.PRINTe(a); value(x, n); B.PRINTe(b);
+}
+
+function print0(t, a, x, b, n)
+{
+  B.TAB(t, 0); B.PRINT(a);
+  if (Math.abs(x) > 1e+4) B.TAB(2, 0);
+  else                    B.PRINT("= ");
+  value(x, n); B.PRINTe(b);
+}
+
+//--------------------------------------------------------------------
+// 分数(1桁/1桁)
+//--------------------------------------------------------------------
+function fraction(s, ra, a, rb, b)
+{
+  let ta, tb, c;
+
+  B.PRINT(" = ");
+
+  if (b != 0) { B.TAB(2, -0.5); }
+  else        { B.TAB(2,  0  ); }
+
+  if (ra)
+  {
+    B.TAB(0.35, 0); B.PRINT("√"); B.TAB(-1, 0); B.PRINT(a);
+    B.TAB(0.65, 0);
+  }
+  else
+  { B.TAB(1, 0); B.PRINT(a); B.TAB(1, 0); }
+  B.TAB(-5, 0);
+
+  c = (s < 0)? "_ " : "  ";
+  if (b != 0) { B.PRINT(c + "___"); B.TAB(-3, 1); }
+  else        { B.TAB(0,-0.5); B.PRINT(c); B.TAB(3, 0.5); return;  }
+
+  if (rb)
+  {
+    B.TAB(0.35, 0); B.PRINT("√"); B.TAB(-1, 0); B.PRINT(b);
+    B.TAB(0.65, 0);
+  }
+  else
+  { B.TAB(1, 0); B.PRINT(b); B.TAB(1, 0); }
+  B.TAB(0, -0.5);
+}
+
+function sinfrac(d)
+{
+  let s;
+
+  if      (   0 <= d && d <  90) s =  1;
+  else if (  90 <= d && d < 180) s =  1;
+  else if (-180 <= d && d < -90) s = -1;
+  else if ( -90 <= d && d <   0) s = -1;
+  d = Math.abs(d);
+  if (d > 90) d = 180 - d;
+  if (d ==  0) { fraction(1, 0, 0, 0, 0); return; }
+  if (d == 30) { fraction(s, 0, 1, 0, 2); return; }
+  if (d == 45) { fraction(s, 0, 1, 1, 2); return; }
+  if (d == 60) { fraction(s, 1, 3, 0, 2); return; }
+  if (d == 90) { fraction(s, 0, 1, 0, 0); return; }
+}
+
+function cosfrac(d)
+{
+  let s;
+
+  if      (   0 <= d && d <  90) s =  1;
+  else if (  90 <= d && d < 180) s = -1;
+  else if (-180 <= d && d < -90) s = -1;
+  else if ( -90 <= d && d <   0) s =  1;
+  d = Math.abs(d);
+  if (d > 90) d = 180 - d;
+  if (d ==  0) { fraction(s, 0, 1, 0, 0); return; }
+  if (d == 30) { fraction(s, 1, 3, 0, 2); return; }
+  if (d == 45) { fraction(s, 0, 1, 1, 2); return; }
+  if (d == 60) { fraction(s, 0, 1, 0, 2); return; }
+  if (d == 90) { fraction(1, 0, 0, 0, 0); return; }
+}
+
+function tanfrac(d)
+{
+  let s;
+
+  if      (   0 <= d && d <  90) s =  1;
+  else if (  90 <= d && d < 180) s = -1;
+  else if (-180 <= d && d < -90) s =  1;
+  else if ( -90 <= d && d <   0) s = -1;
+  d = Math.abs(d);
+  if (d > 90) d = 180 - d;
+  if (d ==  0) { fraction(1, 0, 0, 0, 0); return; }
+  if (d == 30) { fraction(s, 0, 1, 1, 3); return; }
+  if (d == 45) { fraction(s, 0, 1, 0, 0); return; }
+  if (d == 60) { fraction(s, 1, 3, 0, 0); return; }
+  if (d == 90) { B.PRINT(" =   なし")   ; return; }
+}
+
+//--------------------------------------------------------------------
+// sin wave
+//--------------------------------------------------------------------
+function sinwave(x0, y0, r, d, func, cl)
+{
+  let x, y, i, t, dt, x1;
+
+  t = C.rad(d);
+  B.WINDOW(x0, y0, x0+639, y0-399);
+
+  x1 = r;
+  B.LINEB(-x1, -r, x1, r, C1);
+  B.LINE (-x1,  0, x1, 0, C1);
+  B.LINE (  0, -r,  0, r, C1);
+
+  dt = 0.1;
+  i = -Math.PI;
+  x = -x1;
+  y = r * func(t+i);
+  B.POINT(x, y);
+  for (; i < Math.PI; i += dt)
+  {
+    x = x1 * i / Math.PI;
+    y = r * func(t+i);
+    B.LINE2(x, y, C1);
+  }
+  i = Math.PI;
+  x = x1;
+  y = r * func(t+i);
+  B.LINE2(x, y, C1);
+
+  y = r * func(t);
+  B.LINEBF(-1, 0, 1, y, C0);
+  B.LINE  ( 0, 0, 0, y, cl);
+}
+
+//--------------------------------------------------------------------
+// cos wave
+//--------------------------------------------------------------------
+function coswave(x0, y0, r, d, func, cl)
+{
+  let x, y, i, t, dt, y1;
+
+  t = C.rad(d);
+  B.WINDOW(x0, y0, x0+639, y0-399);
+
+  y1 = r;
+  B.LINEB(-r, -y1, r, y1, C1);
+  B.LINE (-r,   0, r,  0, C1);
+  B.LINE ( 0, -y1, 0, y1, C1);
+
+  dt = 0.1;
+  i = -Math.PI;
+  x = r * func(t+i);
+  y = -y1;
+  B.POINT(x, y);
+  for (; i < Math.PI; i += dt)
+  {
+    x = r * func(t+i);
+    y = y1 * i / Math.PI;
+    B.LINE2(x, y, C1);
+  }
+  i = Math.PI;
+  x = r * func(t+i);
+  y = y1;
+  B.LINE2(x, y, C1);
+
+  x = r * func(t);
+  B.LINEBF( 0, -1, x, 1, C0);
+  B.LINE  ( 0,  0, x, 0, cl);
+}
+
+//--------------------------------------------------------------------
+// tan wave
+//--------------------------------------------------------------------
+function tanwave(x0, y0, r, d, func, cl)
+{
+  let x, y, i, t, dt, x1, y1;
+
+  t = C.rad(d);
+  B.WINDOW(x0, y0, x0+639, y0-399);
+
+  x1 = r;
+  B.LINEB(-x1, -r, x1, r, C1);
+  B.LINE (-x1,  0, x1, 0, C1);
+  B.LINE (  0, -r,  0, r, C1);
+
+  dt = 0.1;
+  i = -Math.PI;
+  x = -x1;
+  y = r * func(t+i);
+  B.POINT(x, y);
+  y1 = y;
+  for (; i < Math.PI; i += dt)
+  {
+    x = x1 * i / Math.PI;
+    y = r * func(t+i);
+    if (Math.abs(y1 - y) > r * 2)
+    { B.POINT(x, y); }
+    else
+    { B.LINE2(x, y, C1); }
+    y1 = y;
+  }
+  i = Math.PI;
+  x = x1;
+  y = r * func(t+i);
+  B.LINE2(x, y, C1);
+
+  if (!(d == 90 || d == 270))
+  {
+    y = r * func(t);
+    B.LINEBF(-1, 0, 1, y, C0);
+    B.LINE  ( 0, 0, 0, y, cl);
+  }
+}
+
+//--------------------------------------------------------------------
+// circle
+//--------------------------------------------------------------------
+function circle(x0, y0, d1, r, d)
+{
+  let x, y, i, t, dt, a;
+
+  t = C.rad(d);
+  B.WINDOW(x0, y0, x0+639, y0-399);
+
+  B.LINEB(-900, d1, 900, -d1, C1);
+
+  B.LINE(-r, 0, r, 0, C1);
+  B.LINE(0, -r, 0, r, C1);
+
+  dt = 0.1;
+  B.POINT(r, 0);
+  for (i = 0; i < 2 * Math.PI; i += dt)
+  {
+    x = r * Math.cos(i);
+    y = r * Math.sin(i);
+    B.LINE2(x, y, C1);
+  }
+  B.LINE2(r, 0, C1);
+
+  dt = 0.2;
+  a = r * 0.2;
+  B.POINT(a, 0);
+  for (i = 0; i < t; i += dt)
+  {
+    x = a * Math.cos(i);
+    y = a * Math.sin(i);
+    B.LINE2(x, y, C7);
+  }
+  x = a * Math.cos(t);
+  y = a * Math.sin(t);
+  B.LINE2(x, y, C7);
+
+  for (i = t + dt; i < Math.PI*2; i += dt)
+  {
+    x = a * Math.cos(i);
+    y = a * Math.sin(i);
+    B.LINE2(x, y, C1);
+  }
+  B.LINE2(a, 0, C1);
+
+  x = r * Math.cos(t);
+  y = r * Math.sin(t);
+
+  if (C.gets2() == 2 && !(d == 90 || d == 270))
+  {
+    a = r * Math.tan(t);
+    B.LINE(x, y, r, a, C1);
+    B.LINE(r, 0, r, a, C3);
+  }
+
+  B.LINE(0, 0, x, 0, C5);
+  B.LINE(x, 0, x, y, C4);
+  B.LINE(0, 0, x, y, C7);
+}
+
+//--------------------------------------------------------------------
+// screen
+//--------------------------------------------------------------------
+function display()
+{
+  let r, d, a, t, x, y, w, h, dd, d0, d1, x0, y0;
+
+  r  = C.getr();
+  d  = C.getd();
+  a  = (d > 180)? d - 360 : d;
+  t  = C.rad(d);
+  dd = C.setdd();
+
+  B.FONT(1,0);
+  B.CLS('#000');
+
+  x0 = -425;
+  y0 =  130;
+  d1 =  120;
+  d0 =  100;
+
+  B.WINDOW(0, 0, 639, 399);
+//  B.CIRCLE(320, 200, 100, '#fff');
+  x = B.scrX(0);
+  y = B.scrY(y0-d1);
+  w = B.scrW(640);
+  h = B.scrH(d1 * 2);
+//  B.LOCATE(1, 1); B.COLOR(C7); B.PRINT(x+','+y+','+w+','+h); B.CR();
+
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(x, y, w, h);
+  ctx.clip();
+
+  switch (C.gets2())
+  {
+    case 0: sinwave(x0, y0, d0, d, Math.sin, C4); break;
+    case 1: sinwave(x0, y0, d0, d, Math.cos, C5); break;
+    case 2: tanwave(x0, y0, d0, d, Math.tan, C3); break;
+    case 3: coswave(x0, y0, d0, d, Math.cos, C5); break;
+  }
+  x0 = -150;
+  circle(x0, y0, d1, d0, d);
+  ctx.restore();
+
+  B.LOCATE(0, 0); B.COLOR(C7);
+
+  B.COLOR(C7); printe(1  , "半径r  = ", r    , " m"   , 1); B.CR();
+  B.TAB(0, 15);
+  B.COLOR(C7); print (1  , "角度θ = ", d    , " °"  , 1);
+  B.COLOR(C1); print (0  , "= "       , d-360, " °"  , 1);
+  B.COLOR(C7); print (0  , "(⊿θ = " , dd   , " °)" , 1); B.CR();
+  B.CR();
+
+  B.COLOR(C4); print0( 1, "rsinθ ", Math.sin(t) * r, "", 4);
+  B.COLOR(C7); print0(11, "sinθ " , Math.sin(t)    , "", 4);
+  sinfrac(a); B.CR(); B.CR();
+
+  B.COLOR(C5); print0( 1, "rcosθ ", Math.cos(t) * r, "", 4);
+  B.COLOR(C7); print0(11, "cosθ ",  Math.cos(t)    , "", 4);
+  cosfrac(a); B.CR(); B.CR();
+
+  B.COLOR(C3); print0( 1, "rtanθ ", Math.tan(t) * r, "", 4);
+  B.COLOR(C7); print0(11, "tanθ ",  Math.tan(t)    , "", 4);
+  tanfrac(a); B.CR(); B.CR();
+
+  B.COLOR('#fff');
+//  B.TAB(1, 0); B.PRINT(Temp); B.CR();
+}
+
+//--------------------------------------------------------------------
+// input
+//--------------------------------------------------------------------
+function pushinit()
+{
+  let v, a, i;
+
+  v = document.getElementById('num_r');
+  a = C.getr(a) ; v.value = a;
+  v = document.getElementById('num_d');
+  a = C.getd(a) ; v.value = a;
+  v = document.getElementById("target");
+  for (i = 0; i < v.length; i++)
+  {
+    v[i].checked = false;
+  }
+  v[0].checked = true;
+  v = document.getElementById("target2");
+  for (i = 0; i < v.length; i++)
+  {
+    v[i].checked = false;
+  }
+  v[0].checked = true;
+}
+
+function pushget()
+{
+  let v, a, i;
+
+  v = document.getElementById('num_r');
+  a = Number(v.value); a = C.setr(a) ; v.value = a; v.blur();
+  v = document.getElementById('num_d');
+  a = Number(v.value); a = C.setd(a) ; v.value = a; v.blur();
+  v = document.getElementById("target");
+  for (i = 0; i < v.length; i++)
+  {
+    if (v[i].checked) { C.sets(i); break; }
+  }
+  v = document.getElementById("target2");
+  for (i = 0; i < v.length; i++)
+  {
+    if (v[i].checked) { C.sets2(i); break; }
+  }
+  window.requestAnimationFrame(main);
+}
+
+function blur()
+{
+  document.getElementById('but_r' ).blur();
+  document.getElementById('but_d' ).blur();
+
+  document.getElementById('rad_0').blur();
+  document.getElementById('rad_1').blur();
+  document.getElementById('rad_2').blur();
+  document.getElementById('rad_3').blur();
+  document.getElementById('sin_0').blur();
+  document.getElementById('sin_1').blur();
+  document.getElementById('sin_2').blur();
+  document.getElementById('sin_3').blur();
+
+  document.getElementById('butR').blur();
+  document.getElementById('butS').blur();
+  document.getElementById('butQ').blur();
+  document.getElementById('butW').blur();
+  document.getElementById('butZ').blur();
+  document.getElementById('butX').blur();
+  document.getElementById('butC').blur();
+}
+
+function focus()
+{
+  let doc = document.activeElement;
+
+  if (doc === document.getElementById("num_r" )) return 1;
+  if (doc === document.getElementById("num_d" )) return 1;
+  return 0;
+}
+
+function setd(d)
+{
+  let v;
+
+  v = document.getElementById('num_d');
+  v.value = d;
+}
+
+function pushrad()
+{
+  let v, i;
+
+  v = document.getElementById("target");
+  for (i = 0; i < v.length; i++)
+  {
+    if (v[i].checked) { C.sets(i); break; }
+  }
+  blur();
+  window.requestAnimationFrame(main);
+}
+
+function pushsin()
+{
+  let v, i;
+
+  v = document.getElementById("target2");
+  for (i = 0; i < v.length; i++)
+  {
+    if (v[i].checked) { C.sets2(i); break; }
+  }
+  blur();
+  window.requestAnimationFrame(main);
+}
+
+document.getElementById("target"  ).addEventListener('input', pushrad);
+document.getElementById("target2" ).addEventListener('input', pushsin);
+
+function keyrad(x)
+{
+  let v, i;
+
+  v = document.getElementById("target");
+  for (i = 0; i < v.length; i++)
+  {
+    v[i].checked = (i == x)? true : false;
+  }
+  pushrad();
+}
+
+function keysin(x)
+{
+  let v, i;
+
+  v = document.getElementById("target2");
+  for (i = 0; i < v.length; i++)
+  {
+    v[i].checked = (i == x)? true : false;
+  }
+  pushsin();
+}
+
+//--------------------------------------------------------------------
+// init
+//--------------------------------------------------------------------
+function init()
+{
+  C.init();
+  pushinit();
+  blur();
+  window.requestAnimationFrame(main);
+}
+
+//--------------------------------------------------------------------
+// Input key
+//--------------------------------------------------------------------
+function keyon(key)
+{
+  let s, f, d, dn, i;
+
+  if (focus()) return 0;
+
+  f = 0;
+
+  // SHIFT16 CTRL17 ALT18
+  if      (Key[ 16]) { s = 0.1; }
+  else               { s =   1; }
+  d = C.getd();
+  dn = [-180, -150, -135, -120, -90, -60, -45, -30, 0,
+          30,   45,   60,   90, 120, 135, 150, 180,
+         210,  225,  240,  270, 300, 315, 330, 360];
+
+  if      (Key[ 38] || key == 38) //↑
+  {
+    if (s == 1)
+    {
+      for (i = 0; i < dn.length; i++)
+      {
+        if (d < dn[i]) { d = dn[i]; f = 1; break; }
+      }
+      if (f == 0) { d = 0; f = 1; }
+    }
+    else
+    {
+      d += 15; f = 1;
+    }
+  }
+  else if (Key[ 40] || key == 40) //↓
+  {
+    if (s == 1)
+    {
+      for (i = dn.length-1; i >= 0; i--)
+      {
+        if (d > dn[i]) { d = dn[i]; f = 1; break; }
+      }
+      if (f == 0) { d = 0; f = 1; }
+    }
+    else
+    {
+      d -= 15; f = 1;
+    }
+  }
+  else if (Key[ 39] || key == 39) //→
+  {
+    d -= s; f = 1;
+  } 
+  else if (Key[ 37] || key == 37) //←
+  {
+    d += s; f = 1;
+  }
+  if (f == 0) return 0;
+  d = C.setd(d);
+  setd(d);
+  return 1;
+}
+
+function inkey(key)
+{
+  switch (key)
+  {
+    case  13: if (focus()) pushget(); else  { setd(0); C.setd(0); }
+                                 key = 0; break; // 'R' Enter
+    case  32: init()           ; key = 0; break; // ' ' Space
+    case  81: B.lineWidth( 0.5); key = 0; break; // 'Q'
+    case  87: B.lineWidth( 2  ); key = 0; break; // 'W'
+    case  90: B.zooming  (-1  ); key = 0; break; // 'Z'
+    case  88: B.zooming  ( 1  ); key = 0; break; // 'X'
+    case  67: B.zooming  ( 0  ); key = 0; break; // 'C'
+    case  69: keyrad(0) ; key = 0; break; // 'e'
+    case  82: keyrad(1) ; key = 0; break; // 'r'
+    case  68: keyrad(2) ; key = 0; break; // 'd'
+    case  70: keyrad(3) ; key = 0; break; // 'f'
+    case  84: keysin(0) ; key = 0; break; // 't'
+    case  71: keysin(1) ; key = 0; break; // 'g'
+    case  66: keysin(2) ; key = 0; break; // 'b'
+    case  86: keysin(3) ; key = 0; break; // 'v'
+    case  77: C.setm(-1); key = 0; break; // 'm'
+    default : if (keyon(key))    key = 0;
+  }
+  if (key) return;
+  blur();
+  window.requestAnimationFrame(main);
+}
+document.body.addEventListener('keydown', event =>
+{
+  let key = event.keyCode;
+
+  inkey(key);
+});
+
+//--------------------------------------------------------------------
+// Key status
+//--------------------------------------------------------------------
+let Key = new Array(256);
+for (let i = 0; i < 256; i++) Key[i] = 0;
+window.onkeydown = function(event) { Key[event.keyCode] = 1; }
+window.onkeyup   = function(event) { Key[event.keyCode] = 0; }
+
+//----------------------------------------------------------------------
+// mouse
+//----------------------------------------------------------------------
+function mouseDn(x, y, touch)
+{
+  let x1, y1, d, d1;
+
+  if (!(0 <= x && x <= canvas.width )) return 0;
+  if (!(0 <= y && y <= canvas.height)) return 0;
+
+  x1 = B.winX(x);
+  y1 = B.winY(y);
+/*
+  d  = Math.sqrt(x1*x1 + y1*y1);
+  if (d > 100 * 3) return 0;
+*/
+  d  = Math.atan2(y1, x1);
+  d  = C.deg(d);
+  d  = d - C.getd();
+
+  M.ofsX(d);
+  return 1;
+}
+
+function mouseMv(x, y, touch)
+{
+  let x1, y1, d, d1, dd;
+
+  d1 = M.ofsX('');
+  x1 = B.winX(x);
+  y1 = B.winY(y);
+  d  = Math.atan2(y1, x1);
+  d  = C.deg(d);
+  d -= d1;
+  dd = C.getdd();
+  d  = Math.round(d / dd) * dd;
+  d  = C.setd(d);
+  setd(d);
+  blur();
+  window.requestAnimationFrame(main);
+}
+
+const M = new MOUSE();
+M.add();
+M.mosDnFunc(mouseDn);
+M.mosMvFunc(mouseMv);
+
+//--------------------------------------------------------------------
+// main
+//--------------------------------------------------------------------
+function main()
+{
+  display();
+  if (C.getm())
+  {
+    let d;
+
+    d = C.getd();
+    d += C.getdd();
+    C.setd(d);
+    window.requestAnimationFrame(main);
+  }
+}
+
+init();
+
+//--------------------------------------------------------------------
+</script>
+</body>
+</html>
