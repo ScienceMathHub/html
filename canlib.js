@@ -313,10 +313,6 @@ class BASIC
     this.PosX = x0 = this.scrX(x);
     this.PosY = y0 = this.scrY(y);
     r0 = Math.abs(this.scrH(r));
-    if (this.winW * this.winH < 0)
-    {
-      t0 = -t0; t1 = -t1; dir = !dir;
-    }
     ctx.beginPath();
     ctx.arc(x0, y0, r0, t0, t1, dir);
     ctx.strokeStyle = c;
@@ -329,10 +325,6 @@ class BASIC
     this.PosX = x0 = this.scrX(x);
     this.PosY = y0 = this.scrY(y);
     r0 = Math.abs(this.scrH(r));
-    if (this.winW * this.winH < 0)
-    {
-      t0 = -t0; t1 = -t1; dir = !dir;
-    }
 
     ctx.beginPath();
     ctx.arc(x0, y0, r0, t0, t1, dir);
