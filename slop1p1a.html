@@ -124,8 +124,8 @@ class SLOPE
   }
   setg(g)
   {
-    if (g <=     0) g =   0.001;
-    if (g >=  1000) g = 999.999;
+    if (g <   0.1) g =   0.1;
+    if (g > 999.9) g = 999.9;
     g = this.#fix(g);
     this.g = g;
     return this.g;
@@ -136,8 +136,8 @@ class SLOPE
   }
   setm(m)
   {
-    if (m <=     0) m =   0.001;
-    if (m >=  1000) m = 999.999;
+    if (g <   0.1) g =   0.1;
+    if (g > 999.9) g = 999.9;
     m = this.#fix(m);
     this.m = m;
     return this.m;
@@ -219,6 +219,8 @@ class SLOPE
   }
   setu(u)
   {
+    if (u <   0     ) u =   0     ;
+    if (u > 999.9999) u = 999.9999;
     this.u = this.#fixn(u);
     return this.u;
   }
@@ -228,6 +230,8 @@ class SLOPE
   }
   setud(u)
   {
+    if (u <   0     ) u =   0     ;
+    if (u > 999.9999) u = 999.9999;
     this.ud = this.#fixn(u);
     return this.ud;
   }
@@ -287,6 +291,24 @@ class SLOPE
   geta()
   {
     return this.a;
+  }
+  castd(d)
+  {
+    let dn, i, d0, d1;
+
+    dn = [-210, -180,
+          -150, -135, -120, -90, -60, -45, -30,   0,
+            30,   45,   60,  90, 120, 135, 150, 180,
+           210,  225,  240, 270, 300, 315, 330, 360];
+;
+    d0 = 360;
+    for (i = 0; i < dn.length; i++)
+    {
+      if (dn[i] >= d) { d0 = dn[i]; break; }
+    }
+    d1 = (i < dn.length)? ((i <= 0)? -180: dn[i-1]) : 360;
+    if (Math.abs(d - d0) > Math.abs(d - d1)) d0 = d1;
+    return d0;
   }
 }
 const S = new SLOPE();
@@ -434,38 +456,39 @@ function drawing(d)
 //--------------------------------------------------------------------
 // value
 //--------------------------------------------------------------------
-function value(x, n)
+function value(x, m, n)
 {
-  let a;
+  let a, s;
 
-  if (Math.abs(x) > 1e+4)
+  if (Math.abs(x) > Math.pow(10, m+1))
   {
-    B.TAB(4+1+n, 0);
+    B.TAB(m+1+n, 0);
     return;
   }
-  a = Math.floor(x);
-  a = String(a).length;
-  a = 4 - a;
+  s = (x < 0)? 1 : 0;
+  a = Math.floor(Math.abs(x));
+  a = String(a).length + s;
+  a = m - a;
   if (a > 0) B.TAB(a, 0);
   B.PRINT(x.toFixed(n));
 }
 
-function print(t, a, x, b, n)
+function print(t, a, x, b, m, n)
 {
-  B.TAB(t, 0); B.PRINT(a); value(x, n); B.PRINTe(b);
+  B.TAB(t, 0); B.PRINT(a); value(x, m, n); B.PRINTe(b);
 }
 
-function printe(t, a, x, b, n)
+function printe(t, a, x, b, m, n)
 {
-  B.TAB(t, 0); B.PRINTe(a); value(x, n); B.PRINTe(b);
+  B.TAB(t, 0); B.PRINTe(a); value(x, m, n); B.PRINTe(b);
 }
 
-function print0(t, a, x, b, n)
+function print0(t, a, x, b, m, n)
 {
   B.TAB(t, 0); B.PRINT(a);
-  if (Math.abs(x) > 1e+4) B.TAB(2, 0);
-  else                    B.PRINT("= ");
-  value(x, n); B.PRINTe(b);
+  if (Math.abs(x) > Math.pow(10, m+1)) B.TAB(2, 0);
+  else                                 B.PRINT("= ");
+  value(x, m, n); B.PRINTe(b);
 }
 
 //--------------------------------------------------------------------
@@ -513,11 +536,12 @@ function sinfrac(d)
   else if ( -90 <= d && d <   0) s = -1;
   d = Math.abs(d);
   if (d > 90) d = 180 - d;
-  if (d ==  0) { fraction(1, 0, 0, 0, 0); return; }
-  if (d == 30) { fraction(s, 0, 1, 0, 2); return; }
-  if (d == 45) { fraction(s, 0, 1, 1, 2); return; }
-  if (d == 60) { fraction(s, 1, 3, 0, 2); return; }
-  if (d == 90) { fraction(s, 0, 1, 0, 0); return; }
+  if (d ==  0) { fraction(1, 0, 0, 0, 0); return 1; }
+  if (d == 30) { fraction(s, 0, 1, 0, 2); return 1; }
+  if (d == 45) { fraction(s, 0, 1, 1, 2); return 1; }
+  if (d == 60) { fraction(s, 1, 3, 0, 2); return 1; }
+  if (d == 90) { fraction(s, 0, 1, 0, 0); return 1; }
+  return 0;
 }
 
 function cosfrac(d)
@@ -530,11 +554,12 @@ function cosfrac(d)
   else if ( -90 <= d && d <   0) s =  1;
   d = Math.abs(d);
   if (d > 90) d = 180 - d;
-  if (d ==  0) { fraction(s, 0, 1, 0, 0); return; }
-  if (d == 30) { fraction(s, 1, 3, 0, 2); return; }
-  if (d == 45) { fraction(s, 0, 1, 1, 2); return; }
-  if (d == 60) { fraction(s, 0, 1, 0, 2); return; }
-  if (d == 90) { fraction(1, 0, 0, 0, 0); return; }
+  if (d ==  0) { fraction(s, 0, 1, 0, 0); return 1; }
+  if (d == 30) { fraction(s, 1, 3, 0, 2); return 1; }
+  if (d == 45) { fraction(s, 0, 1, 1, 2); return 1; }
+  if (d == 60) { fraction(s, 0, 1, 0, 2); return 1; }
+  if (d == 90) { fraction(1, 0, 0, 0, 0); return 1; }
+  return 0;
 }
 
 function tanfrac(d)
@@ -547,11 +572,12 @@ function tanfrac(d)
   else if ( -90 <= d && d <   0) s = -1;
   d = Math.abs(d);
   if (d > 90) d = 180 - d;
-  if (d ==  0) { fraction(1, 0, 0, 0, 0); return; }
-  if (d == 30) { fraction(s, 0, 1, 1, 3); return; }
-  if (d == 45) { fraction(s, 0, 1, 0, 0); return; }
-  if (d == 60) { fraction(s, 1, 3, 0, 0); return; }
-  if (d == 90) { B.PRINT(" =   なし")   ; return; }
+  if (d ==  0) { fraction(1, 0, 0, 0, 0); return 1; }
+  if (d == 30) { fraction(s, 0, 1, 1, 3); return 1; }
+  if (d == 45) { fraction(s, 0, 1, 0, 0); return 1; }
+  if (d == 60) { fraction(s, 1, 3, 0, 0); return 1; }
+  if (d == 90) { B.PRINT(" =   なし")   ; return 0; }
+  return 0;
 }
 
 //--------------------------------------------------------------------
@@ -569,8 +595,8 @@ function accel(t, f, fd, d, a)
   B.TAB(t, 0);
   if      (f  >  0) acceldisp('#f8f', '#f0f', "gsinθ", " - F_` _`/m", a);
   else if (fd >  0) acceldisp('#f88', '#f00', "gsinθ", " - F_`'_`/m", a);
-  else if (d <= 90) acceldisp('#fff', '#fff', "gsinθ", "      "        , a);
-  else              acceldisp('#fff', '#fff', "g     ", "      "        , a);
+  else if (d <= 90) acceldisp('#fff', '#fff', "gsinθ", "      "     , a);
+  else              acceldisp('#fff', '#fff', "g     ", "      "     , a);
 }
 
 //--------------------------------------------------------------------
@@ -605,34 +631,34 @@ function display()
   y = mgy;
   if (d > 90) { x = mg; a = g; y = 0; }
 
-  B.COLOR('#0ff'); printe(1  , "重力加速度g  = "  , g  , " m/s^2^'", 1);
-  B.COLOR('#0ff'); print (1.5, "重力W = mg = "    , mg , " N"      , 4);
-  B.COLOR('#ff0'); print (2  , "垂直抗力N = "     , y  , " N"      , 4); B.CR();
-  B.COLOR('#fff'); printe(1  , "物質の質量m  = "  , m  , " kg  "   , 1);
-  B.COLOR('#fff'); print (1.5, "水平成分Wx = "    , x  , " N"      , 4);
-  B.COLOR('#fff'); print (2  , "mgsinθ   = "     , mgx, " N"      , 4); B.CR();
-  B.COLOR('#ff0'); printe(1  , "斜面傾斜角θ_' = ", d  , " °  "   , 1);
-  B.COLOR('#0f0'); print (1.5, "垂直成分Wy = "    , y  , " N"      , 4);
-  B.COLOR('#0f0'); print (2  , "mgcosθ   = "     , mgy, " N"      , 4); B.CR();
+  B.COLOR('#0ff'); printe(1  , "重力加速度g  = "  , g  , " m/s^2^'", 4, 1);
+  B.COLOR('#0ff'); print (1.5, "重力W = mg = "    , mg , " N"      , 4, 4);
+  B.COLOR('#ff0'); print (2  , "垂直抗力N = "     , y  , " N"      , 4, 4); B.CR();
+  B.COLOR('#fff'); printe(1  , "物質の質量m  = "  , m  , " kg  "   , 4, 1);
+  B.COLOR('#fff'); print (1.5, "水平成分Wx = "    , x  , " N"      , 4, 4);
+  B.COLOR('#fff'); print (2  , "mgsinθ   = "     , mgx, " N"      , 4, 4); B.CR();
+  B.COLOR('#ff0'); printe(1  , "斜面傾斜角θ_' = ", d  , " °  "   , 4, 1);
+  B.COLOR('#0f0'); print (1.5, "垂直成分Wy = "    , y  , " N"      , 4, 4);
+  B.COLOR('#0f0'); print (2  , "mgcosθ   = "     , mgy, " N"      , 4, 4); B.CR();
   if (S.gets2())
   {
     if (f > f0) { f = 0; } else { fd = 0; }
     if (d > 90) { f0 = f = fd = 0; }
 
     du = S.deg(Math.atan(u));
-    B.COLOR('#88f'); printe(1, "摩擦角    θ_0^'_'= ", du, "°", 4); B.CR();
+    B.COLOR('#88f'); printe(1, "摩擦角    θ_0^'_'= ", du, "°", 4, 4); B.CR();
     B.CR();
     accel(1, f, fd, d, a);
     B.CR();
     B.CR();
 
-    B.COLOR('#08f'); printe(1, "最大摩擦力F_0^'=μN = "      , f0, " N", 4); B.CR();
-    B.COLOR('#f0f'); printe(1, "静止摩擦力F      = "         , f , " N", 4); B.CR();
-    B.COLOR('#f00'); printe(1, "動摩擦力  F_`'_'=μ_`_`'N = ", fd, " N", 4); B.CR();
+    B.COLOR('#08f'); printe(1, "最大摩擦力F_0^'=μN = "      , f0, " N", 4, 4); B.CR();
+    B.COLOR('#f0f'); printe(1, "静止摩擦力F      = "         , f , " N", 4, 4); B.CR();
+    B.COLOR('#f00'); printe(1, "動摩擦力  F_`'_'=μ_`_`'N = ", fd, " N", 4, 4); B.CR();
     B.COLOR('#08f'); B.TAB(1, 0); B.PRINT("μ=tan");
     B.COLOR('#88f'); B.PRINTe("θ_0^'_'");
-    B.COLOR('#08f'); printe(0, "= "                          , u , ""  , 4); B.CR();
-    B.COLOR('#f00'); printe(1, "μ_`_`'       = "            , ud, ""  , 4); B.CR();
+    B.COLOR('#08f'); printe(0, "= "                          , u , ""  , 4, 4); B.CR();
+    B.COLOR('#f00'); printe(1, "μ_`_`'       = "            , ud, ""  , 4, 4); B.CR();
     B.CR();
   }
   else
@@ -643,16 +669,16 @@ function display()
     B.TAB(0, 8);
   }
   B.TAB(0, 4);
-  B.COLOR('#fff'); print0(1, "   θ ",          t , "", 4);
+  B.COLOR('#fff'); print0(1, "   θ ",          t , "", 4, 4);
   B.CR(); B.CR();
   t = S.rad(d);
-  B.COLOR('#fff'); print0(1, "sinθ ", Math.sin(t), "", 4);
+  B.COLOR('#fff'); print0(1, "sinθ ", Math.sin(t), "", 4, 4);
   sinfrac(d);
   B.CR(); B.CR();
-  B.COLOR('#fff'); print0(1, "cosθ ", Math.cos(t), "", 4);
+  B.COLOR('#fff'); print0(1, "cosθ ", Math.cos(t), "", 4, 4);
   cosfrac(d);
   B.CR(); B.CR();
-  B.COLOR('#fff'); print0(1, "tanθ ", Math.tan(t), "", 4);
+  B.COLOR('#fff'); print0(1, "tanθ ", Math.tan(t), "", 4, 4);
   tanfrac(d);
   B.CR(); B.CR();
   B.COLOR('#ff0');
@@ -830,38 +856,13 @@ function keyon(key)
   if      (Key[ 16]) { s = 0.1; }
   else               { s =   1; }
   d = S.getd();
-  dn = [-180, -150, -135, -120, -90, -60, -45, -30, 0,
-          30,   45,   60,   90, 120, 135, 150, 180];
-
   if      (Key[ 38] || key == 38) //↑
   {
-    if (s == 1)
-    {
-      for (i = 0; i < dn.length; i++)
-      {
-        if (d < dn[i]) { d = dn[i]; f = 1; break; }
-      }
-      if (f == 0) { d = -150; f = 1; }
-    }
-    else
-    {
-      d += 15; f = 1;
-    }
+    d += 15; f = 1; if (s == 1) d = S.castd(d+10);
   }
   else if (Key[ 40] || key == 40) //↓
   {
-    if (s == 1)
-    {
-      for (i = dn.length-1; i >= 0; i--)
-      {
-        if (d > dn[i]) { d = dn[i]; f = 1; break; }
-      }
-      if (f == 0) { d = 150; f = 1; }
-    }
-    else
-    {
-      d -= 15; f = 1;
-    }
+    d -= 15; f = 1; if (s == 1) d = S.castd(d-10);
   }
   else if (Key[ 39] || key == 39) //→
   {
