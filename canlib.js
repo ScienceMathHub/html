@@ -310,6 +310,8 @@ class BASIC
   {
     let x0, y0, r0;
 
+    if (dir === undifined) dir = true;
+
     this.PosX = x0 = this.scrX(x);
     this.PosY = y0 = this.scrY(y);
     r0 = Math.abs(this.scrH(r));
@@ -321,6 +323,8 @@ class BASIC
   ARCF(x, y, r, c, t0, t1, dir)
   {
     let x0, y0, r0;
+
+    if (dir === undifined) dir = true;
 
     this.PosX = x0 = this.scrX(x);
     this.PosY = y0 = this.scrY(y);
