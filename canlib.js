@@ -314,7 +314,7 @@ class BASIC
     this.PosY = y0 = this.scrY(y);
     r0 = Math.abs(this.scrH(r));
     ctx.beginPath();
-    ctx.arc(x0, y0, r0, t0, t1, dir);
+    ctx.arc(x0, y0, r0, -t0, -t1, dir);
     ctx.strokeStyle = c;
     ctx.stroke();
   }
@@ -327,7 +327,7 @@ class BASIC
     r0 = Math.abs(this.scrH(r));
 
     ctx.beginPath();
-    ctx.arc(x0, y0, r0, t0, t1, dir);
+    ctx.arc(x0, y0, r0, -t0, -t1, dir);
     ctx.fillStyle = c; // ctx.strokeStyle = c;
     ctx.fill();        // ctx.stroke();
   }
