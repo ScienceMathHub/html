@@ -306,12 +306,9 @@ class BASIC
     ctx.fillRect(x, y, w, h);
     this.LINEB(x1, y1, x2, y2, c)
   }
-  ARC(x, y, r, c, t0, t1, dir)
+  ARC(x, y, r, c, t0, t1, dir = true)
   {
     let x0, y0, r0;
-
-    if (dir === undifined) dir = true;
-
     this.PosX = x0 = this.scrX(x);
     this.PosY = y0 = this.scrY(y);
     r0 = Math.abs(this.scrH(r));
@@ -320,11 +317,9 @@ class BASIC
     ctx.strokeStyle = c;
     ctx.stroke();
   }
-  ARCF(x, y, r, c, t0, t1, dir)
+  ARCF(x, y, r, c, t0, t1, dir = true)
   {
     let x0, y0, r0;
-
-    if (dir === undifined) dir = true;
 
     this.PosX = x0 = this.scrX(x);
     this.PosY = y0 = this.scrY(y);
@@ -335,7 +330,7 @@ class BASIC
     ctx.fillStyle = c; // ctx.strokeStyle = c;
     ctx.fill();        // ctx.stroke();
   }
-  CIRCLE(x, y, r, c)
+  CIRCLE(x, y, r, c, t0 = 0, t1 = Math.PI*2, dir = true)
   {
     let x0, y0, r0;
 
@@ -344,11 +339,11 @@ class BASIC
     r0 = Math.abs(this.scrH(r));
 
     ctx.beginPath();
-    ctx.arc(x0, y0, r0, 0, Math.PI * 2, true);
+    ctx.arc(x0, y0, r0, -t0, -t1, dir);
     ctx.strokeStyle = c;
     ctx.stroke();
   }
-  CIRCLEF(x, y, r, c)
+  CIRCLEF(x, y, r, c, t0 = 0, t1 = Math.PI*2, dir = true)
   {
     let x0, y0, r0;
 
@@ -357,7 +352,7 @@ class BASIC
     r0 = Math.abs(this.scrH(r));
 
     ctx.beginPath();
-    ctx.arc(x0, y0, r0, 0, Math.PI * 2, true);
+    ctx.arc(x0, y0, r0, -t0, -t1, dir);
     ctx.fillStyle = c; // ctx.strokeStyle = c;
     ctx.fill();        // ctx.stroke();
   }
