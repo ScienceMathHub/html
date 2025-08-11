@@ -437,7 +437,7 @@ function tanwave(x0, y0, r, d, func, cl)
 //--------------------------------------------------------------------
 // circle
 //--------------------------------------------------------------------
-function circle(x0, y0, d1, r, d)
+function circle(x0, y0, d1, r, d, s, c)
 {
   let x, y, i, t, dt, a;
 
@@ -449,36 +449,10 @@ function circle(x0, y0, d1, r, d)
   B.LINE(-r, 0, r, 0, C1);
   B.LINE(0, -r, 0, r, C1);
 
-  dt = 0.1;
-  B.POINT(r, 0);
-  for (i = 0; i < 2 * Math.PI; i += dt)
-  {
-    x = r * Math.cos(i);
-    y = r * Math.sin(i);
-    B.LINE2(x, y, C1);
-  }
-  B.LINE2(r, 0, C1);
-
-  dt = 0.2;
+  B.CIRCLE(0, 0, r, C1);
   a = r * 0.2;
-  B.POINT(a, 0);
-  for (i = 0; i < t; i += dt)
-  {
-    x = a * Math.cos(i);
-    y = a * Math.sin(i);
-    B.LINE2(x, y, C7);
-  }
-  x = a * Math.cos(t);
-  y = a * Math.sin(t);
-  B.LINE2(x, y, C7);
-
-  for (i = t + dt; i < Math.PI*2; i += dt)
-  {
-    x = a * Math.cos(i);
-    y = a * Math.sin(i);
-    B.LINE2(x, y, C1);
-  }
-  B.LINE2(a, 0, C1);
+  B.CIRCLE(0, 0, a, C1, t+Math.PI*2, 0);
+  B.CIRCLE(0, 0, a, C7, 0          , t);
 
   x = r * Math.cos(t);
   y = r * Math.sin(t);
@@ -490,8 +464,8 @@ function circle(x0, y0, d1, r, d)
     B.LINE(r, 0, r, a, C3);
   }
 
-  B.LINE(0, 0, x, 0, C5);
-  B.LINE(x, 0, x, y, C4);
+  B.LINE(0, 0, x, 0, c );
+  B.LINE(x, 0, x, y, s );
   B.LINE(0, 0, x, y, C7);
 }
 
@@ -512,18 +486,15 @@ function display()
   B.CLS('#000');
 
   x0 = -425;
-  y0 =  130;
+  y0 =  120;
   d1 =  120;
-  d0 =  100;
+  d0 =   90;
 
   B.WINDOW(0, 0, 639, 399);
-//  B.CIRCLE(320, 200, 100, '#fff');
   x = B.scrX(0);
-  y = B.scrY(y0-d1);
+  y = B.scrY(y0 - d1);
   w = B.scrW(640);
   h = B.scrH(d1 * 2);
-//  B.LOCATE(1, 1); B.COLOR(C7); B.PRINT(x+','+y+','+w+','+h); B.CR();
-
   ctx.save();
   ctx.beginPath();
   ctx.rect(x, y, w, h);
@@ -531,25 +502,25 @@ function display()
 
   switch (C.gets2())
   {
-    case 0: sinwave(x0, y0, d0, d, Math.sin, C4); break;
+    case 0: sinwave(x0, y0, d0, d, Math.sin, C6); break;
     case 1: sinwave(x0, y0, d0, d, Math.cos, C5); break;
     case 2: tanwave(x0, y0, d0, d, Math.tan, C3); break;
     case 3: coswave(x0, y0, d0, d, Math.cos, C5); break;
   }
   x0 = -150;
-  circle(x0, y0, d1, d0, d);
+  circle(x0, y0, d1, d0, d, C6, C5);
   ctx.restore();
 
   B.LOCATE(0, 0); B.COLOR(C7);
 
-  B.COLOR(C7); printe(1  , "半径r  = ", r    , " m"   , 1); B.CR();
   B.TAB(0, 15);
+  B.COLOR(C7); printe(1  , "半径r  = ", r    , " m"   , 1); B.CR();
   B.COLOR(C7); print (1  , "角度θ = ", d    , " °"  , 1);
   B.COLOR(C1); print (0  , "= "       , d-360, " °"  , 1);
   B.COLOR(C7); print (0  , "(⊿θ = " , dd   , " °)" , 1); B.CR();
   B.CR();
 
-  B.COLOR(C4); print0( 1, "rsinθ ", Math.sin(t) * r, "", 4);
+  B.COLOR(C6); print0( 1, "rsinθ ", Math.sin(t) * r, "", 4);
   B.COLOR(C7); print0(11, "sinθ " , Math.sin(t)    , "", 4);
   sinfrac(a); B.CR(); B.CR();
 
