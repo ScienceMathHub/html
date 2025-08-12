@@ -34,22 +34,26 @@
   <input type="radio" id="rad_1" name="amount" value="1" />r 
   <input type="radio" id="rad_2" name="amount" value="2" />d 
   <input type="radio" id="rad_3" name="amount" value="3" />f 
-<pre></pre>
 </form>
+<pre></pre>
 sin&nbsp; cos&nbsp; tan&nbsp; cos
 <form id="target2">
   <input type="radio" id="sin_0" name="amount" value="0" />t 
-  <input type="radio" id="sin_1" name="amount" value="1" />g 
-  <input type="radio" id="sin_2" name="amount" value="2" />b 
-  <input type="radio" id="sin_3" name="amount" value="3" />v 
+  <input type="radio" id="sin_1" name="amount" value="1" />y 
+  <input type="radio" id="sin_2" name="amount" value="2" />u 
+  <input type="radio" id="sin_3" name="amount" value="3" />i 
+<pre></pre>
+  <input type="radio" id="sin_4" name="amount" value="4" />g 
+  <input type="radio" id="sin_5" name="amount" value="5" />h 
+  <input type="radio" id="sin_6" name="amount" value="6" />j 
+  <input type="radio" id="sin_7" name="amount" value="7" />k 
 <pre></pre>
 </form>
 <pre></pre>
-<input type="button" id="butM" value="移動/静止" onclick="inkey(77)">m
+<input type="button" id="butS" value="移動/静止" onclick="inkey(32)">Space
 <pre></pre>
-<input type="button" id="butR" value="Reset" onclick="inkey(13)">Enter
-<pre></pre>
-<input type="button" id="butS" value="初期化" onclick="inkey(32)">Space
+<input type="button" id="butR" value="角度0" onclick="inkey(13)">Enter 
+<input type="button" id="butV" value="初期化" onclick="inkey(86)">v
 <pre></pre>
 <input type="button" id="butQ" value="細"    onclick="inkey(81)">q
 <input type="button" id="butW" value="太"    onclick="inkey(87)">w
@@ -342,116 +346,130 @@ function tanfrac(d)
 //--------------------------------------------------------------------
 // sin wave
 //--------------------------------------------------------------------
-function sinwave(x0, y0, r, d, func, cl)
+function sinwave(x0, y0, r, d, func, cl, m, xy)
 {
-  let x, y, i, t, dt, x1;
+  let x, y, i, t, dt, x1, y1, k;
 
   t = C.rad(d);
   B.WINDOW(x0, y0, x0+639, y0-399);
 
-  x1 = r;
-  B.LINEB(-x1, -r, x1, r, C1);
-  B.LINE (-x1,  0, x1, 0, C1);
-  B.LINE (  0, -r,  0, r, C1);
+  x1 = r * 1.25;
+  if (xy)
+  {
+    B.LINEB(-x1, -r, x1, r, C1);
+    B.LINE (-x1,  0, x1, 0, C1);
+    B.LINE (  0, -r,  0, r, C1);
+  }
+  else
+  {
+    B.LINEB(-r, -x1, r, x1, C1);
+    B.LINE (0 , -x1, 0, x1, C1);
+    B.LINE (-r,   0, r,  0, C1);
+  }
 
+  /* graph */
   dt = 0.1;
   i = -Math.PI;
   x = -x1;
-  y = r * func(t+i);
-  B.POINT(x, y);
-  for (; i < Math.PI; i += dt)
-  {
-    x = x1 * i / Math.PI;
-    y = r * func(t+i);
-    B.LINE2(x, y, C1);
-  }
-  i = Math.PI;
-  x = x1;
-  y = r * func(t+i);
-  B.LINE2(x, y, C1);
-
-  y = r * func(t);
-  B.LINEBF(-1, 0, 1, y, C0);
-  B.LINE  ( 0, 0, 0, y, cl);
-}
-
-//--------------------------------------------------------------------
-// cos wave
-//--------------------------------------------------------------------
-function coswave(x0, y0, r, d, func, cl)
-{
-  let x, y, i, t, dt, y1;
-
-  t = C.rad(d);
-  B.WINDOW(x0, y0, x0+639, y0-399);
-
-  y1 = r;
-  B.LINEB(-r, -y1, r, y1, C1);
-  B.LINE (-r,   0, r,  0, C1);
-  B.LINE ( 0, -y1, 0, y1, C1);
-
-  dt = 0.1;
-  i = -Math.PI;
-  x = r * func(t+i);
-  y = -y1;
-  B.POINT(x, y);
-  for (; i < Math.PI; i += dt)
-  {
-    x = r * func(t+i);
-    y = y1 * i / Math.PI;
-    B.LINE2(x, y, C1);
-  }
-  i = Math.PI;
-  x = r * func(t+i);
-  y = y1;
-  B.LINE2(x, y, C1);
-
-  x = r * func(t);
-  B.LINEBF( 0, -1, x, 1, C0);
-  B.LINE  ( 0,  0, x, 0, cl);
-}
-
-//--------------------------------------------------------------------
-// tan wave
-//--------------------------------------------------------------------
-function tanwave(x0, y0, r, d, func, cl)
-{
-  let x, y, i, t, dt, x1, y1;
-
-  t = C.rad(d);
-  B.WINDOW(x0, y0, x0+639, y0-399);
-
-  x1 = r;
-  B.LINEB(-x1, -r, x1, r, C1);
-  B.LINE (-x1,  0, x1, 0, C1);
-  B.LINE (  0, -r,  0, r, C1);
-
-  dt = 0.1;
-  i = -Math.PI;
-  x = -x1;
-  y = r * func(t+i);
-  B.POINT(x, y);
+  k = (m)? t+i : i;
+  if (!m && xy) k += Math.PI;
+  y = r * func(k);
+  if (xy) { B.POINT(x, y); } else { B.POINT(y, x); }
+  
   y1 = y;
   for (; i < Math.PI; i += dt)
   {
     x = x1 * i / Math.PI;
-    y = r * func(t+i);
-    if (Math.abs(y1 - y) > r * 2)
-    { B.POINT(x, y); }
+    k = (m)? t+i : i;
+    if (!m && xy) k += Math.PI;
+    y = r * func(k);
+    if (xy)
+    {
+      if (Math.abs(y1 - y) > r * 2) { B.POINT(x, y)    ; }
+      else                          { B.LINE2(x, y, C1); }
+    }
     else
-    { B.LINE2(x, y, C1); }
+    {
+      if (Math.abs(y1 - y) > r * 2) { B.POINT(y, x)    ; }
+      else                          { B.LINE2(y, x, C1); }
+    }
     y1 = y;
   }
   i = Math.PI;
   x = x1;
-  y = r * func(t+i);
-  B.LINE2(x, y, C1);
+  k = (m)? t+i : i;
+  if (!m && xy) k += Math.PI;
+  y = r * func(k);
+  if (xy) { B.LINE2(x, y, C1); } else { B.LINE2(y, x, C1); }  
 
-  if (!(d == 90 || d == 270))
+  /* value */
+  if (func === Math.tan)
   {
-    y = r * func(t);
-    B.LINEBF(-1, 0, 1, y, C0);
-    B.LINE  ( 0, 0, 0, y, cl);
+    if (d == 90 || d == 270) return;
+  }
+
+  x = 0;
+  if (!m)
+  {
+    x = t * x1 / Math.PI;
+    if (xy) x -= x1;
+    else
+    {
+      if (x > x1) x -= x1*2;
+    }
+  }
+
+  y = r * func(t);
+  if (x == 0 || Math.abs(x) == x1)
+  {
+    if (xy) { B.LINEBF(x-1,   0, x+1, y  , C0); }
+    else    { B.LINEBF( 0 , x-1, y  , x+1, C0); }  
+  }
+  if (xy) { B.LINE( x, 0, x, y, cl); }
+  else    { B.LINE( 0, x, y, x, cl); }
+
+  /* angle */
+  if (!m)
+  {
+    if (xy)
+    {
+      B.LINE( -x1, 0, x, 0, C7);
+    }
+    else
+    {
+      if (x >= 0)
+      {
+        B.LINE( 0, 0, 0, x, C7);
+      }
+      else
+      {
+        B.LINE( 0,   0, 0, x1, C7);
+        B.LINE( 0, -x1, 0, x , C7);
+      }
+    }
+  }
+  else
+  {
+    k = (t <= Math.PI)? -t : Math.PI*2 - t;
+    k = k * x1 / Math.PI;
+    if (k < 0)
+    {
+      if (xy) { B.LINE(k, 0, 0, 0, C7); }
+      else    { B.LINE(0, k, 0, 0, C7); }  
+    }
+    else
+    {
+      if (xy)
+      {
+        B.LINE( k , 0, x1, 0, C7);
+        B.LINE(-x1, 0,  0, 0, C7);
+      }
+      else
+      {
+        B.LINE(0,  k , 0, x1, C7);
+        B.LINE(0, -x1, 0,  0, C7);
+      }  
+    }
   }
 }
 
@@ -523,10 +541,14 @@ function display()
 
   switch (C.gets2())
   {
-    case 0: sinwave(x0, y0, d0, d, Math.sin, C6); break;
-    case 1: sinwave(x0, y0, d0, d, Math.cos, C5); break;
-    case 2: tanwave(x0, y0, d0, d, Math.tan, C3); break;
-    case 3: coswave(x0, y0, d0, d, Math.cos, C5); break;
+    case 0: sinwave(x0, y0, d0, d, Math.sin, C6, 0, 1); break;
+    case 1: sinwave(x0, y0, d0, d, Math.cos, C5, 0, 1); break;
+    case 2: sinwave(x0, y0, d0, d, Math.tan, C3, 0, 1); break;
+    case 3: sinwave(x0, y0, d0, d, Math.cos, C5, 0, 0); break;
+    case 4: sinwave(x0, y0, d0, d, Math.sin, C6, 1, 1); break;
+    case 5: sinwave(x0, y0, d0, d, Math.cos, C5, 1, 1); break;
+    case 6: sinwave(x0, y0, d0, d, Math.tan, C3, 1, 1); break;
+    case 7: sinwave(x0, y0, d0, d, Math.cos, C5, 1, 0); break;
   }
   x0 = -150;
   circle(x0, y0, d1, d0, d, C6, C5);
@@ -560,6 +582,12 @@ function display()
 //--------------------------------------------------------------------
 // input
 //--------------------------------------------------------------------
+function next()
+{
+  if (C.getm()) return;
+  window.requestAnimationFrame(main);
+}
+
 function pushinit()
 {
   let v, a, i;
@@ -600,7 +628,7 @@ function pushget()
   {
     if (v[i].checked) { C.sets2(i); break; }
   }
-  window.requestAnimationFrame(main);
+  next();
 }
 
 function blur()
@@ -616,9 +644,14 @@ function blur()
   document.getElementById('sin_1').blur();
   document.getElementById('sin_2').blur();
   document.getElementById('sin_3').blur();
+  document.getElementById('sin_4').blur();
+  document.getElementById('sin_5').blur();
+  document.getElementById('sin_6').blur();
+  document.getElementById('sin_7').blur();
 
   document.getElementById('butR').blur();
   document.getElementById('butS').blur();
+  document.getElementById('butV').blur();
   document.getElementById('butQ').blur();
   document.getElementById('butW').blur();
   document.getElementById('butZ').blur();
@@ -653,7 +686,7 @@ function pushrad()
     if (v[i].checked) { C.sets(i); break; }
   }
   blur();
-  window.requestAnimationFrame(main);
+  next();
 }
 
 function pushsin()
@@ -666,7 +699,7 @@ function pushsin()
     if (v[i].checked) { C.sets2(i); break; }
   }
   blur();
-  window.requestAnimationFrame(main);
+  next();
 }
 
 document.getElementById("target"  ).addEventListener('input', pushrad);
@@ -704,7 +737,7 @@ function init()
   C.init();
   pushinit();
   blur();
-  window.requestAnimationFrame(main);
+  next();
 }
 
 //--------------------------------------------------------------------
@@ -750,7 +783,9 @@ function inkey(key)
   {
     case  13: if (focus()) pushget(); else  { setd(0); C.setd(0); }
                                  key = 0; break; // 'R' Enter
-    case  32: init()           ; key = 0; break; // ' ' Space
+    case  32: C.setm(-1)       ; key = 0;
+      window.requestAnimationFrame(main); break; // ' ' Space
+    case  86: init()           ; key = 0; break; // 'V'
     case  81: B.lineWidth( 0.5); key = 0; break; // 'Q'
     case  87: B.lineWidth( 2  ); key = 0; break; // 'W'
     case  90: B.zooming  (-1  ); key = 0; break; // 'Z'
@@ -761,15 +796,18 @@ function inkey(key)
     case  68: keyrad(2) ; key = 0; break; // 'd'
     case  70: keyrad(3) ; key = 0; break; // 'f'
     case  84: keysin(0) ; key = 0; break; // 't'
-    case  71: keysin(1) ; key = 0; break; // 'g'
-    case  66: keysin(2) ; key = 0; break; // 'b'
-    case  86: keysin(3) ; key = 0; break; // 'v'
-    case  77: C.setm(-1); key = 0; break; // 'm'
+    case  89: keysin(1) ; key = 0; break; // 'y'
+    case  85: keysin(2) ; key = 0; break; // 'u'
+    case  73: keysin(3) ; key = 0; break; // 'i'
+    case  71: keysin(4) ; key = 0; break; // 'g'
+    case  72: keysin(5) ; key = 0; break; // 'h'
+    case  74: keysin(6) ; key = 0; break; // 'j'
+    case  75: keysin(7) ; key = 0; break; // 'k'
     default : if (keyon(key))    key = 0;
   }
   if (key) return;
   blur();
-  window.requestAnimationFrame(main);
+  next();
 }
 document.body.addEventListener('keydown', event =>
 {
@@ -825,7 +863,7 @@ function mouseMv(x, y, touch)
   d  = C.setd(d);
   setd(d);
   blur();
-  window.requestAnimationFrame(main);
+  next();
 }
 
 const M = new MOUSE();

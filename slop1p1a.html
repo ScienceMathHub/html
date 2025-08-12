@@ -56,8 +56,8 @@
 <pre></pre>
 </form>
 <pre></pre>
-<input type="button" id="butR" value="Reset" onclick="inkey(13)">Enter
-<input type="button" id="butS" value="初期化" onclick="inkey(32)">Space
+<input type="button" id="butR" value="角度0" onclick="inkey(13)">Enter
+<input type="button" id="butS" value="初期化" onclick="inkey(86)">v
 <pre></pre>
 <input type="button" id="butQ" value="細"    onclick="inkey(81)">q
 <input type="button" id="butW" value="太"    onclick="inkey(87)">w
@@ -884,7 +884,7 @@ function inkey(key)
   {
     case  13: if (focus()) pushget(); else  { setd(0); S.setd(0); }
                                  key = 0; break; // 'R' Enter
-    case  32: init()           ; key = 0; break; // ' ' Space
+    case  86: init()           ; key = 0; break; // 'V'
     case  81: B.lineWidth( 0.5); key = 0; break; // 'Q'
     case  87: B.lineWidth( 2  ); key = 0; break; // 'W'
     case  90: B.zooming  (-1  ); key = 0; break; // 'Z'
