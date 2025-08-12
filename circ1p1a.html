@@ -526,7 +526,7 @@ function circle(x0, y0, d1, r, d, s, c)
 //--------------------------------------------------------------------
 function display()
 {
-  let r, d, a, t, x, y, w, h, dd, d0, d1, x0, y0;
+  let r, d, a, t, x, y, w, h, dd, d0, d1, x0, y0, s, k;
 
   r  = C.getr();
   d  = C.getd();
@@ -573,19 +573,22 @@ function display()
   B.COLOR(C7); printe(1  , "半径r  = ", r    , " m"   , 6, 1); B.CR();
   B.COLOR(C7); print (1  , "角度θ = ", d    , " °"  , 6, 1);
   B.COLOR(C1); print (0  , "= "       , d-360, " °"  , 4, 1);
-  B.COLOR(C7); print (0  , "(⊿θ = " , dd   , " °)" , 1, 1); B.CR();
+  B.COLOR(C7); print (1  , "⊿θ( "   , dd   , " °)" , 1, 1); B.CR();
   B.CR();
 
-  B.COLOR(C6); print0( 1, "rsinθ ", Math.sin(t) * r, "" , 6, 4);
-  B.COLOR(C7); print0(11, "sinθ " , Math.sin(t)    , "" , 2, 4);
+  s = " " + d + "°";
+  s = s.padEnd(7, ' ');
+  k = 12;
+  B.COLOR(C6); print0(1, "rsinθ ", Math.sin(t) * r, "" , 6, 4);
+  B.COLOR(C7); print0(k, "sin" + s, Math.sin(t)    , "" , 2, 4);
   sinfrac(a); B.CR(); B.CR();
 
-  B.COLOR(C5); print0( 1, "rcosθ ", Math.cos(t) * r, "" , 6, 4);
-  B.COLOR(C7); print0(11, "cosθ " , Math.cos(t)    , "" , 2, 4);
+  B.COLOR(C5); print0(1, "rcosθ ", Math.cos(t) * r, "" , 6, 4);
+  B.COLOR(C7); print0(k, "cos" + s, Math.cos(t)    , "" , 2, 4);
   cosfrac(a); B.CR(); B.CR();
 
-  B.COLOR(C3); print0( 1, "rtanθ ", Math.tan(t) * r, "" , 6, 4);
-  B.COLOR(C7); print0(11, "tanθ " , Math.tan(t)    , "" , 2, 4);
+  B.COLOR(C3); print0(1, "rtanθ ", Math.tan(t) * r, "" , 6, 4);
+  B.COLOR(C7); print0(k, "tan" + s, Math.tan(t)    , "" , 2, 4);
   tanfrac(a); B.CR(); B.CR();
 
   B.COLOR('#fff');
