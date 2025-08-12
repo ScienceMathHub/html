@@ -357,13 +357,11 @@ function sinwave(x0, y0, r, d, func, cl, m, xy)
   if (xy)
   {
     B.LINEB(-x1, -r, x1, r, C1);
-    B.LINE (-x1,  0, x1, 0, C1);
     B.LINE (  0, -r,  0, r, C1);
   }
   else
   {
     B.LINEB(-r, -x1, r, x1, C1);
-    B.LINE (0 , -x1, 0, x1, C1);
     B.LINE (-r,   0, r,  0, C1);
   }
 
@@ -402,12 +400,11 @@ function sinwave(x0, y0, r, d, func, cl, m, xy)
   y = r * func(k);
   if (xy) { B.LINE2(x, y, C1); } else { B.LINE2(y, x, C1); }  
 
-  /* value */
+  /* value calc & erase */
   if (func === Math.tan)
   {
     if (d == 90 || d == 270) return;
   }
-
   x = 0;
   if (!m)
   {
@@ -418,25 +415,26 @@ function sinwave(x0, y0, r, d, func, cl, m, xy)
       if (x > x1) x -= x1*2;
     }
   }
-
   y = r * func(t);
-  if (x == 0 || Math.abs(x) == x1)
+  if ((x == 0 || Math.abs(x) == x1) && Math.abs(y) != 0)
   {
     if (xy) { B.LINEBF(x-1,   0, x+1, y  , C0); }
     else    { B.LINEBF( 0 , x-1, y  , x+1, C0); }  
   }
-  if (xy) { B.LINE( x, 0, x, y, cl); }
-  else    { B.LINE( 0, x, y, x, cl); }
+  if (xy) { B.LINE (-x1,  0, x1, 0, C1); }
+  else    { B.LINE (0 , -x1, 0, x1, C1); }
 
-  /* angle */
+  /* angle & 0 */
   if (!m)
   {
     if (xy)
     {
+      k = -x1;
       B.LINE( -x1, 0, x, 0, C7);
     }
     else
     {
+      k = 0;
       if (x >= 0)
       {
         B.LINE( 0, 0, 0, x, C7);
@@ -471,6 +469,21 @@ function sinwave(x0, y0, r, d, func, cl, m, xy)
       }  
     }
   }
+  i = '#ccc';
+  if (xy)
+  {
+    B.LINE  (k  , r, k, -r , i);
+    B.SYMBOL(k-3,  -15, "0", i);
+  }
+  else
+  {
+    B.LINE  (r  , k, -r, k , i);
+    B.SYMBOL( -8, k- 7, "0", i);
+  }
+
+  /* value draw */
+  if (xy) { B.LINE( x, 0, x, y, cl); }
+  else    { B.LINE( 0, x, y, x, cl); }
 }
 
 //--------------------------------------------------------------------
