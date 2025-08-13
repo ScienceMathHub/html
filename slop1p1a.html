@@ -294,12 +294,11 @@ class SLOPE
   }
   castd(d)
   {
-    let dn, i, d0, d1;
-
-    dn = [-210, -180,
-          -150, -135, -120, -90, -60, -45, -30,   0,
-            30,   45,   60,  90, 120, 135, 150, 180,
-           210,  225,  240, 270, 300, 315, 330, 360];
+    const dn = [-210, -180,
+                -150, -135, -120, -90, -60, -45, -30,   0,
+                  30,   45,   60,  90, 120, 135, 150, 180,
+                 210,  225,  240, 270, 300, 315, 330, 360];
+    let i, d0, d1;
 ;
     d0 = 360;
     for (i = 0; i < dn.length; i++)
@@ -583,20 +582,30 @@ function tanfrac(d)
 //--------------------------------------------------------------------
 // a
 //--------------------------------------------------------------------
-function acceldisp(e, c, g, b, a)
+function acceldisp(e, c, g, b, f, h, a)
 {
-  B.COLOR(e); B.PRINT ("a = "); B.COLOR('#fff'); B.PRINT (g);
-  B.COLOR(c); B.PRINTe(b);
-  B.COLOR(e); printe(0, " = ", a  , " m/s^2", 4, 1);
+  let i;
+
+  B.COLOR(e); B.PRINT("a = "); B.COLOR('#fff'); B.PRINT(g);
+  B.COLOR(c); B.PRINT(b);
+  i = (f.length > h.length)? f.length : h.length;
+  if (f != "")
+  {
+    B.TAB(   0.5, -0.5); B.PRINT(f);
+    B.TAB(-i-0.5,  0  ); B.PRINT(''.padEnd(i+1, '_'));
+    B.TAB(-i-0.5,  1.0); B.PRINT(h);
+    B.TAB(   0.5, -0.5);
+  }
+  B.COLOR(e); printe(0, "  = ", a  , " m/s^2", 4, 1);
 }
 
 function accel(t, f, fd, d, a)
 {
   B.TAB(t, 0);
-  if      (f  >  0) acceldisp('#f8f', '#f0f', "gsinθ", " - F_` _`/m", a);
-  else if (fd >  0) acceldisp('#f88', '#f00', "gsinθ", " - F_`'_`/m", a);
-  else if (d <= 90) acceldisp('#fff', '#fff', "gsinθ", "      "     , a);
-  else              acceldisp('#fff', '#fff', "g     ", "      "     , a);
+  if      (f  >  0) acceldisp('#f8f', '#f0f', "gsinθ", " - "  , "F", "m", a);
+  else if (fd >  0) acceldisp('#f88', '#f00', "gsinθ", " - "  , "F", "m", a);
+  else if (d <= 90) acceldisp('#fff', '#fff', "gsinθ", "     ", "" , "" , a);
+  else              acceldisp('#fff', '#fff', "g     ", "     ", "" , "" , a);
 }
 
 //--------------------------------------------------------------------
@@ -658,7 +667,7 @@ function display()
     B.COLOR('#08f'); B.TAB(1, 0); B.PRINT("μ=tan");
     B.COLOR('#88f'); B.PRINTe("θ_0^'_'");
     B.COLOR('#08f'); printe(0, "= "                          , u , ""  , 4, 4); B.CR();
-    B.COLOR('#f00'); printe(1, "μ_`_`'       = "            , ud, ""  , 4, 4); B.CR();
+    B.COLOR('#f00'); printe(1, "μ_`_`'_'       = "          , ud, ""  , 4, 4); B.CR();
     B.CR();
   }
   else

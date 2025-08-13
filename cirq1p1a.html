@@ -1,0 +1,571 @@
+<!--
+----------------------------------------------------------------------
+ 三角関数クイズ
+
+ HTML(JavaScript, canvas)
+
+ Physics (c) Ohtani 2025.8
+----------------------------------------------------------------------
+-->
+<!DOctxYPE html>
+<html lang="ja">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<head>
+  <meta charset="utf-8">
+  <title>三角関数クイズ</title>
+</head>
+<body>
+<p id="CircularQuiz"></p>
+<div style='float:left;'>
+<pre></pre>
+<form id="target">
+Level5 <input type="radio" id="lvl_5" name="amount" value="5" />5<pre></pre>
+Level4 <input type="radio" id="lvl_4" name="amount" value="4" />4<pre></pre>
+Level3 <input type="radio" id="lvl_3" name="amount" value="3" />3<pre></pre>
+Level2 <input type="radio" id="lvl_2" name="amount" value="2" />2<pre></pre>
+Level1 <input type="radio" id="lvl_1" name="amount" value="1" />1<pre></pre>
+</form>
+<pre></pre>
+a b c d y n
+<br>
+<br>
+<br>
+<input type="button" id="butQ" value="細"    onclick="inkey(81)">q
+<input type="button" id="butW" value="太"    onclick="inkey(87)">w
+<pre></pre>
+<input type="button" id="butZ" value="縮"    onclick="inkey(90)">z 
+<input type="button" id="butX" value="拡"    onclick="inkey(88)">x
+<input type="button" id="butC" value="初"    onclick="inkey(67)">v
+<pre></pre>
+
+<script src="https://sciencemathhub.github.io/html/tophys.js"></script>
+<script src="https://sciencemathhub.github.io/html/canlib.js"></script>
+<script>
+'use strict'
+
+//--------------------------------------------------------------------
+// Quiz
+//--------------------------------------------------------------------
+const Qu11 = [
+[ "直角三角形の斜辺をr、θ の対辺をy、残りの辺をxとするとsinθ はどれ",
+  ["", "x","r"], ["", "y","r"], ["", "r","x"], ["", "r","y"], 2
+],
+[ "直角三角形の斜辺をr、θ の対辺をy、残りの辺をxとするとcosθ はどれ",
+  ["", "x","r"], ["", "y","r"], ["", "r","x"], ["", "r","y"], 1
+],
+[ "直角三角形の斜辺をr、θ の対辺をy、残りの辺をxとするとtanθ はどれ",
+  ["", "x","r"], ["", "y","r"], ["", "x","y"], ["", "y","x"], 4
+]];
+
+const Quiz1 = [ Qu11 ];
+const Quiz0 = [ Quiz1 ];
+
+//--------------------------------------------------------------------
+// public letiable
+//--------------------------------------------------------------------
+const B = new BASIC();
+const C0 = '#000'
+const C1 = '#24f'
+const C2 = '#f88'
+const C3 = '#f8f'
+const C4 = '#8f8'
+const C5 = '#8ff'
+const C6 = '#ff8'
+const C7 = '#fff'
+
+let Temp; // debug
+
+//------------------------------------------------------------------------------
+// 変数
+//------------------------------------------------------------------------------
+class QUIZ
+{
+  constructor()
+  {
+    this.lev = this.cou = this.ans = this.yn = this.qui = 0;
+    this.d = 0;
+  }
+  init()
+  {
+    this.lev  = 1;      // 難易度
+    this.cou  = 1;      // 問題数
+    this.ans  = 0;      // 解答番号(1-4)
+    this.yn   = 0;      // 解答番号(1-2)
+    this.d    = 0;      // 角度θ[°]
+    this.qui  = 0;      // Quiz
+  }
+  area(n)
+  {
+    const a =
+    [
+      [ 20, 200, 200, 40], // a
+      [230, 200, 200, 40], // b
+      [ 20, 250, 200, 40], // c
+      [230, 250, 200, 40], // d
+      [ 20, 350, 200, 40], // y
+      [230, 350, 200, 40]  // n
+    ];
+
+    if (1 <= n && n <= 6) return a[n-1];
+    return a.length;
+  }
+  level(n)
+  {
+    if (n >= 0) this.lev = n;
+    return this.lev;
+  }
+  count(n)
+  {
+    if (n >= 0) this.cou = n;
+    return this.cou;
+  }
+  answer(n)
+  {
+    if (n >= 0) this.ans = n;
+    return this.ans;
+  }
+  yesno(n)
+  {
+    if (n >= 0) this.yn = n;
+    return this.yn;
+  }
+  quiz(q)
+  {
+    if (q !== null) this.qui = q;
+    return this.qui;
+  }
+  #fix(x)
+  {
+    let a;
+
+    a = x.toFixed(1);
+    return Number(a);
+  }
+  rad(d)
+  {
+    return d * Math.PI / 180;
+  }
+  deg(t)
+  {
+    return t * 180 / Math.PI;
+  }
+  setd(d)
+  {
+    while (d <    0) d += 360;
+    while (d >= 360) d -= 360;
+    d = this.#fix(d);
+    this.d = d;
+    return this.d;
+  }
+  getd()
+  {
+    return this.d;
+  }
+}
+const Q = new QUIZ();
+
+//--------------------------------------------------------------------
+// triangle
+//--------------------------------------------------------------------
+function triangle(x0, y0, r, d)
+{
+  let x, y, t, a, b;
+
+  t = Q.rad(d);
+  x = r * Math.cos(t);
+  y = r * Math.sin(t);
+  y0 += y;
+  B.WINDOW(-x0, y0, 639-x0, y0-399);
+  B.LINE(0, 0, x, y, C7);
+  B.LINE2     (x, 0, C7);
+  B.LINE2     (0, 0, C7);
+  a = r * 0.06;
+  B.LINE(x-a, 0, x-a, a, C7);
+  B.LINE2       (x  , a, C7);
+  a = r * 0.2;
+  B.CIRCLE(0, 0, a, C7, 0, t);
+  b = a * 0.15;
+  B.SYMBOL(a+b, b, "θ", C7);
+}
+
+//--------------------------------------------------------------------
+// select
+//--------------------------------------------------------------------
+function select(n, c1, c0)
+{
+  let rect, x, y, w, h;
+
+  rect = Q.area(n);
+  x = rect[0];
+  y = rect[1];
+  w = rect[2];
+  h = rect[3];
+  B.LINEBF(x, y, x+w, y+h, c0);
+  B.LINEB (x, y, x+w, y+h, c1);
+}
+
+//--------------------------------------------------------------------
+// question
+//--------------------------------------------------------------------
+function shuffle(quiz)
+{
+  const s =
+  [
+    [1, 2, 3, 4], [1, 2, 4, 3],
+    [1, 3, 2, 4], [1, 3, 4, 2],
+    [1, 4, 2, 3], [1, 4, 3, 2],
+    [2, 2, 3, 4], [2, 2, 4, 3],
+    [2, 3, 1, 4], [2, 3, 4, 1],
+    [2, 4, 1, 3], [2, 4, 3, 1],
+    [3, 1, 2, 4], [3, 1, 4, 2],
+    [3, 2, 1, 4], [3, 2, 4, 1],
+    [3, 4, 1, 2], [3, 4, 2, 1],
+    [4, 1, 2, 3], [4, 1, 3, 2],
+    [4, 2, 1, 3], [4, 2, 3, 1],
+    [4, 3, 1, 2], [4, 3, 2, 1]
+  ];
+  let q, i;
+
+  q = [ 0, 1, 2, 3, 4, 5 ];
+  i = Math.floor(Math.random() * s.length);
+  i = s[i];
+  q[  0 ] =   quiz[0]   ;
+  q[i[0]] =   quiz[1]   ;
+  q[i[1]] =   quiz[2]   ;
+  q[i[2]] =   quiz[3]   ;
+  q[i[3]] =   quiz[4]   ;
+  q[  5 ] = i[quiz[5]-1];
+  return q;
+}
+
+function question(lev, cou)
+{
+  let quiz, i;
+
+  quiz = Quiz0[lev - 1];
+  quiz = quiz [cou - 1];
+  i = Math.floor(Math.random() * quiz.length);
+  quiz = quiz[i];
+
+  return shuffle(quiz)
+}
+
+//--------------------------------------------------------------------
+// answer
+//--------------------------------------------------------------------
+function dispans1(a, b)
+{
+  let s, i;
+
+  B.TAB(   0.5, -0.5); B.PRINTe(a);
+  i = (a.length > b.length)? a.length : b.length;
+  s = "".padEnd(i+1, '_');
+  B.TAB(-i-0.5,  0  ); B.PRINT (s);
+  B.TAB(-i-0.5,  1.0); B.PRINTe(b);
+  B.TAB(   0  , -0.5);
+}
+
+function dispans(x, y, s, ans)
+{
+  let a, b, w, h, i, n, f;
+
+  w = 8;
+  h = 9;
+  B.LOCATEp(x+w, y+h); B.PRINT(s + ": ");
+  f = 1;
+  n = ans.length;
+  for (i = 0; i < n;)
+  {
+    if (f)
+    {
+      B.PRINTe(ans[i++]); f = 0; continue;
+    }
+    dispans1(ans[i], ans[i+1]); i += 2; f = 1;
+  }
+}
+
+function answer(quiz, n)
+{
+  let r;
+
+  select(1, C7, (n == 1)? C3 : C1);
+  select(2, C7, (n == 2)? C3 : C1);
+  select(3, C7, (n == 3)? C3 : C1);
+  select(4, C7, (n == 4)? C3 : C1);
+  r = Q.area(1); dispans(r[0], r[1], "A", quiz[1]);
+  r = Q.area(2); dispans(r[0], r[1], "B", quiz[2]);
+  r = Q.area(3); dispans(r[0], r[1], "C", quiz[3]);
+  r = Q.area(4); dispans(r[0], r[1], "D", quiz[4]);
+  return quiz[5];
+}
+
+//--------------------------------------------------------------------
+// screen
+//--------------------------------------------------------------------
+function display()
+{
+  let d, a, t, q;
+
+  d  = Q.getd();
+  t  = Q.rad(d);
+
+  B.FONT(1,0);
+  B.CLS('#002');
+
+  triangle(50, 20, 150, 30);
+  B.WINDOW(0, 0, 639, 399);
+  select(5, C7, C1);
+  select(6, C7, C1);
+
+  B.LOCATE(0, 0); B.COLOR(C7);
+  B.TAB(1, 0); B.PRINT("三角関数クイズ"); B.CR();
+  B.TAB(0, 7);
+  B.TAB(1, 0); B.PRINT ("問題"); B.CR();
+  q = Q.quiz(null);
+  B.TAB(1, 0); B.PRINTe(q[0]); B.CR();
+
+  a = Q.answer(-1);
+  B.TAB(1, 0); B.PRINT ("解答は" + a + "," + q[5]); B.CR();
+  a = answer(q, a);
+
+  B.COLOR('#fff');
+//  B.TAB(1, 0); B.PRINT(Temp); B.CR();
+}
+
+//--------------------------------------------------------------------
+// input
+//--------------------------------------------------------------------
+function pushinit()
+{
+  let v, i;
+
+  v = document.getElementById("target");
+  for (i = 0; i < v.length; i++)
+  {
+    v[i].checked = false;
+  }
+  v[v.length-1].checked = true;
+}
+
+function pushget()
+{
+  let v, i;
+
+  v = document.getElementById("target");
+  for (i = 0; i < v.length; i++)
+  {
+    if (v[i].checked) { Q.level(5 - i); break; }
+  }
+  window.requestAnimationFrame(display);
+}
+
+function blur()
+{
+  document.getElementById('lvl_5').blur();
+  document.getElementById('lvl_4').blur();
+  document.getElementById('lvl_3').blur();
+  document.getElementById('lvl_2').blur();
+  document.getElementById('lvl_1').blur();
+
+  document.getElementById('butQ').blur();
+  document.getElementById('butW').blur();
+  document.getElementById('butZ').blur();
+  document.getElementById('butX').blur();
+  document.getElementById('butC').blur();
+}
+
+function next()
+{
+  let q;
+
+  pushget();
+  q = question(Q.level(-1), Q.count(-1));
+  Q.quiz(q);
+  blur();
+  window.requestAnimationFrame(main);
+}
+
+function pushlvl()
+{
+  let v, i;
+
+  v = document.getElementById("target");
+  for (i = 0; i < v.length; i++)
+  {
+    if (v[i].checked) { Q.level(5 - i); break; }
+  }
+  Q.count(1);
+  next();
+}
+
+document.getElementById("target"  ).addEventListener('input', pushlvl);
+
+function keylvl(x)
+{
+  let v, i;
+
+  v = document.getElementById("target");
+  for (i = 0; i < v.length; i++)
+  {
+    v[i].checked = (i == x)? true : false;
+  }
+  pushlvl();
+  next();
+}
+
+//--------------------------------------------------------------------
+// init
+//--------------------------------------------------------------------
+function init()
+{
+  Q.init();
+  pushinit();
+  next();
+}
+
+//--------------------------------------------------------------------
+// Input key
+//--------------------------------------------------------------------
+function keyon(key)
+{
+  let s, f, d, dn, i;
+
+  f = 0;
+
+  // SHIFT16 CTRL17 ALT18
+  if      (Key[ 16]) { s = 0.1; }
+  else               { s =   1; }
+  d = Q.getd();
+  if      (Key[ 38] || key == 38) //↑
+  {
+    d += s * 15; f = 1;
+  }
+  else if (Key[ 40] || key == 40) //↓
+  {
+    d -= s * 15; f = 1;
+  }
+  else if (Key[ 39] || key == 39) //→
+  {
+    d -= s; f = 1;
+  } 
+  else if (Key[ 37] || key == 37) //←
+  {
+    d += s; f = 1;
+  }
+  if (f == 0) return 0;
+  d = Q.setd(d);
+  return 1;
+}
+
+function inkey(key)
+{
+  switch (key)
+  {
+    case  81: B.lineWidth( 0.5); key = 0; break; // 'Q'
+    case  87: B.lineWidth( 2  ); key = 0; break; // 'W'
+    case  90: B.zooming  (-1  ); key = 0; break; // 'Z'
+    case  88: B.zooming  ( 1  ); key = 0; break; // 'X'
+    case  86: B.zooming  ( 0  ); key = 0; break; // 'V'
+    case  53: keylvl(0)  ; key = 0; break; // '5'
+    case  52: keylvl(1)  ; key = 0; break; // '4'
+    case  51: keylvl(2)  ; key = 0; break; // '3'
+    case  50: keylvl(3)  ; key = 0; break; // '2'
+    case  49: keylvl(4)  ; key = 0; break; // '1'
+    case  65: Q.answer(1); key = 0; break; // 'a'
+    case  66: Q.answer(2); key = 0; break; // 'b'
+    case  67: Q.answer(3); key = 0; break; // 'c'
+    case  68: Q.answer(4); key = 0; break; // 'd'
+    case  89: Q.yesno(1) ; key = 0; break; // 'y'
+    case  78: Q.yesno(2) ; key = 0; break; // 'n'
+    default : if (keyon(key))    key = 0;
+  }
+  if (key) return;
+  blur();
+  window.requestAnimationFrame(display);
+}
+document.body.addEventListener('keydown', event =>
+{
+  let key = event.keyCode;
+
+  inkey(key);
+});
+
+//--------------------------------------------------------------------
+// Key status
+//--------------------------------------------------------------------
+let Key = new Array(256);
+for (let i = 0; i < 256; i++) Key[i] = 0;
+window.onkeydown = function(event) { Key[event.keyCode] = 1; }
+window.onkeyup   = function(event) { Key[event.keyCode] = 0; }
+
+//----------------------------------------------------------------------
+// mouse
+//----------------------------------------------------------------------
+function mouseDn(x, y, touch)
+{
+  let x1, y1, d, d1, i;
+
+  if (!(0 <= x && x <= canvas.width )) return 0;
+  if (!(0 <= y && y <= canvas.height)) return 0;
+
+  x1 = B.winX(x);
+  y1 = B.winY(y);
+
+  for (i = 1; i <= Q.area(0); i++)
+  {
+    d = Q.area(i);
+    if ((d[0] <= x1 && x1 < d[0] + d[2])
+     && (d[1] <= y1 && y1 < d[1] + d[3]))
+    {
+      if (i <= 4) { Q.answer(i)   ; }
+      else        { Q.yesno(i - 4); }
+      blur();
+      window.requestAnimationFrame(display);
+      return;
+    }
+  }
+  d  = Math.atan2(y1, x1);
+  d  = Q.deg(d);
+  d  = d - Q.getd();
+
+  M.ofsX(d);
+  blur();
+  return 1;
+}
+
+function mouseMv(x, y, touch)
+{
+  let x1, y1, d, d1, dd;
+
+  d1 = M.ofsX('');
+  x1 = B.winX(x);
+  y1 = B.winY(y);
+  d  = Math.atan2(y1, x1);
+  d  = Q.deg(d);
+  d -= d1;
+  dd = Q.getdd();
+  d  = Math.round(d / dd) * dd;
+  d  = Q.setd(d);
+  blur();
+  window.requestAnimationFrame(display);
+}
+
+const M = new MOUSE();
+M.add();
+M.mosDnFunc(mouseDn);
+M.mosMvFunc(mouseMv);
+
+//--------------------------------------------------------------------
+// main
+//--------------------------------------------------------------------
+function main()
+{
+  display();
+}
+init();
+
+//--------------------------------------------------------------------
+</script>
+</body>
+</html>
