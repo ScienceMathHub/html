@@ -787,7 +787,7 @@ function Frame(t)
   B.TAB(tb, 0);
   B.PRINTe("重力加速度g =" + Num(Pg0, Zm) + " m/s^2 , ");
   B.PRINTe("初速度v_0 ="   + Num(Pv0, Zm) + " m/s , ");
-  B.PRINTe("仰角θ_0 ="    + Num(Pd0, Zd) + " °");
+  B.PRINTe("仰角θ_`_0 ="    + Num(Pd0, Zd) + " °");
 
   B.COLOR('#f00');
   B.PRINT(" 非現実動作有"); B.CR();
@@ -819,13 +819,13 @@ function Frame(t)
   C1 = '#fff';
   B.TAB(tb, 0);
   B.COLOR((Pdi == 1)? C1 : C0);
-  B.PRINTe("θ_1 =" + Num(Pd1, ZD) + " °");
+  B.PRINTe("θ_`_1 =" + Num(Pd1, ZD) + " °");
   B.COLOR(C0); B.PRINT(" , ");
   B.COLOR((Pdi == 2)? C1 : C0);
-  B.PRINTe("θ_2 =" + Num(Pd2, ZD) + " °");
+  B.PRINTe("θ_`_2 =" + Num(Pd2, ZD) + " °");
   B.COLOR(C0); B.PRINT(" , ");
   B.COLOR((Pdi == 3)? C1 : C0);
-  B.PRINTe("θ_3 =" + Num(Pd3, ZD) + " °"); B.CR();
+  B.PRINTe("θ_`_3 =" + Num(Pd3, ZD) + " °"); B.CR();
 
   B.COLOR('#ff0');
   B.TAB(tb, 0);

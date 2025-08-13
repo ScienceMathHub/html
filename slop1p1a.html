@@ -587,7 +587,7 @@ function acceldisp(e, c, g, b, a)
 {
   B.COLOR(e); B.PRINT ("a = "); B.COLOR('#fff'); B.PRINT (g);
   B.COLOR(c); B.PRINTe(b);
-  B.COLOR(e); printe(0, " = ", a  , " m/s^2", 4);
+  B.COLOR(e); printe(0, " = ", a  , " m/s^2", 4, 1);
 }
 
 function accel(t, f, fd, d, a)
@@ -637,7 +637,7 @@ function display()
   B.COLOR('#fff'); printe(1  , "物質の質量m  = "  , m  , " kg  "   , 4, 1);
   B.COLOR('#fff'); print (1.5, "水平成分Wx = "    , x  , " N"      , 4, 4);
   B.COLOR('#fff'); print (2  , "mgsinθ   = "     , mgx, " N"      , 4, 4); B.CR();
-  B.COLOR('#ff0'); printe(1  , "斜面傾斜角θ_' = ", d  , " °  "   , 4, 1);
+  B.COLOR('#ff0'); printe(1  , "斜面傾斜角θ = ", d  , " °  "   , 4, 1);
   B.COLOR('#0f0'); print (1.5, "垂直成分Wy = "    , y  , " N"      , 4, 4);
   B.COLOR('#0f0'); print (2  , "mgcosθ   = "     , mgy, " N"      , 4, 4); B.CR();
   if (S.gets2())
