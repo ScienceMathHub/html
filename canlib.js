@@ -188,12 +188,6 @@ class BASIC
     for (i = 0; i < n; i++)
     {
       a = s.substring(i, i+1);
-      if (a == 'θ')
-      {
-        this.PRINT(a);
-        this.LocX -= this.LocW * 0.5;
-        continue;
-      }
       if (a == '^')
       {
         i++;
