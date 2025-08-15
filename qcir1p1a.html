@@ -891,6 +891,8 @@ function keylvl(x)
 function init()
 {
   Q.init();
+  Q.setd(  0, 0);
+  Q.setd(-60, 1);
   pushinit();
   reset();
 }
@@ -936,7 +938,7 @@ function inkey(key)
 {
   switch (key)
   {
-    case  13: Q.setd(0, 0); Q.setd(0, 1); key = 0; break; // Enter
+    case  13: Q.setd(0, 0); Q.setd(-60, 1); key = 0; break; // Enter
     case  32: reset(); key = 0; break; // ' '
     case  81: B.lineWidth( 0.5); key = 0; break; // 'Q'
     case  87: B.lineWidth( 2  ); key = 0; break; // 'W'
