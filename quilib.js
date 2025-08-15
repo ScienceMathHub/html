@@ -19,6 +19,7 @@ class QUIZ
     this.lev = this.cou = this.num = this.ans = this.yn = this.qui = 0;
     this.sta = 0;
     this.d   = [0, 0];
+    this.are = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]];
   }
   init()
   {
@@ -30,23 +31,19 @@ class QUIZ
     this.d    = [0, 0]; // 角度θ[°]
     this.qui  = 0;      // Quiz
     this.sta  = 0;      // State 0:通常 1:正解 2:残念
+    this.are = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]];
+  }
+  setarea(a)
+  {
+    this.are = a;
+    return a.length;
   }
   area(n)
   {
-    const a =
-    [
-      [  8, 200, 220,  40], // a
-      [238, 200, 220,  40], // b
-      [  8, 250, 220,  40], // c
-      [238, 250, 220,  40], // d
-      [  8, 330, 220,  40], // y
-      [238, 330, 220,  40], // n
-      [ 73,  19, 110, 110], // 1
-      [278,  19, 110, 110]  // 2
-    ];
+    let len = this.are.length;
 
-    if (1 <= n && n <= 8) return a[n-1];
-    return a.length;
+    if (1 <= n && n <= len) return this.are[n-1];
+    return len;
   }
   state(n)
   {
