@@ -259,7 +259,7 @@ function keyon()
 //----------------------------------------------------------------------
 // キー入力
 //----------------------------------------------------------------------
-function input(key)
+function inkey(key)
 {
   switch (key)
   {
@@ -295,7 +295,7 @@ function input(key)
 //----------------------------------------------------------------------
 document.body.addEventListener('keydown', event =>
 {
-  input(event.keyCode);
+  inkey(event.keyCode);
 });
 
 //----------------------------------------------------------------------
@@ -391,7 +391,9 @@ function idle()
   if (k) keyon();
   model();
   i = 1.5;
+  B.pushWidth(1);
   R.trace(16*i, 10*i, 40*i);  // Screen幅/2, 高/2, Screen-視点距離
+  B.popWidth();
   R.Pop();
 
 //  B.TAB(1, 0); B.PRINT(Temp);
