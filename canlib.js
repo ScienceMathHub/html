@@ -379,7 +379,7 @@ class BASIC
   }
   pushWidth(w)
   {
-    this,Width1   = this.Width;
+    this.Width1   = this.Width;
     this.Width    = w;
     ctx.lineWidth = this.Width;
   }
