@@ -46,6 +46,7 @@ class BASIC
     this.Zoom0  =  45; // 画面拡大基準値
     this.Zoom   =  45; // 画面拡大
     this.Width0 =   2; // 線幅基準値
+    this.Width1 =   1; // Push
     this.Width  =   1; // 線幅
     this.lineWidth(0); // 線幅制御
     this.zooming(0)  ; // 拡大縮小
@@ -374,6 +375,17 @@ class BASIC
       if      (this.Width < 1) this.Width = 1;
       else if (this.Width > 8) this.Width = 8;
     }
+    ctx.lineWidth = this.Width;
+  }
+  pushWidth(w)
+  {
+    this,Width1 = this.Width;
+    this.Width    = w;
+    ctx.lineWidth = this.Width;
+  }
+  popWidth()
+  {
+    this.Width    = this.Width1;
     ctx.lineWidth = this.Width;
   }
   // math func (precision)
