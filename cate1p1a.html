@@ -509,7 +509,6 @@ function inkey(key)
     case  90: B.zooming  (-1  )     ; key = 0; break; // 'Z'
     case  88: B.zooming  ( 1  )     ; key = 0; break; // 'X'
     case  67: B.zooming  ( 0  )     ; key = 0; break; // 'C'
-    case 191: Secret = !Secret      ; key = 0; break; // '/'
     default : if (keyon(key))         key = 0;
   }
   if (key) return;

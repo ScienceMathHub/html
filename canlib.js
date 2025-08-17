@@ -506,7 +506,7 @@ class MOUSE
   }
   mosUpFunc(func)
   {
-    this.mosUpFunc = func;
+    MOUSEmosUpFunc = func;
   }
   // private
   mouseDn(event)
