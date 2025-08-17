@@ -20,8 +20,8 @@
 <div style='float:left;'>
 解<label><input type="range" id ="rangeA1" min="0" max= "5" step="1"
   value="0">5-90<br></label>
-鏡<label><input type="range" id ="rangeC1" min="0" max= "2" step="1"
-  value="0">ert <br></label>
+鏡<label><input type="range" id ="rangeC1" min="0" max= "3" step="1"
+  value="0">erty<br></label>
 形<label><input type="range" id ="rangeS1" min="1" max= "4" step="1"
   value="4">1234<br></label>
 <pre></pre>
@@ -283,7 +283,8 @@ function input(key)
     case  48: reso(5)          ; key = 0; break; // '9'
     case  69: refl(0)          ; key = 0; break; // 'e'
     case  82: refl(1)          ; key = 0; break; // 'r'
-    case  84: Reflect = 0.2    ; key = 0; break; // 't'
+    case  84: refl(2)          ; key = 0; break; // 't'
+    case  89: refl(3)          ; key = 0; break; // 'y'
 //    default : if (keyon(key))  key = 0;
   }
   blurelem();
@@ -313,9 +314,7 @@ function model()
   R.Shininess(10.0);
   R.Reflect(0.0);
   R.Clarity(0.0);
-  R.Refract(1.0);
-  if (Refle == 1) R.Reflect(0.2);
-  if (Refle == 2) R.Clarity(0.2);
+  R.Refract(1.05);
 
   // 光源
   R.Diffuse(1.0, 1.0, 1.0);
@@ -336,12 +335,17 @@ function model()
   y3 = c3 * Math.sin(t);
 
   // 0
-  R.Diffuse(0.0, 1.0, 1.0);
+  if ((Refle & 1)) R.Reflect(0.2);
+  if ((Refle & 2)) R.Clarity(0.8);
+  if ((Refle & 2)) R.Diffuse(0.0, 0.0, 0.0);
+  else             R.Diffuse(0.0, 1.0, 1.0);
   R.Push();
   R.Translate(0, 0, 0);
   R.Sphere(r0);
   R.Pop();
 
+  if ((Refle & 1)) R.Reflect(0.2);
+  if ((Refle & 2)) R.Clarity(0.0);
   // 1-4
   R.Diffuse(1.0, 1.0, 0.0);
   xn = [ c3,  x3,  x3,  0];
