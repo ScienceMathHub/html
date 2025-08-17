@@ -4,7 +4,7 @@
 
  HTML(JavaScript, canvas)
 
- (c)Ohtani 2024.4 - 2025.7
+ (c)Ohtani 2024.4 - 2025.8
 ------------------------------------------------------------------------
 */
 'use strict'
@@ -46,7 +46,7 @@ class BASIC
     this.Zoom0  =  45; // 画面拡大基準値
     this.Zoom   =  45; // 画面拡大
     this.Width0 =   2; // 線幅基準値
-    this.Width  =   2; // 線幅
+    this.Width  =   1; // 線幅
     this.lineWidth(0); // 線幅制御
     this.zooming(0)  ; // 拡大縮小
     this.FONT(1, 0)  ; // 拡大,オフセット
