@@ -1,0 +1,475 @@
+<!--
+------------------------------------------------------------------------
+ 分子の形
+
+ HTML(JavaScript)
+
+ Chemistry (c) Ohtani 2025.8
+----------------------------------------------------------------------
+-->
+<!DOctxYPE html>
+<html lang="ja">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<head>
+  <meta charset="utf-8">
+  <title>分子の形</title>
+</head>
+<body>
+<p id="Molecule shape"></p>
+<div style='float:left;'>
+解<label><input type="range" id ="rangeA1" min="0" max= "5" step="1"
+  value="0">5-90<br></label>
+鏡<label><input type="range" id ="rangeC1" min="0" max= "2" step="1"
+  value="0">ert <br></label>
+形<label><input type="range" id ="rangeS1" min="1" max= "4" step="1"
+  value="4">1234<br></label>
+<pre></pre>
+Rx<label><input type="range" id ="rangeRx" min="-20" max= "20" step="5"
+  value="0">↑↓im<br></label>
+Ry<label><input type="range" id ="rangeRy" min="-20" max= "20" step="5"
+  value="0">←→jk<br></label>
+Rz<label><input type="range" id ="rangeRz" min="-20" max= "20" step="5"
+  value="0">p[<br></label>
+<pre></pre>
+Tx<label><input type="range" id ="rangeTx" min="-2" max= "2" step="0.5"
+  value="0">;]<br></label>
+Ty<label><input type="range" id ="rangeTy" min="-2" max= "2" step="0.5"
+  value="0">@:<br></label>
+Tz<label><input type="range" id ="rangeTz" min="-2" max= "2" step="0.5"
+  value="0">,. /\<br></label>
+<pre></pre>
+<input type="button" id="butS" value="Turn" onclick="inkey(32)">Space
+<input type="button" id="butR" value="初期位置" onclick="inkey(13)">Enter
+<pre></pre>
+<pre></pre>
+<input type="button" id="butQ" value="細"    onclick="inkey(81)">q
+<input type="button" id="butW" value="太"    onclick="inkey(87)">w
+<pre></pre>
+<input type="button" id="butZ" value="縮"    onclick="inkey(90)">z 
+<input type="button" id="butX" value="拡"    onclick="inkey(88)">x
+<input type="button" id="butC" value="初"    onclick="inkey(67)">c　
+<pre></pre>
+
+<script src="https://sciencemathhub.github.io/html/tochem.js"></script>
+<script src="https://sciencemathhub.github.io/html/canlib.js"></script>
+<script src="E:/Edit25/polar/KSU/raylib.js"></script>
+<script>
+'use strict'
+
+//--------------------------------------------------------------------
+// public letiable
+//--------------------------------------------------------------------
+const B = new BASIC();
+const R = new RAYTRACE0();
+
+//----------------------------------------------------------------------
+// 変数
+//----------------------------------------------------------------------
+let Resol = 0;
+let Shape = 4;
+let Refle = 0;
+let Temp; // debug
+
+//----------------------------------------------------------------------
+// ボタン
+//----------------------------------------------------------------------
+let elemA1 = document.getElementById('rangeA1');
+let elemC1 = document.getElementById('rangeC1');
+let elemS1 = document.getElementById('rangeS1');
+let elemRx = document.getElementById('rangeRx');
+let elemRy = document.getElementById('rangeRy');
+let elemRz = document.getElementById('rangeRz');
+let elemTx = document.getElementById('rangeTx');
+let elemTy = document.getElementById('rangeTy');
+let elemTz = document.getElementById('rangeTz');
+
+function blurelemA()
+{
+  elemA1.blur();
+  elemC1.blur();
+  elemS1.blur();
+}
+
+function blurelemX()
+{
+  elemRx.blur();
+  elemRy.blur();
+  elemRz.blur();
+  elemTx.blur();
+  elemTy.blur();
+  elemTz.blur();
+}
+
+function blurelem()
+{
+  blurelemA();
+  blurelemX();
+}
+
+function blur()
+{
+  document.getElementById('butS').blur();
+  document.getElementById('butR').blur();
+  document.getElementById('butZ').blur();
+  document.getElementById('butX').blur();
+  document.getElementById('butC').blur();
+}
+
+function reso(r)
+{
+  let w, h, A;
+
+  Resol = r;
+  elemA1.value = r;
+  w = 400;
+  h = 250;
+  A = Math.pow(2, r);
+  R.RES = [w/A, h/A, A];  //  x dots , y dots, dot size
+  blurelem();
+  blur();
+}
+
+function refl(r)
+{
+  Refle = r;
+  elemC1.value = r;  
+  blurelem();
+  blur();
+}
+
+function shap(s)
+{
+  Shape = s;
+  elemS1.value = s;  
+  blurelem();
+  blur();
+}
+
+function inputA1() { reso(Number(elemA1.value)); }
+elemA1.addEventListener('input', inputA1);
+function inputC1() { refl(Number(elemC1.value)); }
+elemC1.addEventListener('input', inputC1);
+function inputS1() { shap(Number(elemS1.value)); }
+elemS1.addEventListener('input', inputS1);
+
+//----------------------------------------------------------------------
+// 位置
+//----------------------------------------------------------------------
+function turn()
+{
+  let rm;
+  
+  rm = R.Mode;
+  R.Mode = 1;
+  R.Rotate(180, 0.0, 1.0, 0.0);
+  R.Mode = rm;
+}
+
+function move(rx, ry, rz, tx, ty, tz)
+{
+  let rm;
+  
+  rm = R.Mode;
+  R.Mode = 0;
+  R.Rotate(rx, 1.0, 0.0, 0.0);
+  R.Rotate(ry, 0.0, 1.0, 0.0);
+  R.Rotate(rz, 0.0, 0.0, 1.0);
+  R.Mode = 1;
+  R.Translate(-tx, ty, -tz);
+  R.Mode = rm;
+}
+
+function movebar()
+{
+  let rx, ry, rz, tx, ty, tz;
+
+  rx = Number(elemRx.value);
+  ry = Number(elemRy.value);
+  rz = Number(elemRz.value);
+  tx = Number(elemTx.value);
+  ty = Number(elemTy.value);
+  tz = Number(elemTz.value);
+  move(rx, ry, rz, tx, ty, tz);
+}
+
+function cleabar()
+{
+  elemRx.value = 0;
+  elemRy.value = 0;
+  elemRz.value = 0;
+  elemTx.value = 0;
+  elemTy.value = 0;
+  elemTz.value = 0;
+}
+
+//----------------------------------------------------------------------
+// 位置の初期化
+//----------------------------------------------------------------------
+function reset()
+{
+  let x, y, z;
+
+  R.Identity();
+  x =   0;
+  y =   0;
+  z = -60;
+  R.Translate(x, y, z);
+}
+
+//----------------------------------------------------------------------
+// キー入力
+//----------------------------------------------------------------------
+function keyon()
+{
+  let th, tt, tx, ty, tz, rr, rx, ry, rz, k;
+
+  rr = 5; tt = 2;
+  rx = 0; ry = 0; rz = 0; tx = 0; ty = 0; tz = 0; th = 1;
+  k = 1;
+  if (Key[ 38]) { rx = -rr; k = 0; } //---  ↑  機首を下げる
+  if (Key[ 40]) { rx =  rr; k = 0; } //---  ↓  機首を上げる
+  if (Key[ 37]) { ry = -rr; k = 0; } //---  ←  左旋回
+  if (Key[ 39]) { ry =  rr; k = 0; } //---  →  右旋回
+  if (Key[ 73]) { rx = -rr; k = 0; } //---  i   機首を下げる
+  if (Key[ 77]) { rx =  rr; k = 0; } //---  m   機首を上げる
+  if (Key[ 74]) { ry = -rr; k = 0; } //---  j   左旋回
+  if (Key[ 75]) { ry =  rr; k = 0; } //---  k   右旋回
+
+  if (Key[ 80]) { rz =  rr; k = 0; } //---  p   左傾き
+  if (Key[219]) { rz = -rr; k = 0; } //---  [   右傾き
+
+  if (Key[191]) { tz =  tt; k = 0; } //---  /   後に並進
+  if (Key[226]) { tz = -tt; k = 0; } //---  \(_)前に並進
+  if (Key[188]) { tz =  tt; k = 0; } //---  ,   後に並進
+  if (Key[190]) { tz = -tt; k = 0; } //---  .   前に並進
+
+  if (Key[192]) { ty =  tt; k = 0; } //---  @   上に並進
+  if (Key[186]) { ty = -tt; k = 0; } //---  :   下に並進
+  if (Key[187]) { tx = -tt; k = 0; } //---  ;   左に並進
+  if (Key[221]) { tx =  tt; k = 0; } //---  ]   右に並進
+
+  if (Key[ 16]) { th =  4 ; k = 0; } //---  SHIFT 高速
+  rx *= th; ry *= th; rz *= th;
+  tx *= th; ty *= th; tz *= th;
+  move(rx, ry, rz, tx, ty, tz);
+  if(k) return;
+//  cleabar();
+}
+
+//----------------------------------------------------------------------
+// キー入力
+//----------------------------------------------------------------------
+function input(key)
+{
+  switch (key)
+  {
+    case  13: reset()          ; key = 0; break; // Enter
+    case  32: turn()           ; key = 0; break; // ' '
+    case  81: B.lineWidth( 0.5); key = 0; break; // 'Q'
+    case  87: B.lineWidth( 2  ); key = 0; break; // 'W'
+    case  90: B.zooming  (-1  ); key = 0; break; // 'Z'
+    case  88: B.zooming  ( 1  ); key = 0; break; // 'X'
+    case  67: B.zooming  ( 0  ); key = 0; break; // 'C'
+    case  49: Shape = 1        ; key = 0; break; // '1'
+    case  50: Shape = 2        ; key = 0; break; // '2'
+    case  51: Shape = 3        ; key = 0; break; // '3'
+    case  52: Shape = 4        ; key = 0; break; // '4'
+    case  53: reso(0)          ; key = 0; break; // '5'
+    case  54: reso(1)          ; key = 0; break; // '6'
+    case  55: reso(2)          ; key = 0; break; // '7'
+    case  56: reso(3)          ; key = 0; break; // '8'
+    case  57: reso(4)          ; key = 0; break; // '9'
+    case  48: reso(5)          ; key = 0; break; // '9'
+    case  69: refl(0)          ; key = 0; break; // 'e'
+    case  82: refl(1)          ; key = 0; break; // 'r'
+    case  84: Reflect = 0.2    ; key = 0; break; // 't'
+//    default : if (keyon(key))  key = 0;
+  }
+  blurelem();
+  blur();
+  if (key == 0) return;
+//  cleabar();
+}
+
+//----------------------------------------------------------------------
+document.body.addEventListener('keydown', event =>
+{
+  input(event.keyCode);
+});
+
+//----------------------------------------------------------------------
+// Model配置
+//----------------------------------------------------------------------
+function model()
+{
+  let md, r0, r1, d3, d1, x3, y3, t, c3, xn, yn, zn, i;
+
+  R.Sn = 0;    // Model reset
+  md = R.Mode; // Push Mode
+  R.Mode = 0;  // Model mode
+
+  R.Specular(1.0);
+  R.Shininess(10.0);
+  R.Reflect(0.0);
+  R.Clarity(0.0);
+  R.Refract(1.0);
+  if (Refle == 1) R.Reflect(0.2);
+  if (Refle == 2) R.Clarity(0.2);
+
+  // 光源
+  R.Diffuse(1.0, 1.0, 1.0);
+  R.Push();
+  reset();
+  R.Translate(-500, 500, 500);
+  R.Sphere(2);
+  R.Pop();
+
+  r0 = 6;
+  r1 = 4;
+  
+  d1 = (r0 + r1) / 3;
+  d3 = d1 * 3;
+  c3 = d1 * 2 * Math.sqrt(2);
+  t  = Math.PI * 2 / 3;
+  x3 = c3 * Math.cos(t);
+  y3 = c3 * Math.sin(t);
+
+  // 0
+  R.Diffuse(0.0, 1.0, 1.0);
+  R.Push();
+  R.Translate(0, 0, 0);
+  R.Sphere(r0);
+  R.Pop();
+
+  // 1-4
+  R.Diffuse(1.0, 1.0, 0.0);
+  xn = [ c3,  x3,  x3,  0];
+  yn = [  0,  y3, -y3,  0];
+  zn = [-d1, -d1, -d1, d3];
+  for (i = 0; i < xn.length; i++)
+  {
+    if (i >= Shape) break;
+    R.Push();
+    R.Translate(xn[i], yn[i], zn[i]);
+    R.Sphere(r1);
+    R.Pop();
+  }
+
+  movebar();
+
+  R.Mode = md; // Pop Mode
+}
+
+//----------------------------------------------------------------------
+// Idle
+//----------------------------------------------------------------------
+function idle()
+{
+  const sh = ["直線形　　", "折れ線形　", "三角錐形　", "正四面体形"];
+  let iw, ih, iz, x0, y0, i, k, x, y;
+
+  B.CLS('#000');
+  x  = (640 - 400) / 2;
+  x -= 24;
+  B.WINDOW(x, 0, x+639, 399);
+  B.COLOR('#fff');
+  B.TAB(1, 0); B.PRINT(sh[Shape-1]);
+
+  iw = R.RES[0]; ih = R.RES[1]; iz = R.RES[2];
+  x0 = (640 - iw*iz) / 2; y0 = (400 - ih*iz) / 2;
+  B.LINEB(x0-1, y0-1, x0 + iw*iz + 1, y0 + ih*iz + 1, '#00f');
+
+  for (k = 0, i = 0; i < 256; k |= Key[i++]);
+  if (k) keyon();
+  model();
+  R.trace(16, 10, 40);  // Screen幅/2, 高/2, Screen-視点距離
+
+//  B.TAB(1, 0); B.PRINT(Temp);
+  window.requestAnimationFrame(idle);
+}
+
+//----------------------------------------------------------------------
+// inkey
+//----------------------------------------------------------------------
+let Key = new Array(256);
+for (let i = 0; i < 256; i++) Key[i] = 0;
+window.onkeydown = function(event) { Key[event.keyCode] = 1; }
+window.onkeyup   = function(event) { Key[event.keyCode] = 0; }
+
+//----------------------------------------------------------------------
+// mouse
+//----------------------------------------------------------------------
+function mouseDn(x, y, touch)
+{
+  let x1, y1;
+
+  if (!(0 <= x && x <= canvas.width )) return 0;
+  if (!(0 <= y && y <= canvas.height)) return 0;
+
+  x1 = B.winX(x);
+  y1 = B.winY(y);
+
+  M.ofsX(x1);
+  M.ofsY(y1);
+  blurelem();
+  blur();
+  return 1;
+}
+
+function mouseMv(x, y, touch)
+{
+  let x1, y1, d, d1, i;
+
+  x1 = B.winX(x);
+  y1 = B.winY(y);
+
+  x1 -= M.ofsX('');
+  y1 -= M.ofsY('');
+
+  x1 = Math.round(x1/5);
+  y1 = Math.round(y1/5);
+  
+  move(y1, x1, 0, 0, 0, 0);
+  
+  blurelem();
+  blur();
+}
+
+function mouseUp(x, y, touch)
+{
+  blurelem();
+  blur();
+}
+
+const M = new MOUSE();
+M.add();
+M.mosDnFunc(mouseDn);
+M.mosMvFunc(mouseMv);
+M.mosUpFunc(mouseUp);
+
+//--------------------------------------------------------------------
+// main
+//--------------------------------------------------------------------
+function main()
+{
+  idle();
+}
+
+//----------------------------------------------------------------------
+// 描画関数
+//----------------------------------------------------------------------
+function box(x, y, w, h, c)
+{
+  B.LINEBF(x, y, w, h, c);
+}
+
+//----------------------------------------------------------------------
+R.func(box);
+R.init();
+reso(Resol);
+reset();
+main();
+</script>
+</body>
+</html>
