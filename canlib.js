@@ -287,7 +287,7 @@ class BASIC
     this.LINE(x1, y1, x2, y1, c);
     this.LINE(x1, y2, x2, y2, c);
   }
-  LINEBF(x1, y1, x2, y2, c)
+  LINEBF(x1, y1, x2, y2, c, c1 = c)
   {
     let x, y, w, h;
 
@@ -299,7 +299,7 @@ class BASIC
     h = this.PosY - y + 1;
     ctx.fillStyle = c;
     ctx.fillRect(x, y, w, h);
-    this.LINEB(x1, y1, x2, y2, c)
+    if (c1) this.LINEB(x1, y1, x2, y2, c1)
   }
   CIRCLE(x, y, r, c, t0 = 0, t1 = Math.PI*2, dir = true)
   {
