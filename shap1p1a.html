@@ -32,9 +32,9 @@ Ry<label><input type="range" id ="rangeRy" min="-20" max= "20" step="5"
 Rz<label><input type="range" id ="rangeRz" min="-20" max= "20" step="5"
   value="0">p[<br></label>
 <pre></pre>
-Tx<label><input type="range" id ="rangeTx" min="-2" max= "2" step="0.5"
+Tx<label><input type="range" id ="rangeTx" min="-0.8" max= "0.8" step="0.2"
   value="0">;]<br></label>
-Ty<label><input type="range" id ="rangeTy" min="-2" max= "2" step="0.5"
+Ty<label><input type="range" id ="rangeTy" min="-0.8" max= "0.8" step="0.2"
   value="0">:@<br></label>
 Tz<label><input type="range" id ="rangeTz" min="-2" max= "2" step="0.5"
   value="0">,. /\<br></label>
@@ -369,6 +369,27 @@ function model()
 }
 
 //----------------------------------------------------------------------
+// Timer
+//----------------------------------------------------------------------
+let Timer = null;
+let Count = 0;
+let Frame = 0;
+function timeset()
+{
+//  Timer = setTimeout(timeout, 1000);
+  Timer = setInterval(timeout, 1000);
+  Count = 0;
+}
+function timeout()
+{
+//  clearTimeout(Timer);
+//  clearInterval(Timer);
+  Frame = Count;
+  Count = 0;
+//  timeset()
+}
+
+//----------------------------------------------------------------------
 // Idle
 //----------------------------------------------------------------------
 function idle()
@@ -380,8 +401,11 @@ function idle()
   x  = (640 - 400) / 2;
   x -= 24;
   B.WINDOW(x, 0, x+639, 399);
+  B.LOCATE(0, 1);
   B.COLOR('#fff');
   B.TAB(1, 0); B.PRINT(sh[Shape-1]);
+  i = String(Frame).length;
+  B.LOCATE(72-i, 1); B.PRINT(Frame + " fps"); B.CR();
 
   iw = R.RES[0]; ih = R.RES[1]; iz = R.RES[2];
   x0 = (640 - iw*iz) / 2; y0 = (400 - ih*iz) / 2;
@@ -396,8 +420,9 @@ function idle()
   B.popWidth();
   R.Pop();
 
-//  B.TAB(1, 0); B.PRINT(Temp);
+//  B.TAB(1, 0); B.PRINT(Temp); B.CR();
   window.requestAnimationFrame(idle);
+  Count++;
 }
 
 //----------------------------------------------------------------------
@@ -464,6 +489,7 @@ M.mosUpFunc(mouseUp);
 //--------------------------------------------------------------------
 function main()
 {
+  timeset();
   idle();
 }
 
