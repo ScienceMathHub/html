@@ -33,19 +33,19 @@ class RAYTRACE0
   {
     let A;
 
-    this.Q     = new Array(8);  // Current 複合四元数
-    this.Mode  = 0;             // Quata mode (0:Model mode 1:View mode)
+    this.Q     = [0, 0, 0, 0, 0, 0, 0, 0];  // Current 複合四元数
+    this.Mode  = 0;     // Quata mode (0:Model mode 1:View mode)
 
-    this.Am    = 0.3;           // 環境光
-    this.Level = 6;             // Level
+    this.Am    = 0.3;   // 環境光
+    this.Level = 6;     // Level
 
-    this.SnMax = 10;            // 球の最大数
-    this.Sn    = 0;             // 球の個数
+    this.SnMax = 10;    // 球の最大数
+    this.Sn    = 0;     // 球の個数
     this.SP    = new Array(this.SnMax); // 頂点座標
-    for (let i = 0; i < this.SnMax; i++) { this.SP[i] = new Array(3); }
+    for (let i = 0; i < this.SnMax; i++) { this.SP[i] = [0, 0, 0]; }
     this.Sr = new Array(this.SnMax);  // radius
     this.SD = new Array(this.SnMax);  // diffuse(RGB)
-    for (let i = 0; i < this.SnMax; i++) { this.SD[i] = new Array(3); }
+    for (let i = 0; i < this.SnMax; i++) { this.SD[i] = [1, 1, 1]; }
     this.Ss = new Array(this.SnMax);  // specular
     this.Sh = new Array(this.SnMax);  // shininess
     this.Sl = new Array(this.SnMax);  // reflect
@@ -63,7 +63,11 @@ class RAYTRACE0
     this.Sp    = 0;
 
     this.Stack = new Array(this.SpMax); // Push Q
-    for (let i = 0; i < this.SpMax; i++) { this.Stack[i] = new Array(8); }
+    for (let i = 0; i < this.SpMax; i++)
+    {
+      const Q = [0, 0, 0, 0, 0, 0, 0, 0];
+      this.Stack[i] = Q;
+    }
 
     A    = 1;
     this.RES  = [640/A, 400/A, A];  //  x dots , y dots, dot size
@@ -195,10 +199,10 @@ class RAYTRACE0
   //----------------------------------------------------------------------
   shade_si(_CL, _P, _N, V, E, t, si)
   {
-    let V0 = new Array(3);
-    let E0 = new Array(3);
-    let S  = new Array(3);
-    let _t = new Array(1);
+    let V0 = [0, 0, 0];
+    let E0 = [0, 0, 0];
+    let S  = [0, 0, 0];
+    let _t = [0];
     let a, b, t0, t1;
 
     _CL[0] = this.SD[si][0];
@@ -258,12 +262,12 @@ class RAYTRACE0
   //----------------------------------------------------------------------
   shade(_CL, V, E, slc, li)
   {
-    let CL0 = new Array(4);
-    let P   = new Array(3);
-    let S   = new Array(3);
-    let V0  = new Array(3);
-    let N   = new Array(3);
-    let _t  = new Array(1);
+    let CL0 = [0, 0, 0, 0];
+    let P   = [0, 0, 0];
+    let S   = [0, 0, 0];
+    let V0  = [0, 0, 0];
+    let N   = [0, 0, 0];
+    let _t  = [0];
     let t, sl1, sc1, k, b, si;
 
     _CL[0] = 0.0; _CL[1] = 0.0; _CL[2] = 0.0; _CL[3] = -1.0;
@@ -346,9 +350,9 @@ class RAYTRACE0
   //----------------------------------------------------------------------
   ray_trace(VXYZ)
   {
-    let V  = new Array(3);
-    let E  = new Array(3);
-    let CL = new Array(4);
+    let V  = [0, 0, 0];
+    let E  = [0, 0, 0];
+    let CL = [0, 0, 0, 0];
     let iw, ih, ix, iy, iz, si;
     let x0, y0, x, y;
 
@@ -401,16 +405,15 @@ class RAYTRACE0
   //----------------------------------------------------------------------
   Product(_p1, p)
   {
-    let q1 = new Array(4);
-    let q2 = new Array(4);
+    let q1, q2;
 
-     q1[0] =   0 ; q1[1] =  p[0]; q1[2] =  p[1]; q1[3] =  p[2];
-     q2[0] = this.Q[0]; q2[1] = -this.Q[1]; q2[2] = -this.Q[2]; q2[3] = -this.Q[3];
-     this.Multqq(q1, q1, q2);      //---    p Qr~
-     this.Multqq(q1, this.Q , q1); //--- Qr p Qr~
-     _p1[0] = q1[1] + this.Q[5];
-     _p1[1] = q1[2] + this.Q[6];
-     _p1[2] = q1[3] + this.Q[7];   //--- p'= Qr p Qr~ + Qt
+    q1 = [0, p[0], p[1], p[2]];
+    q2 = [this.Q[0], -this.Q[1], -this.Q[2], -this.Q[3]];
+    this.Multqq(q1, q1, q2);      //---    p Qr~
+    this.Multqq(q1, this.Q , q1); //--- Qr p Qr~
+    _p1[0] = q1[1] + this.Q[5];
+    _p1[1] = q1[2] + this.Q[6];
+    _p1[2] = q1[3] + this.Q[7];   //--- p'= Qr p Qr~ + Qt
   }
   //----------------------------------------------------------------------
   // 複合四元数の積(Q = QA model mode , Q = AQ view mode)
@@ -420,11 +423,11 @@ class RAYTRACE0
   //----------------------------------------------------------------------
   Mult(A)
   {
-    let q = new Array(4);
+    let q;
 
     if (this.Mode)
     { //--- Q = AQ
-      q[0] = A[0]; q[1] = -A[1]; q[2] = -A[2]; q[3] = -A[3];
+      q = [A[0], -A[1], -A[2], -A[3]];
       this.Multqq(q, this.Q.slice(4), q); //---   QtAr~
       this.Multqq(q,      A         , q); //--- ArQtAr~
       this.Q[4] = A[4] + q[0];
@@ -435,7 +438,7 @@ class RAYTRACE0
     }
     else
     { //--- Q = QA
-      q[0] = this.Q[0]; q[1] = -this.Q[1]; q[2] = -this.Q[2]; q[3] = -this.Q[3];
+      q = [this.Q[0], -this.Q[1], -this.Q[2], -this.Q[3]];
       this.Multqq(q,      A.slice(4), q); //---   AtQr~
       this.Multqq(q, this.Q         , q); //--- QrAtQr~
       this.Q[4] += q[0];
@@ -452,8 +455,7 @@ class RAYTRACE0
   //----------------------------------------------------------------------
   Identity()
   {
-    this.Q[0] = 1; this.Q[1] = 0; this.Q[2] = 0; this.Q[3] = 0;
-    this.Q[4] = 0; this.Q[5] = 0; this.Q[6] = 0; this.Q[7] = 0;
+    this.Q = [1, 0, 0, 0, 0, 0, 0, 0];
   }
   //----------------------------------------------------------------------
   // 並進複合四元数
@@ -463,10 +465,8 @@ class RAYTRACE0
   //----------------------------------------------------------------------
   Translate(x, y, z)
   {
-    let A = new Array(8);
+    let A = [1, 0, 0, 0, 0, x, y, z];
 
-    A[0] = 1; A[1] = 0; A[2] = 0; A[3] = 0;
-    A[4] = 0; A[5] = x; A[6] = y; A[7] = z;
     this.Mult(A);
   }
   //----------------------------------------------------------------------
@@ -477,16 +477,11 @@ class RAYTRACE0
   //----------------------------------------------------------------------
   Rotate(d, x, y, z)
   {
-    let A = new Array(8);
-    let t;
+    let A, t;
 
     t = d * Math.PI / 360; //--- t(rad) = d(ﾟ)/2
-    A[0] = Math.cos(t);
     t = Math.sin(t) / Math.sqrt(x*x + y*y + z*z);
-    A[1] = x * t;
-    A[2] = y * t;
-    A[3] = z * t;
-    A[4] = 0; A[5] = 0; A[6] = 0; A[7] = 0;
+    A = [Math.cos(t), x * t, y * t, z * t, 0, 0, 0, 0];
     this.Mult(A);
   }
   //----------------------------------------------------------------------
@@ -496,6 +491,7 @@ class RAYTRACE0
   {
     if (this.Sp >= this.SpMax) return;
     for (let i = 0; i < 8; i++) { this.Stack[this.Sp][i] = this.Q[i]; }
+//    this.Stack[this.Sp] = this.Q;
     this.Sp++;
   }
   //----------------------------------------------------------------------
@@ -506,13 +502,14 @@ class RAYTRACE0
     if (this.Sp <= 0) return;
     this.Sp--;
     for (let i = 0; i < 8; i++) { this.Q[i] = this.Stack[this.Sp][i]; }
+//    this.Q = this.Stack[this.Sp];
   }
   //----------------------------------------------------------------------
   // Diffuse
   //----------------------------------------------------------------------
   Diffuse(r, g, b)
   {
-    this.SD0[0] = r; this.SD0[1] = g; this.SD0[2] = b;
+    this.SD0 = [r, g, b];
   }
   //----------------------------------------------------------------------
   // 鏡面反射係数
@@ -558,9 +555,9 @@ class RAYTRACE0
 
     if (this.Sn >= this.SnMax) return;
 
-    for (let i = 0; i < 3; i++) { this.SD[this.Sn][i] = this.SD0[i]; }  
+    this.SD[this.Sn] = this.SD0;
     this.Product(p, p);
-    for (let i = 0; i < 3; i++) { this.SP[this.Sn][i] = p[i]; }
+    this.SP[this.Sn] = p;
     this.Sr[this.Sn] = r;
     this.Ss[this.Sn] = this.Ss0;
     this.Sh[this.Sn] = this.Sh0;
