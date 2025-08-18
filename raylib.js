@@ -22,7 +22,7 @@ class RAYTRACE0
     this.SD0   = this.Ss0   = this.Sh0   = 0;
     this.Sl0   = this.Sc0   = this.Se0   = 0;
     this.SpMax = this.Sp    = this.Stack = 0;
-    this.RES   = 0
+    this.RES   = 0;
     this.linef = null;
   }
   func(f)
