@@ -443,7 +443,7 @@ function idle()
   B.TAB(1, 0); B.PRINT(sh[Shape-1]);
   y = (SleepCount == 2)? 0 : Frame;
   x = String(y).length;
-  B.LOCATE(72 - x, 1); B.PRINT(y + " fps"); B.CR();
+  B.LOCATE(73 - x, 1); B.PRINT(y + " /s"); B.CR();
   Count++;
 
   if (SleepCount == 2)
