@@ -29,7 +29,7 @@ class RAYTRACE0
   {
     this.linef = f;
   }
-  init()
+  init(max)
   {
     let A;
 
@@ -39,37 +39,36 @@ class RAYTRACE0
     this.Am    = 0.3;   // 環境光
     this.Level = 6;     // Level
 
-    this.SnMax = 10;    // 球の最大数
+    this.SnMax = max;   // 球の最大数
     this.Sn    = 0;     // 球の個数
-    this.SP    = new Array(this.SnMax); // 頂点座標
+    this.SP    = [];    // 頂点座標
     for (let i = 0; i < this.SnMax; i++) { this.SP[i] = [0, 0, 0]; }
-    this.Sr = new Array(this.SnMax);  // radius
-    this.SD = new Array(this.SnMax);  // diffuse(RGB)
+    this.Sr    = [];    // radius
+    this.SD    = [];    // diffuse(RGB)
     for (let i = 0; i < this.SnMax; i++) { this.SD[i] = [1, 1, 1]; }
-    this.Ss = new Array(this.SnMax);  // specular
-    this.Sh = new Array(this.SnMax);  // shininess
-    this.Sl = new Array(this.SnMax);  // reflect
-    this.Sc = new Array(this.SnMax);  // clarity
-    this.Se = new Array(this.SnMax);  // refract
+    this.Ss    = [];    // specular
+    this.Sh    = [];    // shininess
+    this.Sl    = [];    // reflect
+    this.Sc    = [];    // clarity
+    this.Se    = [];    // refract
 
-    this.SD0 = [1, 1, 1];
-    this.Ss0 = 1;
-    this.Sh0 = 1;
-    this.Sl0 = 0;
-    this.Sc0 = 0;
-    this.Se0 = 1;
+    this.SD0   = [1, 1, 1];
+    this.Ss0   = 1;
+    this.Sh0   = 1;
+    this.Sl0   = 0;
+    this.Sc0   = 0;
+    this.Se0   = 1;
 
     this.SpMax = 10;
     this.Sp    = 0;
 
-    this.Stack = new Array(this.SpMax); // Push Q
+    this.Stack = [];    // Push Q
     for (let i = 0; i < this.SpMax; i++)
     {
-      const Q = [0, 0, 0, 0, 0, 0, 0, 0];
-      this.Stack[i] = Q;
+      this.Stack[i] = [0, 0, 0, 0, 0, 0, 0, 0];
     }
 
-    A    = 1;
+    A = 1;
     this.RES  = [640/A, 400/A, A];  //  x dots , y dots, dot size
   }
   //----------------------------------------------------------------------
@@ -126,9 +125,9 @@ class RAYTRACE0
   //----------------------------------------------------------------------
   // 点を描く
   //
-  // inp CL,x0,y0,ix,iy,iz
+  // inp CL,ix,iy,iz
   //----------------------------------------------------------------------
-  draws(CL, x0, y0, ix, iy, iz)
+  draws(CL, ix, iy, iz)
   {
     let c, i, x, y;
 
@@ -143,8 +142,8 @@ class RAYTRACE0
     i = Math.floor(CL[2]*255);
     if (i > 255) i = 255; else if (i < 0) i = 0;
     c += ('00' + i.toString(16)).substr(-2);    // B
-    x = ix*iz + x0;
-    y = iy*iz + y0;
+    x = ix*iz;
+    y = iy*iz;
     this.linef(x, y, x + iz, y + iz, c);
   }
   //----------------------------------------------------------------------
@@ -246,7 +245,7 @@ class RAYTRACE0
     if (b < 0.0) b = 0.0;
     a = E0[0]* S[0] + E0[1]* S[1] + E0[2]* S[2]; // a = L・S specular
     if (a < 0.0) a = 0.0;
-    a = a ** this.Sh[si];                        // shininess
+    a = a ** this.Sh[si];                            // shininess
     a = a *  this.Ss[si];
     if (0.0 < t0 && t0 < t1) { b = 0.0; a = 0.0; }   // 陰
     if (b < this.Am) b = this.Am;                    // ambient
@@ -353,11 +352,10 @@ class RAYTRACE0
     let V  = [0, 0, 0];
     let E  = [0, 0, 0];
     let CL = [0, 0, 0, 0];
-    let iw, ih, ix, iy, iz, si;
-    let x0, y0, x, y;
+    let iw, ih, ix, iy, iz, si, x, y;
 
     iw = this.RES[0]; ih = this.RES[1]; iz = this.RES[2];
-    x0 = (640 - iw*iz) / 2; y0 = (400 - ih*iz) / 2;
+    // x0 = (640 - iw*iz) / 2; y0 = (400 - ih*iz) / 2;
     // (x, y, w, h) = (x0, y0, iw*iz, ih*iz)
     iw--; ih--;
     for (iy = 0; iy <= ih; iy++)
@@ -368,7 +366,7 @@ class RAYTRACE0
         x = 2 * ix / iw - 1;
         this.ray_view(V, E, VXYZ, x, y);
         this.shade(CL, V, E, 1, 0);
-        this.draws(CL, x0, y0, ix, iy, iz);
+        this.draws(CL, ix, iy, iz);
       }
     }
   }
@@ -477,11 +475,12 @@ class RAYTRACE0
   //----------------------------------------------------------------------
   Rotate(d, x, y, z)
   {
-    let A, t;
+    let A, t, c;
 
     t = d * Math.PI / 360; //--- t(rad) = d(ﾟ)/2
+    c = Math.cos(t);
     t = Math.sin(t) / Math.sqrt(x*x + y*y + z*z);
-    A = [Math.cos(t), x * t, y * t, z * t, 0, 0, 0, 0];
+    A = [c, x * t, y * t, z * t, 0, 0, 0, 0];
     this.Mult(A);
   }
   //----------------------------------------------------------------------

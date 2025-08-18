@@ -18,25 +18,25 @@
 <body>
 <p id="Molecule shape"></p>
 <div style='float:left;'>
-解<label><input type="range" id ="rangeA1" min="0" max= "5" step="1"
+細<label><input type="range" id ="rangeA1" min="0" max= "5" step="1"
   value="0">5-90<br></label>
-鏡<label><input type="range" id ="rangeC1" min="0" max= "3" step="1"
+質<label><input type="range" id ="rangeC1" min="0" max= "3" step="1"
   value="0">erty<br></label>
 形<label><input type="range" id ="rangeS1" min="1" max= "4" step="1"
   value="4">1234<br></label>
 <pre></pre>
-Rx<label><input type="range" id ="rangeRx" min="-20" max= "20" step="5"
+Rx<label><input type="range" id ="rangeRx" min="-10" max= "10" step="1"
   value="0">↓↑mi<br></label>
-Ry<label><input type="range" id ="rangeRy" min="-20" max= "20" step="5"
+Ry<label><input type="range" id ="rangeRy" min="-10" max= "10" step="1"
   value="0">←→jk<br></label>
-Rz<label><input type="range" id ="rangeRz" min="-20" max= "20" step="5"
+Rz<label><input type="range" id ="rangeRz" min="-10" max= "10" step="1"
   value="0">p[<br></label>
 <pre></pre>
-Tx<label><input type="range" id ="rangeTx" min="-0.8" max= "0.8" step="0.2"
+Tx<label><input type="range" id ="rangeTx" min="-1" max= "1" step="0.1"
   value="0">;]<br></label>
-Ty<label><input type="range" id ="rangeTy" min="-0.8" max= "0.8" step="0.2"
+Ty<label><input type="range" id ="rangeTy" min="-1" max= "1" step="0.1"
   value="0">:@<br></label>
-Tz<label><input type="range" id ="rangeTz" min="-2" max= "2" step="0.5"
+Tz<label><input type="range" id ="rangeTz" min="-2" max= "2" step="0.2"
   value="0">,. /\<br></label>
 <pre></pre>
 <input type="button" id="butS" value="Turn" onclick="inkey(32)">Space
@@ -71,6 +71,30 @@ let Shape = 4;
 let Refle = 0;
 let View  = null;
 let Temp; // debug
+
+//----------------------------------------------------------------------
+// Sleep
+//----------------------------------------------------------------------
+let SleepTimer = null;
+let SleepCount = 0;
+
+function sleeptimeout()
+{
+  clearTimeout(SleepTimer);
+  SleepTimer = null;
+  SleepCount = 2;
+}
+function sleeptimeset()
+{
+  if (SleepCount > 0) return;
+  SleepTimer = setTimeout(sleeptimeout, 1000);
+  SleepCount = 1;
+}
+function sleeptimeclr()
+{
+  if (SleepTimer) clearTimeout(SleepTimer);
+  SleepCount = 0;
+}
 
 //----------------------------------------------------------------------
 // ボタン
@@ -129,6 +153,7 @@ function reso(r)
   R.RES = [w/A, h/A, A];  //  x dots , y dots, dot size
   blurelem();
   blur();
+  sleeptimeclr();
 }
 
 function refl(r)
@@ -137,6 +162,7 @@ function refl(r)
   elemC1.value = r;  
   blurelem();
   blur();
+  sleeptimeclr();
 }
 
 function shap(s)
@@ -145,6 +171,7 @@ function shap(s)
   elemS1.value = s;  
   blurelem();
   blur();
+  sleeptimeclr();
 }
 
 function inputA1() { reso(Number(elemA1.value)); }
@@ -172,7 +199,17 @@ function turn()
 function move(rx, ry, rz, tx, ty, tz)
 {
   let rm;
-  
+
+  rm  = Math.abs(rx) + Math.abs(ry) + Math.abs(rz);
+  rm += Math.abs(tx) + Math.abs(ty) + Math.abs(tz);
+  if (rm == 0)
+  {
+    if (SleepCount == 0) { sleeptimeset(); }
+    return;
+  }
+  else
+  { sleeptimeclr(); }
+
   rm = R.Mode;
   R.Mode = 1;
   R.Rotate(rx, 1.0, 0.0, 0.0);
@@ -219,41 +256,42 @@ function reset()
 //----------------------------------------------------------------------
 // キー入力
 //----------------------------------------------------------------------
-function keyon()
+function keyon(key)
 {
   let th, tt, tx, ty, tz, rr, rx, ry, rz, k;
 
-  rr = 5; tt = 2;
+  rr = 2; tt = 1;
   rx = 0; ry = 0; rz = 0; tx = 0; ty = 0; tz = 0; th = 1;
   k = 1;
-  if (Key[ 38]) { rx = -rr; k = 0; } //---  ↑  機首を下げる
-  if (Key[ 40]) { rx =  rr; k = 0; } //---  ↓  機首を上げる
-  if (Key[ 37]) { ry = -rr; k = 0; } //---  ←  左旋回
-  if (Key[ 39]) { ry =  rr; k = 0; } //---  →  右旋回
-  if (Key[ 73]) { rx = -rr; k = 0; } //---  i   機首を下げる
-  if (Key[ 77]) { rx =  rr; k = 0; } //---  m   機首を上げる
-  if (Key[ 74]) { ry = -rr; k = 0; } //---  j   左旋回
-  if (Key[ 75]) { ry =  rr; k = 0; } //---  k   右旋回
+  if (Key[ 38] || key ==  38) { rx = -rr; k = 0; } //---  ↑  機首下げ
+  if (Key[ 40] || key ==  40) { rx =  rr; k = 0; } //---  ↓  機首上げ
+  if (Key[ 37] || key ==  37) { ry = -rr; k = 0; } //---  ←  左旋回
+  if (Key[ 39] || key ==  39) { ry =  rr; k = 0; } //---  →  右旋回
+  if (Key[ 73] || key ==  73) { rx = -rr; k = 0; } //---  i   機首下げ
+  if (Key[ 77] || key ==  77) { rx =  rr; k = 0; } //---  m   機首上げ
+  if (Key[ 74] || key ==  74) { ry = -rr; k = 0; } //---  j   左旋回
+  if (Key[ 75] || key ==  75) { ry =  rr; k = 0; } //---  k   右旋回
 
-  if (Key[ 80]) { rz =  rr; k = 0; } //---  p   左傾き
-  if (Key[219]) { rz = -rr; k = 0; } //---  [   右傾き
+  if (Key[ 80] || key ==  80) { rz =  rr; k = 0; } //---  p   左傾き
+  if (Key[219] || key == 219) { rz = -rr; k = 0; } //---  [   右傾き
 
-  if (Key[191]) { tz =  tt; k = 0; } //---  /   後に並進
-  if (Key[226]) { tz = -tt; k = 0; } //---  \(_)前に並進
-  if (Key[188]) { tz =  tt; k = 0; } //---  ,   後に並進
-  if (Key[190]) { tz = -tt; k = 0; } //---  .   前に並進
+  if (Key[191] || key == 191) { tz =  tt; k = 0; } //---  /   後に並進
+  if (Key[226] || key == 226) { tz = -tt; k = 0; } //---  \(_)前に並進
+  if (Key[188] || key == 188) { tz =  tt; k = 0; } //---  ,   後に並進
+  if (Key[190] || key == 190) { tz = -tt; k = 0; } //---  .   前に並進
 
-  if (Key[192]) { ty =  tt; k = 0; } //---  @   上に並進
-  if (Key[186]) { ty = -tt; k = 0; } //---  :   下に並進
-  if (Key[187]) { tx = -tt; k = 0; } //---  ;   左に並進
-  if (Key[221]) { tx =  tt; k = 0; } //---  ]   右に並進
+  if (Key[192] || key == 192) { ty =  tt; k = 0; } //---  @   上に並進
+  if (Key[186] || key == 186) { ty = -tt; k = 0; } //---  :   下に並進
+  if (Key[187] || key == 187) { tx = -tt; k = 0; } //---  ;   左に並進
+  if (Key[221] || key == 221) { tx =  tt; k = 0; } //---  ]   右に並進
 
-  if (Key[ 16]) { th =  4 ; k = 0; } //---  SHIFT 高速
+  if (Key[ 16]) { th =  5 ; k = 0; } //---  SHIFT 高速
   rx *= th; ry *= th; rz *= th;
   tx *= th; ty *= th; tz *= th;
+
   if(k) return;
+
   move(rx, ry, rz, tx, ty, -tz);
-//  cleabar();
 }
 
 //----------------------------------------------------------------------
@@ -284,12 +322,12 @@ function inkey(key)
     case  82: refl(1)          ; key = 0; break; // 'r'
     case  84: refl(2)          ; key = 0; break; // 't'
     case  89: refl(3)          ; key = 0; break; // 'y'
-//    default : if (keyon(key))  key = 0;
+//    default : if (keyon(key))    key = 0;
   }
   blurelem();
   blur();
-  if (key == 0) return;
-//  cleabar();
+  sleeptimeclr();
+//  if (key == 0) return;
 }
 
 //----------------------------------------------------------------------
@@ -363,8 +401,6 @@ function model()
   }
 
   R.Pop();
-  movebar();
-
   R.Mode = md; // Pop Mode
 }
 
@@ -374,19 +410,17 @@ function model()
 let Timer = null;
 let Count = 0;
 let Frame = 0;
-function timeset()
-{
-//  Timer = setTimeout(timeout, 1000);
-  Timer = setInterval(timeout, 1000);
-  Count = 0;
-}
+
 function timeout()
 {
-//  clearTimeout(Timer);
-//  clearInterval(Timer);
   Frame = Count;
   Count = 0;
-//  timeset()
+}
+
+function timeset()
+{
+  Timer = setInterval(timeout, 1000);
+  Count = 0;
 }
 
 //----------------------------------------------------------------------
@@ -395,34 +429,45 @@ function timeout()
 function idle()
 {
   const sh = ["直線形　　", "折れ線形　", "三角錐形　", "正四面体形"];
-  let iw, ih, iz, x0, y0, i, k, x, y;
+  let iw, ih, iz, x, y;
 
-  B.CLS('#000');
-  x  = (640 - 400) / 2;
-  x -= 24;
-  B.WINDOW(x, 0, x+639, 399);
+  keyon(0);
+  movebar();
+
+  if (SleepCount < 2) B.CLS('#000');
+
+  B.WINDOW(0, 0, 639, 399);
+  B.LINEBF(0, 16, 639, 32, '#000', false);
   B.LOCATE(0, 1);
   B.COLOR('#fff');
   B.TAB(1, 0); B.PRINT(sh[Shape-1]);
-  i = String(Frame).length;
-  B.LOCATE(72-i, 1); B.PRINT(Frame + " fps"); B.CR();
+  y = (SleepCount == 2)? 0 : Frame;
+  x = String(y).length;
+  B.LOCATE(72 - x, 1); B.PRINT(y + " fps"); B.CR();
+  Count++;
+
+  if (SleepCount == 2)
+  {
+    window.requestAnimationFrame(idle);
+    return;
+  }
+
+  x =  8 * 3;
+  y = 16 * 4;
+  B.WINDOW(-x, -y, 639-x, 399-y);
 
   iw = R.RES[0]; ih = R.RES[1]; iz = R.RES[2];
-  x0 = (640 - iw*iz) / 2; y0 = (400 - ih*iz) / 2;
-  B.LINEB(x0-1, y0-1, x0 + iw*iz + 1, y0 + ih*iz + 1, '#00f');
+  B.LINEB(-1, -1, iw*iz + 1, ih*iz + 1, '#00f');
 
-  for (k = 0, i = 0; i < 256; k |= Key[i++]);
-  if (k) keyon();
   model();
-  i = 1.5;
   B.pushWidth(1);
-  R.trace(16*i, 10*i, 40*i);  // Screen幅/2, 高/2, Screen-視点距離
+  x = 1.5;
+  R.trace(16*x, 10*x, 40*x);  // Screen幅/2, 高/2, Screen-視点距離
   B.popWidth();
   R.Pop();
 
 //  B.TAB(1, 0); B.PRINT(Temp); B.CR();
   window.requestAnimationFrame(idle);
-  Count++;
 }
 
 //----------------------------------------------------------------------
@@ -455,7 +500,7 @@ function mouseDn(x, y, touch)
 
 function mouseMv(x, y, touch)
 {
-  let x1, y1, d, d1, i;
+  let x1, y1, d;
 
   x1 = B.winX(x);
   y1 = B.winY(y);
@@ -463,8 +508,9 @@ function mouseMv(x, y, touch)
   x1 -= M.ofsX('');
   y1 -= M.ofsY('');
 
-  x1 = Math.round(x1/5);
-  y1 = Math.round(y1/5);
+  d  = 10;
+  x1 = Math.round(x1 / d);
+  y1 = Math.round(y1 / d);
   
   move(y1, x1, 0, 0, 0, 0);
   
@@ -498,12 +544,12 @@ function main()
 //----------------------------------------------------------------------
 function box(x, y, w, h, c)
 {
-  B.LINEBF(x, y, w, h, c);
+  B.LINEBF(x, y, w, h, c, false);
 }
 
 //----------------------------------------------------------------------
 R.func(box);
-R.init();
+R.init(10);
 reso(Resol);
 reset();
 main();
