@@ -80,6 +80,12 @@ const C4 = '#8f8'
 const C5 = '#8ff'
 const C6 = '#ff8'
 const C7 = '#fff'
+const CircX = 140;                  // 中心x座標
+const CircY = 120;                  // 中心y座標
+const CircR =  90;                  // 半径
+const CircW = 280;                  // 境界
+const GrapW = CircR * 1.25;         // 幅
+const GrapX = 432;                  // 中心(グラフ)
 
 let Temp; // debug
 
@@ -353,7 +359,7 @@ function sinwave(x0, y0, r, d, func, cl, m, xy)
   t = C.rad(d);
   B.WINDOW(x0, y0, x0+639, y0-399);
 
-  x1 = r * 1.25;
+  x1 = GrapW;
   if (xy)
   {
     B.LINEB(-x1, -r, x1, r, C1);
@@ -496,7 +502,7 @@ function circle(x0, y0, d1, r, d, s, c)
   t = C.rad(d);
   B.WINDOW(x0, y0, x0+639, y0-399);
 
-  B.LINEB(-900, d1, 900, -d1, C1);
+  B.LINE(-900, -d1, 900, -d1, C1);
 
   B.LINE(-r, 0, r, 0, C1);
   B.LINE(0, -r, 0, r, C1);
@@ -537,12 +543,13 @@ function display()
   B.FONT(1,0);
   B.CLS('#000');
 
-  x0 = -425;
-  y0 =  120;
+  x0 = -GrapX;
+  y0 =  CircY;
   d1 =  120;
-  d0 =   90;
+  d0 =  CircR;
 
   B.WINDOW(0, 0, 639, 399);
+  B.LINE(CircW, 0, CircW, y0 + d1, C1);
   x = B.scrX(0);
   y = B.scrY(y0 - d1);
   w = B.scrW(640);
@@ -563,7 +570,7 @@ function display()
     case 6: sinwave(x0, y0, d0, d, Math.tan, C3, 1, 1); break;
     case 7: sinwave(x0, y0, d0, d, Math.cos, C5, 1, 0); break;
   }
-  x0 = -150;
+  x0 = -CircX;
   circle(x0, y0, d1, d0, d, C6, C5);
   ctx.restore();
 
@@ -845,22 +852,34 @@ window.onkeyup   = function(event) { Key[event.keyCode] = 0; }
 //----------------------------------------------------------------------
 function mouseDn(x, y, touch)
 {
-  let x1, y1, d, d1;
+  let x1, y1, d;
 
   if (!(0 <= x && x <= canvas.width )) return 0;
   if (!(0 <= y && y <= canvas.height)) return 0;
 
+  B.WINDOW(0, 0, 639, 399);
   x1 = B.winX(x);
-  y1 = B.winY(y);
-/*
-  d  = Math.sqrt(x1*x1 + y1*y1);
-  if (d > 100 * 3) return 0;
-*/
-  d  = Math.atan2(y1, x1);
-  d  = C.deg(d);
-  d  = d - C.getd();
-
+  if (x1 <= CircW)
+  {
+    M.ofsY(0);
+    B.WINDOW(-CircX, CircY, 639-CircX, CircY-399);
+    x1 = B.winX(x);
+    y1 = B.winY(y);
+    d  = Math.atan2(y1, x1);
+    d  = C.deg(d);
+  }
+  else
+  {
+    M.ofsY(1);
+    B.WINDOW(-GrapX, CircY, 639-GrapX, CircY-399);
+    x1 = B.winX(x);
+    y1 = B.winY(y);
+    d  = (C.gets2()+1) % 4
+    d  = ((d)? x1 : y1) * 180 / GrapW;
+  }
+  d -= C.getd(d);
   M.ofsX(d);
+  Temp = M.ofsY('');
   return 1;
 }
 
@@ -869,10 +888,23 @@ function mouseMv(x, y, touch)
   let x1, y1, d, d1, dd;
 
   d1 = M.ofsX('');
-  x1 = B.winX(x);
-  y1 = B.winY(y);
-  d  = Math.atan2(y1, x1);
-  d  = C.deg(d);
+  dd = M.ofsY('');
+  if (dd == 0)
+  {
+    B.WINDOW(-CircX, CircY, 639-CircX, CircY-399);
+    x1 = B.winX(x);
+    y1 = B.winY(y);
+    d  = Math.atan2(y1, x1);
+    d  = C.deg(d);
+  }
+  else
+  {
+    B.WINDOW(-GrapX, CircY, 639-GrapX, CircY-399);
+    x1 = B.winX(x);
+    y1 = B.winY(y);
+    d  = (C.gets2()+1) % 4
+    d  = ((d)? x1 : y1) * 180 / GrapW;
+  }  
   d -= d1;
   dd = C.getdd();
   d  = Math.round(d / dd) * dd;
