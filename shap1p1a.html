@@ -501,6 +501,7 @@ function mouseDn(x, y, touch)
   if (!(0 <= x && x <= canvas.width )) return 0;
   if (!(0 <= y && y <= canvas.height)) return 0;
 
+  B.WINDOW(0, 0, 639, 399);
   x1 = B.winX(x);
   y1 = B.winY(y);
 
@@ -515,6 +516,7 @@ function mouseMv(x, y, touch)
 {
   let x1, y1, d;
 
+  B.WINDOW(0, 0, 639, 399);
   x1 = B.winX(x);
   y1 = B.winY(y);
 
@@ -569,3 +571,4 @@ main();
 </script>
 </body>
 </html>
+
