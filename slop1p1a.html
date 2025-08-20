@@ -588,12 +588,12 @@ function acceldisp(e, c, g, b, f, h, a)
 
   B.COLOR(e); B.PRINT("a = "); B.COLOR('#fff'); B.PRINT(g);
   B.COLOR(c); B.PRINT(b);
-  i = (f.length > h.length)? f.length : h.length;
+  i = h.length;
   if (f != "")
   {
-    B.TAB(   0.5, -0.5); B.PRINT(f);
-    B.TAB(-i-0.5,  0  ); B.PRINT(''.padEnd(i+1, '_'));
-    B.TAB(-i-0.5,  1.0); B.PRINT(h);
+    B.TAB(   0.5, -0.5); B.PRINTe(f);
+    B.TAB(-i-0.5,  0  ); B.PRINT (''.padEnd(i+1, '_'));
+    B.TAB(-i-0.5,  1.0); B.PRINT (h);
     B.TAB(   0.5, -0.5);
   }
   B.COLOR(e); printe(0, "  = ", a  , " m/s^2", 4, 1);
@@ -602,10 +602,14 @@ function acceldisp(e, c, g, b, f, h, a)
 function accel(t, f, fd, d, a)
 {
   B.TAB(t, 0);
-  if      (f  >  0) acceldisp('#f8f', '#f0f', "gsinθ", " - "  , "F", "m", a);
-  else if (fd >  0) acceldisp('#f88', '#f00', "gsinθ", " - "  , "F", "m", a);
-  else if (d <= 90) acceldisp('#fff', '#fff', "gsinθ", "     ", "" , "" , a);
-  else              acceldisp('#fff', '#fff', "g     ", "     ", "" , "" , a);
+  if      (f  >  0)
+  { acceldisp('#f8f', '#f0f', "gsinθ", " - " , "F"         , "m", a); }
+  else if (fd >  0)
+  { acceldisp('#f88', '#f00', "gsinθ", " - " , "F^`'^'_`_`", "m", a); }
+  else if (d <= 90)
+  { acceldisp('#fff', '#fff', "gsinθ", "     ", ""         , "" , a); }
+  else
+  { acceldisp('#fff', '#fff', "g     ", "     ", ""         , "" , a); }
 }
 
 //--------------------------------------------------------------------
@@ -980,4 +984,5 @@ init();
 </script>
 </body>
 </html>
+
 
