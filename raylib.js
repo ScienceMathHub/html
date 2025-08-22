@@ -16,7 +16,9 @@ class RAYTRACE0
 {
   constructor()
   {
-    this.Q     = this.Mode  = this.Am    = this.Level = this.SnMax = 0;
+//    this.M     = 0;
+    this.Q     = 0;
+    this.Mode  = this.Am    = this.Level = this.SnMax = 0;
     this.Sn    = this.SP    = this.Sr    = this.SD    = 0
     this.Ss    = this.Sh    = this.Sl    = this.Sc    = this.Se    = 0
     this.SD0   = this.Ss0   = this.Sh0   = 0;
@@ -33,7 +35,8 @@ class RAYTRACE0
   {
     let A;
 
-    this.Q     = [0, 0, 0, 0, 0, 0, 0, 0];  // Current 複合四元数
+//    this.M     = [];  // Current 行列
+    this.Q     = [];  // Current 複合四元数
     this.Mode  = 0;     // Quata mode (0:Model mode 1:View mode)
 
     this.Am    = 0.3;   // 環境光
@@ -65,7 +68,7 @@ class RAYTRACE0
     this.Stack = [];    // Push Q
     for (let i = 0; i < this.SpMax; i++)
     {
-      this.Stack[i] = [0, 0, 0, 0, 0, 0, 0, 0];
+      this.Stack[i] = [];
     }
 
     A = 1;
@@ -379,6 +382,132 @@ class RAYTRACE0
 
     this.#ray_trace(VXYZ);
   }
+/*
+  //----------------------------------------------------------------------
+  // 行列とベクトルの積(p1 = Mp)
+  //
+  // inp M,p
+  // out _p1
+  //----------------------------------------------------------------------
+  Product(_p1, p)
+  {
+    let x, y, z, i;
+
+    x = p[0]; y = p[1]; z = p[2];
+    for (i = 0; i < 3; i++)
+    {
+      _p1[i] = this.M[i]*x + this.M[i+4]*y + this.M[i+8]*z + this.M[i+12];
+    }
+  }
+  //----------------------------------------------------------------------
+  // 行列の積(M = MA model mode , M = AM view mode)
+  //
+  // inp A,M
+  // out M
+  //----------------------------------------------------------------------
+  Mult(A)
+  {
+    let x, y, m1, m2, m3, m4;
+
+    if (this.Mode)
+    { //--- M = AM
+      for (x = 0; x < 16; x += 4)
+      {
+        m1 = this.M[x]; m2 = this.M[x+1]; m3 = this.M[x+2]; m4 = this.M[x+3];
+        for (y = 0; y < 4; y++)
+        {
+          this.M[x+y] = A[y]*m1 + A[y+4]*m2 + A[y+8]*m3 + A[y+12]*m4;
+        }
+      }
+    }
+    else
+    { //--- M = MA
+      for (y = 0; y < 4; y++)
+      {
+        m1 = this.M[y]; m2 = this.M[y+4]; m3 = this.M[y+8]; m4 = this.M[y+12];
+        for (x = 0; x < 16; x += 4)
+        {
+          this.M[x+y] = m1*A[x] + m2*A[x+1] + m3*A[x+2] + m4*A[x+3];
+        }
+      }
+    }
+  }
+  //----------------------------------------------------------------------
+  // 単位行列
+  //
+  // out M
+  //----------------------------------------------------------------------
+  Identity()
+  {
+    this.M[0] = 1; this.M[4] = 0; this.M[ 8] = 0; this.M[12] = 0;
+    this.M[1] = 0; this.M[5] = 1; this.M[ 9] = 0; this.M[13] = 0;
+    this.M[2] = 0; this.M[6] = 0; this.M[10] = 1; this.M[14] = 0;
+    this.M[3] = 0; this.M[7] = 0; this.M[11] = 0; this.M[15] = 1;
+  }
+  //----------------------------------------------------------------------
+  // 並進行列
+  //
+  // inp x, y, z
+  // out M
+  //----------------------------------------------------------------------
+  Translate(x, y, z)
+  {
+    let A = [];
+
+    A[0] = 1; A[4] = 0; A[ 8] = 0; A[12] = x;
+    A[1] = 0; A[5] = 1; A[ 9] = 0; A[13] = y;
+    A[2] = 0; A[6] = 0; A[10] = 1; A[14] = z;
+    A[3] = 0; A[7] = 0; A[11] = 0; A[15] = 1;
+    this.Mult(A);
+  }
+  //----------------------------------------------------------------------
+  // 回転行列
+  //
+  // inp d, x, y, z
+  // out M
+  //----------------------------------------------------------------------
+  Rotate(d, x, y, z)
+  {
+    let A = [];
+    let rr, n1, n2, n3, tt, ss, nn;
+
+    rr = Math.sqrt(x*x + y*y + z*z);
+    n1 = x / rr;
+    n2 = y / rr;
+    n3 = z / rr;
+    tt = d * Math.PI / 180;
+    ss = Math.cos(tt);
+    rr = 1.0 - ss;
+    A[ 0] = n1 * n1 * rr + ss;
+    A[ 5] = n2 * n2 * rr + ss;
+    A[10] = n3 * n3 * rr + ss;
+    ss = Math.sin(tt);
+    tt = n1 * n2 * rr; nn = n3 * ss; A[4] = tt - nn; A[1] = tt + nn;
+    tt = n1 * n3 * rr; nn = n2 * ss; A[2] = tt - nn; A[8] = tt + nn;
+    tt = n2 * n3 * rr; nn = n1 * ss; A[9] = tt - nn; A[6] = tt + nn;
+    A[12] = A[13] = A[14] = 0.0; A[15] = 1.0;
+    A[ 3] = A[ 7] = A[11] = 0.0;
+    this.Mult(A);
+  }
+  //----------------------------------------------------------------------
+  // Push M
+  //----------------------------------------------------------------------
+  Push()
+  {
+    if (this.Sp >= this.SpMax) return;
+    for (let i = 0; i < 16; i++) { this.Stack[this.Sp][i] = this.M[i]; }
+    this.Sp++;
+  }
+  //----------------------------------------------------------------------
+  // Pop M
+  //----------------------------------------------------------------------
+  Pop()
+  {
+    if (this.Sp <= 0) return;
+    this.Sp--;
+    for (let i = 0; i < 16; i++) { this.M[i] = this.Stack[this.Sp][i]; }
+  }
+*/
   //----------------------------------------------------------------------
   // 四元数の積
   //
@@ -490,7 +619,6 @@ class RAYTRACE0
   {
     if (this.Sp >= this.SpMax) return;
     for (let i = 0; i < 8; i++) { this.Stack[this.Sp][i] = this.Q[i]; }
-//    this.Stack[this.Sp] = this.Q;
     this.Sp++;
   }
   //----------------------------------------------------------------------
@@ -501,7 +629,6 @@ class RAYTRACE0
     if (this.Sp <= 0) return;
     this.Sp--;
     for (let i = 0; i < 8; i++) { this.Q[i] = this.Stack[this.Sp][i]; }
-//    this.Q = this.Stack[this.Sp];
   }
   //----------------------------------------------------------------------
   // Diffuse

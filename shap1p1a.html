@@ -22,6 +22,8 @@
   value="0">5-90<br></label>
 質<label><input type="range" id ="rangeC1" min="0" max= "3" step="1"
   value="0">erty<br></label>
+線<label><input type="range" id ="rangeL1" min="0" max= "4" step="1"
+  value="0">asdfg<br></label>
 形<label><input type="range" id ="rangeS1" min="1" max= "4" step="1"
   value="4">1234<br></label>
 <pre></pre>
@@ -53,7 +55,7 @@ Tz<label><input type="range" id ="rangeTz" min="-2" max= "2" step="0.2"
 
 <script src="https://sciencemathhub.github.io/html/tochem.js"></script>
 <script src="https://sciencemathhub.github.io/html/canlib.js"></script>
-<script src="https://sciencemathhub.github.io/html/raylib.js"></script>
+<script src="E:/Edit25/polar/KSU/raylib.js"></script>
 <script>
 'use strict'
 
@@ -66,9 +68,13 @@ const R = new RAYTRACE0();
 //----------------------------------------------------------------------
 // 変数
 //----------------------------------------------------------------------
+// Screen幅/2, 高/2, Screen-視点距離
+const Times  = 1.5;
+const Screen = [16*Times, 10*Times, 40*Times];
 let Resol = 0;
-let Shape = 4;
 let Refle = 0;
+let Shape = 4;
+let Lines = 0;
 let View  = null;
 let Temp; // debug
 
@@ -141,6 +147,7 @@ function move(rx, ry, rz, tx, ty, tz)
 //----------------------------------------------------------------------
 let elemA1 = document.getElementById('rangeA1');
 let elemC1 = document.getElementById('rangeC1');
+let elemL1 = document.getElementById('rangeL1');
 let elemS1 = document.getElementById('rangeS1');
 let elemRx = document.getElementById('rangeRx');
 let elemRy = document.getElementById('rangeRy');
@@ -149,27 +156,18 @@ let elemTx = document.getElementById('rangeTx');
 let elemTy = document.getElementById('rangeTy');
 let elemTz = document.getElementById('rangeTz');
 
-function blurelemA()
+function blurelem()
 {
   elemA1.blur();
   elemC1.blur();
+  elemL1.blur();
   elemS1.blur();
-}
-
-function blurelemX()
-{
   elemRx.blur();
   elemRy.blur();
   elemRz.blur();
   elemTx.blur();
   elemTy.blur();
   elemTz.blur();
-}
-
-function blurelem()
-{
-  blurelemA();
-  blurelemX();
 }
 
 function blur()
@@ -228,6 +226,15 @@ function setC1(r)
   sleeptimeclr();
 }
 
+function setL1(s)
+{
+  Lines = s;
+  elemL1.value = s;  
+  blurelem();
+  blur();
+  sleeptimeclr();
+}
+
 function setS1(s)
 {
   Shape = s;
@@ -241,6 +248,8 @@ function inputA1() { setA1(Number(elemA1.value)); }
 elemA1.addEventListener('input', inputA1);
 function inputC1() { setC1(Number(elemC1.value)); }
 elemC1.addEventListener('input', inputC1);
+function inputL1() { setL1(Number(elemL1.value)); }
+elemL1.addEventListener('input', inputL1);
 function inputS1() { setS1(Number(elemS1.value)); }
 elemS1.addEventListener('input', inputS1);
 
@@ -322,6 +331,11 @@ function inkey(key)
     case  82: setC1(1)         ; key = 0; break; // 'r'
     case  84: setC1(2)         ; key = 0; break; // 't'
     case  89: setC1(3)         ; key = 0; break; // 'y'
+    case  65: setL1(0)         ; key = 0; break; // 'a'
+    case  83: setL1(1)         ; key = 0; break; // 's'
+    case  68: setL1(2)         ; key = 0; break; // 'd'
+    case  70: setL1(3)         ; key = 0; break; // 'f'
+    case  71: setL1(4)         ; key = 0; break; // 'g'
 //    default : if (keyon(key))    key = 0;
   }
   blurelem();
@@ -339,10 +353,61 @@ document.body.addEventListener('keydown', event =>
 //----------------------------------------------------------------------
 // Model配置
 //----------------------------------------------------------------------
+function setline()
+{
+  let p = [];
+  let x0, y0, z0, w, h, i;
+
+  i  = R.RES[2];
+  w  = R.RES[0] * i / 2;
+  h  = R.RES[1] * i / 2;
+
+  R.Product(p, [0, 0, 0]);
+  z0 = Screen[2] / (Screen[2] + Math.abs(p[2]));
+  x0 = p[0] / Screen[0];
+  y0 = p[1] / Screen[1];
+  x0 = x0 * w;
+  y0 = y0 * h;
+  x0 = x0 * z0;
+  y0 = y0 * z0;
+  return [x0 + w, h - y0];
+}
+
+function getline(L0)
+{
+  switch (Lines)
+  {
+  case 1:
+    B.LINE(L0[0][0], L0[0][1], L0[1][0], L0[1][1], '#00f');
+    break;
+  case 2:
+    B.LINE(L0[0][0], L0[0][1], L0[1][0], L0[1][1], '#00f');
+    B.LINE(L0[0][0], L0[0][1], L0[2][0], L0[2][1], '#00f');
+    break;
+  case 3:
+    B.LINE(L0[0][0], L0[0][1], L0[1][0], L0[1][1], '#00f');
+    B.LINE(L0[0][0], L0[0][1], L0[2][0], L0[2][1], '#00f');
+    B.LINE(L0[0][0], L0[0][1], L0[3][0], L0[3][1], '#00f');
+    B.LINE(L0[1][0], L0[1][1], L0[2][0], L0[2][1], '#00f');
+    B.LINE(L0[2][0], L0[2][1], L0[3][0], L0[3][1], '#00f');
+    B.LINE(L0[3][0], L0[3][1], L0[1][0], L0[1][1], '#00f');
+    break;
+  case 4:
+    B.LINE(L0[1][0], L0[1][1], L0[2][0], L0[2][1], '#00f');
+    B.LINE(L0[2][0], L0[2][1], L0[3][0], L0[3][1], '#00f');
+    B.LINE(L0[3][0], L0[3][1], L0[1][0], L0[1][1], '#00f');
+    B.LINE(L0[1][0], L0[1][1], L0[4][0], L0[4][1], '#00f');
+    B.LINE(L0[2][0], L0[2][1], L0[4][0], L0[4][1], '#00f');
+    B.LINE(L0[3][0], L0[3][1], L0[4][0], L0[4][1], '#00f');
+    break;
+  }
+}
+
 function model()
 {
   const R0 = [0.0, 0.2, 0.0, 0.2];
   const C0 = [0  , 0  , 1.3, 1.3];
+  let L0 = [];
   let md, r0, r1, d3, d1, x3, y3, t, c3, xn, yn, zn, i;
 
   R.Sn = 0;    // Model reset
@@ -368,7 +433,7 @@ function model()
   R.Pop();
 
   r0 = 6;
-  r1 = 4;  
+  r1 = 4;
   d1 = (r0 + r1) / 3;
   d3 = d1 * 3;
   c3 = d1 * 2 * Math.sqrt(2);
@@ -394,6 +459,7 @@ function model()
   }
   R.Push();
   R.Translate(0, 0, 0);
+  L0[0] = setline();
   R.Sphere(r0);
   R.Pop();
 
@@ -406,15 +472,16 @@ function model()
   zn = [-d1, -d1, -d1, d3];
   for (i = 0; i < xn.length; i++)
   {
-    if (i >= Shape) break;
     R.Push();
     R.Translate(xn[i], yn[i], zn[i]);
-    R.Sphere(r1);
+    L0[i+1] = setline();
+    if (i < Shape) R.Sphere(r1);
     R.Pop();
   }
 
   R.Pop();
   R.Mode = md; // Pop Mode
+  return L0;
 }
 
 //----------------------------------------------------------------------
@@ -443,6 +510,7 @@ function idle()
 {
   const sh = ["直線形　　", "折れ線形　", "三角錐形　", "正四面体形"];
   let iw, ih, iz, x, y;
+  let L0;
 
   keyon(0);
   movebar();
@@ -472,12 +540,11 @@ function idle()
   iw = R.RES[0]; ih = R.RES[1]; iz = R.RES[2];
   B.LINEB(-1, -1, iw*iz + 1, ih*iz + 1, '#00f');
 
-  model();
+  L0 = model();
   B.pushWidth(1);
-  x = 1.5;
-  R.trace(16*x, 10*x, 40*x);  // Screen幅/2, 高/2, Screen-視点距離
+  R.trace(Screen[0], Screen[1], Screen[2]);
   B.popWidth();
-  R.Pop();
+  getline(L0);
 
 //  B.TAB(1, 0); B.PRINT(Temp); B.CR();
   window.requestAnimationFrame(idle);
@@ -526,7 +593,7 @@ function mouseMv(x, y, touch)
   d  = 10;
   x1 = Math.round(x1 / d);
   y1 = Math.round(y1 / d);
-  
+
   move(y1, x1, 0, 0, 0, 0);
   
   blurelem();
@@ -571,4 +638,3 @@ main();
 </script>
 </body>
 </html>
-
