@@ -18,14 +18,14 @@
 <body>
 <p id="Molecule shape"></p>
 <div style='float:left;'>
-細<label><input type="range" id ="rangeA1" min="0" max= "5" step="1"
-  value="0">5-90<br></label>
+細<label><input type="range" id ="rangeA1" min="0" max= "4" step="1"
+  value="0">56789<br></label>
 質<label><input type="range" id ="rangeC1" min="0" max= "3" step="1"
   value="0">erty<br></label>
 線<label><input type="range" id ="rangeL1" min="0" max= "4" step="1"
   value="0">asdfg<br></label>
-形<label><input type="range" id ="rangeS1" min="1" max= "4" step="1"
-  value="4">1234<br></label>
+形<label><input type="range" id ="rangeS1" min="0" max= "4" step="1"
+  value="4">01234<br></label>
 <pre></pre>
 Rx<label><input type="range" id ="rangeRx" min="-10" max= "10" step="1"
   value="0">↓↑mi<br></label>
@@ -317,6 +317,7 @@ function inkey(key)
     case  90: B.zooming  (-1  ); key = 0; break; // 'Z'
     case  88: B.zooming  ( 1  ); key = 0; break; // 'X'
     case  67: B.zooming  ( 0  ); key = 0; break; // 'C'
+    case  48: setS1(0)         ; key = 0; break; // '0'
     case  49: setS1(1)         ; key = 0; break; // '1'
     case  50: setS1(2)         ; key = 0; break; // '2'
     case  51: setS1(3)         ; key = 0; break; // '3'
@@ -326,7 +327,6 @@ function inkey(key)
     case  55: setA1(2)         ; key = 0; break; // '7'
     case  56: setA1(3)         ; key = 0; break; // '8'
     case  57: setA1(4)         ; key = 0; break; // '9'
-    case  48: setA1(5)         ; key = 0; break; // '0'
     case  69: setC1(0)         ; key = 0; break; // 'e'
     case  82: setC1(1)         ; key = 0; break; // 'r'
     case  84: setC1(2)         ; key = 0; break; // 't'
@@ -508,7 +508,10 @@ function timeset()
 //----------------------------------------------------------------------
 function idle()
 {
-  const sh = ["直線形　　", "折れ線形　", "三角錐形　", "正四面体形"];
+  const sh =
+  [
+    "　　　　　", "直線形　　", "折れ線形　", "三角錐形　", "正四面体形"
+  ];
   let iw, ih, iz, x, y;
   let L0;
 
@@ -521,7 +524,7 @@ function idle()
   B.LINEBF(0, 16, 639, 32, '#000', false);
   B.LOCATE(0, 1);
   B.COLOR('#fff');
-  B.TAB(1, 0); B.PRINT(sh[Shape-1]);
+  B.TAB(1, 0); B.PRINT(sh[Shape]);
   y = (SleepCount == 2)? 0 : Frame;
   x = String(y).length;
   B.LOCATE(73 - x, 1); B.PRINT(y + " /s"); B.CR();
