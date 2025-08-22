@@ -81,7 +81,7 @@ class RAYTRACE0
   // inp V0,E,r  V0は球が原点の時の視点Vの値
   // out t0
   //----------------------------------------------------------------------
-  distance_sphere(V, E, r)
+  #distance_sphere(V, E, r)
   {
     let b, d, t;
 
@@ -101,7 +101,7 @@ class RAYTRACE0
   // inp V,E,SP,sr,sn
   // out _t,si
   //----------------------------------------------------------------------
-  distance(_t, V, E)
+  #distance(_t, V, E)
   {
     let V0 = [0, 0, 0];
     let t0, t, si, c;
@@ -113,7 +113,7 @@ class RAYTRACE0
       V0[0] = V[0] - this.SP[c][0];
       V0[1] = V[1] - this.SP[c][1];
       V0[2] = V[2] - this.SP[c][2];
-      t0    = this.distance_sphere(V0, E, this.Sr[c]);
+      t0    = this.#distance_sphere(V0, E, this.Sr[c]);
       if (t0 >= 0)
       {
         if (t0 < t || t < 0) { t = t0; si = c; }
@@ -127,7 +127,7 @@ class RAYTRACE0
   //
   // inp CL,ix,iy,iz
   //----------------------------------------------------------------------
-  draws(CL, ix, iy, iz)
+  #draws(CL, ix, iy, iz)
   {
     let c, i, x, y;
 
@@ -152,7 +152,7 @@ class RAYTRACE0
   // inp E,N (|N|=1  )
   // out S   (|S|=|E|)
   //----------------------------------------------------------------------
-  vector_specular(_S, E, N)
+  #vector_specular(_S, E, N)
   {
     let a;
 
@@ -167,7 +167,7 @@ class RAYTRACE0
   // inp E,N,n2    (|N|=1, n2≠0)
   // out _R,k      (|R|=|E|)
   //----------------------------------------------------------------------
-  vector_refract(_R, E, N, n2)
+  #vector_refract(_R, E, N, n2)
   {
     let a, b, c, d, f, k, n;
 
@@ -196,7 +196,7 @@ class RAYTRACE0
   // inp CL,V,E,t,si
   // out _CL, _P, _N
   //----------------------------------------------------------------------
-  shade_si(_CL, _P, _N, V, E, t, si)
+  #shade_si(_CL, _P, _N, V, E, t, si)
   {
     let V0 = [0, 0, 0];
     let E0 = [0, 0, 0];
@@ -219,7 +219,7 @@ class RAYTRACE0
     _N[0] = _P[0] * b;                                  // N = P/|P|
     _N[1] = _P[1] * b;
     _N[2] = _P[2] * b;
-    this.vector_specular(S, E, _N);
+    this.#vector_specular(S, E, _N);
     _P[0] += this.SP[si][0];                            // P = (元の座標)
     _P[1] += this.SP[si][1];
     _P[2] += this.SP[si][2];
@@ -238,7 +238,7 @@ class RAYTRACE0
     V0[0] = _P[0] + E0[0] * b;              // 点Pと重ならないよう
     V0[1] = _P[1] + E0[1] * b;              // V0を少し光源に寄せる 	
     V0[2] = _P[2] + E0[2] * b;
-    this.distance(_t, V0, E0);
+    this.#distance(_t, V0, E0);
     t0 = _t[0];
 
     b = E0[0]*_N[0] + E0[1]*_N[1] + E0[2]*_N[2]; // b = L・N
@@ -259,7 +259,7 @@ class RAYTRACE0
   // inp V,E,slc,li
   // out _CL
   //----------------------------------------------------------------------
-  shade(_CL, V, E, slc, li)
+  #shade(_CL, V, E, slc, li)
   {
     let CL0 = [0, 0, 0, 0];
     let P   = [0, 0, 0];
@@ -274,10 +274,10 @@ class RAYTRACE0
     // 光slcが小さすぎるか、追跡回数が大きすぎる時、追跡終了
     if (slc < 1.0/255.0 || li > this.Level) return;
     li++;	// Level
-    si = this.distance(_t, V, E);
+    si = this.#distance(_t, V, E);
     t = _t[0];
     if (t < 0.0) return;
-    this.shade_si(CL0, P, N, V, E, t, si);
+    this.#shade_si(CL0, P, N, V, E, t, si);
     _CL[0] = CL0[0] * slc;
     _CL[1] = CL0[1] * slc;
     _CL[2] = CL0[2] * slc;
@@ -289,7 +289,7 @@ class RAYTRACE0
     if (sl1 + sc1 <= 0.0) return;
     if (sc1 > 0.0)
     {
-      k = this.vector_refract(S, E, N, this.Se[si]);
+      k = this.#vector_refract(S, E, N, this.Se[si]);
       sl1 += sc1 * k;
       if (k < 1.0)
       {
@@ -298,7 +298,7 @@ class RAYTRACE0
         V0[1] = P[1] + S[1] * b;
         V0[2] = P[2] + S[2] * b;
         slc *= sc1 * (1.0 - k);
-        this.shade(CL0, V0, S, slc, li);
+        this.#shade(CL0, V0, S, slc, li);
         if (CL0[3] >= 0.0)
         {
           _CL[0] += CL0[0]; _CL[1] += CL0[1]; _CL[2] += CL0[2];
@@ -308,13 +308,13 @@ class RAYTRACE0
     }
     if (sl1 > 0.0)
     {
-      this.vector_specular(S, E, N);
+      this.#vector_specular(S, E, N);
       b = 0.1;//1.0e-8;		// 少し手前
       V0[0] = P[0] + S[0] * b;
       V0[1] = P[1] + S[1] * b;
       V0[2] = P[2] + S[2] * b;
       slc *= sl1;
-      this.shade(CL0, V0, S, slc, li);
+      this.#shade(CL0, V0, S, slc, li);
       if (CL0[3] >= 0.0)
       {
         _CL[0] += CL0[0]; _CL[1] += CL0[1]; _CL[2] += CL0[2];
@@ -331,7 +331,7 @@ class RAYTRACE0
   // inp VXYZ,x,y
   // out _V,_E
   //----------------------------------------------------------------------
-  ray_view(_V, _E, VXYZ, x, y)
+  #ray_view(_V, _E, VXYZ, x, y)
   {
     let a;
 
@@ -347,7 +347,7 @@ class RAYTRACE0
   //
   // inp VX,YZ,sx,sy,sz,sr,sc
   //----------------------------------------------------------------------
-  ray_trace(VXYZ)
+  #ray_trace(VXYZ)
   {
     let V  = [0, 0, 0];
     let E  = [0, 0, 0];
@@ -364,9 +364,9 @@ class RAYTRACE0
       for (ix = 0; ix <= iw; ix++)
       {
         x = 2 * ix / iw - 1;
-        this.ray_view(V, E, VXYZ, x, y);
-        this.shade(CL, V, E, 1, 0);
-        this.draws(CL, ix, iy, iz);
+        this.#ray_view(V, E, VXYZ, x, y);
+        this.#shade(CL, V, E, 1, 0);
+        this.#draws(CL, ix, iy, iz);
       }
     }
   }
@@ -377,7 +377,7 @@ class RAYTRACE0
   {
     let VXYZ = [x, y, z];	// Screen幅/2, 高/2, Screen-視点距離
 
-    this.ray_trace(VXYZ);
+    this.#ray_trace(VXYZ);
   }
   //----------------------------------------------------------------------
   // 四元数の積
@@ -385,7 +385,7 @@ class RAYTRACE0
   // inp q1=(w1, x1, y1, z1),q2=(w2, x2, y2, z2)
   // out _q=(w0, x0, y0, z0) = (w1, x1, y1, z1)(w2, x2, y2, z2)
   //----------------------------------------------------------------------
-  Multqq(_q, q1, q2)
+  #Multqq(_q, q1, q2)
   {
     let w, x, y, z;
 
@@ -407,8 +407,8 @@ class RAYTRACE0
 
     q1 = [0, p[0], p[1], p[2]];
     q2 = [this.Q[0], -this.Q[1], -this.Q[2], -this.Q[3]];
-    this.Multqq(q1, q1, q2);      //---    p Qr~
-    this.Multqq(q1, this.Q , q1); //--- Qr p Qr~
+    this.#Multqq(q1, q1, q2);      //---    p Qr~
+    this.#Multqq(q1, this.Q , q1); //--- Qr p Qr~
     _p1[0] = q1[1] + this.Q[5];
     _p1[1] = q1[2] + this.Q[6];
     _p1[2] = q1[3] + this.Q[7];   //--- p'= Qr p Qr~ + Qt
@@ -426,24 +426,24 @@ class RAYTRACE0
     if (this.Mode)
     { //--- Q = AQ
       q = [A[0], -A[1], -A[2], -A[3]];
-      this.Multqq(q, this.Q.slice(4), q); //---   QtAr~
-      this.Multqq(q,      A         , q); //--- ArQtAr~
+      this.#Multqq(q, this.Q.slice(4), q); //---   QtAr~
+      this.#Multqq(q,      A         , q); //--- ArQtAr~
       this.Q[4] = A[4] + q[0];
       this.Q[5] = A[5] + q[1];
       this.Q[6] = A[6] + q[2];
       this.Q[7] = A[7] + q[3]; //--- Qt = At + ArQtAr~
-      this.Multqq(this.Q, A, this.Q);    //--- Qr = ArQr
+      this.#Multqq(this.Q, A, this.Q);    //--- Qr = ArQr
     }
     else
     { //--- Q = QA
       q = [this.Q[0], -this.Q[1], -this.Q[2], -this.Q[3]];
-      this.Multqq(q,      A.slice(4), q); //---   AtQr~
-      this.Multqq(q, this.Q         , q); //--- QrAtQr~
+      this.#Multqq(q,      A.slice(4), q); //---   AtQr~
+      this.#Multqq(q, this.Q         , q); //--- QrAtQr~
       this.Q[4] += q[0];
       this.Q[5] += q[1];
       this.Q[6] += q[2];
       this.Q[7] += q[3];    //--- Qt = Qt + QrAtQr~
-      this.Multqq(this.Q, this.Q, A); //--- Qr = QrAr
+      this.#Multqq(this.Q, this.Q, A); //--- Qr = QrAr
     }
   }
   //----------------------------------------------------------------------
