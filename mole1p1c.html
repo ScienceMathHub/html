@@ -40,11 +40,14 @@
     value="1" /> Level1(質量％濃度)
 </form>
 <pre></pre>
+<input type="button" id="but_ne" value="答を見る"
+  onclick="pushAns()" />Alt+a
+<pre></pre>
 <input type="button" id="but_ne" value="次の問い"
-  onclick="pushNext()" />
+  onclick="pushNext()" />Space
 <pre></pre>
 <input type="button" id="but_re" value="リセット"
-  onclick="pushReset()" />
+  onclick="pushReset()" />Alt+r
 
 <script src="https://sciencemathhub.github.io/html/tochem.js"></script>
 <script src="https://sciencemathhub.github.io/html/canlib.js"></script>
@@ -402,12 +405,11 @@ function Display()
   B.LOCATE(0, 0);
   B.COLOR('#ff0'); B.PRINT("答えを入力し");
   B.COLOR('#0ff'); B.PRINT("Enter");
-  B.COLOR('#ff0'); B.PRINT(" 次の問題は");
+  B.COLOR('#ff0'); B.PRINT(" 次の問は");
   B.COLOR('#0ff'); B.PRINT("space");
-  B.COLOR('#0f0'); B.PRINT(" (Alt+a,r,z,x,c:答,リセット,縮小,拡大,初期)");
-  B.CR();
-  B.COLOR('#fff');
-  B.PRINTe("(指数入力の例 1.2e-3 は "); B.PRINT("1.2e-3 と入力)");
+  B.COLOR('#ff0'); B.PRINT(" 正解は");
+  B.COLOR('#0ff'); B.PRINT("Alt+a");
+  B.COLOR('#0f0'); B.PRINT(" (Alt+z,x,c:縮小,拡大,初期)");
   B.CR();
   B.CR();
 
@@ -442,7 +444,8 @@ function Display()
   B.COLOR(CQx); B.PRINT("誤答 " + Qx + " 問"); B.CR();
 
   B.COLOR(CAw);
-  B.PRINTe("問題 (答えはそのままか、有効数字2桁とする。)");
+  B.PRINT ("問題 (答えはそのままか有効数字2桁 ");
+  B.PRINTe("1.2e-3は"); B.PRINT("1.2e-3と入力)");
   B.CR();
   B.CR();
   B.PRINT(" "); B.PRINTe(Que); B.CR();
