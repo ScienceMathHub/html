@@ -42,7 +42,7 @@ class QUIZ
   {
     let len = this.are.length;
 
-    if (1 <= n && n <= len) return this.are[n-1];
+    if (0 <= n && n < len) return this.are[n];
     return len;
   }
   state(n)

@@ -133,6 +133,7 @@ class BASIC
     offs = Math.round(this.Zoom        / 40 * 8);
     this.LocH = offs * 2;
     h    = zoom * 2;
+//    ctx.font = h + "px 'Hiragino Kaku Gothic ProN'";
     ctx.font = h + "px 'ＭＳ ゴシック'";
 //    ctx.font = h + "px 'sans-serif'";
 //    ctx.font = h + "px '游ゴシック'";
@@ -426,62 +427,62 @@ class MOUSE
   {
     if(document.addEventListener)
     {
-      document.addEventListener("mousedown" , this.mouseDn,
+      document.addEventListener("mousedown" , this.#mouseDn,
         {passive:false});
-      document.addEventListener("mousemove" , this.mouseMv,
+      document.addEventListener("mousemove" , this.#mouseMv,
         {passive:false});
-      document.addEventListener("mouseup"   , this.mouseUp);
+      document.addEventListener("mouseup"   , this.#mouseUp);
 
-      document.addEventListener("touchstart", this.touchDn,
+      document.addEventListener("touchstart", this.#touchDn,
         {passive:false});
-      document.addEventListener("touchmove" , this.touchMv,
+      document.addEventListener("touchmove" , this.#touchMv,
         {passive:false});
-      document.addEventListener("touchend"  , this.touchUp);
+      document.addEventListener("touchend"  , this.#touchUp);
     }
     else if(document.attachEvent)
     {
-      document.attachEvent("onmousedown" , this.mouseDn,
+      document.attachEvent("onmousedown" , this.#mouseDn,
         {passive:false});
-      document.attachEvent("onmousemove" , this.mouseMv,
+      document.attachEvent("onmousemove" , this.#mouseMv,
         {passive:false});
-      document.attachEvent("onmouseup"   , this.mouseUp);
+      document.attachEvent("onmouseup"   , this.#mouseUp);
 
-      document.attachEvent("ontouchstart", this.touchDn,
+      document.attachEvent("ontouchstart", this.#touchDn,
         {passive:false});
-      document.attachEvent("ontouchmove" , this.touchMv, 
+      document.attachEvent("ontouchmove" , this.#touchMv, 
         {passive:false});
-      document.attachEvent("ontouchend"  , this.touchUp);
+      document.attachEvent("ontouchend"  , this.#touchUp);
     }
   }
   remove()
   {
     if(document.removeEventListener)
     {
-      document.removeEventListener("mousedown" , this.mouseDn,
+      document.removeEventListener("mousedown" , this.#mouseDn,
         {passive:false});
-      document.removeEventListener("mousemove" , this.mouseMv,
+      document.removeEventListener("mousemove" , this.#mouseMv,
         {passive:false});
-      document.removeEventListener("mouseup"   , this.mouseUp);
+      document.removeEventListener("mouseup"   , this.#mouseUp);
 
-      document.removeEventListener("touchstart", this.touchDn,
+      document.removeEventListener("touchstart", this.#touchDn,
         {passive:false});
-      document.removeEventListener("touchmove" , this.touchMv,
+      document.removeEventListener("touchmove" , this.#touchMv,
         {passive:false});
-      document.removeEventListener("touchend"  , this.mouseUp);
+      document.removeEventListener("touchend"  , this.#mouseUp);
     }
     else if(document.detachEvent)
     {
-      document.detachEvent("onmousedown" , this.mouseDn,
+      document.detachEvent("onmousedown" , this.#mouseDn,
         {passive:false});
-      document.detachEvent("onmousemove" , this.mouseMv,
+      document.detachEvent("onmousemove" , this.#mouseMv,
         {passive:false});
-      document.detachEvent("onmouseup"   , this.mouseUp);
+      document.detachEvent("onmouseup"   , this.#mouseUp);
 
-      document.detachEvent("ontouchstart", this.touchDn,
+      document.detachEvent("ontouchstart", this.#touchDn,
         {passive:false});
-      document.detachEvent("ontouchmove" , this.touchMv, 
+      document.detachEvent("ontouchmove" , this.#touchMv, 
         {passive:false});
-      document.detachEvent("ontouchend"  , this.mouseUp);
+      document.detachEvent("ontouchend"  , this.#mouseUp);
     }
   }
   mosDnFunc(func)
@@ -497,13 +498,16 @@ class MOUSE
     MOUSEmosUpFunc = func;
   }
   // private
-  mouseDn(event)
+  #mouseDn(event)
   {
-    let x = event.clientX;
-    let y = event.clientY;
-    let rect = canvas.getBoundingClientRect();
-//    let w = rect.right - rect.left;
-//    let h = rect.bottom - rect.top;
+//    let x, y, rect, w, h;
+    let x, y, rect;
+
+    x = event.clientX;
+    y = event.clientY;
+    rect = canvas.getBoundingClientRect();
+//    w = rect.right - rect.left;
+//    h = rect.bottom - rect.top;
 
     x -= rect.left;
     y -= rect.top;
@@ -525,19 +529,23 @@ class MOUSE
     MOUSEmosW = 0;
     MOUSEmosX = x;
     MOUSEmosY = y;
+
     if (MOUSEmosDnFunc)
     {
       if (MOUSEmosDnFunc(x, y, 0))
       { MOUSEmosD = 1; event.preventDefault(); }
     }
   }
-  touchDn(event)
+  #touchDn(event)
   {
-    let x = event.changedTouches[0].pageX;
-    let y = event.changedTouches[0].pageY;
-    let rect = canvas.getBoundingClientRect();
-//    let w = rect.right - rect.left;
-//    let h = rect.bottom - rect.top;
+//    let x, y, rect, w, h;
+    let x, y, rect;
+
+    x = event.changedTouches[0].pageX;
+    y = event.changedTouches[0].pageY;
+    rect = canvas.getBoundingClientRect();
+//    w = rect.right - rect.left;
+//    h = rect.bottom - rect.top;
 
     x -= rect.left;
     y -= rect.top;
@@ -566,7 +574,7 @@ class MOUSE
       { MOUSEmosD = 1; event.preventDefault(); }
     }
   }
-  mouseMv(event)
+  #mouseMv(event)
   {
     if (!MOUSEmosD) return;
     event.preventDefault();
@@ -583,7 +591,7 @@ class MOUSE
       MOUSEmosMvFunc(x, y, 0);
     }
   }
-  touchMv(event)
+  #touchMv(event)
   {
     if (!MOUSEmosD) return;
     event.preventDefault();
@@ -600,7 +608,7 @@ class MOUSE
       MOUSEmosMvFunc(x, y, 1);
     }
   }
-  mouseUp(event)
+  #mouseUp(event)
   {
     let x = event.clientX;
     let y = event.clientY;
@@ -615,7 +623,7 @@ class MOUSE
       MOUSEmosUpFunc(x, y, 0);
     }
   }
-  touchUp(event)
+  #touchUp(event)
   {
     let x = event.changedTouches[0].pageX;
     let y = event.changedTouches[0].pageY;

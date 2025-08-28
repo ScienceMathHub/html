@@ -600,14 +600,14 @@ function answer(quiz, n)
 {
   let r;
 
-  select(1, C7, (n == 1)? C3 : C1);
-  select(2, C7, (n == 2)? C3 : C1);
-  select(3, C7, (n == 3)? C3 : C1);
-  select(4, C7, (n == 4)? C3 : C1);
-  r = Q.area(1); dispans(r[0], r[1], "A", quiz[1]);
-  r = Q.area(2); dispans(r[0], r[1], "B", quiz[2]);
-  r = Q.area(3); dispans(r[0], r[1], "C", quiz[3]);
-  r = Q.area(4); dispans(r[0], r[1], "D", quiz[4]);
+  select(0, C7, (n == 1)? C3 : C1);
+  select(1, C7, (n == 2)? C3 : C1);
+  select(2, C7, (n == 3)? C3 : C1);
+  select(3, C7, (n == 4)? C3 : C1);
+  r = Q.area(0); dispans(r[0], r[1], "A", quiz[1]);
+  r = Q.area(1); dispans(r[0], r[1], "B", quiz[2]);
+  r = Q.area(2); dispans(r[0], r[1], "C", quiz[3]);
+  r = Q.area(3); dispans(r[0], r[1], "D", quiz[4]);
 }
 
 //--------------------------------------------------------------------
@@ -632,14 +632,16 @@ function dispque(ans)
 //--------------------------------------------------------------------
 // yes no
 //--------------------------------------------------------------------
-function yesno(n)
+function yesno(n, s)
 {
-  let r;
+  let r, i1, i2;
 
-  select(5, C7, (n == 1)? C3 : C1);
-  select(6, C7, (n == 2)? C3 : C1);
-  r = Q.area(5); dispans(r[0], r[1], "Y", ["Yes."]);
-  r = Q.area(6); dispans(r[0], r[1], "N", ["No." ]);
+  i1 = 4 + s * 2;
+  i2 = i1 + 1;
+  select(i1, C7, (n == 1)? C3 : C1);
+  select(i2, C7, (n == 2)? C3 : C1);
+  r = Q.area(i1); dispans(r[0], r[1], "Y", ["Yes."]);
+  r = Q.area(i2); dispans(r[0], r[1], "N", ["No." ]);
 }
 
 //--------------------------------------------------------------------
@@ -686,7 +688,7 @@ function next(count)
 function display()
 {
   const s = ['A', 'B', 'C', 'D'];
-  let q, a, n;
+  let q, a, n, m;
 
   B.FONT(1,0);
   B.CLS('#000');
@@ -713,18 +715,20 @@ function display()
   n = 0;
   if (a > 0)
   {
-    if (Q.state(-1) < 2)
+    m = Q.state(-1);
+    if (m < 2)
     {
-      n = Q.yesno(-1);   
-      yesno(n);
+      n = Q.yesno(-1) - m * 2;
+      if (n > 2) n = 0;
+      yesno(n, m);
     }
     B.LOCATE(0, 19);
     B.TAB(1, 0); B.PRINT (s[a-1] + "でファイナルアンサー? ");
-    if (n == 1 || Q.state(-1) > 0)
+    if (n == 1 || m > 0)
     {
       if (a == q[5])
       {
-        if (Q.state(-1) == 1)
+        if (m == 1)
         {
           if (Q.count(-1) < QuizN)
           {
@@ -747,7 +751,7 @@ function display()
         }
         else
         {
-          if (Q.state(-1) < 2) Q.count(Q.count(-1)+1);
+          if (m < 2) Q.count(Q.count(-1)+1);
           B.PRINT("  おめでとうございます!!");
           B.CR(); B.CR();
           B.TAB(1, 0); B.PRINT("もう一度挑戦するときは");
@@ -774,16 +778,14 @@ function display()
     }
   }
 
+//  B.LOCATE(1, 0); B.COLOR('#fff'); B.PRINT(Temp); B.CR();
+
   Q.yesno(0);
   if (n == 2)
   {
     Q.answer(0);
     window.requestAnimationFrame(display);
   }
-
-  B.LOCATE(0, 0);
-  B.COLOR('#fff');
-//  B.TAB(1, 0); B.PRINT(Temp); B.CR();
 }
 
 //--------------------------------------------------------------------
@@ -875,8 +877,10 @@ function init()
     [298, 200, 280,  40], // b
     [  8, 250, 280,  40], // c
     [298, 250, 280,  40], // d
-    [  8, 330, 280,  40], // y
-    [298, 330, 280,  40], // n
+    [  8, 330, 135,  40], // y
+    [153, 330, 135,  40], // n
+    [298, 330, 135,  40], // y
+    [443, 330, 135,  40]  // n
   ];
 
   Q.init();
@@ -973,14 +977,14 @@ function mouseDn(x, y, touch)
   x1 = B.winX(x);
   y1 = B.winY(y);
 
-  for (i = 1; i <= Q.area(0); i++)
+  for (i = 0; i < Q.area(-1); i++)
   {
     d = Q.area(i);
     if ((d[0] <= x1 && x1 < d[0] + d[2])
      && (d[1] <= y1 && y1 < d[1] + d[3]))
     {
-      if (i <= 4) { Q.answer(i)   ; }
-      else        { Q.yesno(i - 4); }
+      if (i < 4) { if (Q.state(-1) == 0) Q.answer(i     + 1); }
+      else       {                       Q.yesno (i - 4 + 1); }
       blur();
       window.requestAnimationFrame(display);
       return 0;
@@ -1018,4 +1022,3 @@ init();
 </script>
 </body>
 </html>
-
