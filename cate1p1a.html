@@ -84,7 +84,7 @@ class CATENARY
     this.n  =  9;       // 内部表示桁数
     this.e  =  1e-9;    // ε
     this.d  =  0.95;    // x1,y1,Lの補正用
-    this.A  =  0;       // λ = ρg/H[m]]
+    this.A  =  0;       // λ = ρg/H[m]
     this.x0 =  0;       // 左端から紐の底までの水平距離[m]
   }
   #fix(x)
@@ -146,7 +146,6 @@ class CATENARY
     let d = Math.sqrt(this.L*this.L - this.y1 * this.y1);
 
     if (x1 <= -d || x1 >= d) return this.x1;
-//    if (x1 <= 0 || x1 >= d) return this.x1;
     x1 = this.#fix(x1);
     this.x1 = x1;
     return this.x1;
@@ -173,21 +172,21 @@ class CATENARY
 
     x1 = Math.abs(this.x1);
     b = this.y1 / this.L;
-    b = Math.log((1 + b)/(1 - b));      // α = log{(1 + y1/L)/(1 - y1/L)}
-    b = Math.cosh(b/2) / this.L;        // β = (1/L)cosh(α/2)
+    b = Math.log((1 + b)/(1 - b));    // α=log{(1+y1/L)/(1-y1/L)}
+    b = Math.cosh(b/2) / this.L;      // β=(1/L)cosh(α/2)
 
     A = 2 * Math.sqrt(6/(b * x1) - 6);
-    A = x1 / A;                         // 初期値λ0 = x1/[2√{6/(βx1) - 6}]
+    A = x1 / A;                       // 初期値λ0 = x1/[2√{6/(βx1)-6}]
 
     e = this.e;
     d = e * 2;
-    while (Math.abs(d) >= e)            // λ = λn+1 (if |Δλn| < ε)
+    while (Math.abs(d) >= e)          // λ = λn+1 (if |Δλn| < ε)
     {
       t = x1 / (2*A);
-      f = 2 * b * Math.sinh(t) - 1/A;   // f(λ) = 2βsinh(x1/(2λ)) - 1/λ = 0
-      g = (1 - b*x1*Math.cosh(t))/A/A;  // f'(λ) = (1/λ^2){1 - βx1cosh(x1/(2λ))}
-      d = f / g;                        // Δλn = f(λn)/f'(λn)
-      A = A - d;                        // λn+1 = λn - Δλn 
+      f = 2 * b * Math.sinh(t) - 1/A; // f(λ) = 2βsinh(x1/(2λ))-1/λ = 0
+      g = (1 - b*x1*Math.cosh(t))/A/A;// f'(λ) = {1-βx1cosh(x1/(2λ))}/λ^2
+      d = f / g;                      // Δλn = f(λn)/f'(λn)
+      A = A - d;                      // λn+1 = λn - Δλn 
     }
     this.A = A;
     return this.#fixn(this.A);
@@ -198,7 +197,7 @@ class CATENARY
   }
   getH()
   {
-    let H = this.r * this.g * this.A;    // H = ρgλ (λ = H/ρg)
+    let H = this.r * this.g * this.A; // H = ρgλ (λ = H/ρg)
     return this.#fixn(H);
   }
   setx0()
@@ -208,7 +207,7 @@ class CATENARY
     x1 = Math.abs(this.x1);
     A = this.A;                       // λ
     t = this.y1 / this.L;
-    a = Math.log((1 + t) / (1 - t));  // α = log{(1 + y1/L)/(1 - y1/L)}
+    a = Math.log((1 + t) / (1 - t));  // α = log{(1+y1/L)/(1-y1/L)}
     x0 = (x1 - A * a) / 2;            // x0 = (1/2)(x1 - λα)
     this.x0 = (this.x1 >= 0)? x0 : -x0;
     return this.#fixn(this.x0);
@@ -222,7 +221,7 @@ class CATENARY
     let y, A, b, a;
 
     A = this.A;
-    b = (x - this.x0) / A;  // y(x) = λ{cosh(x/λ - x0/λ) - cosh(x0/λ)}
+    b = (x - this.x0) / A;  // y(x)=λ{cosh(x/λ-x0/λ)-cosh(x0/λ)}
     a = this.x0 / A;
     y = A * (Math.cosh(b) - Math.cosh(a));
     return this.#fixn(y);
@@ -501,7 +500,6 @@ function inkey(key)
 {
   switch (key)
   {
-//    case  13: if (focus()) pushget(); else init(); key = 0; break; // ' ' Space
     case  13: pushget()             ; key = 0; break; // 'R' Enter
     case  32: init()                ; key = 0; break; // ' ' Space
     case  81: B.lineWidth( 0.5)     ; key = 0; break; // 'Q'
