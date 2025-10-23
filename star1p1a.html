@@ -296,7 +296,7 @@ function orbitPoint(jd)
 
     if      (O.E[i] < 0.5) { t0 = 0; t1 = Math.PI*2; dt = Math.PI /    90; }
     else if (O.E[i] < 1.0) { t0 = 0; t1 = Math.PI*2; dt = Math.PI / 90000; }
-    else      { t0 = -Math.PI*200; t1 = Math.PI*200; dt = Math.PI /    90; }
+    else    { t0 = -Math.PI*2000; t1 = Math.PI*2000; dt = Math.PI /     9; }
     p = O.orbitMi(i, t0);
     B.POINT(p.x, p.y);
     for (let t = t0 + dt; t < t1+dt; t += dt)
