@@ -488,15 +488,14 @@ class ORBIT extends MATRIX
     else  // 彗星
     {
       this.Q[i] = this.A[i];
-      n = Math.PI*2;
       if (this.E[i] == 1)
       {
-        n /= Math.pow(this.Q[i], 3/2);
+        n = Math.PI*2 / Math.pow(this.Q[i], 3/2);
       }
       else
       {
         this.A[i] = this.Q[i] / Math.abs(1 - this.E[i]);
-        n /= Math.pow(this.A[i], 3/2);
+        n = Math.PI*2 / Math.pow(this.A[i], 3/2);
       }
     }
     this.N[i] = n / 365.25;  // ユリウス年を日に変換

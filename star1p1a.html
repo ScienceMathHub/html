@@ -30,9 +30,10 @@
 年1<label><input type="range" id ="rangeY1" min="-10" max= "10" step="1"
   value="0"></label>
 <pre></pre>
-<input type="button" id="butR" value="今日" onclick="inkey(13)">Ent
-<input type="button" id="butN" value="Zero" onclick="inkey(78)">n
-<input type="button" id="butM" value="近"    onclick="inkey(77)">m
+<input type="button" id="butR" value="今日" onclick="inkey( 13)">Ent
+<input type="button" id="butN" value="0"    onclick="inkey( 78)">n
+<input type="button" id="butM" value="近"   onclick="inkey( 77)">m
+<input type="button" id="butC" value="彗"   onclick="inkey(191)">/
 <pre></pre>
 月<label><input type="range" id ="rangeM1" min="1" max= "12" step="1"
   value="1"></label>
@@ -69,9 +70,9 @@
 //--------------------------------------------------------------------
 const B = new BASIC();
 const D = new DATE();
-
-let Temp; // debug
-let Secret = 1; // 0:表示
+let Temp;          // debug
+const Secret0 = 2      ; // 非表示数
+let   Secret  = Secret0; // 0:表示
 
 //------------------------------------------------------------------------------
 // 軌道要素
@@ -82,6 +83,7 @@ const Day =
   { y:2019, m: 4, d:27.0   }, // 元期1(Mo準惑星,小惑星)
   { y:2011, m: 8, d:27.0   }, // 元期2(Mo準惑星)
   { y:2025, m: 1, d:13.424 }, // 元期3(Mo彗星)
+  { y:2025, m:11, d: 8.0   }  // 元期4(Mo彗星)
 ];
 const Orbit =
 [
@@ -103,8 +105,10 @@ const Orbit =
   ['#888',2,68.072 , 0.434 ,43.8  ,187.1  , 36.1  ,201.6  ,  0      , "エリス"  ],
   ['#880',1, 1.190 , 0.190 , 5.9  ,463.1  ,251.6  ,249.8  ,  0      , "竜宮"    ],
   ['#886',1, 1.324 , 0.280 , 1.6  ,231.9  , 69.1  ,288.9  ,  0      , "糸川"    ],
-//     c ,d, a(q)  , e    , i     , Ω+ω , Ω    , Mo    ,  P     , name
-  ['#4aa',3, 0.0935, 1    ,116.851,328.456,220.331,  0    , -1     , "C/2023 G3"],
+//     c ,d, a(q)  , e     , i    , Ω+ω , Ω    , Mo ,  P, name
+  ['#4aa',3, 0.0935, 1     ,116.85,328.456,220.331,  0 , -1, "C/2023 G3"],
+  ['#aa0',4, 0.5298, 0.9958,143.66,241.05 ,108.10 ,  0 , -1, "C/2025 A6(Lemmon)"]
+//  ['#aa0',4, 126.14, 0.9958,143.66,241.05 ,108.10 ,  0 ,  0, "C/2025 A6(Lemmon)"]
 ];
 const O = new ORBIT();
 function orbitInit()
@@ -248,7 +252,7 @@ function orbitPoint(jd)
 
   for (let i = O.orbits() - Secret; --i >= 1;)
   {
-    if (O.A[i] > r0) continue;
+    if (O.Q[i] > r0) continue;
     O.orbitRotatei(i, -X1.value, 1, 0, 0);
   }
 
@@ -256,7 +260,7 @@ function orbitPoint(jd)
   {
     for (let i = O.orbits() - Secret; --i >= 1;)
     {
-      if (O.A[i] > r0) continue;
+      if (O.Q[i] > r0) continue;
       c = colorSub(O.color(i), '#666')
       p = O.orbitMi(i, 0);
       B.LINE(0, 0, p.x, p.y, c);
@@ -287,15 +291,15 @@ function orbitPoint(jd)
   {
     let t0, t1;
 
-    if (O.A[i] > r0) continue;
+    if (O.Q[i] > r0) continue;
     c = O.color(i);
 
-    if (O.E[i] < 1) { t0 =  0         ; t1 = Math.PI*2 ; }
-    else            { t0 = -Math.PI*200; t1 = Math.PI*200; } 
+    if      (O.E[i] < 0.5) { t0 = 0; t1 = Math.PI*2; dt = Math.PI /    90; }
+    else if (O.E[i] < 1.0) { t0 = 0; t1 = Math.PI*2; dt = Math.PI / 90000; }
+    else      { t0 = -Math.PI*200; t1 = Math.PI*200; dt = Math.PI /    90; }
     p = O.orbitMi(i, t0);
     B.POINT(p.x, p.y);
-    dt = Math.PI / 90;
-    for (let t = t0 + dt; t < t1; t += dt)
+    for (let t = t0 + dt; t < t1+dt; t += dt)
     {
       p = O.orbitMi(i, t);
       B.LINE2(p.x, p.y, c);
@@ -427,17 +431,17 @@ function inkey(key)
 {
   switch (key)
   {
-    case  13: init()                ; break; // 'R' Enter
-    case  78: neutral()             ; break; // 'N' Neutral
-    case  77: isQ = (isQ+1) % 4     ; break; // 'M'
-    case  86: if (--Era < 0) Era = 7; break; // 'V'
-    case  66: if (++Era > 7) Era = 0; break; // 'B'
-    case  81: B.lineWidth( 0.5)     ; break; // 'Q'
-    case  87: B.lineWidth( 2  )     ; break; // 'W'
-    case  90: B.zooming  (-1  )     ; break; // 'Z'
-    case  88: B.zooming  ( 1  )     ; break; // 'X'
-    case  67: B.zooming  ( 0  )     ; break; // 'C'
-    case 191: Secret = !Secret      ; break; // '/'
+    case  13: init()                 ; break; // 'R' Enter
+    case  78: neutral()              ; break; // 'N' Neutral
+    case  77: isQ = (isQ+1) % 4      ; break; // 'M'
+    case  86: if (--Era < 0) Era = 7 ; break; // 'V'
+    case  66: if (++Era > 7) Era = 0 ; break; // 'B'
+    case  81: B.lineWidth( 0.5)      ; break; // 'Q'
+    case  87: B.lineWidth( 2  )      ; break; // 'W'
+    case  90: B.zooming  (-1  )      ; break; // 'Z'
+    case  88: B.zooming  ( 1  )      ; break; // 'X'
+    case  67: B.zooming  ( 0  )      ; break; // 'C'
+    case 191: Secret = Secret0-Secret; break; // '/'
   }
   blurelem();
   blur();
