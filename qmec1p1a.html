@@ -1,0 +1,831 @@
+<!--
+----------------------------------------------------------------------
+ 力学的エネルギークイズ
+
+ HTML(JavaScript, canvas)
+
+ Physics (c) Ohtani 2025.8 - 2025.9
+----------------------------------------------------------------------
+-->
+<!DOctxYPE html>
+<html lang="ja">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<head>
+  <meta charset="utf-8">
+  <title>力学的エネルギークイズ</title>
+</head>
+<body>
+<p id="MechanicalQuiz"></p>
+<div style='float:left;'>
+力学的エネルギー
+<br>
+<form id="target">
+Level5 <input type="radio" id="lvl_5" name="amount" value="5" />5<pre></pre>
+Level4 <input type="radio" id="lvl_4" name="amount" value="4" />4<pre></pre>
+Level3 <input type="radio" id="lvl_3" name="amount" value="3" />3<pre></pre>
+Level2 <input type="radio" id="lvl_2" name="amount" value="2" />2<pre></pre>
+Level1 <input type="radio" id="lvl_1" name="amount" value="1" />1<pre></pre>
+</form>
+矢印shift abcdyn
+<pre></pre>
+<input type="button" id="butS" value="Reset" onclick="inkey(32)">Space
+<pre></pre>
+<input type="button" id="butR" value="角度0" onclick="inkey(13)">Enter
+<pre></pre>
+<input type="button" id="butQ" value="細"    onclick="inkey(81)">q
+<input type="button" id="butW" value="太"    onclick="inkey(87)">w
+<pre></pre>
+<input type="button" id="butZ" value="縮"    onclick="inkey(90)">z 
+<input type="button" id="butX" value="拡"    onclick="inkey(88)">x
+<input type="button" id="butC" value="初"    onclick="inkey(67)">v
+<pre></pre>
+
+<script src="https://sciencemathhub.github.io/html/tophys.js"></script>
+<script src="https://sciencemathhub.github.io/html/canlib.js"></script>
+<script src="https://sciencemathhub.github.io/html/quilib.js"></script>
+<script>
+'use strict'
+
+//--------------------------------------------------------------------
+// Quiz level 1
+//--------------------------------------------------------------------
+const Qu11 = [
+[ ["力[N]の式はどれ"],
+  ["W = mg"], ["F = ma"], ["Wx = mgsinθ"], ["Wy = mgcosθ"], 2
+]];
+
+const Qu12 = [
+[ ["重力[N]の式はどれ"],
+  ["W = mg"], ["F = ma"], ["Wx = mgsinθ"], ["Wy = mgcosθ"], 1
+]];
+
+const Qu13 = [
+[ ["仰角θの斜面に水平な重力の成分[N]の式はどれ"],
+  ["W = mg"], ["F = ma"], ["Wx = mgsinθ"], ["Wy = mgcosθ"], 3
+],
+[ ["仰角θの斜面に垂直な重力の成分[N]の式はどれ"],
+  ["W = mg"], ["F = ma"], ["Wx = mgsinθ"], ["Wy = mgcosθ"], 4
+]];
+
+const Qu14 = [
+[ ["物体を力F[N]で水平にx[m]動かしたときFがした仕事[J]はどれ"],
+  ["W = Fx"], ["W = -Fx"], ["W = 0"], ["W = mgx"], 1
+],
+[ ["物体が力F[N]とは逆向きに水平にx[m]動いたときFがした仕事[J]はどれ"],
+  ["W = Fx"], ["W = -Fx"], ["W = 0"], ["W = mgx"], 2
+]];
+
+const Qu15 = [
+[ ["物体が水平にx[m]動いたときの重力がした仕事[J]はどれ"],
+  ["W = Fx"], ["W = -Fx"], ["W = 0"], ["W = mgx"], 3
+],
+[ ["物体が水平にx[m]動いたときの垂直抗力がした仕事[J]はどれ"],
+  ["W = Fx"], ["W = -Fx"], ["W = 0"], ["W = mgx"], 3
+]];
+
+//--------------------------------------------------------------------
+// Quiz level 2
+//--------------------------------------------------------------------
+const Qu21 = [
+[ ["物体を真上にx[m]持ち上げたときの仕事[J]はどれ"],
+  ["W = mgx"], ["W = 0"], ["W = mgxsinθ"], ["W = mgxcosθ"], 1
+]];
+
+const Qu22 = [
+[ ["仰角θ方向に力F[N]で引き物体が水平にx[m]動いたときFがした仕事[J]はどれ"],
+  ["W = Fx"], ["W = 0"], ["W = Fxcosθ"], ["W = Fxsinθ"], 3
+]];
+
+const Qu23 = [
+[ ["物体を仰角θの斜面上方向にx[m]移動させたときの仕事[J]はどれ"],
+  ["W = mgx"], ["W = 0"], ["W = mgxsinθ"], ["W = mgxcosθ"], 3
+]];
+
+const Qu24 = [
+[ ["仰角θの斜面に沿って物体を高さh[m]上昇させたときの仕事[J]はどれ"],
+  ["W = mgh"], ["W = 0"], ["W = mghsinθ"], ["W = mghcosθ"], 1
+]];
+
+const Qu25 = [
+[ ["物体を真上にx[m]持ち上げた後x'[m]下げたときの仕事[J]はどれ"],
+  ["W = mgx"], ["W = mgx'"], ["W = mg(x-x')"], ["W = mg(x'-x)"], 3
+]];
+
+//--------------------------------------------------------------------
+// Quiz level 3
+//--------------------------------------------------------------------
+const Qu31 = [
+[ ["物体にW[J]の仕事をt[s]間でしたときの仕事率[W]はどれ"],
+  ["P = ", 1, "W", "t"], ["P = Wt"], ["P = ", 1, "t", "W"], ["P = 0"], 1
+]];
+
+const Qu32 = [
+[ ["物体に力F[N]でその方向にx[m]をt[s]間で動かしたときの仕事率[W]はどれ"],
+  ["P = ", 2, "Fx", "_'t"], ["P = Fxt"], ["P = ", 2, "Ft", "_'x"], ["P = 0"], 1
+]];
+
+const Qu33 = [
+[ ["物体に力F[N]でその方向に速度v[m/s]で動かしたときの仕事率[W]はどれ"],
+  ["P = ", 1, "F", "v"], ["P = Fv"], ["P = ", 1, "v", "F"], ["P = 0"], 2
+]];
+
+const Qu34 = [
+[ ["物体を真上にx[m]をt[s]間で持ち上げたときの仕事率[W]はどれ"],
+  ["P = ", 3, "mgx", " t"], ["P = mgxt"], ["P = ", 3, "mgt", " x"], ["P = 0"], 1
+]];
+
+const Qu35 = [
+[ ["物体を仰角θの斜面上方向にt[s]間でx[m]移動させたときの仕事率[W]はどれ"],
+  ["P = ", 8, "mgxsinθ", "   t"], ["P = ", 8, "mgxcosθ", "   t"],
+  ["P = mgxtsinθ"], ["P = mgxtcosθ"], 1
+]];
+
+//--------------------------------------------------------------------
+// Quiz level 4
+//--------------------------------------------------------------------
+const Qu41 = [
+[ ["速度v[m/s]の物体の運動エネルギー[J]はどれ"],
+  ["K = ", 1, "1", "2", " mv^2"], ["U = mgh"],
+  ["U = ", 1, "1", "2", " kx^2"], ["p = mv"], 1
+]];
+
+const Qu42 = [
+[ ["重力による位置エネルギー[J]はどれ"],
+  ["K = ", 1, "1", "2", " mv^2"], ["U = mgh"],
+  ["U = ", 1, "1", "2", " kx^2"], ["p = mv"], 2
+]];
+
+const Qu43 = [
+[ ["弾性力による位置エネルギー[J]はどれ"],
+  ["K = ", 1, "1", "2", " mv^2"], ["U = mgh"],
+  ["U = ", 1, "1", "2", " kx^2"], ["p = mv"], 3
+]];
+
+const Qu44 = [
+[ ["速度v_0[m/s]の物体に仕事W[J]をすると速度がv[m/s]になったときの関係はどれ"],
+  ["", 1, "1", "2", " mv^2 - ", 1, "1", "2", " mv_0^2 = W"],
+  ["", 1, "1", "2", " mv_0^2 - ", 1, "1", "2", " mv^2 = W"],
+  ["", 1, "1", "2", " mv^2 + ", 1, "1", "2", " mv_0^2 = W"],
+  ["", 1, "1", "2", " mv - ", 1, "1", "2", " mv_0 = W"], 1
+]];
+
+const Qu45 = [
+[ ["力学的エネルギー[J]はどれ"],
+  ["K + U"], ["K - U"], ["K"], ["U"], 1
+]];
+
+//--------------------------------------------------------------------
+// Quiz level 5
+//--------------------------------------------------------------------
+const Qu51 = [
+[ ["重力による力学的エネルギー[J]はどれ"],
+  ["", 1, "1", "2", " mv^2 + mgh"],
+  ["", 1, "1", "2", " mv^2 + ", 1, "1", "2", " kx^2"],
+  ["", 1, "1", "2", " mv^2 - mgh"],
+  ["", 1, "1", "2", " mv^2 - ", 1, "1", "2", " kx^2"], 1
+]];
+
+const Qu52 = [
+[ ["弾性力による力学的エネルギー[J]はどれ"],
+  ["", 1, "1", "2", " mv^2 + mgh"],
+  ["", 1, "1", "2", " mv^2 + ", 1, "1", "2", " kx^2"],
+  ["", 1, "1", "2", " mv^2 - mgh"],
+  ["", 1, "1", "2", " mv^2 - ", 1, "1", "2", " kx^2"], 2
+]];
+
+const Qu53 = [
+[ ["高さh[m]からの自由落下したときの力学的エネルギー保存の法則はどれ"],
+  ["0 + mgh = ", 1, "1", "2", " mv^2 + 0"],
+  ["", 1, "1", "2", " mv^2 + mgh = 0 + 0"],
+  ["0 + ", 1, "1", "2", " kx^2 = ", 1, "1", "2", " mv^2 + 0"],
+  ["", 1, "1", "2", " mv^2 + ", 1, "1", "2", " kx^2 = 0 + 0"], 1
+]];
+
+const Qu54 = [
+[ ["x[m]縮めたバネから離れ速度v[m/s]になるときの力学的エネルギー保存の法則はどれ"],
+  ["0 + mgh = ", 1, "1", "2", " mv^2 + 0"],
+  ["", 1, "1", "2", " mv^2 + mgh = 0 + 0"],
+  ["0 + ", 1, "1", "2", " kx^2 = ", 1, "1", "2", " mv^2 + 0"],
+  ["", 1, "1", "2", " mv^2 + ", 1, "1", "2", " kx^2 = 0 + 0"], 3
+]];
+
+const Qu55 = [
+[ ["v_0[m/s]高さh_0[m]からv[m/s]h[m]になるときの力学的エネルギー保存の法則はどれ"],
+  ["", 1, "1", "2", " mv_0^2 + mgh_0 = ", 1, "1", "2", " mv^2 + mgh"],
+  ["", 1, "1", "2", " mv_0^2 + mgh = ", 1, "1", "2", " mv^2 + mgh_0"],
+  ["", 1, "1", "2", " mv_0^2 + ", 1, "1", "2", " mv^2 = mgh_0 + mgh"],
+  ["", 1, "1", "2", " mv_0^2 - mgh_0 = ", 1, "1", "2", " mv^2 - mgh"], 1
+]];
+
+const Quiz1 = [ Qu11, Qu12, Qu13, Qu14, Qu15 ];
+const Quiz2 = [ Qu21, Qu22, Qu23, Qu24, Qu25 ];
+const Quiz3 = [ Qu31, Qu32, Qu33, Qu34, Qu35 ];
+const Quiz4 = [ Qu41, Qu42, Qu43, Qu44, Qu45 ];
+const Quiz5 = [ Qu51, Qu52, Qu53, Qu54, Qu55 ];
+
+const Quiz0 = [ Quiz1, Quiz2, Quiz3, Quiz4, Quiz5 ];
+
+//--------------------------------------------------------------------
+// public letiable
+//--------------------------------------------------------------------
+const B = new BASIC();
+const C0 = '#000'
+const C1 = '#24f'
+const C2 = '#f88'
+const C3 = '#f8f'
+const C4 = '#8f8'
+const C5 = '#8ff'
+const C6 = '#ff8'
+const C7 = '#fff'
+
+let Temp; // debug
+
+//------------------------------------------------------------------------------
+// QUIZ
+//------------------------------------------------------------------------------
+const Q = new QUIZ();
+
+//--------------------------------------------------------------------
+// triangle
+//--------------------------------------------------------------------
+function triangle(r, d, n, lr)
+{
+  let x0, y0, x1, y1, x2, y2, x3, y3, x, y;
+  let xn, yn, t0, t1, t, a, b, i;
+
+  t1  = Q.rad(d);
+  x2  = r * Math.cos(t1);
+  y2  = r * Math.sin(t1);
+  x0  = -x2 / 2;
+  y0  = -y2 / 2;
+  x2 += x0;
+  y2 += y0;
+  x1  = x2;
+  y1  = y0;
+  a   = r * 0.06;
+  xn = [x0, x1, x2, x1-a, x1-a, x1  ];
+  yn = [y0, y1, y2, y1  , y1+a, y1+a];
+
+  d  = Q.getd(n);
+  t0 = Q.rad(d);
+  if (lr) t0 = -t0;
+  a  = Math.cos(t0);
+  b  = Math.sin(t0);
+  for (i = 0; i < xn.length; i++)
+  {
+    x = xn[i]; y = yn[i];
+    xn[i] = x * a - y * b;
+    yn[i] = x * b + y * a;
+  }
+
+  d  = Q.area(n + 8);
+  x  = d[0] + d[2] / 2;
+  y  = d[1] + d[3] / 2;
+  if (lr) B.WINDOW( x, y, x-639, y-399);
+  else    B.WINDOW(-x, y, 639-x, y-399);
+  B.LINE(xn[0], yn[0], xn[1], yn[1], C7);
+  B.LINE2             (xn[2], yn[2], C7);
+  B.LINE2             (xn[0], yn[0], C7);
+  B.LINE(xn[3], yn[3], xn[4], yn[4], C7);
+  B.LINE2             (xn[5], yn[5], C7);
+
+  if (lr)
+  {
+    x -= xn[0];
+    y -= yn[0];
+    B.WINDOW( x, y, x-639, y-399);
+  }
+  else
+  {
+    x += xn[0];
+    y -= yn[0];
+    B.WINDOW(-x, y, 639-x, y-399);
+  }
+  a   = r * 0.2;
+  t   = t0 + t1 * 0.5;
+  t1 += t0;
+  if (lr) { t0 = Math.PI - t0; t1 = Math.PI - t1; t = Math.PI - t; }
+  B.CIRCLE(0, 0, a, C7, t0, t1, !lr);
+
+  a = r * 0.27;
+  x = a * Math.cos(t);
+  y = a * Math.sin(t);
+  if (lr) x = -x + 16;
+  B.SYMBOL(x-8, y-7, "θ", C7);
+  B.WINDOW(0, 0, 639, 399);
+}
+
+//--------------------------------------------------------------------
+// select
+//--------------------------------------------------------------------
+function select(n, c1, c0)
+{
+  let rect, x, y, w, h;
+
+  rect = Q.area(n);
+  x = rect[0];
+  y = rect[1];
+  w = rect[2];
+  h = rect[3];
+  B.LINEBF(x, y, x+w, y+h, c0);
+  B.LINEB (x, y, x+w, y+h, c1);
+}
+
+//--------------------------------------------------------------------
+// answer
+//--------------------------------------------------------------------
+function dispans1(i, a, b)
+{
+  let s;
+
+  B.TAB(   0.5, -0.5); B.PRINTe(a);
+  s = "".padEnd(i+1, '_');
+  B.TAB(-i-0.5,  0  ); B.PRINT (s);
+  B.TAB(-i-0.5,  1.0); B.PRINTe(b);
+  B.TAB(   0  , -0.5);
+}
+
+function dispans(x, y, s, ans)
+{
+  let a, b, w, h, i, n, f;
+
+  w = 8;
+  h = 9;
+  B.LOCATEp(x+w, y+h); B.PRINT(s + ": ");
+  f = 1;
+  n = ans.length;
+  for (i = 0; i < n;)
+  {
+    if (f)
+    {
+      B.PRINTe(ans[i++]); f = 0; continue;
+    }
+    dispans1(ans[i], ans[i+1], ans[i+2]); i += 3; f = 1;
+  }
+}
+
+function answer(quiz, n)
+{
+  let r;
+
+  select(0, C7, (n == 1)? C3 : C1);
+  select(1, C7, (n == 2)? C3 : C1);
+  select(2, C7, (n == 3)? C3 : C1);
+  select(3, C7, (n == 4)? C3 : C1);
+  r = Q.area(0); dispans(r[0], r[1], "A", quiz[1]);
+  r = Q.area(1); dispans(r[0], r[1], "B", quiz[2]);
+  r = Q.area(2); dispans(r[0], r[1], "C", quiz[3]);
+  r = Q.area(3); dispans(r[0], r[1], "D", quiz[4]);
+}
+
+//--------------------------------------------------------------------
+// question
+//--------------------------------------------------------------------
+function dispque(ans)
+{
+  let a, b, w, h, i, n, f;
+
+  f = 1;
+  n = ans.length;
+  for (i = 0; i < n;)
+  {
+    if (f)
+    {
+      B.PRINTe(ans[i++]); f = 0; continue;
+    }
+    dispans1(ans[i], ans[i+1], ans[i+2]); i += 3; f = 1;
+  }
+}
+
+//--------------------------------------------------------------------
+// yes no
+//--------------------------------------------------------------------
+function yesno(n, s)
+{
+  let r, i1, i2;
+
+  i1 = 4 + s * 2;
+  i2 = i1 + 1;
+  select(i1, C7, (n == 1)? C3 : C1);
+  select(i2, C7, (n == 2)? C3 : C1);
+  r = Q.area(i1); dispans(r[0], r[1], "Y", ["Yes."]);
+  r = Q.area(i2); dispans(r[0], r[1], "N", ["No." ]);
+}
+
+//--------------------------------------------------------------------
+// gold
+//--------------------------------------------------------------------
+function gold(x, y)
+{
+  let n, c;
+
+  n = Q.count(-1);
+  if (n == 6) c = C5; else if (n == 5) c = C7; else c = C3;
+  B.LOCATE(x, y  ); B.COLOR(c); B.PRINT("5問目  1,000,000点");
+  if (n == 5) c = C5; else if (n == 4) c = C7; else c = C3;
+  B.LOCATE(x, y+1); B.COLOR(c); B.PRINT("4問目    100,000点");
+  if (n == 4) c = C5; else if (n == 3) c = C7; else c = C3;
+  B.LOCATE(x, y+2); B.COLOR(c); B.PRINT("3問目     10,000点");
+  if (n == 3) c = C5; else if (n == 2) c = C7; else c = C3;
+  B.LOCATE(x, y+3); B.COLOR(c); B.PRINT("2問目      1,000点");
+  if (n == 2) c = C5; else if (n == 1) c = C7; else c = C3;
+  B.LOCATE(x, y+4); B.COLOR(c); B.PRINT("1問目        100点");
+}
+
+//--------------------------------------------------------------------
+// gold
+//--------------------------------------------------------------------
+const QuizN = 5;
+function next(count)
+{
+  let q;
+
+  Q.count(count);
+  if (count <= QuizN) Q.state(0); else count = QuizN;
+  Q.answer(0);
+  Q.yesno(0);
+  q = Q.question(Q.level(-1), count, Quiz0)
+  Q.quiz(q);
+  blur();
+  window.requestAnimationFrame(main);
+}
+
+//--------------------------------------------------------------------
+// screen
+//--------------------------------------------------------------------
+function display()
+{
+  const s = ['A', 'B', 'C', 'D'];
+  let q, a, n, m;
+
+  B.FONT(1,0);
+  B.CLS('#000');
+
+  triangle(125, 30, 0, 0);
+  triangle(125, 30, 1, 1);
+  B.WINDOW(0, 0, 639, 399);
+
+  gold(59, 1);
+  
+  B.COLOR(C7);
+  B.LOCATE(0, 1);
+  B.TAB(1, 0); B.PRINTe("重力加速度 g[m/s^2]"); B.CR();
+  B.TAB(1, 0); B.PRINTe("加速度     a[m/s^2]"); B.CR();
+  B.TAB(1, 0); B.PRINT ("物体の質量 m[kg]"   ); B.CR();
+  B.TAB(1, 0); B.PRINT ("力         F[N]"    ); B.CR();
+  B.TAB(1, 0); B.PRINT ("時間       t[s]"    ); B.CR();
+
+  B.LOCATE(0, 8);
+  n = Q.count(-1); if (n > QuizN) n = QuizN;
+  a = Q.level(-1)*1000 + n*100 + Q.number(-1);
+  q = Q.quiz(null);
+  B.TAB(1, 0); B.PRINT(n + "問目 (" + a + ")"); B.CR(); B.CR();
+  B.TAB(1, 0); dispque(q[0]); B.CR();
+
+  a = Q.answer(-1);
+  answer(q, a);
+  n = 0;
+  if (a > 0)
+  {
+    m = Q.state(-1);
+    if (m < 2)
+    {
+      n = Q.yesno(-1) - m * 2;
+      if (n > 2) n = 0;
+      yesno(n, m);
+    }
+    B.LOCATE(0, 19);
+    B.TAB(1, 0); B.PRINT (s[a-1] + "でファイナルアンサー? ");
+    if (n == 1 || m > 0)
+    {
+      if (a == q[5])
+      {
+        if (m == 1)
+        {
+          if (Q.count(-1) < QuizN)
+          {
+            switch(n)
+            {
+              case 1: next(Q.count(-1) + 1); return;
+              case 2: next(Q.count(-1)    ); return;
+            }
+          }
+          else
+          {
+            if (n > 0) { next(1); return; }
+          }
+        }
+        B.TAB(1, 0); B.PRINT ("正解!");
+        if (Q.count(-1) < QuizN)
+        {
+          B.PRINT ("  次の問題に進みますか?");
+          Q.state(1);
+        }
+        else
+        {
+          if (m < 2) Q.count(Q.count(-1)+1);
+          B.PRINT("  おめでとうございます!!");
+          B.CR(); B.CR();
+          B.TAB(1, 0); B.PRINT("もう一度挑戦するときは");
+                       B.PRINT("ResetかLevelボタンを押して下さい");
+          B.CR();
+          Q.state(2);
+        }
+        Q.yesno(0);
+        if (n > 0) window.requestAnimationFrame(display);
+        return;
+      }
+      else
+      {
+        B.TAB(1, 0); B.PRINT ("残念!  " + s[q[5]-1] + " でした");
+        B.CR(); B.CR();
+        B.TAB(1, 0); B.PRINT("もう一度挑戦するときは");
+        B.TAB(1, 0); B.PRINT("ResetかLevelボタンを押して下さい");
+        B.CR();
+        Q.state(2);
+        Q.yesno(0);
+        if (n > 0) window.requestAnimationFrame(display);
+        return;
+      }
+    }
+  }
+
+//  B.LOCATE(1, 0); B.COLOR('#fff'); B.PRINT(Temp); B.CR();
+
+  Q.yesno(0);
+  if (n == 2)
+  {
+    Q.answer(0);
+    window.requestAnimationFrame(display);
+  }
+}
+
+//--------------------------------------------------------------------
+// input
+//--------------------------------------------------------------------
+function pushinit()
+{
+  let v, i;
+
+  v = document.getElementById("target");
+  for (i = 0; i < v.length; i++)
+  {
+    v[i].checked = false;
+  }
+  v[v.length-1].checked = true;
+}
+
+function pushget()
+{
+  let v, i;
+
+  v = document.getElementById("target");
+  for (i = 0; i < v.length; i++)
+  {
+    if (v[i].checked) { Q.level(5 - i); break; }
+  }
+  window.requestAnimationFrame(display);
+}
+
+function blur()
+{
+  document.getElementById('lvl_5').blur();
+  document.getElementById('lvl_4').blur();
+  document.getElementById('lvl_3').blur();
+  document.getElementById('lvl_2').blur();
+  document.getElementById('lvl_1').blur();
+
+  document.getElementById('butS').blur();
+  document.getElementById('butR').blur();
+  document.getElementById('butQ').blur();
+  document.getElementById('butW').blur();
+  document.getElementById('butZ').blur();
+  document.getElementById('butX').blur();
+  document.getElementById('butC').blur();
+}
+
+function reset()
+{
+  pushget();
+  next(1);
+}
+
+function pushlvl()
+{
+  let v, i;
+
+  v = document.getElementById("target");
+  for (i = 0; i < v.length; i++)
+  {
+    if (v[i].checked) { Q.level(5 - i); break; }
+  }
+  Q.count(1);
+  reset();
+}
+
+document.getElementById("target"  ).addEventListener('input', pushlvl);
+
+function keylvl(x)
+{
+  let v, i;
+
+  v = document.getElementById("target");
+  for (i = 0; i < v.length; i++)
+  {
+    v[i].checked = (i == x)? true : false;
+  }
+  pushlvl();
+  reset();
+}
+
+//--------------------------------------------------------------------
+// init
+//--------------------------------------------------------------------
+function init()
+{
+  const a =
+  [
+    [  8, 200, 280,  40], // a
+    [298, 200, 280,  40], // b
+    [  8, 250, 280,  40], // c
+    [298, 250, 280,  40], // d
+    [  8, 330, 135,  40], // y
+    [153, 330, 135,  40], // n
+    [298, 330, 135,  40], // y
+    [443, 330, 135,  40], // n
+    [170,  19, 110, 110], // 1
+    [320,  19, 110, 110]  // 2
+  ];
+
+  Q.init();
+  Q.setarea(a);
+  Q.setd(  0, 0);
+  Q.setd(-60, 1);
+  pushinit();
+  reset();
+}
+
+//--------------------------------------------------------------------
+// Input key
+//--------------------------------------------------------------------
+function keyon(key)
+{
+  let f, d, s, n;
+
+  f = 0;
+  // SHIFT16 CTRL17 ALT18
+  if      (Key[ 16]) { s =  5; }
+  else               { s = 15; }
+
+  if      (Key[ 38] || key == 38) //↑
+  {
+    n = 0; d = Q.getd(n);
+    d += s; f = 1;
+  }
+  else if (Key[ 40] || key == 40) //↓
+  {
+    n = 0; d = Q.getd(n);
+    d -= s; f = 1;
+  }
+  else if (Key[ 39] || key == 39) //→
+  {
+    n = 1; d = Q.getd(n);
+    d -= s; f = 1;
+  } 
+  else if (Key[ 37] || key == 37) //←
+  {
+    n = 1; d = Q.getd(n);
+    d += s; f = 1;
+  }
+  if (f == 0) return 0;
+  Q.setd(d, n);
+  return 1;
+}
+
+function inkey(key)
+{
+  switch (key)
+  {
+    case  13: Q.setd(0, 0); Q.setd(-60, 1); key = 0; break; // Enter
+    case  32: reset(); key = 0; break; // ' '
+    case  81: B.lineWidth( 0.5); key = 0; break; // 'Q'
+    case  87: B.lineWidth( 2  ); key = 0; break; // 'W'
+    case  90: B.zooming  (-1  ); key = 0; break; // 'Z'
+    case  88: B.zooming  ( 1  ); key = 0; break; // 'X'
+    case  86: B.zooming  ( 0  ); key = 0; break; // 'V'
+    case  53: keylvl(0)  ; key = 0; break; // '5'
+    case  52: keylvl(1)  ; key = 0; break; // '4'
+    case  51: keylvl(2)  ; key = 0; break; // '3'
+    case  50: keylvl(3)  ; key = 0; break; // '2'
+    case  49: keylvl(4)  ; key = 0; break; // '1'
+    case  65: Q.answer(1); key = 0; break; // 'a'
+    case  66: Q.answer(2); key = 0; break; // 'b'
+    case  67: Q.answer(3); key = 0; break; // 'c'
+    case  68: Q.answer(4); key = 0; break; // 'd'
+    case  89: Q.yesno(1) ; key = 0; break; // 'y'
+    case  78: Q.yesno(2) ; key = 0; break; // 'n'
+    default : if (keyon(key))    key = 0;
+  }
+  if (key) return;
+  blur();
+  window.requestAnimationFrame(display);
+}
+document.body.addEventListener('keydown', event =>
+{
+  let key = event.keyCode;
+
+  inkey(key);
+});
+
+//--------------------------------------------------------------------
+// Key status
+//--------------------------------------------------------------------
+let Key = new Array(256);
+for (let i = 0; i < 256; i++) Key[i] = 0;
+window.onkeydown = function(event) { Key[event.keyCode] = 1; }
+window.onkeyup   = function(event) { Key[event.keyCode] = 0; }
+
+//----------------------------------------------------------------------
+// mouse
+//----------------------------------------------------------------------
+function mouseDn(x, y, touch)
+{
+  let x1, y1, d, d1, i;
+
+  if (!(0 <= x && x <= canvas.width )) return 0;
+  if (!(0 <= y && y <= canvas.height)) return 0;
+
+  x1 = B.winX(x);
+  y1 = B.winY(y);
+
+  d1 = -1;
+  for (i = 0; i < Q.area(-1); i++)
+  {
+    d = Q.area(i);
+    if ((d[0] <= x1 && x1 < d[0] + d[2])
+     && (d[1] <= y1 && y1 < d[1] + d[3]))
+    {
+      if      (i < 4) { if (Q.state(-1) == 0) Q.answer(i     + 1); }
+      else if (i < 8) {                       Q.yesno (i - 4 + 1); }
+      else            { d1 = i - 8; break; }
+      blur();
+      window.requestAnimationFrame(display);
+      return 0;
+    }
+  }
+  if (d1 < 0) return 0;
+
+  i   = d1;
+  x1  = x1 - (d[0] + d[2] / 2);
+  y1  = (d[1] + d[3] / 2) - y1;
+  d1  = Math.atan2(y1, x1);
+  d1  = Q.deg(d1);
+  d1 -= Q.getd(i);
+
+  M.ofsX(d1);
+  M.ofsY(i );
+  blur();
+  return 1;
+}
+
+function mouseMv(x, y, touch)
+{
+  let x1, y1, d, d1, i;
+
+  d1 = M.ofsX('');
+  i  = M.ofsY('');
+  d  = Q.area(i + 8);
+  x1 = B.winX(x);
+  y1 = B.winY(y);
+  x1  = x1 - (d[0] + d[2] / 2);
+  y1  = (d[1] + d[3] / 2) - y1;
+
+  d  = Math.atan2(y1, x1);
+  d  = Q.deg(d);
+  d -= d1;
+  d1 = 15;
+  d  = Math.round(d / d1) * d1;
+  Q.setd(d, i);
+  blur();
+  window.requestAnimationFrame(display);
+}
+
+const M = new MOUSE();
+M.add();
+M.mosDnFunc(mouseDn);
+M.mosMvFunc(mouseMv);
+
+//--------------------------------------------------------------------
+// main
+//--------------------------------------------------------------------
+function main()
+{
+  display();
+}
+init();
+
+//--------------------------------------------------------------------
+</script>
+</body>
+</html>
