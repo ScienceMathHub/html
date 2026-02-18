@@ -1,0 +1,402 @@
+<!--
+------------------------------------------------------------------------
+ pH(power of hydrogen / hydrogen ion exponent)
+
+ HTML(JavaScript, canvas)
+
+ (c) Ohtani 2026.2
+------------------------------------------------------------------------
+-->
+<!DOctxYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <title>水素イオン指数</title>
+</head>
+<body>
+<p id="nameralization"></p>
+<div style='float:left;'>
+<input type="button" id = "but_1" value=" 塩酸 "   onclick="inkey(49)">1
+<input type="button" id = "but_2" value=" 酢酸 "   onclick="inkey(50)">2
+<pre></pre>
+<input type="button" id = "but_3" value=" 硫酸 "   onclick="inkey(51)">3
+<input type="button" id = "but_4" value=" 蓚酸 "   onclick="inkey(52)">4
+<pre></pre>
+<input type="button" id = "but_5" value=" 炭酸 "   onclick="inkey(53)">5
+<input type="button" id = "but_6" value="枸櫞酸"   onclick="inkey(54)">6
+<pre></pre>
+<input type="button" id = "but_7" value=" 燐酸 "   onclick="inkey(55)">7
+<input type="button" id = "but_8" value="NaOH"     onclick="inkey(56)">8
+<pre></pre>
+<input type="button" id = "but_9" value="安母尼亞" onclick="inkey(57)">9
+<br><br>
+<input type="button" id = "but_R" value="Reset" onclick="inkey(13)">Enter
+<pre></pre>
+<input type="button" id = "but_A" value="-2"    onclick="inkey(65)">a
+<input type="button" id = "but_S" value=" 0"    onclick="inkey(83)">s
+<br><br>
+<input type="button" id="butWD" value="細"    onclick="inkey( 81)">q
+<input type="button" id="butWU" value="太"    onclick="inkey( 87)">w
+<pre></pre>
+<input type="button" id="butZD" value="縮"    onclick="inkey( 90)">z
+<input type="button" id="butZU" value="拡"    onclick="inkey( 88)">x
+<input type="button" id="butZC" value="元"    onclick="inkey( 67)">c
+
+<script src="https://sciencemathhub.github.io/html/tochem.js"></script>
+<script src="https://sciencemathhub.github.io/html/canlib.js"></script>
+<script>
+'use strict'
+
+//----------------------------------------------------------------------
+// public variable
+//----------------------------------------------------------------------
+let B = new BASIC();
+
+let Select  =  1; // 種類
+let Selects =  9; // 種類最大
+let L02     = -2; // 最大濃度の指数
+let L00     =  0; // 最大濃度の指数
+let L0 = L00;
+let C0 = ['#ff0', '#f00', '#f0f', '#0f0'];
+
+//--- Lv:pc=14, Rev:酸塩基逆転, N:価数
+let Kw, Lv, Rev, N, Ka1, Ka2, Ka3;
+
+//----------------------------------------------------------------------
+// 初期設定
+//----------------------------------------------------------------------
+//--- HCl
+function init1()
+{
+  Ka1 = 1.07e+2;     //--- 電離定数(25℃)
+  N   = 1;           //--- 価数
+  Rev = 0;           //--- 0:acid-base, 1:base-asid
+  B.PRINTe("塩酸 HCl");
+}
+//--- CH3COOH
+function init2()
+{
+  Ka1 = 2.69e-5;     //--- 電離定数(25℃)
+  N   = 1;           //--- 価数
+  Rev = 0;           //--- 0:acid-base, 1:base-asid
+  B.PRINTe("酢酸 CH_3COOH");
+}
+//--- H2SO4
+function init3()
+{
+  Ka1 = 1.00e+5;     //--- 電離定数(25℃)
+  Ka2 = 1.02e-2;     //--- 電離定数(25℃)
+  N   = 2;           //--- 価数
+  Rev = 0;           //--- 0:acid-base, 1:base-asid
+  B.PRINTe("硫酸 H_2SO_4");
+}
+//--- (COOH)2
+function init4()
+{
+  Ka1 = 5.40e-02;    //--- 電離定数(25℃)
+  Ka2 = 5.40e-05;    //--- 電離定数(25℃)
+  N   = 2;           //--- 価数
+  Rev = 0;           //--- 0:acid-base, 1:base-asid
+  B.PRINTe("シュウ酸 (COOH)_2");
+}
+//--- H2CO3
+function init5()
+{
+  Ka1 = 4.50e-07;    //--- 電離定数(25℃)
+  Ka2 = 4.70e-11;    //--- 電離定数(25℃)
+  N   = 2;           //--- 価数
+  Rev = 0;           //--- 0:acid-base, 1:base-asid
+  B.PRINTe("炭酸 H_2CO_3");
+}
+//--- C(OH)(CH2COOH)2COOH C6H8O7
+function init6()
+{
+  Ka1 = 7.41e-4;     //--- 電離定数(25℃)
+  Ka2 = 1.74e-5;     //--- 電離定数(25℃)
+  Ka3 = 4.07e-7;     //--- 電離定数(25℃)
+  N   = 3;           //--- 価数
+  Rev = 0;           //--- 0:acid-base, 1:base-asid
+  B.PRINTe("クエン酸 C(OH)(CH_2COOH)_2COOH");
+}
+//--- H3PO4
+function init7()
+{
+  Ka1 = 7.50e-03;    //--- 電離定数(25℃)
+  Ka2 = 6.20e-08;    //--- 電離定数(25℃)
+  Ka3 = 2.14e-13;    //--- 電離定数(25℃)
+  N   = 3;           //--- 価数
+  Rev = 0;           //--- 0:acid-base, 1:base-asid
+  B.PRINTe("リン酸 H_3PO_4");
+}
+//--- NaOH
+function init8()
+{
+  Ka1 = 1.00e-0;     //--- 電離定数(25℃)
+  N   = 1;           //--- 価数
+  Rev = 1;           //--- 0:acid-base, 1:base-asid
+  B.PRINTe("水酸化ナトリウム NaOH");
+}
+//--- NH3
+function init9()
+{
+  Ka1 = 1.79e-5;     //--- 電離定数(25℃)
+  N   = 1;           //--- 価数
+  Rev = 1;           //--- 0:acid-base, 1:base-asid
+  B.PRINTe("アンモニア NH_3");
+}
+
+//----------------------------------------------------------------------
+// 酸の濃度 mol/L [H+]
+//----------------------------------------------------------------------
+//--- 1価 concentration, α
+function conc1(h, kw, ka)
+{
+  let a = h*(h*(h+ka)-kw)-ka*kw;
+  let b = ka*h;
+  let c = a/b;
+  
+  a = ka/(ka+h);
+  return [c, a];
+}
+
+//--- 2価 concentration, α
+function conc2(h, kw, ka1, ka2)
+{
+  let ka = ka1*ka2;
+  let a  = h*(h*(h*(h+ka1)+ka-kw)-ka1*kw)-ka*kw;
+  let b  = ka1*h*(h+2*ka2);
+  let c  = a/b;
+  let ha, a1, a2;
+
+  a  = c*ka/(ka+h*ka1+h*h);
+  ha = h*a/ka2;
+  a1 = (ha+a)/c;
+  a2 = a/(ha+a);
+
+  return [c, a1, a2];
+}
+
+//--- 3価 concentration, α
+function conc3(h, kw, ka1, ka2, ka3)
+{
+  let ka   = ka1*ka2*ka3;
+  let ka12 = ka1*ka2;
+  let ka23 = ka2*ka3;
+  let a = h*(h*(h*(h*(h+ka1)+ka12-kw)+ka1*(ka23-kw))-ka12*kw)-ka*kw;
+  let b = ka1*h*(h*(h+2*ka2)+3*ka23);
+  let c = a/b;
+  let ha2, h2a, a1, a2, a3;
+
+  a   = c*ka/(ka+(ka12+(ka1+h)*h)*h);
+  ha2 = h*a/ka3;
+  h2a = h*h*a/ka23;
+  a1  = (h2a+ha2+a)/c;
+  a2  = (ha2+a)/(h2a+ha2+a);
+  a3  = a/(h2a+ha2+a);
+
+  return [c, a1, a2, a3];
+}
+
+//----------------------------------------------------------------------
+// Plot (ph, concentration, α...)
+//----------------------------------------------------------------------
+let ConcX;
+let ConcY;
+function plotconc(ph)
+{ //       ph      α1α2α3 
+  let i, p, h, pc, a;
+
+  if (ph >= 99)
+  {
+    ConcX = 99;
+    return;
+  }
+  h = Math.pow(10, -ph);
+  switch(N)
+  {
+    case  1: p = conc1(h, Kw, Ka1)          ; break;
+    case  2: p = conc2(h, Kw, Ka1, Ka2)     ; break;
+    case  3: p = conc3(h, Kw, Ka1, Ka2, Ka3); break;
+    default: return;
+  }
+  
+  pc = -Math.log10(p[0]);
+  if (pc < L0) return;
+  if (pc > 14) pc = 14;
+  p[0] = (Rev)? 14-ph : ph;
+  if (ConcX >= 99)
+  {
+    ConcX = pc;
+    ConcY = p;
+    return;
+  }
+  for (i = 0; i <= N; i++)
+  {
+    B.LINE(ConcX, -ConcY[i], pc, -p[i], C0[i]);    
+  }
+  ConcX = pc;
+  ConcY = p;
+}
+
+//----------------------------------------------------------------------
+// nameralization titration
+//----------------------------------------------------------------------
+function main()
+{
+  let i, ph, x, y, k1, k2, k3, k0;
+
+  Ka1 = Ka2 = Ka3 = 0;
+  Kw = 1e-14;            //--- 水  のイオン積(25℃)
+  Lv = 14;               //--- 全量
+  x = Lv * 0.385 + L0;
+  B.WINDOW(-Lv * 0.5 + x, -16.5, Lv * 1.5 + x, 2.5);
+
+  B.CLS('#000');
+  B.COLOR('#fff'); B.LOCATE(1, 1);
+  switch(Select)
+  {
+    case 1: init1(); break;
+    case 2: init2(); break;
+    case 3: init3(); break;
+    case 4: init4(); break;
+    case 5: init5(); break;
+    case 6: init6(); break;
+    case 7: init7(); break;
+    case 8: init8(); break;
+    case 9: init9(); break;
+  }
+
+  for (i = 0; i <= 14; i++)
+  {
+    B.LINE(L0, -i, Lv, -i, '#00f');
+    ph = (i < 10)? ' ' + i : i;
+    B.SYMBOL(-Lv/15+L0, -i+0.3, ph, '#fff');
+  }
+  for (i = L0; i <= Lv; i++)
+  {
+    B.LINE(i, -14, i, 0, '#00f');
+  }
+  B.LINE(Lv/2, -14, Lv/2,  0, '#0ff');
+  B.LINE(   0, -14,    0,  0, '#0ff');
+  B.LINE(L0  ,  -7, Lv  , -7, '#0ff');
+
+  B.COLOR('#fff');
+  B.LOCATE(3.8+( 0-L0)*2.85, 22); B.PRINTe("10^0"    );
+  B.LOCATE(3.8+( 7-L0)*2.85, 22); B.PRINTe("10^-^7"  );
+  B.LOCATE(3.8+(14-L0)*2.85, 22); B.PRINTe("10^-^1^4");
+  B.PRINT(" mol/L");
+
+  plotconc(99);
+  for (ph = L0; ph <= 7; ph += 0.02)
+  {
+    plotconc(ph);
+  }
+
+  x  = 48 - L0*2.85;
+  k1 = Ka1.toExponential(2) + " mol/L";
+  k2 = Ka2.toExponential(2) + " mol/L";
+  k3 = Ka3.toExponential(2) + " mol/L";
+  k0 = (Rev)? "Kb" : "Ka";
+  B.COLOR(C0[0]); B.LOCATE(x, 11.8); B.PRINT("pH");
+  y  = 19.7;
+
+  if (N == 1)
+  {
+    B.COLOR('#fff'); B.LOCATE(x, 1); B.PRINT (k0 +   " = " + k1);
+    B.COLOR(C0[1] ); B.LOCATE(x, y); B.PRINT ("α");
+  }
+  else
+  {
+    B.COLOR('#fff'); B.LOCATE(x, 1); B.PRINTe(k0 +   "_1 = " + k1);
+    B.COLOR('#fff'); B.LOCATE(x, 2); B.PRINTe(k0 +   "_2 = " + k2);
+    B.COLOR(C0[1] ); B.LOCATE(x, y); B.PRINTe("α_1");
+    B.COLOR(C0[2] ); B.PRINTe(" α_2");
+    if (N == 3)
+    {
+      B.COLOR(C0[3] ); B.PRINTe(" α_3");
+      B.COLOR('#fff'); B.LOCATE(x, 3); B.PRINTe(k0 +   "_3 = " + k3);
+    }
+  }
+}
+
+//----------------------------------------------------------------------
+// select(1～9)
+//----------------------------------------------------------------------
+function selectof(k)
+{
+  if (1 <= k && k <= Selects)
+  {
+    Select = k;
+  }
+}
+
+//----------------------------------------------------------------------
+// Input key
+//----------------------------------------------------------------------
+function blur()
+{
+  document.getElementById("but_1" ).blur();
+  document.getElementById("but_2" ).blur();
+  document.getElementById("but_3" ).blur();
+  document.getElementById("but_4" ).blur();
+  document.getElementById("but_5" ).blur();
+  document.getElementById("but_6" ).blur();
+  document.getElementById("but_7" ).blur();
+  document.getElementById("but_8" ).blur();
+  document.getElementById("but_9" ).blur();
+  document.getElementById("but_R" ).blur();
+  document.getElementById("but_A" ).blur();
+  document.getElementById("but_S" ).blur();
+}
+
+function inkey(key)
+{
+//  if (37 <= key && 40 <= key) event.preventDefault();
+  event.preventDefault();
+  switch (key)
+  {
+    case 13: L0 = L00            ; break; // Enter
+    case 65: L0 = L02            ; break; // 'A'
+    case 83: L0 = L00            ; break; // 'S'
+    case 81: B.lineWidth( 0.5); break; // 'Q'
+    case 87: B.lineWidth( 2  ); break; // 'W'
+    case 90: B.zooming  (-1  ); break; // 'Z'
+    case 88: B.zooming  ( 1  ); break; // 'X'
+    case 67: B.zooming  ( 0  ); break; // 'C'
+    default: selectof(key - 48);
+  }
+  blur();
+  window.requestAnimationFrame(main);
+}
+
+document.body.addEventListener('keydown', event =>
+{
+  let key = event.keyCode;
+
+  inkey(key);
+});
+
+//----------------------------------------------------------------------
+// Key status
+//----------------------------------------------------------------------
+let Key = new Array(256);
+for (var i = 0; i < 256; i++) Key[i] = 0;
+window.onkeydown = function(event) { Key[event.keyCode] = 1; }
+window.onkeyup   = function(event) { Key[event.keyCode] = 0; }
+
+//----------------------------------------------------------------------
+// Mouse
+//----------------------------------------------------------------------
+const M = new MOUSE();
+M.add();
+
+
+//----------------------------------------------------------------------
+// main
+//----------------------------------------------------------------------
+main();
+
+//----------------------------------------------------------------------
+</script>
+</body>
+</html>
