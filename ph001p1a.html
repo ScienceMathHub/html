@@ -60,7 +60,7 @@ let L0 = L00;
 let C0 = ['#ff0', '#f00', '#f0f', '#0f0'];
 
 //--- Lv:pc=14, Rev:酸塩基逆転, N:価数
-let Kw, Lv, Rev, N, Ka1, Ka2, Ka3;
+let Kw, Lv, Rev, N, Ka1, Ka2, Ka3, Ka4;
 
 //----------------------------------------------------------------------
 // 初期設定
@@ -111,10 +111,11 @@ function init5()
 //--- C(OH)(CH2COOH)2COOH C6H8O7
 function init6()
 {
-  Ka1 = 7.41e-4;     //--- 電離定数(25℃)
-  Ka2 = 1.74e-5;     //--- 電離定数(25℃)
-  Ka3 = 4.07e-7;     //--- 電離定数(25℃)
-  N   = 3;           //--- 価数
+  Ka1 = 7.41e-04;    //--- 電離定数(25℃)
+  Ka2 = 1.74e-05;    //--- 電離定数(25℃)
+  Ka3 = 4.07e-07;    //--- 電離定数(25℃)
+  Ka4 = 3.98e-15;    //--- 電離定数(25℃)
+  N   = 4;           //--- 価数
   Rev = 0;           //--- 0:acid-base, 1:base-asid
   B.PRINTe("クエン酸 C(OH)(CH_2COOH)_2COOH");
 }
@@ -185,14 +186,14 @@ function conc3(h, kw, ka1, ka2, ka3)
   let a = h*(h*(h*(h*(h+ka1)+ka12-kw)+ka1*(ka23-kw))-ka12*kw)-ka*kw;
   let b = ka1*h*(h*(h+2*ka2)+3*ka23);
   let c = a/b;
-  let ha2, h2a, a1, a2, a3;
+  let ha, h2a, a1, a2, a3;
 
   a   = c*ka/(ka+(ka12+(ka1+h)*h)*h);
-  ha2 = h*a/ka3;
+  ha  = h*a/ka3;
   h2a = h*h*a/ka23;
-  a1  = (h2a+ha2+a)/c;
-  a2  = (ha2+a)/(h2a+ha2+a);
-  a3  = a/(h2a+ha2+a);
+  a1  = (h2a+ha+a)/c;
+  a2  = (ha+a)/(h2a+ha+a);
+  a3  = a/(ha+a);
 
   return [c, a1, a2, a3];
 }
@@ -216,8 +217,7 @@ function plotconc(ph)
   {
     case  1: p = conc1(h, Kw, Ka1)          ; break;
     case  2: p = conc2(h, Kw, Ka1, Ka2)     ; break;
-    case  3: p = conc3(h, Kw, Ka1, Ka2, Ka3); break;
-    default: return;
+    default: p = conc3(h, Kw, Ka1, Ka2, Ka3); break;
   }
   
   pc = -Math.log10(p[0]);
@@ -243,9 +243,9 @@ function plotconc(ph)
 //----------------------------------------------------------------------
 function main()
 {
-  let i, ph, x, y, k1, k2, k3, k0;
+  let i, ph, x, x1, y, k1, k2, k3, k4, k0;
 
-  Ka1 = Ka2 = Ka3 = 0;
+  Ka1 = Ka2 = Ka3 = Ka4 = 0;
   Kw = 1e-14;            //--- 水  のイオン積(25℃)
   Lv = 14;               //--- 全量
   x = Lv * 0.385 + L0;
@@ -293,28 +293,39 @@ function main()
   }
 
   x  = 48 - L0*2.85;
-  k1 = Ka1.toExponential(2) + " mol/L";
-  k2 = Ka2.toExponential(2) + " mol/L";
-  k3 = Ka3.toExponential(2) + " mol/L";
+  x1 = x + 16.5;
+  k1 = Ka1.toExponential(2);
+  k2 = Ka2.toExponential(2);
+  k3 = Ka3.toExponential(2);
+  k4 = Ka4.toExponential(2);
   k0 = (Rev)? "Kb" : "Ka";
   B.COLOR(C0[0]); B.LOCATE(x, 11.8); B.PRINT("pH");
   y  = 19.7;
 
   if (N == 1)
   {
-    B.COLOR('#fff'); B.LOCATE(x, 1); B.PRINT (k0 +   " = " + k1);
+    B.COLOR('#fff'); B.LOCATE(x, 1); B.PRINTe(k0 +   " = " + k1);
+    B.LOCATE(x1, 1); B.PRINT("mol/L");
     B.COLOR(C0[1] ); B.LOCATE(x, y); B.PRINT ("α");
   }
   else
   {
     B.COLOR('#fff'); B.LOCATE(x, 1); B.PRINTe(k0 +   "_1 = " + k1);
+    B.LOCATE(x1, 1); B.PRINT("mol/L");
     B.COLOR('#fff'); B.LOCATE(x, 2); B.PRINTe(k0 +   "_2 = " + k2);
+    B.LOCATE(x1, 2); B.PRINT("mol/L");
     B.COLOR(C0[1] ); B.LOCATE(x, y); B.PRINTe("α_1");
     B.COLOR(C0[2] ); B.PRINTe(" α_2");
-    if (N == 3)
+    if (N >= 3)
     {
       B.COLOR(C0[3] ); B.PRINTe(" α_3");
       B.COLOR('#fff'); B.LOCATE(x, 3); B.PRINTe(k0 +   "_3 = " + k3);
+      B.LOCATE(x1, 3); B.PRINT("mol/L");
+      if (N > 3)
+      {
+        B.COLOR('#fff'); B.LOCATE(x, 4); B.PRINTe(k0 +   "_4 = " + k4);
+        B.LOCATE(x1, 4); B.PRINT("mol/L");
+      }
     }
   }
 }
