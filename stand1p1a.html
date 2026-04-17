@@ -298,7 +298,7 @@ function scale(c, px, py, h, m, up, sl, sr)
 //--------------------------------------------------------------------
 function display()
 {
-  let px1, px2, px, py, h, a1, a, str;
+  let px1, px2, px, py, h, a1, a, str, c1, c2;
 
   B.FONT(1,0);
   B.CLS('#000');
@@ -306,8 +306,8 @@ function display()
   h  = 16;
   a1 = 1;
   py =  64;
-  if (isDup)
 /*
+  if (isDup)
   {
     px = -1.5;
     func1('#fff', px, py, h, a1);
@@ -325,21 +325,6 @@ function display()
     func2('#ffb', px, py, h, a1);
     py += 36;
   }
-*/
-  {
-    px1 = -1.5;
-    func1('#fff', px1, py, h, a1);
-    scale('#ff0', px1, py, h, a1, 0, '-', '');
-    longi('#8ff', px1, py, h, a1, f1);
-    graph('#00f', px1, py, h, a1, f1);
-    px2 = -(1.5 + DisX);
-    py += 116;
-    func2('#fff', px2, py, h, a1);
-    scale('#ff0', px2, py, h, a1, 0, '', '-');
-    longi('#8ff', px2, py, h, a1, f2);
-    graph('#f0f', px2, py, h, a1, f2);
-    py += 102;
-  }
   else
   {
     px1 = -1.5;
@@ -355,14 +340,38 @@ function display()
     graph('#fff', px2, py, h, a1, f2);
     py += 102;
   }
+*/
+
+  if (isDup)
+  {
+    c1 = '#08f';
+    c2 = '#f0f';
+  }
+  else
+  {
+    c1 = '#fff';
+    c2 = '#fff';
+  }
+  px1 = -1.5;
+  func1('#fff', px1, py, h, a1);
+  scale('#ff0', px1, py, h, a1, 0, '-', '');
+  longi('#8ff', px1, py, h, a1, f1);
+  graph( c1   , px1, py, h, a1, f1);
+  px2 = -(1.5 + DisX);
+  py += 116;
+  func2('#fff', px2, py, h, a1);
+  scale('#ff0', px2, py, h, a1, 0, '', '-');
+  longi('#8ff', px2, py, h, a1, f2);
+  graph( c2   , px2, py, h, a1, f2);
+  py += 102;
 
   px = -(1.5 + DisX / 2);
   a = 2;
   scale('#0f0', px, py, h, a, 2, '', '');
-  if (isDup)
+  if (c1 != '#fff')
   {
-    graph('#00f', px1, py, h, a, f1);
-    graph('#f0f', px2, py, h, a, f2);
+    graph( c1, px1, py, h, a, f1);
+    graph( c2, px2, py, h, a, f2);
   }
   longi('#8ff', px, py, h, a, f12);
   if (isCos)
