@@ -268,7 +268,7 @@ const Q = new QUIZ();
 //--------------------------------------------------------------------
 function micrometer(r, n, s, o, z)
 { // 半径,倍率,0or1,LorR
-  let x0, y0, x1, y1, x2, y2, x3, y3, x, y;
+  let x0, y0, x1, y1, x2, y2, x3, y3, x4, y4, x, y;
   let t0, t, a, b, e, f, i, k, ar;
 
   ar  = Q.area(n + 8);
@@ -278,16 +278,6 @@ function micrometer(r, n, s, o, z)
 
   x1  = r * 0.06;
   y1  = r * 0.06;
-
-  for (i = 5; i <= 35; i++)
-  {
-    if      ((i % 10) == 0) y = y1 * 3;
-    else if ((i %  5) == 0) y = y1 * 2;
-    else                    y = y1;
-    x = x1 * (i - 20);
-    B.LINE(x, y, x, -y, C7);
-  }
-
   if (n)
   {
     t  = Q.getd(n);
@@ -299,34 +289,40 @@ function micrometer(r, n, s, o, z)
 
     k  = x1 * z / 2;
     B.ELLIPSE(x, y, k, C4, 0.5, t0);
-
-    B.CIRCLE(0, 0, r, C7);
-
-    B.WINDOW(0, 0, 639, 399);
-    return;
+  }
+  else
+  {
+    x4 = x1 * s / o;
+    y4 = y1 * s / o;
+    t  = Q.getd(n);
+    t0 = Q.rad(t);
+    a  = Math.cos(t0);
+    b  = Math.sin(t0);
+    e  = Q.getx(n);
+    f  = Q.gety(n);
+    k  = Math.round(24 * (o/s) / 2);
+    for (i = 0; i <= k*2; i++)
+    {
+      if      ((i % 10) == 0) y = y4 * 2;
+      else if ((i %  5) == 0) y = y4 * 1.5;
+      else                    y = y4;
+    
+      x = -(i-k) * x4;
+      x2 = x * a - (-y) * b + e;
+      y2 = x * b + (-y) * a - f;
+      x3 = x * a -   y  * b + e;
+      y3 = x * b +   y  * a - f;
+      B.LINE(x2, y2, x3, y3, C5);
+    }
   }
 
-  x1  = r * s / o * 0.06;
-  y1  = r * s / o * 0.06;
-  t  = Q.getd(n);
-  t0 = Q.rad(t);
-  a  = Math.cos(t0);
-  b  = Math.sin(t0);
-  e  = Q.getx(n);
-  f  = Q.gety(n);
-  k  = Math.round(24 * (o/s) / 2);
-  for (i = 0; i <= k*2; i++)
+  for (i = 5; i <= 35; i++)
   {
-    if      ((i % 10) == 0) y = y1 * 2;
-    else if ((i %  5) == 0) y = y1 * 1.5;
+    if      ((i % 10) == 0) y = y1 * 3;
+    else if ((i %  5) == 0) y = y1 * 2;
     else                    y = y1;
-    
-    x = -(i-k) * x1;
-    x2 = x * a - (-y) * b + e;
-    y2 = x * b + (-y) * a - f;
-    x3 = x * a -   y  * b + e;
-    y3 = x * b +   y  * a - f;
-    B.LINE(x2, y2, x3, y3, C5);
+    x = x1 * (i - 20);
+    B.LINE(x, y, x, -y, C7);
   }
 
   B.CIRCLE(0, 0, r, C7);
