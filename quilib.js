@@ -19,6 +19,8 @@ class QUIZ
     this.lev = this.cou = this.num = this.ans = this.yn = this.qui = 0;
     this.sta = 0;
     this.d   = [0, 0];
+    this.x   = [0, 0];
+    this.y   = [0, 0];
     this.are = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]];
   }
   init()
@@ -29,6 +31,8 @@ class QUIZ
     this.ans  = 0;      // 解答番号(1-4)
     this.yn   = 0;      // 解答番号(1-2)
     this.d    = [0, 0]; // 角度θ[°]
+    this.x    = [0, 0]; // 位置x
+    this.y    = [0, 0]; // 位置y
     this.qui  = 0;      // Quiz
     this.sta  = 0;      // State 0:通常 1:正解 2:残念
     this.are = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]];
@@ -109,6 +113,26 @@ class QUIZ
   getd(n)
   {
     return this.d[n];
+  }
+  setx(x, n)
+  {
+    x = this.#fix(x);
+    this.x[n] = x;
+    return this.x[n];
+  }
+  getx(n)
+  {
+    return this.x[n];
+  }
+  sety(y, n)
+  {
+    y = this.#fix(y);
+    this.y[n] = y;
+    return this.y[n];
+  }
+  gety(n)
+  {
+    return this.y[n];
   }
   //--------------------------------------------------------------------
   // question

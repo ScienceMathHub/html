@@ -401,6 +401,19 @@ class BASIC
     ctx.fillStyle = c; // ctx.strokeStyle = c;
     ctx.fill();        // ctx.stroke();
   }
+  ELLIPSE(x, y, r, c, e = 1, rot = 0, t0 = 0, t1 = Math.PI*2, dir = true)
+  {
+    let x0, y0, r0;
+
+    this.PosX = x0 = this.scrX(x);
+    this.PosY = y0 = this.scrY(y);
+    r0 = Math.abs(this.scrH(r));
+
+    ctx.beginPath();
+    ctx.ellipse(x0, y0, r0, r0*e, rot, -t0, -t1, dir);
+    ctx.strokeStyle = c;
+    ctx.stroke();
+  }
   // window func
   zooming(sign)
   {
@@ -489,6 +502,7 @@ class MOUSE
   {
     this.OfsX      =    0;
     this.OfsY      =    0;
+    this.OfsZ      =    0;
     MOUSEmosX      =    0;
     MOUSEmosY      =    0;
     MOUSEmosD      =    0;
@@ -721,5 +735,10 @@ class MOUSE
   {
     if (y !== '')  this.OfsY = y;
     return this.OfsY;
+  }
+  ofsZ(z)
+  {
+    if (z !== '')  this.OfsZ = z;
+    return this.OfsZ;
   }
 }
