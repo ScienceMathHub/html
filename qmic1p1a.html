@@ -1,0 +1,896 @@
+<!--
+----------------------------------------------------------------------
+ ミクロメータークイズ
+
+ HTML(JavaScript, canvas)
+
+ Biology (c) Ohtani 2026.4 - 2026.4
+----------------------------------------------------------------------
+-->
+<!DOctxYPE html>
+<html lang="ja">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<head>
+  <meta charset="utf-8">
+  <title>ミクロメータークイズ</title>
+</head>
+<body>
+<p id="CircularQuiz"></p>
+<div style='float:left;'>
+ミクロメータークイズ
+<br>
+<form id="target">
+Level5 <input type="radio" id="lvl_5" name="amount" value="5" />5<pre></pre>
+Level4 <input type="radio" id="lvl_4" name="amount" value="4" />4<pre></pre>
+Level3 <input type="radio" id="lvl_3" name="amount" value="3" />3<pre></pre>
+Level2 <input type="radio" id="lvl_2" name="amount" value="2" />2<pre></pre>
+Level1 <input type="radio" id="lvl_1" name="amount" value="1" />1<pre></pre>
+</form>
+矢印shift abcdyn
+<pre></pre>
+<input type="button" id="butS" value="Reset" onclick="inkey(32)">Space
+<pre></pre>
+<input type="button" id="butR" value="角度0" onclick="inkey(13)">Enter
+<pre></pre>
+<input type="button" id="butQ" value="細"    onclick="inkey(81)">q
+<input type="button" id="butW" value="太"    onclick="inkey(87)">w
+<pre></pre>
+<input type="button" id="butZ" value="縮"    onclick="inkey(90)">z 
+<input type="button" id="butX" value="拡"    onclick="inkey(88)">x
+<input type="button" id="butC" value="初"    onclick="inkey(67)">v
+<pre></pre>
+
+<script src="https://sciencemathhub.github.io/html/tophys.js"></script>
+<script src="https://sciencemathhub.github.io/html/canlib.js"></script>
+<script src="https://sciencemathhub.github.io/html/quilib.js"></script>
+<script>
+'use strict'
+
+//--------------------------------------------------------------------
+// Quiz level 1
+//--------------------------------------------------------------------
+const Qu11 = [
+[ ["細胞の長さはどれ"],
+  ["20μm"], ["30μm"], ["40μm"], ["50μm"], 4, 10, 5, 10
+],
+[ ["細胞の長さはどれ"],
+  ["20μm"], ["40μm"], ["60μm"], ["80μm"], 3, 10, 5, 12
+],
+[ ["細胞の長さはどれ"],
+  ["25μm"], ["50μm"], ["75μm"], ["100μm"], 3, 10, 5, 15
+],
+[ ["細胞の長さはどれ"],
+  ["70μm"], ["80μm"], ["90μm"], ["100μm"], 3, 10, 5, 18
+]];
+
+const Qu12 = [
+[ ["細胞の長さはどれ"],
+  ["30μm"], ["40μm"], ["50μm"], ["60μm"], 4, 10, 6, 10
+],
+[ ["細胞の長さはどれ"],
+  ["48μm"], ["60μm"], ["72μm"], ["84μm"], 3, 10, 6, 12
+],
+[ ["細胞の長さはどれ"],
+  ["70μm"], ["80μm"], ["90μm"], ["100μm"], 3, 10, 6, 15
+],
+[ ["細胞の長さはどれ"],
+  ["84μm"], ["96μm"], ["108μm"], ["120μm"], 3, 10, 6, 18
+]];
+
+const Qu13 = [
+[ ["細胞の長さはどれ"],
+  ["40μm"], ["50μm"], ["60μm"], ["70μm"], 4, 10, 7, 10
+],
+[ ["細胞の長さはどれ"],
+  ["56μm"], ["70μm"], ["84μm"], ["98μm"], 3, 10, 7, 12
+],
+[ ["細胞の長さはどれ"],
+  ["77μm"], ["91μm"], ["105μm"], ["119μm"], 3, 10, 7, 15
+],
+[ ["細胞の長さはどれ"],
+  ["98μm"], ["112μm"], ["126μm"], ["140μm"], 3, 10, 7, 18
+]];
+
+const Qu14 = [
+[ ["細胞の長さはどれ"],
+  ["50μm"], ["60μm"], ["70μm"], ["80μm"], 4, 10, 8, 10
+],
+[ ["細胞の長さはどれ"],
+  ["88μm"], ["104μm"], ["120μm"], ["136μm"], 3, 10, 8, 15
+],
+[ ["細胞の長さはどれ"],
+  ["112μm"], ["128μm"], ["144μm"], ["160μm"], 3, 10, 8, 18
+],
+[ ["細胞の長さはどれ"],
+  ["128μm"], ["144μm"], ["160μm"], ["176μm"], 3, 10, 8, 20
+]];
+
+const Qu15 = [
+[ ["細胞の長さはどれ"],
+  ["90μm"], ["108μm"], ["126μm"], ["144μm"], 1, 10, 9, 10
+],
+[ ["細胞の長さはどれ"],
+  ["90μm"], ["108μm"], ["126μm"], ["144μm"], 2, 10, 9, 12
+],
+[ ["細胞の長さはどれ"],
+  ["90μm"], ["108μm"], ["126μm"], ["144μm"], 3, 10, 9, 14
+],
+[ ["細胞の長さはどれ"],
+  ["90μm"], ["108μm"], ["126μm"], ["144μm"], 4, 10, 9, 16
+]];
+
+//--------------------------------------------------------------------
+// Quiz level 2
+//--------------------------------------------------------------------
+const Qu21 = [
+[ ["未定義"],
+  [""], [""], [""], [""], 1, 10, 10, 20
+]];
+
+const Qu22 = [
+[ ["未定義"],
+  [""], [""], [""], [""], 1, 10, 10, 20
+]];
+
+const Qu23 = [
+[ ["未定義"],
+  [""], [""], [""], [""], 1, 10, 10, 20
+]];
+
+const Qu24 = [
+[ ["未定義"],
+  [""], [""], [""], [""], 1, 10, 10, 20
+]];
+
+const Qu25 = [
+[ ["未定義"],
+  [""], [""], [""], [""], 1, 10, 10, 20
+]];
+
+//--------------------------------------------------------------------
+// Quiz level 3
+//--------------------------------------------------------------------
+const Qu31 = [
+[ ["未定義"],
+  [""], [""], [""], [""], 1, 10, 10, 20
+]];
+
+const Qu32 = [
+[ ["未定義"],
+  [""], [""], [""], [""], 1, 10, 10, 20
+]];
+
+const Qu33 = [
+[ ["未定義"],
+  [""], [""], [""], [""], 1, 10, 10, 20
+]];
+
+const Qu34 = [
+[ ["未定義"],
+  [""], [""], [""], [""], 1, 10, 10, 20
+]];
+
+const Qu35 = [
+[ ["未定義"],
+  [""], [""], [""], [""], 1, 10, 10, 20
+]];
+
+//--------------------------------------------------------------------
+// Quiz level 4
+//--------------------------------------------------------------------
+const Qu41 = [
+[ ["未定義"],
+  [""], [""], [""], [""], 1, 10, 10, 20
+]];
+
+const Qu42 = [
+[ ["未定義"],
+  [""], [""], [""], [""], 1, 10, 10, 20
+]];
+
+const Qu43 = [
+[ ["未定義"],
+  [""], [""], [""], [""], 1, 10, 10, 20
+]];
+
+const Qu44 = [
+[ ["未定義"],
+  [""], [""], [""], [""], 1, 10, 10, 20
+]];
+
+const Qu45 = [
+[ ["未定義"],
+  [""], [""], [""], [""], 1, 10, 10, 20
+]];
+
+//--------------------------------------------------------------------
+// Quiz level 5
+//--------------------------------------------------------------------
+const Qu51 = [
+[ ["未定義"],
+  [""], [""], [""], [""], 1, 10, 10, 20
+]];
+
+const Qu52 = [
+[ ["未定義"],
+  [""], [""], [""], [""], 1, 10, 10, 20
+]];
+
+const Qu53 = [
+[ ["未定義"],
+  [""], [""], [""], [""], 1, 10, 10, 20
+]];
+
+const Qu54 = [
+[ ["未定義"],
+  [""], [""], [""], [""], 1, 10, 10, 20
+]];
+
+const Qu55 = [
+[ ["未定義"],
+  [""], [""], [""], [""], 1
+]];
+
+const Quiz1 = [ Qu11, Qu12, Qu13, Qu14, Qu15 ];
+const Quiz2 = [ Qu21, Qu22, Qu23, Qu24, Qu25 ];
+const Quiz3 = [ Qu31, Qu32, Qu33, Qu34, Qu35 ];
+const Quiz4 = [ Qu41, Qu42, Qu43, Qu44, Qu45 ];
+const Quiz5 = [ Qu51, Qu52, Qu53, Qu54, Qu55 ];
+
+const Quiz0 = [ Quiz1, Quiz2, Quiz3, Quiz4, Quiz5 ];
+
+//--------------------------------------------------------------------
+// public letiable
+//--------------------------------------------------------------------
+const B = new BASIC();
+const C0 = '#000'
+const C1 = '#24f'
+const C2 = '#f88'
+const C3 = '#f8f'
+const C4 = '#8f8'
+const C5 = '#8ff'
+const C6 = '#ff8'
+const C7 = '#fff'
+
+let Temp; // debug
+
+//------------------------------------------------------------------------------
+// QUIZ
+//------------------------------------------------------------------------------
+const Q = new QUIZ();
+
+//--------------------------------------------------------------------
+// micrometer
+//--------------------------------------------------------------------
+function micrometer(r, n, s, o, z)
+{ // 半径,倍率,0or1,LorR
+  let x0, y0, x1, y1, x2, y2, x3, y3, x, y;
+  let t0, t, a, b, e, f, i, k, ar;
+
+  ar  = Q.area(n + 8);
+  x0 = ar[0] + ar[2] / 2;
+  y0 = ar[1] + ar[3] / 2;
+  B.WINDOW( x0, y0, x0-639, y0-399);
+
+  x1  = r * 0.06;
+  y1  = r * 0.06;
+
+  for (i = 5; i <= 35; i++)
+  {
+    if      ((i % 10) == 0) y = y1 * 3;
+    else if ((i %  5) == 0) y = y1 * 2;
+    else                    y = y1;
+    x = x1 * (i - 20);
+    B.LINE(x, y, x, -y, C7);
+  }
+
+  if (n)
+  {
+    t  = Q.getd(n);
+    t0 = Q.rad(t);
+    a  = Math.cos(t0);
+    b  = Math.sin(t0);
+    x  =  Q.getx(n);
+    y  = -Q.gety(n);
+
+    k  = x1 * z / 2;
+    B.ELLIPSE(x, y, k, C4, 0.5, t0);
+
+    B.CIRCLE(0, 0, r, C7);
+
+    B.WINDOW(0, 0, 639, 399);
+    return;
+  }
+
+  x1  = r * s / o * 0.06;
+  y1  = r * s / o * 0.06;
+  t  = Q.getd(n);
+  t0 = Q.rad(t);
+  a  = Math.cos(t0);
+  b  = Math.sin(t0);
+  e  = Q.getx(n);
+  f  = Q.gety(n);
+  k  = Math.round(24 * (o/s) / 2);
+  for (i = 0; i <= k*2; i++)
+  {
+    if      ((i % 10) == 0) y = y1 * 2;
+    else if ((i %  5) == 0) y = y1 * 1.5;
+    else                    y = y1;
+    
+    x = -(i-k) * x1;
+    x2 = x * a - (-y) * b + e;
+    y2 = x * b + (-y) * a - f;
+    x3 = x * a -   y  * b + e;
+    y3 = x * b +   y  * a - f;
+    B.LINE(x2, y2, x3, y3, C5);
+  }
+
+  B.CIRCLE(0, 0, r, C7);
+
+  B.WINDOW(0, 0, 639, 399);
+}
+
+//--------------------------------------------------------------------
+// select
+//--------------------------------------------------------------------
+function select(n, c1, c0)
+{
+  let rect, x, y, w, h;
+
+  rect = Q.area(n);
+  x = rect[0];
+  y = rect[1];
+  w = rect[2];
+  h = rect[3];
+  B.LINEBF(x, y, x+w, y+h, c0);
+  B.LINEB (x, y, x+w, y+h, c1);
+}
+
+//--------------------------------------------------------------------
+// answer
+//--------------------------------------------------------------------
+function dispans1(i, a, b)
+{
+  let s;
+
+  B.TAB(   0.5, -0.5); B.PRINTe(a);
+  s = "".padEnd(i+1, '_');
+  B.TAB(-i-0.5,  0  ); B.PRINT (s);
+  B.TAB(-i-0.5,  1.0); B.PRINTe(b);
+  B.TAB(   0  , -0.5);
+}
+
+function dispans(x, y, s, ans)
+{
+  let a, b, w, h, i, n, f;
+
+  w = 8;
+  h = 9;
+  B.LOCATEp(x+w, y+h); B.PRINT(s + ": ");
+  f = 1;
+  n = ans.length;
+  for (i = 0; i < n;)
+  {
+    if (f)
+    {
+      B.PRINTe(ans[i++]); f = 0; continue;
+    }
+    dispans1(ans[i], ans[i+1], ans[i+2]); i += 3; f = 1;
+  }
+}
+
+function answer(quiz, n)
+{
+  let r;
+
+  select(0, C7, (n == 1)? C3 : C1);
+  select(1, C7, (n == 2)? C3 : C1);
+  select(2, C7, (n == 3)? C3 : C1);
+  select(3, C7, (n == 4)? C3 : C1);
+  r = Q.area(0); dispans(r[0], r[1], "A", quiz[1]);
+  r = Q.area(1); dispans(r[0], r[1], "B", quiz[2]);
+  r = Q.area(2); dispans(r[0], r[1], "C", quiz[3]);
+  r = Q.area(3); dispans(r[0], r[1], "D", quiz[4]);
+}
+
+//--------------------------------------------------------------------
+// question
+//--------------------------------------------------------------------
+function dispque(ans)
+{
+  let a, b, w, h, i, n, f;
+
+  f = 1;
+  n = ans.length;
+  for (i = 0; i < n;)
+  {
+    if (f)
+    {
+      B.PRINTe(ans[i++]); f = 0; continue;
+    }
+    dispans1(ans[i], ans[i+1], ans[i+2]); i += 3; f = 1;
+  }
+}
+
+//--------------------------------------------------------------------
+// yes no
+//--------------------------------------------------------------------
+function yesno(n, s)
+{
+  let r, i1, i2;
+
+  i1 = 4 + s * 2;
+  i2 = i1 + 1;
+  select(i1, C7, (n == 1)? C3 : C1);
+  select(i2, C7, (n == 2)? C3 : C1);
+  r = Q.area(i1); dispans(r[0], r[1], "Y", ["Yes."]);
+  r = Q.area(i2); dispans(r[0], r[1], "N", ["No." ]);
+}
+
+//--------------------------------------------------------------------
+// gold
+//--------------------------------------------------------------------
+function gold(x, y)
+{
+  let n, c;
+
+  n = Q.count(-1);
+  if (n == 6) c = C5; else if (n == 5) c = C7; else c = C3;
+  B.LOCATE(x, y  ); B.COLOR(c); B.PRINT("5問目  1,000,000点");
+  if (n == 5) c = C5; else if (n == 4) c = C7; else c = C3;
+  B.LOCATE(x, y+1); B.COLOR(c); B.PRINT("4問目    100,000点");
+  if (n == 4) c = C5; else if (n == 3) c = C7; else c = C3;
+  B.LOCATE(x, y+2); B.COLOR(c); B.PRINT("3問目     10,000点");
+  if (n == 3) c = C5; else if (n == 2) c = C7; else c = C3;
+  B.LOCATE(x, y+3); B.COLOR(c); B.PRINT("2問目      1,000点");
+  if (n == 2) c = C5; else if (n == 1) c = C7; else c = C3;
+  B.LOCATE(x, y+4); B.COLOR(c); B.PRINT("1問目        100点");
+}
+
+//--------------------------------------------------------------------
+// gold
+//--------------------------------------------------------------------
+const QuizN = 5;
+function next(count)
+{
+  let q;
+
+  Q.count(count);
+  if (count <= QuizN) Q.state(0); else count = QuizN;
+  Q.answer(0);
+  Q.yesno(0);
+  q = Q.question(Q.level(-1), count, Quiz0)
+  Q.quiz(q);
+  blur();
+  window.requestAnimationFrame(main);
+}
+
+//--------------------------------------------------------------------
+// screen
+//--------------------------------------------------------------------
+function display()
+{
+  const s = ['A', 'B', 'C', 'D'];
+  let q, a, n, m, s1, o1, z1;
+
+  B.FONT(1,0);
+  B.CLS('#000');
+
+  n = Q.count(-1); if (n > QuizN) n = QuizN;
+  a = Q.level(-1);
+  m = Q.number(-1);
+//  Temp = n+','+a+','+m;
+  q = Quiz0[a-1][n-1][m-1];
+  s1 = q[6];
+  o1 = q[7];
+  z1 = q[8];
+//  Temp += ':'+s1+','+o1+','+z1;
+  micrometer(90, 0, s1, o1, z1);
+  micrometer(90, 1, s1, o1, z1);
+  B.WINDOW(0, 0, 639, 399);
+
+  gold(59, 1);
+  B.LOCATE(0, 0);
+
+//  if (Q.level(-1) >= 3)
+  {
+    B.TAB(1, 0); B.COLOR(C5); B.PRINT("ミクロメーター"); B.CR();
+    B.TAB(1, 0); B.COLOR(C5); B.PRINT("対物10μm"     ); B.CR();
+    B.TAB(1, 0); B.COLOR(C7); B.PRINT("接眼"          ); B.CR();
+    B.TAB(1, 0); B.COLOR(C4); B.PRINT("細胞"          ); B.CR();
+  }
+  B.COLOR(C7);
+  B.LOCATE(0, 8);
+  n = Q.count(-1); if (n > QuizN) n = QuizN;
+  a = Q.level(-1)*1000 + n*100 + Q.number(-1);
+  q = Q.quiz(null);
+  B.TAB(1, 0); B.PRINT(n + "問目 (" + a + ")"); B.CR(); B.CR();
+  B.TAB(1, 0); dispque(q[0]); B.CR();
+
+  a = Q.answer(-1);
+  answer(q, a);
+  n = 0;
+  if (a > 0)
+  {
+    m = Q.state(-1);
+    if (m < 2)
+    {
+      n = Q.yesno(-1) - m * 2;
+      if (n > 2) n = 0;
+      yesno(n, m);
+    }
+    B.LOCATE(0, 19);
+    B.TAB(1, 0); B.PRINT (s[a-1] + "でファイナルアンサー? ");
+    if (n == 1 || m > 0)
+    {
+      if (a == q[5])
+      {
+        if (m == 1)
+        {
+          if (Q.count(-1) < QuizN)
+          {
+            switch(n)
+            {
+              case 1: next(Q.count(-1) + 1); return;
+              case 2: next(Q.count(-1)    ); return;
+            }
+          }
+          else
+          {
+            if (n > 0) { next(1); return; }
+          }
+        }
+        B.TAB(1, 0); B.PRINT ("正解!");
+        if (Q.count(-1) < QuizN)
+        {
+          B.PRINT ("  次の問題に進みますか?");
+          Q.state(1);
+        }
+        else
+        {
+          if (m < 2) Q.count(Q.count(-1)+1);
+          B.PRINT("  おめでとうございます!!");
+          B.CR(); B.CR();
+          B.TAB(1, 0); B.PRINT("もう一度挑戦するときは");
+                       B.PRINT("ResetかLevelボタンを押して下さい");
+          B.CR();
+          Q.state(2);
+        }
+        Q.yesno(0);
+        if (n > 0) window.requestAnimationFrame(display);
+        return;
+      }
+      else
+      {
+        B.TAB(1, 0); B.PRINT ("残念!  " + s[q[5]-1] + " でした");
+        B.CR(); B.CR();
+        B.TAB(1, 0); B.PRINT("もう一度挑戦するときは");
+        B.TAB(1, 0); B.PRINT("ResetかLevelボタンを押して下さい");
+        B.CR();
+        Q.state(2);
+        Q.yesno(0);
+        if (n > 0) window.requestAnimationFrame(display);
+        return;
+      }
+    }
+  }
+
+//  B.LOCATE(1, 0); B.COLOR('#fff'); B.PRINT(Temp); B.CR();
+
+  Q.yesno(0);
+  if (n == 2)
+  {
+    Q.answer(0);
+    window.requestAnimationFrame(display);
+  }
+}
+
+//--------------------------------------------------------------------
+// input
+//--------------------------------------------------------------------
+function pushinit()
+{
+  let v, i;
+
+  v = document.getElementById("target");
+  for (i = 0; i < v.length; i++)
+  {
+    v[i].checked = false;
+  }
+  v[v.length-1].checked = true;
+}
+
+function pushget()
+{
+  let v, i;
+
+  v = document.getElementById("target");
+  for (i = 0; i < v.length; i++)
+  {
+    if (v[i].checked) { Q.level(5 - i); break; }
+  }
+  window.requestAnimationFrame(display);
+}
+
+function blur()
+{
+  document.getElementById('lvl_5').blur();
+  document.getElementById('lvl_4').blur();
+  document.getElementById('lvl_3').blur();
+  document.getElementById('lvl_2').blur();
+  document.getElementById('lvl_1').blur();
+
+  document.getElementById('butS').blur();
+  document.getElementById('butR').blur();
+  document.getElementById('butQ').blur();
+  document.getElementById('butW').blur();
+  document.getElementById('butZ').blur();
+  document.getElementById('butX').blur();
+  document.getElementById('butC').blur();
+}
+
+function reset()
+{
+  pushget();
+  next(1);
+}
+
+function pushlvl()
+{
+  let v, i;
+
+  v = document.getElementById("target");
+  for (i = 0; i < v.length; i++)
+  {
+    if (v[i].checked) { Q.level(5 - i); break; }
+  }
+  Q.count(1);
+  reset();
+}
+
+document.getElementById("target"  ).addEventListener('input', pushlvl);
+
+function keylvl(x)
+{
+  let v, i;
+
+  v = document.getElementById("target");
+  for (i = 0; i < v.length; i++)
+  {
+    v[i].checked = (i == x)? true : false;
+  }
+  pushlvl();
+  reset();
+}
+
+//--------------------------------------------------------------------
+// init
+//--------------------------------------------------------------------
+function init()
+{
+  const a =
+  [
+    [  8, 200, 280,  40], // a
+    [298, 200, 280,  40], // b
+    [  8, 250, 280,  40], // c
+    [298, 250, 280,  40], // d
+    [  8, 330, 135,  40], // y
+    [153, 330, 135,  40], // n
+    [298, 330, 135,  40], // y
+    [443, 330, 135,  40], // n
+    [ 99,   0, 190, 190], // 1
+    [283,   0, 190, 190]  // 2
+  ];
+
+  Q.init();
+  Q.setarea(a);
+  Q.setd(0, 0);
+  Q.setd(0, 1);
+  Q.setx(0, 0);
+  Q.setx(0, 1);
+  Q.sety(-20, 0);
+  Q.sety(0, 1);
+  pushinit();
+  reset();
+}
+
+//--------------------------------------------------------------------
+// Input key
+//--------------------------------------------------------------------
+function keyon(key)
+{
+  let d, s, n, x, y;
+
+  // SHIFT16 CTRL17 ALT18
+  if      (Key[ 17]) { s =  1; n = 0; }
+  else if (Key[ 16]) { s =  1; n = 1; }
+  else               { s =  5; n = 0; }
+
+  x = Q.getx(n);
+  y = Q.gety(n);
+  if      (Key[ 38] || key == 38) //↑
+  {
+    d = Q.getd(0);
+    if (s < 5) { y += s; Q.sety(y, n); } else { d += s; Q.setd(d, 0); }
+    return 1;    
+  }
+  else if (Key[ 40] || key == 40) //↓
+  {
+    d = Q.getd(0);
+    if (s < 5) { y -= s; Q.sety(y, n); } else { d -= s; Q.setd(d, 0); }
+    return 1;
+  }
+  else if (Key[ 39] || key == 39) //→
+  {
+    d = Q.getd(1);
+    if (s < 5) { x += s; Q.setx(x, n); } else { d -= s; Q.setd(d, 1); }
+    return 1;
+  } 
+  else if (Key[ 37] || key == 37) //←
+  {
+    d = Q.getd(1);
+    if (s < 5) { x -= s; Q.setx(x, n); } else { d += s; Q.setd(d, 1); }
+    return 1;
+  }
+  return 0;
+}
+
+function inkey(key)
+{
+  switch (key)
+  {
+    case  13: Q.setd(0, 0); Q.setd(-60, 1); key = 0; break; // Enter
+    case  32: reset(); key = 0; break; // ' '
+    case  81: B.lineWidth( 0.5); key = 0; break; // 'Q'
+    case  87: B.lineWidth( 2  ); key = 0; break; // 'W'
+    case  90: B.zooming  (-1  ); key = 0; break; // 'Z'
+    case  88: B.zooming  ( 1  ); key = 0; break; // 'X'
+    case  86: B.zooming  ( 0  ); key = 0; break; // 'V'
+    case  53: keylvl(0)  ; key = 0; break; // '5'
+    case  52: keylvl(1)  ; key = 0; break; // '4'
+    case  51: keylvl(2)  ; key = 0; break; // '3'
+    case  50: keylvl(3)  ; key = 0; break; // '2'
+    case  49: keylvl(4)  ; key = 0; break; // '1'
+    case  65: Q.answer(1); key = 0; break; // 'a'
+    case  66: Q.answer(2); key = 0; break; // 'b'
+    case  67: Q.answer(3); key = 0; break; // 'c'
+    case  68: Q.answer(4); key = 0; break; // 'd'
+    case  89: Q.yesno(1) ; key = 0; break; // 'y'
+    case  78: Q.yesno(2) ; key = 0; break; // 'n'
+    default : if (keyon(key))    key = 0;
+  }
+  if (key) return;
+  blur();
+  window.requestAnimationFrame(display);
+}
+document.body.addEventListener('keydown', event =>
+{
+  let key = event.keyCode;
+
+  inkey(key);
+});
+
+//--------------------------------------------------------------------
+// Key status
+//--------------------------------------------------------------------
+let Key = new Array(256);
+for (let i = 0; i < 256; i++) Key[i] = 0;
+window.onkeydown = function(event) { Key[event.keyCode] = 1; }
+window.onkeyup   = function(event) { Key[event.keyCode] = 0; }
+
+//----------------------------------------------------------------------
+// mouse
+//----------------------------------------------------------------------
+function mouseDn(x, y, touch)
+{
+  let x1, y1, d, d1, d2, i;
+
+  if (!(0 <= x && x <= canvas.width )) return 0;
+  if (!(0 <= y && y <= canvas.height)) return 0;
+
+  x1 = B.winX(x);
+  y1 = B.winY(y);
+
+  d1 = -1;
+  for (i = 0; i < Q.area(-1); i++)
+  {
+    d = Q.area(i);
+    if ((d[0] <= x1 && x1 < d[0] + d[2])
+     && (d[1] <= y1 && y1 < d[1] + d[3]))
+    {
+      if      (i < 4) { if (Q.state(-1) == 0) Q.answer(i     + 1); }
+      else if (i < 8) {                       Q.yesno (i - 4 + 1); }
+      else            { d1 = i - 8; break; }
+      blur();
+      window.requestAnimationFrame(display);
+      return 0;
+    }
+  }
+  if (d1 < 0) return 0;
+
+  i   = d1;
+  x1  = x1 - (d[0] + d[2] / 2);
+  y1  = (d[1] + d[3] / 2) - y1;
+  d1  = Math.sqrt(x1*x1+y1*y1);
+  if (d1 < d[2]/3)
+  {
+    d1 = x1 - Q.getx(i);
+    d2 = y1 - Q.gety(i);
+    M.ofsX(d1);
+    M.ofsY(d2);
+    M.ofsZ(i+2);
+  }
+  else
+  {
+    d1  = Math.atan2(y1, x1);
+    d1  = Q.deg(d1);
+    d1 -= Q.getd(i);
+    M.ofsX(d1);
+    M.ofsZ(i );
+  }
+  blur();
+  return 1;
+}
+
+function mouseMv(x, y, touch)
+{
+  let x1, y1, d, d1, d2, i;
+
+  i  = M.ofsZ('');
+  if (i >= 2)
+  {
+    i -= 2;
+    d1 = M.ofsX('');
+    d2 = M.ofsY('');
+    d  = Q.area(i + 8);
+    x1 = B.winX(x);
+    y1 = B.winY(y);
+    x1 = x1 - (d[0] + d[2] / 2);
+    y1 = (d[1] + d[3] / 2) - y1;
+    x1 -= d1;
+    y1 -= d2;
+    d1 = 1;
+    x1 = Math.round(x1 / d1) * d1;
+    y1 = Math.round(y1 / d1) * d1;
+    Q.setx(x1, i);
+    Q.sety(y1, i);
+  }
+  else
+  {
+    d1 = M.ofsX('');
+    d  = Q.area(i + 8);
+    x1 = B.winX(x);
+    y1 = B.winY(y);
+    x1  = x1 - (d[0] + d[2] / 2);
+    y1  = (d[1] + d[3] / 2) - y1;
+
+    d  = Math.atan2(y1, x1);
+    d  = Q.deg(d);
+    d -= d1;
+    d1 = 5;
+    d  = Math.round(d / d1) * d1;
+    Q.setd(d, i);
+  }
+  blur();
+  window.requestAnimationFrame(display);
+}
+
+const M = new MOUSE();
+M.add();
+M.mosDnFunc(mouseDn);
+M.mosMvFunc(mouseMv);
+
+//--------------------------------------------------------------------
+// main
+//--------------------------------------------------------------------
+function main()
+{
+  display();
+}
+init();
+
+//--------------------------------------------------------------------
+</script>
+</body>
+</html>
