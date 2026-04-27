@@ -34,7 +34,7 @@ Level1 <input type="radio" id="lvl_1" name="amount" value="1" />1<pre></pre>
 
 <input type="button" id="butS" value="Reset" onclick="inkey(32)">Space
 <pre></pre>
-<input type="button" id="butR" value="角度0" onclick="inkey(13)">Enter
+<input type="button" id="butR" value="初期位置" onclick="inkey(13)">Enter
 <pre></pre>
 <input type="button" id="butQ" value="細"    onclick="inkey(81)">q
 <input type="button" id="butW" value="太"    onclick="inkey(87)">w
@@ -754,7 +754,9 @@ function inkey(key)
 {
   switch (key)
   {
-    case  13: Q.setd(0, 0); Q.setd(0, 1); key = 0; break; // Enter
+    case  13: Q.setd(  0, 0); Q.setd(0, 1);
+              Q.setx(  0, 0); Q.setx(0, 1);
+              Q.sety(-20, 0); Q.sety(0, 1); key = 0; break; // Enter
     case  32: reset(); key = 0; break; // ' '
     case  81: B.lineWidth( 0.5); key = 0; break; // 'Q'
     case  87: B.lineWidth( 2  ); key = 0; break; // 'W'
