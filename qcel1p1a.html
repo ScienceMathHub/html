@@ -27,11 +27,12 @@ Level3 <input type="radio" id="lvl_3" name="amount" value="3" />3<pre></pre>
 Level2 <input type="radio" id="lvl_2" name="amount" value="2" />2<pre></pre>
 Level1 <input type="radio" id="lvl_1" name="amount" value="1" />1<pre></pre>
 </form>
-
+a b c d y n
+<br>
 <input type="button" id="butS" value="Reset" onclick="inkey(32)">Space
 <pre></pre>
+<input type="button" id="butR" value="初期化" onclick="inkey(13)">Enter
 <pre></pre>
-<br>
 <input type="button" id="butQ" value="細"    onclick="inkey(81)">q
 <input type="button" id="butW" value="太"    onclick="inkey(87)">w
 <pre></pre>
@@ -537,8 +538,7 @@ function display()
   B.WINDOW(0, 0, 639, 399);
 
   gold(59, 1);
-  B.LOCATE(0, 0);
-
+  B.LOCATE(0, 1);
 
   B.TAB(1, 0); B.COLOR(C7); B.PRINT("生物基礎"); B.CR();
 
@@ -665,6 +665,7 @@ function blur()
   document.getElementById('lvl_1').blur();
 
   document.getElementById('butS').blur();
+  document.getElementById('butR').blur();
   document.getElementById('butQ').blur();
   document.getElementById('butW').blur();
   document.getElementById('butZ').blur();
@@ -782,9 +783,7 @@ function inkey(key)
 {
   switch (key)
   {
-    case  13: Q.setd(  0, 0); Q.setd(0, 1);
-              Q.setx(  0, 0); Q.setx(0, 1);
-              Q.sety(-20, 0); Q.sety(0, 1); key = 0; break; // Enter
+    case  13: init() ; key = 0; break; // Enter
     case  32: reset(); key = 0; break; // ' '
     case  81: B.lineWidth( 0.5); key = 0; break; // 'Q'
     case  87: B.lineWidth( 2  ); key = 0; break; // 'W'
