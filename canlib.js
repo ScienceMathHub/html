@@ -252,6 +252,79 @@ class BASIC
     this.FONT(1, 0);
     return p;	/* 0.7の数 */
   }
+  PRINTf(s)
+  {
+    let i, n, num, a, p;
+
+    s = String(s);
+    p = 0;
+    num = 0;
+    n = s.length;
+    for (i = 0; i < n; i++)
+    {
+      a = s.substring(i, i+1);
+      if (a == '^')
+      {
+        i++;
+        a = s.substring(i, i+1);
+        if (a == "'")
+        {
+          this.LocX += this.LocW * 0.3;
+          continue;
+        }
+        if (a == "`")
+        {
+          this.LocX -= this.LocW * 0.3;
+          continue;
+        }
+        this.FONT(0.7, -0.5);
+        this.PRINT(a); p++;
+        this.FONT(1, 0);
+        continue;
+      }
+      if (a == '_')
+      {
+        i++;
+        a = s.substring(i, i+1);
+        if (a == "'")
+        {
+          this.LocX += this.LocW * 0.5;
+          continue;
+        }
+        if (a == "`")
+        {
+          this.LocX -= this.LocW * 0.5;
+          continue;
+        }
+        this.FONT(0.7, 0.2);
+        this.PRINT(a); p++;
+        this.FONT(1, 0);
+        continue;
+      }
+      if (num && (a == 'e' || a == 'E'))
+      {
+        this.PRINT("×10");
+        this.FONT(0.7, -0.4);
+        i++;
+        a = s.substring(i, i+1);
+        if      (a == '+') { i++;                     }
+        else if (a == '-') { i++; this.PRINT(a); p++; }
+        for (;i < n; i++)
+        {
+          a = s.substring(i, i+1);
+          if (!('0' <= a && a <= '9')) { i--; break; }
+          this.PRINT(a); p++;
+        }
+        num = 0;
+        this.FONT(1, 0);
+        continue;
+      }
+      num = ('0' <= a && a <= '9')? 1 : 0;
+      this.PRINT(a);
+    }
+    this.FONT(1, 0);
+    return p;	/* 0.7の数 */
+  }
   PRINTE(s)
   {
     let i, n, num, a, p;
@@ -305,6 +378,79 @@ class BASIC
       {
         this.PRINT("×10");
         this.FONT(0.7, -0.4);
+        i++;
+        a = s.substring(i, i+1);
+        if      (a == '+') { i++;                     }
+        else if (a == '-') { i++; this.PRINT(a); p++; }
+        for (;i < n; i++)
+        {
+          a = s.substring(i, i+1);
+          if (!('0' <= a && a <= '9')) { i--; break; }
+          this.PRINT(a); p++;
+        }
+        num = 0;
+        this.FONT(1, 0);
+        continue;
+      }
+      num = ('0' <= a && a <= '9')? 1 : 0;
+      this.PRINT(a);
+    }
+    this.FONT(1, 0);
+    return p;	/* 0.7の数 */
+  }
+  PRINTF(s)
+  {
+    let i, n, num, a, p;
+
+    s = String(s);
+    p = 0;
+    num = 0;
+    n = s.length;
+    for (i = 0; i < n; i++)
+    {
+      a = s.substring(i, i+1);
+      if (a == '^')
+      {
+        i++;
+        a = s.substring(i, i+1);
+        if (a == "'")
+        {
+          this.LocX += this.LocW * 0.3;
+          continue;
+        }
+        if (a == "`")
+        {
+          this.LocX -= this.LocW * 0.3;
+          continue;
+        }
+        this.FONT(0.7, -0.4);
+        this.PRINT(a); p++;
+        this.FONT(1, 0);
+        continue;
+      }
+      if (a == '_')
+      {
+        i++;
+        a = s.substring(i, i+1);
+        if (a == "'")
+        {
+          this.LocX += this.LocW * 0.5;
+          continue;
+        }
+        if (a == "`")
+        {
+          this.LocX -= this.LocW * 0.5;
+          continue;
+        }
+        this.FONT(0.7, 0.2);
+        this.PRINT(a); p++;
+        this.FONT(1, 0);
+        continue;
+      }
+      if (num && a == 'E')
+      {
+        this.PRINT("×10");
+        this.FONT(0.7, -0.5);
         i++;
         a = s.substring(i, i+1);
         if      (a == '+') { i++;                     }
