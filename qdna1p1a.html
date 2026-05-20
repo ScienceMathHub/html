@@ -302,73 +302,6 @@ let Temp; // debug
 const Q = new QUIZ();
 
 //--------------------------------------------------------------------
-// micrometer
-//--------------------------------------------------------------------
-function micrometer(r, n, s, o, z)
-{ // 半径,倍率,0or1,LorR
-  let x0, y0, x1, y1, x2, y2, x3, y3, x4, y4, x, y;
-  let t0, t, a, b, e, f, i, k, ar;
-
-  ar  = Q.area(n + 8);
-  x0 = ar[0] + ar[2] / 2;
-  y0 = ar[1] + ar[3] / 2;
-  B.WINDOW( x0, y0, x0-639, y0-399);
-
-  x1  = r * 0.06;
-  y1  = r * 0.06;
-  if (n)
-  {
-    t  = Q.getd(n);
-    t0 = Q.rad(t);
-    a  = Math.cos(t0);
-    b  = Math.sin(t0);
-    x  =  Q.getx(n);
-    y  = -Q.gety(n);
-
-    k  = x1 * z / 2;
-    B.ELLIPSE(x, y, k, C4, 0.5, t0);
-  }
-  else
-  {
-    x4 = x1 * s / o;
-    y4 = y1 * s / o;
-    t  = Q.getd(n);
-    t0 = Q.rad(t);
-    a  = Math.cos(t0);
-    b  = Math.sin(t0);
-    e  = Q.getx(n);
-    f  = Q.gety(n);
-    k  = Math.round(24 * (o/s) / 2);
-    for (i = 0; i <= k*2; i++)
-    {
-      if      ((i % 10) == 0) y = y4 * 2;
-      else if ((i %  5) == 0) y = y4 * 1.5;
-      else                    y = y4;
-    
-      x = -(i-k) * x4;
-      x2 = x * a - (-y) * b + e;
-      y2 = x * b + (-y) * a - f;
-      x3 = x * a -   y  * b + e;
-      y3 = x * b +   y  * a - f;
-      B.LINE(x2, y2, x3, y3, C5);
-    }
-  }
-
-  for (i = 5; i <= 35; i++)
-  {
-    if      ((i % 10) == 0) y = y1 * 3;
-    else if ((i %  5) == 0) y = y1 * 2;
-    else                    y = y1;
-    x = x1 * (i - 20);
-    B.LINE(x, y, x, -y, C7);
-  }
-
-  B.CIRCLE(0, 0, r, C7);
-
-  B.WINDOW(0, 0, 639, 399);
-}
-
-//--------------------------------------------------------------------
 // select
 //--------------------------------------------------------------------
 function select(n, c1, c0)
@@ -514,23 +447,12 @@ function display()
   B.FONT(1,0);
   B.CLS('#000');
 
-/*
-  n = Q.count(-1); if (n > QuizN) n = QuizN;
-  a = Q.level(-1);
-  m = Q.number(-1);
-  q = Quiz0[a-1][n-1][m-1];
-  s1 = q[6];
-  o1 = q[7];
-  z1 = q[8];
-  micrometer(90, 0, s1, o1, z1);
-  micrometer(90, 1, s1, o1, z1);
-*/
   B.WINDOW(0, 0, 639, 399);
 
   gold(59, 1);
   B.LOCATE(0, 1);
 
-  B.TAB(1, 0); B.COLOR(C7); B.PRINT("生物基礎"); B.CR();
+  B.TAB(1, 0); B.COLOR(C5); B.PRINT("遺伝"); B.CR();
 
 
   B.COLOR(C7);
