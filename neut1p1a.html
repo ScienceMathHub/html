@@ -47,21 +47,21 @@
 'use strict'
 
 //----------------------------------------------------------------------
-// public variable
+// public letiable
 //----------------------------------------------------------------------
-var B = new BASIC();
+let B = new BASIC();
 
-var Volume  = 0; // 滴定量
-var Select  = 1; // 種類
-var Selects = 7; // 種類最大
+let Volume  = 0; // 滴定量
+let Select  = 1; // 種類
+let Selects = 7; // 種類最大
 
 //--- Na:酸のmol, Lv:全滴定量, DvグラフStep, Rev:酸塩基逆転, Val:価数
-var Kw, Ka, Kb, Va, Vb, Ma, Mb, Na, Lv, Dv, Rev, Val;
-var Ka1, Ka2;
+let Kw, Ka, Kb, Va, Vb, Ma, Mb, Na, Lv, Dv, Rev, Val;
+let Ka1, Ka2;
 //--- Val < 0 塩の滴定
-var Vh, Mh, Mc, Vc, Nh;
+let Vh, Mh, Mc, Vc, Nh;
 //--- Public temp
-var Ca, Cb;
+let Ca, Cb;
 
 //----------------------------------------------------------------------
 // 初期設定
@@ -80,7 +80,7 @@ function init0()
 function neut0()
 {
   B.COLOR('#fff'); B.PRINT(" [NaOH]    = " + Mb.toFixed(2) + " mol/L, ");
-  B.COLOR('#00f'); B.PRINT(('  '+Vb).slice(-2));
+  B.COLOR('#04f'); B.PRINT(('  '+Vb).slice(-2));
   B.COLOR('#0ff'); B.PRINT(" mL");
   B.COLOR('#fff'); B.PRINT(" , ");
   B.COLOR('#fff'); B.PRINT("v = 0 ～ " + ('  '+Lv).slice(-2) + " mL");
@@ -88,7 +88,7 @@ function neut0()
   B.COLOR('#fff'); B.PRINT(" [CH");
   B.FONT(0.8, 0); B.PRINT("3"); B.FONT(1, 0); B.PRINT("COOH]");
   B.FONT(0.2, 0); B.PRINT(" "); B.FONT(1, 0); B.PRINT(" = ");
-  B.COLOR('#00f'); B.PRINT(Ma.toFixed(2));
+  B.COLOR('#04f'); B.PRINT(Ma.toFixed(2));
   B.COLOR('#fff'); B.PRINT(" mol/L, ");
   B.COLOR('#0ff'); B.PRINT(('  '+Va).slice(-2) + " mL");
   B.COLOR('#fff'); B.PRINT(" , ");
@@ -126,13 +126,13 @@ function neut2()
   B.COLOR('#fff'); B.PRINT(" [NH");
   B.FONT(0.8, 0); B.PRINT("3"); B.FONT(0.2, 0); B.PRINT(" "); B.FONT(1, 0);
   B.PRINT("] = " + Mb.toFixed(2) + " mol/L, ");
-  B.COLOR('#00f'); B.PRINT(('  '+Vb).slice(-2));
+  B.COLOR('#04f'); B.PRINT(('  '+Vb).slice(-2));
   B.COLOR('#0ff'); B.PRINT(" mL");
   B.COLOR('#fff'); B.PRINT(" , ");
   B.COLOR('#fff'); B.PRINT("v = 0 ～ " + ('  '+Lv).slice(-2) + " mL");
   B.CR();
   B.COLOR('#fff'); B.PRINT(" [HCl] = ");
-  B.COLOR('#00f'); B.PRINT(Ma.toFixed(2));
+  B.COLOR('#04f'); B.PRINT(Ma.toFixed(2));
   B.COLOR('#fff'); B.PRINT(" mol/L, ");
   B.COLOR('#0ff'); B.PRINT(('  '+Va).slice(-2) + " mL");
   B.COLOR('#fff'); B.PRINT(" , ");
@@ -153,13 +153,13 @@ function init3()
 function neut3()
 {
   B.COLOR('#fff'); B.PRINT(" [NaOH] = " + Mb.toFixed(2) + " mol/L, ");
-  B.COLOR('#00f'); B.PRINT(('  '+Vb).slice(-2));
+  B.COLOR('#04f'); B.PRINT(('  '+Vb).slice(-2));
   B.COLOR('#0ff'); B.PRINT(" mL");
   B.COLOR('#fff'); B.PRINT(" , ");
   B.COLOR('#fff'); B.PRINT("v = 0 ～ " + ('  '+Lv).slice(-2) + " mL");
   B.CR();
   B.COLOR('#fff'); B.PRINT(" [HCl]  = ");
-  B.COLOR('#00f'); B.PRINT(Ma.toFixed(2));
+  B.COLOR('#04f'); B.PRINT(Ma.toFixed(2));
   B.COLOR('#fff'); B.PRINT(" mol/L, ");
   B.COLOR('#0ff'); B.PRINT(('  '+Va).slice(-2) + " mL");
   B.COLOR('#fff'); B.PRINT(" , ");
@@ -182,7 +182,7 @@ function neut4()
   B.COLOR('#fff'); B.PRINT(" [NH");
   B.FONT(0.8, 0); B.PRINT("3"); B.FONT(0.2, 0); B.PRINT(" "); B.FONT(1, 0);
   B.PRINT("]     = " + Mb.toFixed(2) + " mol/L, ");
-  B.COLOR('#00f'); B.PRINT(('  '+Vb).slice(-2));
+  B.COLOR('#04f'); B.PRINT(('  '+Vb).slice(-2));
   B.COLOR('#0ff'); B.PRINT(" mL");
   B.COLOR('#fff'); B.PRINT(" , ");
   B.COLOR('#fff'); B.PRINT("v = 0 ～ " + ('  '+Lv).slice(-2) + " mL");
@@ -190,7 +190,7 @@ function neut4()
   B.COLOR('#fff'); B.PRINT(" [CH");
   B.FONT(0.8, 0); B.PRINT("3"); B.FONT(1, 0); B.PRINT("COOH]");
   B.FONT(0.2, 0); B.PRINT(" "); B.FONT(1, 0); B.PRINT(" = ");
-  B.COLOR('#00f'); B.PRINT(Ma.toFixed(2));
+  B.COLOR('#04f'); B.PRINT(Ma.toFixed(2));
   B.COLOR('#fff'); B.PRINT(" mol/L, ");
   B.COLOR('#0ff'); B.PRINT(('  '+Va).slice(-2) + " mL");
   B.COLOR('#fff'); B.PRINT(" , ");
@@ -211,7 +211,7 @@ function init5()
 function neut5()
 {
   B.COLOR('#fff'); B.PRINT(" [HCl] = " + Mb.toFixed(2) + " mol/L, ");
-  B.COLOR('#00f'); B.PRINT(('  '+Vb).slice(-2));
+  B.COLOR('#04f'); B.PRINT(('  '+Vb).slice(-2));
   B.COLOR('#0ff'); B.PRINT(" mL");
   B.COLOR('#fff'); B.PRINT(" , ");
   B.COLOR('#fff'); B.PRINT("v = 0 ～ " + ('  '+Lv).slice(-2) + " mL");
@@ -219,7 +219,7 @@ function neut5()
   B.COLOR('#fff'); B.PRINT(" [NH");
   B.FONT(0.8, 0); B.PRINT("3"); B.FONT(1, 0); B.PRINT("]");
   B.FONT(0.2, 0); B.PRINT(" "); B.FONT(1, 0); B.PRINT(" = ");
-  B.COLOR('#00f'); B.PRINT(Ma.toFixed(2));
+  B.COLOR('#04f'); B.PRINT(Ma.toFixed(2));
   B.COLOR('#fff'); B.PRINT(" mol/L, ");
   B.COLOR('#0ff'); B.PRINT(('  '+Va).slice(-2) + " mL");
   B.COLOR('#fff'); B.PRINT(" , ");
@@ -240,7 +240,7 @@ function init6()
 function neut6()
 {
   B.COLOR('#fff'); B.PRINT(" [NaOH]    = " + Mb.toFixed(2) + " mol/L, ");
-  B.COLOR('#00f'); B.PRINT(('  '+Vb).slice(-2));
+  B.COLOR('#04f'); B.PRINT(('  '+Vb).slice(-2));
   B.COLOR('#0ff'); B.PRINT(" mL");
   B.COLOR('#fff'); B.PRINT(" , ");
   B.COLOR('#fff'); B.PRINT("v = 0 ～ " + ('  '+Lv).slice(-2) + " mL");
@@ -248,7 +248,7 @@ function neut6()
   B.COLOR('#fff'); B.PRINT(" [(COOH)");
   B.FONT(0.8, 0); B.PRINT("2"); B.FONT(1, 0); B.PRINT("]");
   B.FONT(0.2, 0); B.PRINT(" "); B.FONT(1, 0); B.PRINT(" = ");
-  B.COLOR('#00f'); B.PRINT(Ma.toFixed(2));
+  B.COLOR('#04f'); B.PRINT(Ma.toFixed(2));
   B.COLOR('#fff'); B.PRINT(" mol/L, ");
   B.COLOR('#0ff'); B.PRINT(('  '+Va).slice(-2) + " mL");
   B.COLOR('#fff'); B.PRINT(" , ");
@@ -269,7 +269,7 @@ function init7()
 function neut7()
 {
   B.COLOR('#fff'); B.PRINT(" [HCl]    = " + Mc.toFixed(2) + " mol/L, ");
-  B.COLOR('#00f'); B.PRINT(('  '+Vc).slice(-2));
+  B.COLOR('#04f'); B.PRINT(('  '+Vc).slice(-2));
   B.COLOR('#0ff'); B.PRINT(" mL");
   B.COLOR('#fff'); B.PRINT(" , ");
   B.COLOR('#fff'); B.PRINT("v = 0 ～ " + ('  '+Lv).slice(-2) + " mL");
@@ -278,7 +278,7 @@ function neut7()
   B.FONT(0.8, 0); B.PRINT("2"); B.FONT(1, 0); B.PRINT("CO");
   B.FONT(0.8, 0); B.PRINT("3"); B.FONT(1, 0); B.PRINT("]");
   B.FONT(0.2, 0); B.PRINT("  "); B.FONT(1, 0); B.PRINT(" = ");
-  B.COLOR('#00f'); B.PRINT(Mh.toFixed(2));
+  B.COLOR('#04f'); B.PRINT(Mh.toFixed(2));
   B.COLOR('#fff'); B.PRINT(" mol/L, ");
   B.COLOR('#0ff'); B.PRINT(('  '+Vh).slice(-2) + " mL");
   B.COLOR('#fff'); B.PRINT(" , ");
@@ -316,7 +316,7 @@ function plot(vb, ph, c)
 //----------------------------------------------------------------------
 function newton(a, b, c, d, e)
 {
-  var x, dx, f, fd;
+  let x, dx, f, fd;
 
   x  = 1e+1;                   //--- pH -1 から検索
   dx = x;
@@ -336,7 +336,7 @@ function newton(a, b, c, d, e)
 //--- 1価の酸
 function equation1(ca, cb)
 {
-  var a, b, c, d, e;
+  let a, b, c, d, e;
 
   a = Kb;
   b = Kw + Kb * (Ka + cb);
@@ -349,7 +349,7 @@ function equation1(ca, cb)
 //--- 2価の酸
 function equation2(ca, cb)
 {
-  var a, b, c, d, e;
+  let a, b, c, d, e;
 
   a = 1;
   b = Ka1 + cb;
@@ -374,7 +374,7 @@ function equation(ca, cb)
 //----------------------------------------------------------------------
 function indicator(ph1, ph2, r1, g1, b1, r2, g2, b2, x, w, ph)
 {
-  var x0, x1, r, b, g, c, c1, phw, lw;
+  let x0, x1, r, b, g, c, c1, phw, lw, i;
 
   lw = ctx.lineWidth;
   ctx.lineWidth = Math.ceil(lw * B.zoom / 40);
@@ -412,7 +412,7 @@ function indicator(ph1, ph2, r1, g1, b1, r2, g2, b2, x, w, ph)
 //----------------------------------------------------------------------
 function phenol(ph)
 {
-  var x;
+  let x;
 
   x  = Lv / 20;
   //        ph1  ph2  r1  g1  b1  r2  g2  b2  pos         w  pH
@@ -424,7 +424,7 @@ function phenol(ph)
 //----------------------------------------------------------------------
 function orange(ph)
 {
-  var x;
+  let x;
 
   x  = Lv / 20;
   //        ph1  ph2  r1  g1  b1  r2  g2  b2  pos         w  pH
@@ -436,7 +436,7 @@ function orange(ph)
 //----------------------------------------------------------------------
 function balance1(ca, cb)
 {
-  var p, x, x0, x1, x2, c1, c2;
+  let p, x, x0, x1, x2, c1, c2;
 
   ca *= Math.abs(Val);
 
@@ -494,12 +494,12 @@ function balance1(ca, cb)
   B.LINEB (x0, -12, x2, -11, '#fff');
   B.LINE  (x1, -12, x1, -11, '#ff0');
   x1 = (x2 + x0) / 2;
-  B.LINE  (x1, -12, x1, -11, '#00f');
+  B.LINE  (x1, -12, x1, -11, '#04f');
 }
 
 function balance2(ca, cb)
 {
-  var p, x, x0, x1, x2, c1, c2;
+  let p, x, x0, x1, x2, c1, c2;
 
   ca *= Math.abs(Val);
 
@@ -557,7 +557,7 @@ function balance2(ca, cb)
   B.LINEB (x0, -12, x2, -11, '#fff');
   B.LINE  (x1, -12, x1, -11, '#ff0');
   x1 = (x2 + x0) / 2;
-  B.LINE  (x1, -12, x1, -11, '#00f');
+  B.LINE  (x1, -12, x1, -11, '#04f');
 }
 function balance(ca, cb)
 {
@@ -570,7 +570,7 @@ function balance(ca, cb)
 //----------------------------------------------------------------------
 function init()
 {
-  var x;
+  let x;
 
   switch(Select)
   {
@@ -612,7 +612,7 @@ function init()
 //----------------------------------------------------------------------
 function titration1(vb)
 {
-  var v, nb, x, ph;
+  let v, nb, x, ph;
 
   v  = Va + vb;          //--- 合計の体積 mL
   Ca = Na / v;           //--- 酸の濃度 mol/L
@@ -626,7 +626,7 @@ function titration1(vb)
 }
 function titration2(vc)
 {
-  var v, nc, x, ph, cc;
+  let v, nc, x, ph, cc;
 
   v  = Vh + vc;                 //--- 合計の体積 mL
   Ca = Nh / v;                  //--- 塩の濃度 mol/L
@@ -652,7 +652,7 @@ function titration(vb)
 //----------------------------------------------------------------------
 function neut(lv)
 {
-  var i, vb, ph1, ca1, cb1, dv, ph;
+  let i, vb, ph1, ca1, cb1, dv, ph;
 
   init();
   B.CLS('#000');
@@ -672,11 +672,11 @@ function neut(lv)
 
   for (i = 0; i <= 14; i++)
   {
-    var t;
+    let t;
 
     if (i > 0)
     {
-      B.LINE(0, -i, Lv, -i, '#00f');
+      B.LINE(0, -i, Lv, -i, '#04f');
     }
     t = (i < 10)? ' ' + i : i;
     B.SYMBOL(-Lv/15, -i+0.4, t, '#fff');
@@ -712,7 +712,7 @@ function neut(lv)
   for (vb += dv; vb <= Lv; vb += dv)
   {
     ph = titration(vb)
-    plot(vb, ph, '#00f');
+    plot(vb, ph, '#04f');
   }
 
   orange(ph1);
@@ -753,7 +753,7 @@ function blur()
 
 function inkey(key)
 {
-  var t = Dv;
+  let t = Dv;
 
 //  if (37 <= key && 40 <= key) event.preventDefault();
   event.preventDefault();
@@ -782,7 +782,7 @@ function inkey(key)
 
 document.body.addEventListener('keydown', event =>
 {
-  var key = event.keyCode;
+  let key = event.keyCode;
 
   inkey(key);
 });
@@ -790,8 +790,8 @@ document.body.addEventListener('keydown', event =>
 //----------------------------------------------------------------------------------
 // Key status
 //----------------------------------------------------------------------------------
-var Key = new Array(256);
-for (var i = 0; i < 256; i++) Key[i] = 0;
+let Key = new Array(256);
+for (let i = 0; i < 256; i++) Key[i] = 0;
 window.onkeydown = function(event) { Key[event.keyCode] = 1; }
 window.onkeyup   = function(event) { Key[event.keyCode] = 0; }
 
