@@ -1,0 +1,832 @@
+<!--
+----------------------------------------------------------------------
+ ホメオスタシスクイズ
+
+ HTML(JavaScript, canvas)
+
+ Biology (c) Ohtani 2026.5 - 2026.5
+----------------------------------------------------------------------
+-->
+<!DOctxYPE html>
+<html lang="ja">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<head>
+  <meta charset="utf-8">
+  <title>ホメオスタシスクイズ</title>
+</head>
+<body>
+<p id="HomeostasisQuiz"></p>
+<div style='float:left;'>
+Homeostasisクイズ
+<br>
+<form id="target">
+Level5 <input type="radio" id="lvl_5" name="amount" value="5" />5<pre></pre>
+Level4 <input type="radio" id="lvl_4" name="amount" value="4" />4<pre></pre>
+Level3 <input type="radio" id="lvl_3" name="amount" value="3" />3<pre></pre>
+Level2 <input type="radio" id="lvl_2" name="amount" value="2" />2<pre></pre>
+Level1 <input type="radio" id="lvl_1" name="amount" value="1" />1<pre></pre>
+</form>
+a b c d y n
+<br>
+<input type="button" id="butS" value="Reset" onclick="inkey(32)">Space
+<pre></pre>
+<input type="button" id="butR" value="初期化" onclick="inkey(13)">Enter
+<pre></pre>
+<input type="button" id="butQ" value="細"    onclick="inkey(81)">q
+<input type="button" id="butW" value="太"    onclick="inkey(87)">w
+<pre></pre>
+<input type="button" id="butZ" value="縮"    onclick="inkey(90)">z 
+<input type="button" id="butX" value="拡"    onclick="inkey(88)">x
+<input type="button" id="butC" value="初"    onclick="inkey(67)">v
+<pre></pre>
+
+<script src="https://sciencemathhub.github.io/html/tobiol.js"></script>
+<script src="https://sciencemathhub.github.io/html/canlib.js"></script>
+<script src="https://sciencemathhub.github.io/html/quilib.js"></script>
+<script>
+'use strict'
+
+//--------------------------------------------------------------------
+// Quiz level 1
+//--------------------------------------------------------------------
+const Qu11 = [
+[ ["恒常性(ホメオスタシス)はどれ"],
+  ["外部環境を体内環境に合わす"], ["体内環境を一定の範囲に保つ"],
+  ["外部環境を一定の範囲に保つ"], ["体内環境を外部環境に合わす"], 2
+]];
+
+const Qu12 = [
+[ ["体内環境はどれ"],
+  ["細胞が体液に浸されている環境"], ["筋肉などの組織"],
+  ["体全体のこと"], ["室内環境のこと"], 1
+]];
+
+const Qu13 = [
+[ ["体内環境の体液はどれ"],
+  ["血液,組織液,リンパ液"], ["血液,組織液,尿"],
+  ["血液,尿,リンパ液"], ["血液,組織液,だ液"], 1
+]];
+
+const Qu14 = [
+[ ["恒常性を保つための情報伝達のしくみはどれ"],
+  ["自律神経系と内分泌系"], ["体性神経系と内分泌系"],
+  ["自律神経系のみ"], ["内分泌系のみ"], 1
+]];
+
+const Qu15 = [
+[ ["フィブリンが血球を絡めて凝縮したものはどれ"],
+  ["血ぺい"], ["血だまり"], ["血だるま"], ["血小板"], 1
+]];
+
+//--------------------------------------------------------------------
+// Quiz level 2
+//--------------------------------------------------------------------
+const Qu21 = [
+[ ["交感神経が働いたときの瞳孔はどれ"],
+  ["拡大"], ["縮小"], ["交感神経の分布なし"], ["光線が出る"], 1
+],
+[ ["副交感神経が働いたときの瞳孔はどれ"],
+  ["拡大"], ["縮小"], ["副交感神経の分布なし"], ["光線が出る"], 2
+],
+[ ["交感神経が働いたときのぼうこう(排尿)はどれ"],
+  ["抑制"], ["促進"], ["交感神経の分布なし"], ["光線が出る"], 1
+],
+[ ["副交感神経が働いたときのぼうこう(排尿)はどれ"],
+  ["抑制"], ["促進"], ["副交感神経の分布なし"], ["光線が出る"], 2
+],
+[ ["交感神経が働いたときの汗腺はどれ"],
+  ["抑制"], ["促進"], ["交感神経の分布なし"], ["光線が出る"], 2
+],
+[ ["副交感神経が働いたときの汗腺はどれ"],
+  ["抑制"], ["促進"], ["副交感神経の分布なし"], ["光線が出る"], 1
+],
+[ ["交感神経が働いたときの胃のぜん動運動はどれ"],
+  ["抑制"], ["促進"], ["交感神経の分布なし"], ["光線が出る"], 1
+],
+[ ["副交感神経が働いたときの胃のぜん動運動はどれ"],
+  ["抑制"], ["促進"], ["副交感神経の分布なし"], ["光線が出る"], 2
+]];
+
+const Qu22 = [
+[ ["肝臓のグリコーゲンを分解して血糖値を上げるホルモンはどれ"],
+  ["グルカゴンとアドレナリン"], ["糖質コルチコイド"],
+  ["インスリン"], ["チロキシン"], 1
+]];
+
+const Qu23 = [
+[ ["タンパク質を分解して血糖値を上げるホルモンはどれ"],
+  ["グルカゴンとアドレナリン"], ["糖質コルチコイド"],
+  ["インスリン"], ["チロキシン"], 2
+]];
+
+const Qu24 = [
+[ ["肝臓でグルコースからグリコーゲンを合成して血糖値を下げるホルモンはどれ"],
+  ["グルカゴンとアドレナリン"], ["糖質コルチコイド"],
+  ["インスリン"], ["チロキシン"], 3
+]];
+
+const Qu25 = [
+[ ["膵臓のランゲルハンス糖のA細胞から出るホルモンはどれ"],
+  ["グルカゴン],[アドレナリン"],
+  ["糖質コルチコイド"],  ["インスリン"], 1
+],
+[ ["膵臓のランゲルハンス糖のB細胞から出るホルモンはどれ"],
+  ["グルカゴン],[アドレナリン"],
+  ["糖質コルチコイド"],  ["インスリン"], 4
+],
+[ ["副腎髄質から出るホルモンはどれ"],
+  ["グルカゴン],[アドレナリン"],
+  ["糖質コルチコイド"],  ["インスリン"], 2
+],
+[ ["副腎皮質から出るホルモンはどれ"],
+  ["グルカゴン],[アドレナリン"],
+  ["糖質コルチコイド"],  ["インスリン"], 3
+]];
+
+//--------------------------------------------------------------------
+// Quiz level 3
+//--------------------------------------------------------------------
+const Qu31 = [
+[ ["体温が低下したとき働く自律神経はどれ"],
+  ["交感神経"], ["副交感神経"],
+  ["交感神経と副交感神経"], ["なし"], 1
+]];
+
+const Qu32 = [
+[ ["体温が上昇したとき働く自律神経はどれ"],
+  ["交感神経"], ["副交感神経"],
+  ["交感神経と副交感神経"], ["なし"], 2
+]];
+
+const Qu33 = [
+[ ["体温が低下したとき甲状腺からでるホルモンはどれ"],
+  ["アドレナリン"], ["バソプレシン"],
+  ["グルカゴン"], ["チロキシン"], 4
+]];
+
+const Qu34 = [
+[ ["体温が低下したとき副腎髄質からでるホルモンはどれ"],
+  ["アドレナリン"], ["バソプレシン"],
+  ["グルカゴン"], ["チロキシン"], 1
+]];
+
+const Qu35 = [
+[ ["腎臓の集合管で水の再吸収を促進するホルモンはどれ"],
+  ["アドレナリン"], ["バソプレシン"],
+  ["グルカゴン"], ["チロキシン"], 2
+],
+[ ["脳下垂体後葉からでる水の再吸収を促進するホルモンはどれ"],
+  ["アドレナリン"], ["バソプレシン"],
+  ["グルカゴン"], ["チロキシン"], 2
+]];
+
+//--------------------------------------------------------------------
+// Quiz level 4
+//--------------------------------------------------------------------
+const Qu41 = [
+[ ["糖質コルチコイドを出すとき間脳の視床下部からでるホルモンはどれ"],
+  ["放出ホルモン"], ["放出抑制ホルモン"],
+  ["副腎皮質刺激ホルモン"], ["甲状腺刺激ホルモン"], 1
+]];
+
+const Qu42 = [
+[ ["糖質コルチコイドを出すとき脳下垂体前葉からでるホルモンはどれ"],
+  ["放出ホルモン"], ["放出抑制ホルモン"],
+  ["副腎皮質刺激ホルモン"], ["甲状腺刺激ホルモン"], 3
+]];
+
+const Qu43 = [
+[ ["チロキシンを出すとき脳下垂体前葉からでるホルモンはどれ"],
+  ["放出ホルモン"], ["放出抑制ホルモン"],
+  ["副腎皮質刺激ホルモン"], ["甲状腺刺激ホルモン"], 4
+]];
+
+const Qu44 = [
+[ ["交感神経の働きで皮膚の血管が収縮すると起こることはどれ"],
+  ["放熱量の減少"], ["放熱量の増加"],
+  ["水の再吸収の減少"], ["水の再吸収の増加"], 1
+],
+[ ["副交感神経の働きで皮膚の血管が拡張すると起こることはどれ"],
+  ["放熱量の減少"], ["放熱量の増加"],
+  ["水の再吸収の減少"], ["水の再吸収の増加"], 2
+]];
+
+const Qu45 = [
+[ ["腎臓の集合管で水の再吸収を促進するホルモンを分泌するのはどこ"],
+  ["脳下垂体前葉"], ["脳下垂体後葉"], ["副腎皮質"], ["副腎髄質"], 2
+]];
+
+
+//--------------------------------------------------------------------
+// Quiz level 5
+//--------------------------------------------------------------------
+const Qu51 = [
+[ ["工事中"],
+  ["-"], ["-"], ["-"], ["-"], 1
+]];
+
+const Qu52 = [
+[ ["工事中"],
+  ["-"], ["-"], ["-"], ["-"], 1
+]];
+
+const Qu53 = [
+[ ["工事中"],
+  ["-"], ["-"], ["-"], ["-"], 1
+]];
+
+const Qu54 = [
+[ ["工事中"],
+  ["-"], ["-"], ["-"], ["-"], 1
+],
+[ ["工事中"],
+  ["-"], ["-"], ["-"], ["-"], 1
+]];
+
+const Qu55 = [
+[ ["工事中"],
+  ["-"], ["-"], ["-"], ["-"], 1
+]];
+
+const Quiz1 = [ Qu11, Qu12, Qu13, Qu14, Qu15 ];
+const Quiz2 = [ Qu21, Qu22, Qu23, Qu24, Qu25 ];
+const Quiz3 = [ Qu31, Qu32, Qu33, Qu34, Qu35 ];
+const Quiz4 = [ Qu41, Qu42, Qu43, Qu44, Qu45 ];
+const Quiz5 = [ Qu51, Qu52, Qu53, Qu54, Qu55 ];
+
+const Quiz0 = [ Quiz1, Quiz2, Quiz3, Quiz4, Quiz5 ];
+
+//--------------------------------------------------------------------
+// public letiable
+//--------------------------------------------------------------------
+const B = new BASIC();
+const C0 = '#000'
+const C1 = '#24f'
+const C2 = '#f88'
+const C3 = '#f8f'
+const C4 = '#8f8'
+const C5 = '#8ff'
+const C6 = '#ff8'
+const C7 = '#fff'
+
+let Temp; // debug
+
+//------------------------------------------------------------------------------
+// QUIZ
+//------------------------------------------------------------------------------
+const Q = new QUIZ();
+
+//--------------------------------------------------------------------
+// select
+//--------------------------------------------------------------------
+function select(n, c1, c0)
+{
+  let rect, x, y, w, h;
+
+  rect = Q.area(n);
+  x = rect[0];
+  y = rect[1];
+  w = rect[2];
+  h = rect[3];
+  B.LINEBF(x, y, x+w, y+h, c0);
+  B.LINEB (x, y, x+w, y+h, c1);
+}
+
+//--------------------------------------------------------------------
+// answer
+//--------------------------------------------------------------------
+function dispans1(i, a, b)
+{
+  let s;
+
+  B.TAB(   0.5, -0.5); B.PRINTe(a);
+  s = "".padEnd(i+1, '_');
+  B.TAB(-i-0.5,  0  ); B.PRINT (s);
+  B.TAB(-i-0.5,  1.0); B.PRINTe(b);
+  B.TAB(   0  , -0.5);
+}
+
+function dispans(x, y, s, ans)
+{
+  let a, b, w, h, i, n, f;
+
+  w = 8;
+  h = 9;
+  B.LOCATEp(x+w, y+h); B.PRINT(s + ": ");
+  f = 1;
+  n = ans.length;
+  for (i = 0; i < n;)
+  {
+    if (f)
+    {
+      B.PRINTe(ans[i++]); f = 0; continue;
+    }
+    dispans1(ans[i], ans[i+1], ans[i+2]); i += 3; f = 1;
+  }
+}
+
+function answer(quiz, n)
+{
+  let r;
+
+  select(0, C7, (n == 1)? C3 : C1);
+  select(1, C7, (n == 2)? C3 : C1);
+  select(2, C7, (n == 3)? C3 : C1);
+  select(3, C7, (n == 4)? C3 : C1);
+  r = Q.area(0); dispans(r[0], r[1], "A", quiz[1]);
+  r = Q.area(1); dispans(r[0], r[1], "B", quiz[2]);
+  r = Q.area(2); dispans(r[0], r[1], "C", quiz[3]);
+  r = Q.area(3); dispans(r[0], r[1], "D", quiz[4]);
+}
+
+//--------------------------------------------------------------------
+// question
+//--------------------------------------------------------------------
+function dispque(ans)
+{
+  let a, b, w, h, i, n, f;
+
+  f = 1;
+  n = ans.length;
+  for (i = 0; i < n;)
+  {
+    if (f)
+    {
+      B.PRINTe(ans[i++]); f = 0; continue;
+    }
+    dispans1(ans[i], ans[i+1], ans[i+2]); i += 3; f = 1;
+  }
+}
+
+//--------------------------------------------------------------------
+// yes no
+//--------------------------------------------------------------------
+function yesno(n, s)
+{
+  let r, i1, i2;
+
+  i1 = 4 + s * 2;
+  i2 = i1 + 1;
+  select(i1, C7, (n == 1)? C3 : C1);
+  select(i2, C7, (n == 2)? C3 : C1);
+  r = Q.area(i1); dispans(r[0], r[1], "Y", ["Yes."]);
+  r = Q.area(i2); dispans(r[0], r[1], "N", ["No." ]);
+}
+
+//--------------------------------------------------------------------
+// gold
+//--------------------------------------------------------------------
+function gold(x, y)
+{
+  let n, c;
+
+  n = Q.count(-1);
+  if (n == 6) c = C5; else if (n == 5) c = C7; else c = C3;
+  B.LOCATE(x, y  ); B.COLOR(c); B.PRINT("5問目  1,000,000点");
+  if (n == 5) c = C5; else if (n == 4) c = C7; else c = C3;
+  B.LOCATE(x, y+1); B.COLOR(c); B.PRINT("4問目    100,000点");
+  if (n == 4) c = C5; else if (n == 3) c = C7; else c = C3;
+  B.LOCATE(x, y+2); B.COLOR(c); B.PRINT("3問目     10,000点");
+  if (n == 3) c = C5; else if (n == 2) c = C7; else c = C3;
+  B.LOCATE(x, y+3); B.COLOR(c); B.PRINT("2問目      1,000点");
+  if (n == 2) c = C5; else if (n == 1) c = C7; else c = C3;
+  B.LOCATE(x, y+4); B.COLOR(c); B.PRINT("1問目        100点");
+}
+
+//--------------------------------------------------------------------
+// gold
+//--------------------------------------------------------------------
+const QuizN = 5;
+function next(count)
+{
+  let q;
+
+  Q.count(count);
+  if (count <= QuizN) Q.state(0); else count = QuizN;
+  Q.answer(0);
+  Q.yesno(0);
+  q = Q.question(Q.level(-1), count, Quiz0)
+  Q.quiz(q);
+  blur();
+  window.requestAnimationFrame(main);
+}
+
+//--------------------------------------------------------------------
+// screen
+//--------------------------------------------------------------------
+function display()
+{
+  const s = ['A', 'B', 'C', 'D'];
+  let q, a, n, m, s1, o1, z1;
+
+  B.FONT(1,0);
+  B.CLS('#000');
+
+  B.WINDOW(0, 0, 639, 399);
+
+  gold(59, 1);
+  B.LOCATE(0, 1);
+
+  B.TAB(1, 0); B.COLOR(C7); B.PRINT("ホメオスタシス"); B.CR();
+  B.TAB(1, 0); B.COLOR(C5); B.PRINT("5 工事中"); B.CR();
+  B.TAB(1, 0); B.COLOR(C5); B.PRINT("4 ホルモンなど"); B.CR();
+  B.TAB(1, 0); B.COLOR(C5); B.PRINT("3 体温水分調節"); B.CR();
+  B.TAB(1, 0); B.COLOR(C5); B.PRINT("2 血糖濃度調節"); B.CR();
+  B.TAB(1, 0); B.COLOR(C5); B.PRINT("1 血液など"); B.CR();
+
+
+  B.COLOR(C7);
+  B.LOCATE(0, 8);
+  n = Q.count(-1); if (n > QuizN) n = QuizN;
+  a = Q.level(-1)*1000 + n*100 + Q.number(-1);
+  q = Q.quiz(null);
+  B.TAB(1, 0); B.PRINT(n + "問目 (" + a + ")"); B.CR(); B.CR();
+  B.TAB(1, 0); dispque(q[0]); B.CR();
+
+  a = Q.answer(-1);
+  answer(q, a);
+  n = 0;
+  if (a > 0)
+  {
+    m = Q.state(-1);
+    if (m < 2)
+    {
+      n = Q.yesno(-1) - m * 2;
+      if (n > 2) n = 0;
+      yesno(n, m);
+    }
+    B.LOCATE(0, 19);
+    B.TAB(1, 0); B.PRINT (s[a-1] + "でファイナルアンサー? ");
+    if (n == 1 || m > 0)
+    {
+      if (a == q[5])
+      {
+        if (m == 1)
+        {
+          if (Q.count(-1) < QuizN)
+          {
+            switch(n)
+            {
+              case 1: next(Q.count(-1) + 1); return;
+              case 2: next(Q.count(-1)    ); return;
+            }
+          }
+          else
+          {
+            if (n > 0) { next(1); return; }
+          }
+        }
+        B.TAB(1, 0); B.PRINT ("正解!");
+        if (Q.count(-1) < QuizN)
+        {
+          B.PRINT ("  次の問題に進みますか?");
+          Q.state(1);
+        }
+        else
+        {
+          if (m < 2) Q.count(Q.count(-1)+1);
+          B.PRINT("  おめでとうございます!!");
+          B.CR(); B.CR();
+          B.TAB(1, 0); B.PRINT("もう一度挑戦するときは");
+                       B.PRINT("ResetかLevelボタンを押して下さい");
+          B.CR();
+          Q.state(2);
+        }
+        Q.yesno(0);
+        if (n > 0) window.requestAnimationFrame(display);
+        return;
+      }
+      else
+      {
+        B.TAB(1, 0); B.PRINT ("残念!  " + s[q[5]-1] + " でした");
+        B.CR(); B.CR();
+        B.TAB(1, 0); B.PRINT("もう一度挑戦するときは");
+        B.TAB(1, 0); B.PRINT("ResetかLevelボタンを押して下さい");
+        B.CR();
+        Q.state(2);
+        Q.yesno(0);
+        if (n > 0) window.requestAnimationFrame(display);
+        return;
+      }
+    }
+  }
+
+//  B.LOCATE(1, 0); B.COLOR('#fff'); B.PRINT(Temp); B.CR();
+
+  Q.yesno(0);
+  if (n == 2)
+  {
+    Q.answer(0);
+    window.requestAnimationFrame(display);
+  }
+}
+
+//--------------------------------------------------------------------
+// input
+//--------------------------------------------------------------------
+function pushinit()
+{
+  let v, i;
+
+  v = document.getElementById("target");
+  for (i = 0; i < v.length; i++)
+  {
+    v[i].checked = false;
+  }
+  v[v.length-1].checked = true;
+}
+
+function pushget()
+{
+  let v, i;
+
+  v = document.getElementById("target");
+  for (i = 0; i < v.length; i++)
+  {
+    if (v[i].checked) { Q.level(5 - i); break; }
+  }
+  window.requestAnimationFrame(display);
+}
+
+function blur()
+{
+  document.getElementById('lvl_5').blur();
+  document.getElementById('lvl_4').blur();
+  document.getElementById('lvl_3').blur();
+  document.getElementById('lvl_2').blur();
+  document.getElementById('lvl_1').blur();
+
+  document.getElementById('butS').blur();
+  document.getElementById('butR').blur();
+  document.getElementById('butQ').blur();
+  document.getElementById('butW').blur();
+  document.getElementById('butZ').blur();
+  document.getElementById('butX').blur();
+  document.getElementById('butC').blur();
+}
+
+function reset()
+{
+  pushget();
+  next(1);
+}
+
+function pushlvl()
+{
+  let v, i;
+
+  v = document.getElementById("target");
+  for (i = 0; i < v.length; i++)
+  {
+    if (v[i].checked) { Q.level(5 - i); break; }
+  }
+  Q.count(1);
+  reset();
+}
+
+document.getElementById("target"  ).addEventListener('input', pushlvl);
+
+function keylvl(x)
+{
+  let v, i;
+
+  v = document.getElementById("target");
+  for (i = 0; i < v.length; i++)
+  {
+    v[i].checked = (i == x)? true : false;
+  }
+  pushlvl();
+  reset();
+}
+
+//--------------------------------------------------------------------
+// init
+//--------------------------------------------------------------------
+function init()
+{
+  const a =
+  [
+    [  8, 200, 280,  40], // a
+    [298, 200, 280,  40], // b
+    [  8, 250, 280,  40], // c
+    [298, 250, 280,  40], // d
+    [  8, 330, 135,  40], // y
+    [153, 330, 135,  40], // n
+    [298, 330, 135,  40], // y
+    [443, 330, 135,  40], // n
+    [ 99,   0, 190, 190], // 1
+    [283,   0, 190, 190]  // 2
+  ];
+
+  Q.init();
+  Q.setarea(a);
+  Q.setd(0, 0);
+  Q.setd(0, 1);
+  Q.setx(0, 0);
+  Q.setx(0, 1);
+  Q.sety(-20, 0);
+  Q.sety(0, 1);
+  pushinit();
+  reset();
+}
+
+//--------------------------------------------------------------------
+// Input key
+//--------------------------------------------------------------------
+function keyon(key)
+{
+  let d, s, n, x, y;
+
+  // SHIFT16 CTRL17 ALT18
+  if      (Key[ 17]) { s =  5; n = 0; }
+  else if (Key[ 16]) { s =  1; n = 0; }
+  else               { s =  1; n = 1; }
+
+  x = Q.getx(n);
+  y = Q.gety(n);
+  if      (Key[ 38] || key == 38) //↑
+  {
+    d = Q.getd(0);
+    if (s < 5) { y += s; Q.sety(y, n); } else { d += s; Q.setd(d, 0); }
+    return 1;    
+  }
+  else if (Key[ 40] || key == 40) //↓
+  {
+    d = Q.getd(0);
+    if (s < 5) { y -= s; Q.sety(y, n); } else { d -= s; Q.setd(d, 0); }
+    return 1;
+  }
+  else if (Key[ 39] || key == 39) //→
+  {
+    d = Q.getd(1);
+    if (s < 5) { x += s; Q.setx(x, n); } else { d -= s; Q.setd(d, 1); }
+    return 1;
+  } 
+  else if (Key[ 37] || key == 37) //←
+  {
+    d = Q.getd(1);
+    if (s < 5) { x -= s; Q.setx(x, n); } else { d += s; Q.setd(d, 1); }
+    return 1;
+  }
+  return 0;
+}
+
+function inkey(key)
+{
+  switch (key)
+  {
+    case  13: init() ; key = 0; break; // Enter
+    case  32: reset(); key = 0; break; // ' '
+    case  81: B.lineWidth( 0.5); key = 0; break; // 'Q'
+    case  87: B.lineWidth( 2  ); key = 0; break; // 'W'
+    case  90: B.zooming  (-1  ); key = 0; break; // 'Z'
+    case  88: B.zooming  ( 1  ); key = 0; break; // 'X'
+    case  86: B.zooming  ( 0  ); key = 0; break; // 'V'
+    case  53: keylvl(0)  ; key = 0; break; // '5'
+    case  52: keylvl(1)  ; key = 0; break; // '4'
+    case  51: keylvl(2)  ; key = 0; break; // '3'
+    case  50: keylvl(3)  ; key = 0; break; // '2'
+    case  49: keylvl(4)  ; key = 0; break; // '1'
+    case  65: Q.answer(1); key = 0; break; // 'a'
+    case  66: Q.answer(2); key = 0; break; // 'b'
+    case  67: Q.answer(3); key = 0; break; // 'c'
+    case  68: Q.answer(4); key = 0; break; // 'd'
+    case  89: Q.yesno(1) ; key = 0; break; // 'y'
+    case  78: Q.yesno(2) ; key = 0; break; // 'n'
+    default : if (keyon(key))    key = 0;
+  }
+  if (key) return;
+  blur();
+  window.requestAnimationFrame(display);
+}
+document.body.addEventListener('keydown', event =>
+{
+  let key = event.keyCode;
+
+  inkey(key);
+});
+
+//--------------------------------------------------------------------
+// Key status
+//--------------------------------------------------------------------
+let Key = new Array(256);
+for (let i = 0; i < 256; i++) Key[i] = 0;
+window.onkeydown = function(event) { Key[event.keyCode] = 1; }
+window.onkeyup   = function(event) { Key[event.keyCode] = 0; }
+
+//----------------------------------------------------------------------
+// mouse
+//----------------------------------------------------------------------
+function mouseDn(x, y, touch)
+{
+  let x1, y1, d, d1, d2, i;
+
+  if (!(0 <= x && x <= canvas.width )) return 0;
+  if (!(0 <= y && y <= canvas.height)) return 0;
+
+  x1 = B.winX(x);
+  y1 = B.winY(y);
+
+  d1 = -1;
+  for (i = 0; i < Q.area(-1); i++)
+  {
+    d = Q.area(i);
+    if ((d[0] <= x1 && x1 < d[0] + d[2])
+     && (d[1] <= y1 && y1 < d[1] + d[3]))
+    {
+      if      (i < 4) { if (Q.state(-1) == 0) Q.answer(i     + 1); }
+      else if (i < 8) {                       Q.yesno (i - 4 + 1); }
+      else            { d1 = i - 8; break; }
+      blur();
+      window.requestAnimationFrame(display);
+      return 0;
+    }
+  }
+  if (d1 < 0) return 0;
+
+  i   = d1;
+  x1  = x1 - (d[0] + d[2] / 2);
+  y1  = (d[1] + d[3] / 2) - y1;
+  d1  = Math.sqrt(x1*x1+y1*y1);
+  if (d1 < d[2]/3)
+  {
+    d1 = x1 - Q.getx(i);
+    d2 = y1 - Q.gety(i);
+    M.ofsX(d1);
+    M.ofsY(d2);
+    M.ofsZ(i+2);
+  }
+  else
+  {
+    d1  = Math.atan2(y1, x1);
+    d1  = Q.deg(d1);
+    d1 -= Q.getd(i);
+    M.ofsX(d1);
+    M.ofsZ(i );
+  }
+  blur();
+  return 1;
+}
+
+function mouseMv(x, y, touch)
+{
+  let x1, y1, d, d1, d2, i;
+
+  i  = M.ofsZ('');
+  if (i >= 2)
+  {
+    i -= 2;
+    d1 = M.ofsX('');
+    d2 = M.ofsY('');
+    d  = Q.area(i + 8);
+    x1 = B.winX(x);
+    y1 = B.winY(y);
+    x1 = x1 - (d[0] + d[2] / 2);
+    y1 = (d[1] + d[3] / 2) - y1;
+    x1 -= d1;
+    y1 -= d2;
+    d1 = 1;
+    x1 = Math.round(x1 / d1) * d1;
+    y1 = Math.round(y1 / d1) * d1;
+    Q.setx(x1, i);
+    Q.sety(y1, i);
+  }
+  else
+  {
+    d1 = M.ofsX('');
+    d  = Q.area(i + 8);
+    x1 = B.winX(x);
+    y1 = B.winY(y);
+    x1  = x1 - (d[0] + d[2] / 2);
+    y1  = (d[1] + d[3] / 2) - y1;
+
+    d  = Math.atan2(y1, x1);
+    d  = Q.deg(d);
+    d -= d1;
+    d1 = 5;
+    d  = Math.round(d / d1) * d1;
+    Q.setd(d, i);
+  }
+  blur();
+  window.requestAnimationFrame(display);
+}
+
+const M = new MOUSE();
+M.add();
+M.mosDnFunc(mouseDn);
+M.mosMvFunc(mouseMv);
+
+//--------------------------------------------------------------------
+// main
+//--------------------------------------------------------------------
+function main()
+{
+  display();
+}
+init();
+
+//--------------------------------------------------------------------
+</script>
+</body>
+</html>
